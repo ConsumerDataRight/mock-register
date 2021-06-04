@@ -1,0 +1,21 @@
+﻿{
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+            "applicationUrl": "https://localhost:7000",
+            "sslPort": 7000
+        }
+    },
+    "profiles": {
+        "CDR.Register.API.Gateway.TLS": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
+            "applicationUrl": "https://localhost:7000",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

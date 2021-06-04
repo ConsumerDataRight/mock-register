@@ -1,0 +1,40 @@
+{
+  "@odata.context": "https://localhost/raap/api/data/v9.0/$metadata#cdr_cdrregisters(cdr_cdrregisterid,cdr_name,statuscode,cdr_registrationtype,cdr_organisationaltype,cdr_cdr_cdrregister_cdr_authenticationdetail_CDRRegister(createdon,cdr_jwksendpoint,cdr_authenticationtype,statuscode),cdr_cdr_cdrregister_cdr_certificate(cdr_cname,cdr_thumbprint),cdr_cdr_cdrregister_cdr_participantproduct_RegisterRef(cdr_participantproductid,cdr_name))/$entity",
+  "@odata.etag": "W/\"2659903\"",
+  "cdr_cdrregisterid": "1c4e192c-ae59-ea11-a829-000d3a95c2c8",
+  "cdr_name": "CTS FINTECH Brand :  001208",
+  "statuscode@OData.Community.Display.V1.FormattedValue": "Active",
+  "statuscode": 1,
+  "cdr_registrationtype@OData.Community.Display.V1.FormattedValue": "Data Recipient",
+  "cdr_registrationtype": 754310000,
+  "cdr_organisationaltype@OData.Community.Display.V1.FormattedValue": "Business Name",
+  "cdr_organisationaltype": 754310001,
+  "cdr_cdr_cdrregister_cdr_authenticationdetail_CDRRegister": [
+    {
+      "@odata.etag": "W/\"2347701\"",
+      "createdon@OData.Community.Display.V1.FormattedValue": "28/02/2020 9:12 AM",
+      "createdon": "2020-02-27T22:12:00Z",
+      "cdr_jwksendpoint": "https://localhost/cdr-register/v1/jwks",
+      "cdr_authenticationtype@OData.Community.Display.V1.FormattedValue": "SIGNED-JWT",
+      "cdr_authenticationtype": 754310000,
+      "statuscode@OData.Community.Display.V1.FormattedValue": "Active",
+      "statuscode": 1,
+      "cdr_authenticationdetailid": "344e192c-ae59-ea11-a829-000d3a95c2c8"
+    }
+  ],
+  "cdr_cdr_cdrregister_cdr_certificate": [
+    {
+      "@odata.etag": "W/\"1824335\"",
+      "cdr_cname": "brand-cert-common-name",
+      "cdr_thumbprint": "87af1214f736051a9e14baf0f205862691cce164",
+      "cdr_certificateid": "2b4e192c-ae59-ea11-a829-000d3a95c2c8"
+    }
+  ],
+  "cdr_cdr_cdrregister_cdr_participantproduct_RegisterRef": [
+    {
+      "@odata.etag": "W/\"2659906\"",
+      "cdr_participantproductid": "ce661299-af59-ea11-a829-000d3a95c2c8",
+      "cdr_name": "CTS Test APP"
+    }
+  ]
+}

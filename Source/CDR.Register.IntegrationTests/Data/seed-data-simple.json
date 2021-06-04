@@ -1,0 +1,102 @@
+{
+    "LegalEntities": [
+        {
+            "LegalEntityId": "18b75a76-5821-4c9e-b465-4709291cf0f4",
+            "LegalEntityName": "AAA - Mock Software Company",
+            "LogoUri": "https://mocksoftware/img/logo.png",
+            "RegistrationNumber": null,
+            "RegistrationDate": null,
+            "RegisteredCountry": null,
+            "Abn": "11222333444",
+            "Acn": "222333444",
+            "Arbn": null,
+            "IndustryCode": null,
+            "OrganisationType": null,
+            "AccreditationNumber": "ADRBNK000099",
+            "Participations": [
+                {
+                    "ParticipationTypeId": 2,
+                    "IndustryId": 1,
+                    "StatusId": 1,
+                    "Brands": [
+                        {
+                            "BrandId": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+                            "BrandName": "Mock Finance Tools",
+                            "LogoUri": "https://mocksoftware/img/logo.png",
+                            "BrandStatusId": 1, // Map internally
+                            "LastUpdated": "2021-04-06T11:58:00",
+                            "SoftwareProducts": [
+                                {
+                                    "SoftwareProductId": "c6327f87-687a-4369-99a4-eaacd3bb8210", // Optional - SoftwareProductName is unique within a Brand
+                                    "SoftwareProductName": "MyBudgetHelper",
+                                    "SoftwareProductDescription": "A product to help you manage your budget",
+                                    "LogoUri": "https://mocksoftware/mybudgetapp/img/logo.png",
+                                    "SectorIdentifierUri": null,
+                                    "ClientUri": "https://mocksoftware/mybudgetapp",
+                                    "TosUri": "https://mocksoftware/mybudgetapp/terms",
+                                    "PolicyUri": "https://mocksoftware/mybudgetapp/policy",
+                                    "RecipientBaseUri": "https://api.mocksoftware/mybudgetapp",
+                                    "RevocationUri": "https://api.mocksoftware/mybudgetapp/revoke",
+                                    "RedirectUris": "https://api.mocksoftware/mybudgetapp/callback https://api.mocksoftware/mybudgetapp/return",
+                                    "JwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                                    "Scope": "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration",
+                                    "StatusId": 1,
+                                    "Certificates": [
+                                        {
+                                            "CommonName": "MockDataRecipient",
+                                            "Thumbprint": "58D76F7A61CD726DA1C54F6898E8E69EA4C88060"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "LegalEntityId": "93ef5f28-7f30-43f2-8e5c-b1e3cb39ce90",
+            "LegalEntityName": "BBB New Bank",
+            "LogoUri": "https://newbank/logo.png",
+            "RegistrationNumber": null,
+            "RegistrationDate": null,
+            "RegisteredCountry": null,
+            "Abn": "99888777666",
+            "Acn": "888777666",
+            "Arbn": null,
+            "IndustryCode": null,
+            "OrganisationType": null,
+            "AccreditationNumber": null,
+            "Participations": [
+                {
+                    "ParticipationTypeId": 1,
+                    "IndustryId": 1,
+                    "StatusId": 1,
+                    "Brands": [
+                        {
+                            "BrandId": "6e9cfaf7-ecae-4de3-bbc5-ea9f366bdf55",
+                            "BrandName": "New Bank",
+                            "LogoUri": "https://newbank/img/logo.png",
+                            "BrandStatusId": 1,
+                            "LastUpdated": "2021-04-06T11:58:00",
+                            "AuthDetails": [
+                                {
+                                    "RegisterUTypeId": 1,
+                                    "JwksEndpoint": "https://idp.newbank/jwks"
+                                }
+                            ],
+                            "Endpoint": {
+                                "Version": "1",
+                                "PublicBaseUri": "https://publicapi.newbank",
+                                "ResourceBaseUri": "https://api.newbank",
+                                "InfoSecBaseUri": "https://idp.newbank",
+                                "ExtensionBaseUri": "",
+                                "WebsiteUri": "https://newbank/"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

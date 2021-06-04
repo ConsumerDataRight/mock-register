@@ -1,0 +1,20 @@
+{
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+            "applicationUrl": "https://localhost:7003/",
+            "sslPort": 7003
+        }
+    },
+    "profiles": {
+        "CDR.Register.Discovery.API": {
+            "commandName": "Project",
+            "launchBrowser": false,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "applicationUrl": "https://localhost:7003"
+        }
+    }
+}

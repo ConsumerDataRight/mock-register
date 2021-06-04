@@ -1,0 +1,53 @@
+{
+    "Routes": [
+
+        // Get Token
+        {
+            "DownstreamPathTemplate": "/connect/token",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7002
+                }
+            ],
+            "UpstreamPathTemplate": "/idp/connect/token",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DangerousAcceptAnyServerCertificateValidator":  true
+        },
+
+        // GetDataHolderBrands
+        {
+            "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/brands",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7003
+                }
+            ],
+            "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/brands",
+            "UpstreamHttpMethod": [ "Get" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        },
+
+        // GetSSA
+        {
+            "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7005
+                }
+            ],
+            "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
+            "UpstreamHttpMethod": [ "Get" ],
+            "DangerousAcceptAnyServerCertificateValidator": true
+        }
+
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "https://localhost:7001"
+    }
+}

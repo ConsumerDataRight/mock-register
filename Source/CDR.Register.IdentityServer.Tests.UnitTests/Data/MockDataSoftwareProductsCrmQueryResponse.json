@@ -1,0 +1,40 @@
+{
+  "@odata.context": "https://internalstaff.dev.cdr.gov.au/raap/api/data/v9.0/$metadata#cdr_participantproducts(cdr_participantproductid,cdr_name,cdr_cdr_participantproduct_cdr_certificate_ProductRef(cdr_cname,cdr_thumbprint),cdr_cdr_participantproduct_cdr_authenticationdetail_DRSoftwareProduct(createdon,cdr_name,cdr_jwksendpoint,cdr_authenticationtype,statuscode),cdr_provider(statuscode),cdr_RegisterRef(statuscode,cdr_organisationaltype,cdr_registrationtype))/$entity",
+  "@odata.etag": "W/\"2769642\"",
+  "cdr_participantproductid": "d801462a-d002-eb11-a830-000d3a95c2c8",
+  "cdr_name": "Principal Product in Collections Arrangement",
+  "statuscode":  1,
+  "cdr_cdr_participantproduct_cdr_certificate_ProductRef": [
+    {
+      "@odata.etag": "W/\"2769499\"",
+      "cdr_cname": "MAXCACERT",
+      "cdr_thumbprint": "TESTTHUMB",
+      "cdr_certificateid": "945bba30-a403-eb11-a830-000d3a95c2c8"
+    }
+  ],
+  "cdr_cdr_participantproduct_cdr_authenticationdetail_DRSoftwareProduct": [
+    {
+      "@odata.etag": "W/\"2769220\"",
+      "createdon": "2020-09-30T03:51:06Z",
+      "cdr_name": "001848 - DRSP001433 - Software Product Authentication  ",
+      "cdr_jwksendpoint": "https://api.dev.cdr.gov.au/cdr-register/v1/jwks",
+      "cdr_authenticationtype": 754310000,
+      "statuscode": 1,
+      "cdr_authenticationdetailid": "db01462a-d002-eb11-a830-000d3a95c2c8"
+    }
+  ],
+  "cdr_provider": {
+    "@odata.etag": "W/\"2769368\"",
+    "statuscode": 1,
+    "cdr_cdrregisterid": "084c57d1-cf02-eb11-a830-000d3a95c2c8",
+    "cdr_organisationaltype": 754310001,
+    "cdr_registrationtype": 754310000
+  },
+  "cdr_RegisterRef": {
+    "@odata.etag": "W/\"2764929\"",
+    "statuscode": 1,
+    "cdr_organisationaltype": 754310001,
+    "cdr_registrationtype": 754310000,
+    "cdr_cdrregisterid": "70abdf9e-ce02-eb11-a830-000d3a95c2c8"
+  }
+}
