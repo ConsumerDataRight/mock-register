@@ -17,7 +17,7 @@ The Mock Register aligns to [v1.5.0](https://cdr-register.github.io/register/inc
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:
 1. Build and deploy the source code
-2. Use the pre-built container
+2. Use the pre-built image
 
 ### Build and deploy the source code
 
@@ -28,13 +28,13 @@ git clone https://github.com/ConsumerDataRight/mock-register.git
 
 If you would like to contribute features or fixes back to the Mock Register repository, consult the [contributing guidelines](CONTRIBUTING.md).
 
-### Use the pre-built container
+### Use the pre-built image
 
-A version of the Mock Register is built into a single Docker container that is made available via [docker hub](https://hub.docker.com/r/consumerdataright/mock-register).
+A version of the Mock Register is built into a single Docker image that is made available via [docker hub](https://hub.docker.com/r/consumerdataright/mock-register).
 
-The container can simply be run by pulling and running the latest container using the following Docker commands:
+The container can simply be run by pulling and running the latest image using the following Docker commands:
 
-#### Pull the latest container
+#### Pull the latest image
 
 ```
 docker pull consumerdataright/mock-register
