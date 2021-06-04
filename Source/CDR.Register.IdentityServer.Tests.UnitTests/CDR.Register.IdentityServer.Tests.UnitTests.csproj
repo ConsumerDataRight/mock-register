@@ -37,21 +37,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CDR.Register.IdentityServer\CDR.Register.IdentityServer.csproj" />
-    <!--<ProjectReference Include="..\CDR.Register.IdentityServer.Tests.UnitTests.csproj" />-->
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Certificates\dev-cts-dr-signing.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\MockDataRecipientsCrmQueryResponse.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\MockDataSoftwareProductsInactiveProviderCrmQueryResponse.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\MockDataSoftwareProductsCrmQueryResponse.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
