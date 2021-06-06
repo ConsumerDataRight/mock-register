@@ -15,7 +15,7 @@ If you see an opportunity for improvement or identify an issue that can be fixed
 6. A member of the **Mock Register** team will review your change and approve or comment on it in due course.
 7. Approved changes are merged to the `develop` branch.
 8. A new container will be built and pushed to [Docker Hub](https://hub.docker.com/r/consumerdataright/mock-register).
-9. At certain points the `develop` branch will be merged to `master` and a new container will be pushed to Docker Hub.
+9. At certain points the `develop` branch will be merged to `main` and a new container will be pushed to Docker Hub.
 
 ### Notes:
 - We use a typical git workflow. Feature branches should start `feature/` and `hotfix/`.  
