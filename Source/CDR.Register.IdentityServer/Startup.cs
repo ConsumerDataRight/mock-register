@@ -41,6 +41,5 @@ namespace CDR.Register.IdentityServer
             app.UseEndpoints(endpoints => {
             });
         }
-
     }
 }

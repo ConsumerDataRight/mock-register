@@ -8,5 +8,4 @@ namespace CDR.Register.Domain.Repositories
     {
         Task<SoftwareStatementAssertion> GetSoftwareStatementAssertionAsync(Guid dataRecipientBrandId, Guid softwareProductId);
     }
-
 }
