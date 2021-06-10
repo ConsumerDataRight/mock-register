@@ -28,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             }
 
             //
-            //  Check that the thumprint of the client cert used for TLS MA is the same
+            //  Check that the thumbprint of the client cert used for TLS MA is the same
             //  as the one expected by the cnf:x5t#S256 claim in the access token 
             //
             string requestHeaderClientCertThumprint = null;
