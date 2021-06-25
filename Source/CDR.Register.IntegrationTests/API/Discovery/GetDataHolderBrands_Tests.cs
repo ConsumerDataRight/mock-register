@@ -75,12 +75,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 {
                     dataHolderBrandId = brand.BrandId,
                     brandName = brand.BrandName,
+                    industry = brand.DataHolder.Industry,
                     logoUri = brand.LogoUri,
                     legalEntity = new
                     {
                         legalEntityId = brand.Participation.LegalEntity.LegalEntityId,
                         legalEntityName = brand.Participation.LegalEntity.LegalEntityName,
-                        industry = brand.DataHolder.Industry,
                         logoUri = brand.Participation.LegalEntity.LogoUri,
                         registrationNumber = brand.Participation.LegalEntity.RegistrationNumber,
                         registrationDate = brand.Participation.LegalEntity.RegistrationDate,
