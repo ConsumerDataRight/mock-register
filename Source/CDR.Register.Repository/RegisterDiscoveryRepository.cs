@@ -30,6 +30,7 @@ namespace CDR.Register.Repository
                 .Include(brand => brand.AuthDetails)
                 .ThenInclude(authDetail => authDetail.RegisterUType)
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
+                .Include(brand => brand.Participation.Industry)
                 .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh);
 
             // Add the updated since filter

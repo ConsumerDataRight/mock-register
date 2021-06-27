@@ -63,6 +63,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .Include(brand => brand.AuthDetails)
                 .ThenInclude(authDetail => authDetail.RegisterUType)
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
+                .Include(brand => brand.Participation.Industry)
                 .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh)
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
 
@@ -74,6 +75,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 {
                     dataHolderBrandId = brand.BrandId,
                     brandName = brand.BrandName,
+                    industry = brand.Participation.Industry.IndustryTypeCode,
                     logoUri = brand.LogoUri,
                     legalEntity = new
                     {
