@@ -15,7 +15,7 @@ namespace CDR.Register.IdentityServer
                             .AddCommandLine(args)
                             .SetBasePath(Directory.GetCurrentDirectory())
                             .AddJsonFile("appsettings.json")
-                            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? configurationCommandLine.GetValue<string>("environment")}.json", true)
+                            .AddJsonFile($"appsettings.{configurationCommandLine.GetValue<string>("environment") ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
                             .Build();
 
             return configuration;
