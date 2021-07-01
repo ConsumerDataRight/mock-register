@@ -13,10 +13,7 @@ namespace CDR.Register.SSA.API
         public static int Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
-                .Build();
+                            .BuildRegisterConfiguration(args);
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
