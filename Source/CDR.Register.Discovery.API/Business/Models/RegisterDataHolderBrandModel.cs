@@ -6,6 +6,7 @@ namespace CDR.Register.Discovery.API.Business.Models
     {
         public string DataHolderBrandId { get; set; }
         public string BrandName { get; set; }
+        public string Industry { get; set; }
         public string LogoUri { get; set; }
         public LegalEntityModel LegalEntity { get; set; }
         public string Status { get; set; }

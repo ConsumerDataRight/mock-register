@@ -9,12 +9,28 @@
   },
   "profiles": {
     "CDR.Register.SSA.API": {
-      "commandName": "Project",
-      "launchBrowser": false,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:7005"
+        "commandName": "Project",
+        "launchBrowser": false,
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "applicationUrl": "https://localhost:7005"
+    },
+    "CDR.Register.SSA.API.Production": {
+        "commandName": "Project",
+        "launchBrowser": false,
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Production"
+        },
+        "applicationUrl": "https://localhost:7005"
+    },
+    "CDR.Register.SSA.API.Pipeline": {
+        "commandName": "Project",
+        "launchBrowser": false,
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Pipeline"
+        },
+        "applicationUrl": "https://localhost:7005"
     }
   }
 }

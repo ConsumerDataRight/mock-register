@@ -7,14 +7,27 @@
       "sslPort": 7002
     }
   },
-  "profiles": {
-    "CDR.Register.IdentityServer": {
-      "commandName": "Project",
-      "commandLineArgs": "--environment=Development",
-        "environmentVariables": {
-            "ASPNETCORE_ENVIRONMENT": "Development"
+    "profiles": {
+        "CDR.Register.IdentityServer": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "applicationUrl": "https://localhost:7002"
         },
-      "applicationUrl": "https://localhost:7002"
+        "CDR.Register.IdentityServer.Production": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            },
+            "applicationUrl": "https://localhost:7002"
+        },
+        "CDR.Register.IdentityServer.Pipeline": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Pipeline"
+            },
+            "applicationUrl": "https://localhost:7002"
+        }
     }
-  }
 }

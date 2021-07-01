@@ -23,6 +23,7 @@ namespace CDR.Register.Discovery.API.Business
 
             CreateMap<DataHolderBrand, RegisterDataHolderBrandModel>()
                 .ForMember(dest => dest.DataHolderBrandId, source => source.MapFrom(source => source.BrandId))
+                .ForMember(dest => dest.Industry, source => source.MapFrom(source => source.DataHolder.Industry))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.BrandStatus))
                 .ForMember(dest => dest.AuthDetails, source => source.MapFrom(source => source.DataHolderAuthentications))
                 .ForMember(dest => dest.EndPointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
