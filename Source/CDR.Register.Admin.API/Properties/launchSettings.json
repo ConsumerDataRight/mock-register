@@ -17,6 +17,24 @@
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
+        },
+        "CDR.Register.Admin.API.Production": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
+            "applicationUrl": "https://localhost:7006",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            }
+        },
+        "CDR.Register.Admin.API.Pipeline": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
+            "applicationUrl": "https://localhost:7006",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Pipeline"
+            }
         }
     }
 }
