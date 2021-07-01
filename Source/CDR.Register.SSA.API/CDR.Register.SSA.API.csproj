@@ -37,6 +37,9 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Update="appsettings.Pipeline.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="appsettings.Production.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -39,6 +39,11 @@ namespace CDR.Register.Discovery.API
         public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
+                .ConfigureAppConfiguration(builder =>
+                {
+                    builder.AddConfiguration(configuration);
+                    builder.AddEnvironmentVariables();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseRegister(configuration);

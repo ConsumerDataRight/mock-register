@@ -26,7 +26,7 @@ namespace CDR.Register.API.Gateway.mTLS
             try
             {
                 Log.Information("Starting web host");
-                CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args, configuration).Build().Run();
                 return 0;
             }
             catch (Exception ex)
@@ -40,15 +40,13 @@ namespace CDR.Register.API.Gateway.mTLS
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration) =>
             Host
                 .CreateDefaultBuilder(args)
                 .UseSerilog()
                 .ConfigureAppConfiguration(builder =>
                 {
-                    builder.AddJsonFile("appsettings.json");
-                    builder.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true);
-                    builder.AddJsonFile("gateway-config.json", false, true);
+                    builder.AddConfiguration(configuration);
                     builder.AddEnvironmentVariables();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>

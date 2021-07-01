@@ -39,4 +39,10 @@
 		<ProjectReference Include="..\CDR.Register.API.Infrastructure\CDR.Register.API.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="appsettings.Pipeline.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>

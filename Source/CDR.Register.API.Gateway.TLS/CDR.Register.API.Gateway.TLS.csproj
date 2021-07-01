@@ -23,4 +23,10 @@
 		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="appsettings.Pipeline.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>
