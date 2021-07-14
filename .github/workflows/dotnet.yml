@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/pipeline-int-tests ]
     paths-ignore:
     # Any update here needs to be done for
     # - `pull_request` see below
