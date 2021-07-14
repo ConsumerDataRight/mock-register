@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/pipeline-int-tests ]
     paths-ignore:
     # Any update here needs to be done for
     # - `pull_request` see below
@@ -134,6 +134,6 @@ jobs:
         
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\Source\CDR.Register.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="Pipeline") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\win-x64\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.pipeline.runsettings
+        ($env:ASPNETCORE_ENVIRONMENT="Pipeline") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.pipeline.runsettings
 
       shell: powershell
