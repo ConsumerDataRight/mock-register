@@ -53,19 +53,8 @@ jobs:
         dotnet test ${{ github.workspace }}\Source\CDR.Register.IdentityServer.Tests.UnitTests\bin\Release\net5.0\CDR.Register.IdentityServer.Tests.UnitTests.dll
         dotnet test ${{ github.workspace }}\Source\CDR.Register.SSA.API.UnitTests\bin\Release\net5.0\CDR.Register.SSA.API.UnitTests.dll
       
-#    - name: Publish
-#      run: |
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.API.Gateway.TLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.API.Gateway.mTLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Admin.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Discovery.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.IdentityServer --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.SSA.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Status.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-      
     - name: Install root certificate
       run: |
-        # Write your PowerShell commands here.
         $PlainPassword = "#M0ckCDRCA#" 
         $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
         Import-PfxCertificate -Password $SecurePassword -FilePath "CertificateManagement/mtls/ca.pfx" -CertStoreLocation Cert:\LocalMachine\Root
@@ -102,15 +91,12 @@ jobs:
         
         cd ${{ github.workspace }}
         
-        Write-Host "Sleeping for 30 seconds..."
+        Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
         Start-Sleep -s 30
         
         Write-Host "Listing contents of d:\a\mock-register\mock-register\cdr directory..."
         cd d:\a\mock-register\mock-register\cdr
         dir
-        
-        #$log = Get-Content "d:\\a\\mock-register\\mock-register\\cdr\\Logs\\cdr-mr-admin-api.log" -Raw
-        #Write-Host $log
         
         Write-Host "Basic connectivity testing..."
         [System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True }
