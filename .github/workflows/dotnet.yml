@@ -53,16 +53,6 @@ jobs:
         dotnet test ${{ github.workspace }}\Source\CDR.Register.IdentityServer.Tests.UnitTests\bin\Release\net5.0\CDR.Register.IdentityServer.Tests.UnitTests.dll
         dotnet test ${{ github.workspace }}\Source\CDR.Register.SSA.API.UnitTests\bin\Release\net5.0\CDR.Register.SSA.API.UnitTests.dll
       
-#    - name: Publish
-#      run: |
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.API.Gateway.TLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.API.Gateway.mTLS --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Admin.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Discovery.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.IdentityServer --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.SSA.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-#        dotnet publish ${{ github.workspace }}\Source\CDR.Register.Status.API --configuration ${{ env.buildConfiguration }} --runtime ${{ env.buildRuntime }} --no-restore --self-contained true 
-      
     - name: Install root certificate
       run: |
         # Write your PowerShell commands here.
@@ -148,6 +138,6 @@ jobs:
         
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\Source\CDR.Register.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="Pipeline") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\win-x64\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.pipeline.runsettings
+        ($env:ASPNETCORE_ENVIRONMENT="Pipeline") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.pipeline.runsettings
 
       shell: powershell
