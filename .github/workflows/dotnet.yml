@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/pipeline-int-tests ]
     paths-ignore:
     # Any update here needs to be done for
     # - `pull_request` see below
@@ -65,7 +65,7 @@ jobs:
         echo ${{ github.workspace }}
         
         Write-Host "Creating the temporary CDR directory which holds the logs and database file..."
-        New-Item -ItemType Directory -Path d:\a\mock-register\mock-register\cdr -Force
+        New-Item -ItemType Directory -Path ${{ github.workspace }}\cdr -Force
         
         Write-Host "Running the solutions..."
         cd ${{ github.workspace }}\Source\CDR.Register.API.Gateway.TLS
@@ -89,13 +89,11 @@ jobs:
         cd ${{ github.workspace }}\Source\CDR.Register.IdentityServer
         Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.Pipeline"
         
-        cd ${{ github.workspace }}
-        
         Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
         Start-Sleep -s 30
         
-        Write-Host "Listing contents of d:\a\mock-register\mock-register\cdr directory..."
-        cd d:\a\mock-register\mock-register\cdr
+        Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
+        cd ${{ github.workspace }}\cdr
         dir
         
         Write-Host "Basic connectivity testing..."
@@ -111,10 +109,10 @@ jobs:
         catch
         {
           Write-Host "Web request failed"
-          $log = Get-Content "d:\\a\\mock-register\\mock-register\\cdr\\Logs\\cdr-mr-tls-gateway.log" -Raw
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-tls-gateway.log" -Raw
           Write-Host $log
           
-          $log = Get-Content "d:\\a\\mock-register\\mock-register\\cdr\\Logs\\cdr-mr-identityserver.log" -Raw
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-identityserver.log" -Raw
           Write-Host $log
         }
         
@@ -128,7 +126,7 @@ jobs:
         catch
         {
           Write-Host "Web request failed"
-          $log = Get-Content "d:\\a\\mock-register\\mock-register\\cdr\\Logs\\cdr-mr-tls-gateway.log"
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-tls-gateway.log"
           Write-Host $log
         }
         
