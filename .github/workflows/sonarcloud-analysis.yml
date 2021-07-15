@@ -29,7 +29,7 @@ jobs:
   analyze:
     name: SonarCloud
     runs-on: windows-latest
-    if: ${{ secrets.SONAR_TOKEN != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
+    if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
     
     steps:
       - name: Set up JDK 11
