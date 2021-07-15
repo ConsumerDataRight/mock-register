@@ -69,25 +69,25 @@ jobs:
         
         Write-Host "Running the solutions..."
         cd ${{ github.workspace }}\Source\CDR.Register.API.Gateway.TLS
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.API.Gateway.mTLS
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.Admin.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.Discovery.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.SSA.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.Status.API
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.${{ env.runEnvironment }}"
         
         cd ${{ github.workspace }}\Source\CDR.Register.IdentityServer
-        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.Pipeline"
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
         
         Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
         Start-Sleep -s 30
@@ -132,6 +132,6 @@ jobs:
         
         Write-Host "Running the integration tests..."
         cd ${{ github.workspace }}\Source\CDR.Register.IntegrationTests
-        ($env:ASPNETCORE_ENVIRONMENT="Pipeline") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.pipeline.runsettings
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.${{ env.runEnvironment }}.runsettings
 
       shell: powershell
