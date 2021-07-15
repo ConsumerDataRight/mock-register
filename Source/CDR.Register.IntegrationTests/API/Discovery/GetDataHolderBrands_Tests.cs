@@ -11,6 +11,7 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Xunit;
+using Microsoft.Extensions.Configuration;
 
 #nullable enable
 
@@ -22,11 +23,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     public class GetDataHolderBrands_Tests : BaseTest
     {
         // Participation/Brand/SoftwareProduct Ids
-        static private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
-        private static string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize)
+        private string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize)
         {
             static string Link(string baseUrl, DateTime? updatedSince, int? page = null, int? pageSize = null)
             {
@@ -55,7 +56,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             var page = requestedPage ?? 1;
             var pageSize = requestedPageSize ?? 25;
 
-            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(SQLITECONNECTIONSTRING).Options);
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(Configuration.GetConnectionString("DefaultConnection")).Options);
 
             var allData = dbContext.Brands.AsNoTracking()
                 .Include(brand => brand.Endpoint)
@@ -146,7 +147,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 });
         }
 
-        private static async Task Get_WithAccessToken_Tests(DateTime? updatedSince, int? queryPage, int? queryPageSize)
+        private async Task Get_WithAccessToken_Tests(DateTime? updatedSince, int? queryPage, int? queryPageSize)
         {
             static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
             {
