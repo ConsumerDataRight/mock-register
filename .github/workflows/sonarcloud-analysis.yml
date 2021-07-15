@@ -26,7 +26,7 @@ jobs:
   analyze:
     name: SonarCloud
     runs-on: windows-latest
-    if: ${{ github.repository_owner == 'ConsumerDataRight' }} # Only run scan on CDR org - requires secrets to run successfully
+    if: ${{ secrets.SONAR_TOKEN }} # Only run scan if secret use is allowed - requires secrets to run successfully
     
     steps:
       - name: Set up JDK 11
