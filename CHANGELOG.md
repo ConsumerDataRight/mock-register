@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-07-15
+
 ### Added
 - Added an `appsettings.Pipeline.json` file to each project to set configuration that can be used in a DevOps build pipeline.
 - Added `.github\workflows\dotnet.yml` file to build and test the source code on check in and PR to `develop` and `main`.
