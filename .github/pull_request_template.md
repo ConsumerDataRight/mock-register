@@ -6,6 +6,7 @@
 - [ ] All new and existing tests passed.
 - [ ] I have checked that there aren't any other open **Pull Requests** from the same change.
 - [ ] The `develop` branch has been set as the `base` branch to merge changes of the pull request.
+- [ ] I have updated the `CHANGELOG.md` file as appropriate.
 
 **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
 

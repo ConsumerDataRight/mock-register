@@ -1,0 +1,137 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+    # Any update here needs to be done for
+    # - `pull_request` see below
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+    # Any update here needs to be done for
+    # - `push`see before
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
+    
+env:
+  buildConfiguration: 'Release'
+  buildRuntime: 'win-x64'
+  runEnvironment: 'Pipeline'
+  
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore ${{ github.workspace }}\Source\Register.sln
+      
+    - name: Build
+      run: dotnet build ${{ github.workspace }}\Source\Register.sln --configuration ${{ env.buildConfiguration }}
+      
+    - name: Unit Tests
+      run: |
+        dotnet test ${{ github.workspace }}\Source\CDR.Register.API.Infrastructure.Tests.UnitTests\bin\Release\net5.0\CDR.Register.API.Infrastructure.Tests.UnitTests.dll
+        dotnet test ${{ github.workspace }}\Source\CDR.Register.Domain.UnitTests\bin\Release\net5.0\CDR.Register.Domain.UnitTests.dll
+        dotnet test ${{ github.workspace }}\Source\CDR.Register.IdentityServer.Tests.UnitTests\bin\Release\net5.0\CDR.Register.IdentityServer.Tests.UnitTests.dll
+        dotnet test ${{ github.workspace }}\Source\CDR.Register.SSA.API.UnitTests\bin\Release\net5.0\CDR.Register.SSA.API.UnitTests.dll
+      
+    - name: Install root certificate
+      run: |
+        $PlainPassword = "#M0ckCDRCA#" 
+        $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
+        Import-PfxCertificate -Password $SecurePassword -FilePath "CertificateManagement/mtls/ca.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+      shell: powershell
+      
+    - name: Integration Tests
+      run: |
+        echo ${{ github.workspace }}
+        
+        Write-Host "Creating the temporary CDR directory which holds the logs and database file..."
+        New-Item -ItemType Directory -Path ${{ github.workspace }}\cdr -Force
+        
+        Write-Host "Running the solutions..."
+        cd ${{ github.workspace }}\Source\CDR.Register.API.Gateway.TLS
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.TLS.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.API.Gateway.mTLS
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.API.Gateway.mTLS.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.Admin.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Admin.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.Discovery.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Discovery.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.SSA.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.SSA.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.Status.API
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.Status.API.${{ env.runEnvironment }}"
+        
+        cd ${{ github.workspace }}\Source\CDR.Register.IdentityServer
+        Start-Process dotnet -ArgumentList "run -v m -c ${{ env.buildConfiguration }} --launch-profile CDR.Register.IdentityServer.${{ env.runEnvironment }}"
+        
+        Write-Host "Sleeping for 30 seconds to allow solutions to startup..."
+        Start-Sleep -s 30
+        
+        Write-Host "Listing contents of ${{ github.workspace }}\cdr directory..."
+        cd ${{ github.workspace }}\cdr
+        dir
+        
+        Write-Host "Basic connectivity testing..."
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True }
+        
+        try
+        {
+          Write-Host "Testing https://localhost:7000/idp/.well-known/openid-configuration..."
+          $apiReq = [System.Net.HttpWebRequest]::CreateHttp("https://localhost:7000/idp/.well-known/openid-configuration")
+          $apiRes = $apiReq.GetResponse()
+          Write-Host $apiRes.StatusCode
+        }
+        catch
+        {
+          Write-Host "Web request failed"
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-tls-gateway.log" -Raw
+          Write-Host $log
+          
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-identityserver.log" -Raw
+          Write-Host $log
+        }
+        
+        try
+        {
+          Write-Host "Testing https://localhost:7000/cdr-register/v1/banking/data-recipients..."
+          $apiReq = [System.Net.HttpWebRequest]::CreateHttp("https://localhost:7000/cdr-register/v1/banking/data-recipients")
+          $apiRes = $apiReq.GetResponse()
+          Write-Host $apiRes.StatusCode
+        }
+        catch
+        {
+          Write-Host "Web request failed"
+          $log = Get-Content "${{ github.workspace }}\cdr\Logs\cdr-mr-tls-gateway.log"
+          Write-Host $log
+        }
+        
+        Write-Host "Running the integration tests..."
+        cd ${{ github.workspace }}\Source\CDR.Register.IntegrationTests
+        ($env:ASPNETCORE_ENVIRONMENT="${{ env.runEnvironment }}") | dotnet test ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\bin\Release\net5.0\CDR.Register.IntegrationTests.dll --settings ${{ github.workspace }}\Source\CDR.Register.IntegrationTests\integration.${{ env.runEnvironment }}.runsettings
+
+      shell: powershell

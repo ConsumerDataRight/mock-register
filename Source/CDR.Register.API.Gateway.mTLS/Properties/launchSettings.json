@@ -16,6 +16,24 @@
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
+        },
+        "CDR.Register.API.Gateway.mTLS.Production": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
+            "applicationUrl": "https://localhost:7001",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            }
+        },
+        "CDR.Register.API.Gateway.mTLS.Pipeline": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
+            "applicationUrl": "https://localhost:7001",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Pipeline"
+            }
         }
     }
 }

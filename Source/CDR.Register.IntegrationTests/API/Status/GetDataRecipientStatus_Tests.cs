@@ -10,7 +10,7 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Xunit;
-
+using Microsoft.Extensions.Configuration;
 #nullable enable
 
 namespace CDR.Register.IntegrationTests.API.Status
@@ -20,9 +20,9 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>
     public class GetDataRecipientStatus_Tests : BaseTest
     {
-        static private string GetExpectedDataRecipientsStatus()
+        private string GetExpectedDataRecipientsStatus()
         {
-            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(SQLITECONNECTIONSTRING).Options);
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(Configuration.GetConnectionString("DefaultConnection")).Options);
 
             var expectedDataRecipientsStatus = new
             {

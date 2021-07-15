@@ -9,6 +9,7 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Xunit;
+using Microsoft.Extensions.Configuration;
 
 #nullable enable
 
@@ -19,9 +20,9 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>   
     public class GetSoftwareProductStatus_Tests : BaseTest
     {
-        static private string GetExpectedSoftwareProductStatus()
+        private string GetExpectedSoftwareProductStatus()
         {
-            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(SQLITECONNECTIONSTRING).Options);
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlite(Configuration.GetConnectionString("DefaultConnection")).Options);
 
             var expectedSoftwareProductsStatus = new
             {

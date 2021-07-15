@@ -11,7 +11,7 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
-
+using Microsoft.Extensions.Configuration;
 #nullable enable
 
 namespace CDR.Register.IntegrationTests.API.SSA
@@ -22,7 +22,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
     public class GetSoftwareStatementAssertion_Tests : BaseTest
     {
         // Participation/Brand/SoftwareProduct Ids
-        static private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
@@ -128,11 +128,11 @@ namespace CDR.Register.IntegrationTests.API.SSA
             }
         }
 
-        public static async Task Test_AC01_AC02_AC03(int? XV, int expectedXV)
+        public async Task Test_AC01_AC02_AC03(int? XV, int expectedXV)
         {
             // Arrange - Get SoftwareProduct
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>()
-                .UseSqlite(SQLITECONNECTIONSTRING)
+                .UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
                 .Options);
             var softwareProduct = dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
