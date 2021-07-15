@@ -50,7 +50,6 @@ jobs:
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{major}}
-          type=sha
     
     - name: Setup Docker QEMU
       uses: docker/setup-qemu-action@v1
@@ -76,11 +75,3 @@ jobs:
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
-    
-    - name: Inspect image
-      if: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
-      run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}
-        
-    - name: Check manifest
-      if: ${{ github.repository_owner == 'ConsumerDataRight' && github.event_name != 'pull_request' }}
-      run: docker buildx imagetools inspect ${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}
