@@ -38,7 +38,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
         // Participation/Brand/SoftwareProduct Ids
         // private const string PARTICIPATIONID = "CDF81DC4-1282-405F-BAFC-C340B788D52A";
-        static private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
