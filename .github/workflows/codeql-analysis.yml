@@ -14,9 +14,25 @@ name: "CodeQL"
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      # Any update here needs to be done for
+      # - `pull_request` see below
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main, develop ]
+    paths-ignore:
+    # Any update here needs to be done for
+    # - `push`see before
+      - '*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/stale.yml'
+      - 'LICENSE'
   schedule:
     - cron: '24 17 * * 4'
 
