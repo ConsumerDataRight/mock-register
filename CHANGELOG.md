@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `access_token` variable within the Postman collection, to make calling requests that need it easier.
+
+
 ## [0.2.0] - 2021-07-15
 
 ### Added
