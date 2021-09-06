@@ -6,8 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2021-07-15
 
+## [0.3.0] - 2021-09-06
+### Added
+ - `access_token` variable within the Postman collection, to make calling requests that need it easier.
+
+### Security
+ - Bumped `Microsoft.AspNetCore.Authentication.JwtBearer` from `5.0.5` to `5.0.9` due to [CVE-2021-34532](https://github.com/advisories/GHSA-q7cg-43mg-qp69)
+
+## [0.2.0] - 2021-07-15
 ### Added
 - Added an `appsettings.Pipeline.json` file to each project to set configuration that can be used in a DevOps build pipeline.
 - Added `.github\workflows\dotnet.yml` file to build and test the source code on check in and PR to `develop` and `main`.
@@ -23,6 +30,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed when the SonarCloud action runs so that it doesnt error on PRs that aren't allowed access to secrets.
 
 ## [0.1.0] - 2021-06-04
-
 ### Added
 - First release of the Mock Register.

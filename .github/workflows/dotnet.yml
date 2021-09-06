@@ -11,6 +11,7 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
+      - 'Postman/**'
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
@@ -22,6 +23,7 @@ on:
       - '.github/pull_request_template.md'
       - '.github/stale.yml'
       - 'LICENSE'
+      - 'Postman/**'
     
 env:
   buildConfiguration: 'Release'
