@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Added docker compose information to readme file
 
 ## [0.3.0] - 2021-09-06
 ### Added
