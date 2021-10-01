@@ -102,7 +102,7 @@ POST https://localhost:7006/admin/metadata
 
 ### Use the docker compose file to run a multi-container mock CDR Ecosystem
 
-The [docker compose file](Source/DockerCompose/dockercompose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
+The [docker compose file](Source/DockerCompose/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
 1. Add the following to your hosts file, eg C:\Windows\System32\drivers\etc\hosts
 ````
 127.0.0.1 mock-data-holder
@@ -113,7 +113,7 @@ The [docker compose file](Source/DockerCompose/dockercompose.yml) can be used to
 ````
 ipconfig /flushdns
 ````
-3. Run the [docker compose file](Source/DockerCompose/dockercompose.yml)
+3. Run the [docker compose file](Source/DockerCompose/docker-compose.yml)
 ````
 docker-compose up
 ````
