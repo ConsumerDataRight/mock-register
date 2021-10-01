@@ -18,6 +18,7 @@ The Mock Register aligns to [v1.5.0](https://cdr-register.github.io/register/inc
 There are a number of ways that the artefacts within this project can be used:
 1. Build and deploy the source code
 2. Use the pre-built image
+3. Use the docker compose file to run a multi-container mock CDR Ecosystem
 
 ### Build and deploy the source code
 
@@ -98,6 +99,26 @@ POST https://localhost:7006/admin/metadata
 ```
 
 **Note:** there is currently no authentication/authorisation applied to the Admin API endpoints as these are seen to be under the control of the container owner.  This can be added if there is community feedback to that effect or if a pull request is submitted.
+
+### Use the docker compose file to run a multi-container mock CDR Ecosystem
+
+The [docker compose file](Source/DockerCompose/dockercompose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
+1. Add the following to your hosts file, eg C:\Windows\System32\drivers\etc\hosts
+````
+127.0.0.1 mock-data-holder
+127.0.0.1 mock-data-recipient
+127.0.0.1 mock-register
+````
+2. Flush the DNS cache, on Windows use: 
+````
+ipconfig /flushdns
+````
+3. Run the [docker compose file](Source/DockerCompose/dockercompose.yml)
+````
+docker-compose up
+````
+
+Update the docker compose file if you would like to swap out one of the mock solutions with a solution of your own.
 
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
