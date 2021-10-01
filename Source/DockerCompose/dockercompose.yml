@@ -1,0 +1,44 @@
+################################################################################
+# Add the following to your hosts file, eg C:\Windows\System32\drivers\etc\hosts
+#
+# 127.0.0.1 mock-data-holder
+# 127.0.0.1 mock-data-recipient
+# 127.0.0.1 mock-register
+#
+# Then flush the DNS cache, on Windows use: ipconfig /flushdns
+################################################################################
+
+version: '3.8'
+
+services:      
+
+  mock-register:
+    container_name: mock-register
+    image: consumerdataright/mock-register
+    ports: 
+      - "7000:7000"
+      - "7001:7001"          
+      - "7006:7006"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  mock-data-holder:
+    container_name: mock-data-holder
+    image: consumerdataright/mock-data-holder
+    ports: 
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+      - "8003:8003"
+      - "8004:8004"
+      - "8005:8005"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  mock-data-recipient:
+    container_name: mock-data-recipient
+    image: consumerdataright/mock-data-recipient
+    ports: 
+      - "9001:9001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
