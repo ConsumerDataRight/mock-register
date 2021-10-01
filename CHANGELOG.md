@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Added docker-compose information to readme file
 ### Added 
-- dockercompose file to orchestrate mock-register/mock-data-holder/mock-data-recipient containers.
+- docker-compose file to orchestrate mock-register/mock-data-holder/mock-data-recipient containers.
 ### Changed
 - Updated hosts in seed-data.json and appsettings.Production.json to reflect container names.
 
