@@ -18,17 +18,11 @@ namespace CDR.Register.Repository.Infrastructure
 
         public RegisterDatabaseContext CreateDbContext(string[] args)
         {
-            var connectionString = Environment.GetEnvironmentVariable("MigrationConStr");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("The connection string was not set in the 'MigrationConStr' environment variable.");
-            }
-
             var options = new DbContextOptionsBuilder<RegisterDatabaseContext>()
-               .UseSqlite(connectionString)
+               .UseSqlServer("foo") // connection string is only needed if using "dotnet ef database update ..." to actually run migrations from commandline
                .Options;
+
             return new RegisterDatabaseContext(options);
         }
     }
-
 }

@@ -3,6 +3,8 @@
     public enum AuthorisationPolicy
     {
         DataHolderBrandsApi,
-        GetSoftwareStatementAssertion
+        DataHolderBrandsApiMultiIndustry,
+        GetSSA,
+        GetSSAMultiIndustry
     }
 }

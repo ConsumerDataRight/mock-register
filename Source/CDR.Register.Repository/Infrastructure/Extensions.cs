@@ -16,7 +16,8 @@ namespace CDR.Register.Repository.Infrastructure
         {
             // Add Seed Data for the reference types
             modelBuilder.Entity<IndustryType>().HasData(
-                new IndustryType { IndustryTypeId = IndustryTypeEnum.Banking, IndustryTypeCode = "banking" });
+                new IndustryType { IndustryTypeId = IndustryEnum.BANKING, IndustryTypeCode = IndustryEnum.BANKING.ToString().ToLower() },
+                new IndustryType { IndustryTypeId = IndustryEnum.ENERGY, IndustryTypeCode = IndustryEnum.ENERGY.ToString().ToLower() });
 
             modelBuilder.Entity<OrganisationType>().HasData(
                 new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
@@ -74,7 +75,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database
         /// </summary>
-        public async static Task SeedDatabaseFromJson(
+        public async static Task<bool> SeedDatabaseFromJson(
             this RegisterDatabaseContext registerDatabaseContext,
             string json,
             ILogger logger,
@@ -84,14 +85,14 @@ namespace CDR.Register.Repository.Infrastructure
             if (hasExistingData && !overwriteExistingData)
             {
                 logger.LogInformation("Existing data found in the repository and not set to overwrite.  Repository will not be seeded.  Exiting.");
-                return;
+                return false;
             }
 
             logger.LogInformation(hasExistingData ?
                  "Existing data found, but set to overwrite.  Seeding data..." :
                  "No existing data found.  Seeding data...");
 
-            await registerDatabaseContext.ReSeedDatabaseFromJson(json, logger);
+            return await registerDatabaseContext.ReSeedDatabaseFromJson(json, logger);
         }
 
         /// <summary>
@@ -127,7 +128,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Re-Seed the database from the input JSON data. All existing data in the database will be removed prior to creating the new data set.
         /// </summary>
-        public async static Task ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
+        public async static Task<bool> ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
         {
             using (var transaction = registerDatabaseContext.Database.BeginTransaction())
             {
@@ -147,14 +148,18 @@ namespace CDR.Register.Repository.Infrastructure
 
                     // Re-create all participants from the incoming JSON.
                     var allData = JsonConvert.DeserializeObject<JObject>(json);
-                    var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
-                    registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
-                    registerDatabaseContext.SaveChanges();
+                    if (allData != null && allData.ContainsKey("LegalEntities"))
+                    {
+                        var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
+                        registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
+                        registerDatabaseContext.SaveChanges();
 
-                    // Finally commit the transaction
-                    transaction.Commit();
+                        // Finally commit the transaction
+                        transaction.Commit();
 
-                    logger.LogInformation("JSON data added to the repository.");
+                        logger.LogInformation("JSON data added to the repository.");
+                        return true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -162,6 +167,7 @@ namespace CDR.Register.Repository.Infrastructure
                     logger.LogError($"Error while seeding the database. Error: {ex}");
                     throw;
                 }
+                return false;
             }
         }
     }

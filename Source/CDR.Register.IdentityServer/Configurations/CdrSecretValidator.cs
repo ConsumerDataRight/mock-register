@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
-using CDR.Register.IdentityServer.Extensions;
+﻿using CDR.Register.IdentityServer.Extensions;
 using CDR.Register.IdentityServer.Interfaces;
 using CDR.Register.IdentityServer.Models;
 using IdentityServer4;
@@ -16,6 +11,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog.Context;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CDR.Register.IdentityServer.Configurations
 {
@@ -44,7 +45,10 @@ namespace CDR.Register.IdentityServer.Configurations
         {
             var fail = new SecretValidationResult { Success = false };
 
-            _logger.LogInformation($"Starting {nameof(CdrSecretValidator)}.{nameof(ValidateAsync)}");
+            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+            {
+                _logger.LogInformation($"Starting");
+            }
 
             if (parsedSecret == null)
             {
@@ -75,6 +79,10 @@ namespace CDR.Register.IdentityServer.Configurations
             }
             catch (Exception e)
             {
+                using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+                {
+                    _logger.LogError(e, "Trusted Keys Exception Error");
+                }
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "607", null,
                     $"Could not parse secrets. {e.InnerException?.Message ?? e.Message}"), _logger);
                 return fail;
@@ -163,7 +171,10 @@ namespace CDR.Register.IdentityServer.Configurations
                         && !string.IsNullOrWhiteSpace(s.Value)
                         && s.Value.Equals(certThumbprint, StringComparison.OrdinalIgnoreCase)).Any();
 
-            _logger.LogInformation("X509 client certificate thumbprint '{certThumbprint}' match = {certThumbprintSecretMatch}", certThumbprint, certThumbprintSecretMatch);
+            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+            {
+                _logger.LogInformation("X509 client certificate thumbprint '{certThumbprint}' match = {certThumbprintSecretMatch}", certThumbprint, certThumbprintSecretMatch);
+            }
 
             if (!certThumbprintSecretMatch)
             {
@@ -195,7 +206,10 @@ namespace CDR.Register.IdentityServer.Configurations
                         && !string.IsNullOrWhiteSpace(s.Value)
                         && s.Value.Equals(certCommonName, StringComparison.OrdinalIgnoreCase)).Any();
 
-            _logger.LogInformation("X509 client certificate common name '{commonName}' match = {certNameSecretMatch}", certCommonName, certNameSecretMatch);
+            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+            {
+                _logger.LogInformation("X509 client certificate common name '{commonName}' match = {certNameSecretMatch}", certCommonName, certNameSecretMatch);
+            }
 
             // Certificate common name must match CRM record but thumbprint may be different as it can be an export
             // of an original issued certificate which will mean it will have a different thumbprint
@@ -222,7 +236,10 @@ namespace CDR.Register.IdentityServer.Configurations
                 Confirmation = cnf
             };
 
-            _logger.LogInformation($"Finishing CdrSecretValidator.ValidateAsync. Result: {result.Success}");
+            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+            {
+                _logger.LogInformation($"Finishing Result: {result.Success}");
+            }
 
             return result;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CDR.Register.Repository.Infrastructure;
 using IdentityModel;
 using IdentityServer4.Models;
 
@@ -16,7 +17,7 @@ namespace CDR.Register.IdentityServer.Configurations
                     UserClaims = { JwtClaimTypes.Subject },
                     Scopes =
                     {
-                        "cdr-register:bank:read"
+                        CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read
                     }
                 }
             };
@@ -31,7 +32,7 @@ namespace CDR.Register.IdentityServer.Configurations
         {
             get
             {
-                return new List<ApiScope> { new ApiScope("cdr-register:bank:read", "CDR Register") };
+                return new List<ApiScope> { new ApiScope(CDSRegistrationScopes.BankRead, "CDR Register"), new ApiScope(CDSRegistrationScopes.Read, "CDR Register2") };
             }
         }
     }

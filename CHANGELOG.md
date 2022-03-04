@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2022-03-10
+### Added
+- Sector Agnostic APIs added to the Mock Register. This includes Sector Agnostic versions of GetDataRecipients, GetDataRecipientStatus, GetSoftwareProductStatus, GetSoftwareStatementAssertion and GetDataHolderBrands. The existing Banking sector version of these APIs are available for backwards compatibility.
+- Energy and Telco as supported sectors.
+- Data Holder Brands entry to support and represent a [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy).
+- Energy scopes for the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient).
+
+### Changed
+- Upgraded the Mock Register codebase to .NET 6.
+- Replaced SQLite database with MSSQL database.
+- Changed the TLS certificates for the Mock Register to be signed by the Mock CDR CA.
+- Extra steps detailed for using the solution in visual studio, docker containers and docker compose file.
+
 ## [0.4.0] - 2021-10-01
 ### Added 
 - docker-compose file to orchestrate mock-register/mock-data-holder/mock-data-recipient containers.

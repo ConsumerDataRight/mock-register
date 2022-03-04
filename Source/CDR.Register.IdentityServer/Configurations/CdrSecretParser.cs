@@ -12,6 +12,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Serilog.Context;
 
 namespace CDR.Register.IdentityServer.Configurations
 {
@@ -48,8 +49,10 @@ namespace CDR.Register.IdentityServer.Configurations
                 return null;
             }
 
-
-            _logger.LogDebug("Start parsing for JWT client assertion in post body");
+            using (LogContext.PushProperty("MethodName", "ParseAsync"))
+            {
+                _logger.LogDebug("Start parsing for JWT client assertion in post body");
+            }
 
             if (!context.Request.HasFormContentType)
             {
@@ -121,7 +124,10 @@ namespace CDR.Register.IdentityServer.Configurations
             }
             catch (Exception e)
             {
-                _logger.LogWarning("Could not parse client assertion", e);
+                using (LogContext.PushProperty("MethodName", "GetClientIdFromToken"))
+                {
+                    _logger.LogWarning("Could not parse client assertion", e);
+                }
                 return null;
             }
         }

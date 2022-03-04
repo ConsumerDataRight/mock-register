@@ -21,7 +21,8 @@ The mTLS certificates that can be used for Mock Solutions are listed below:
 |-------------|-----------|----------|
 | Mock CA - Certificate Authority | mtls\ca.pfx | #M0ckCDRCA# |
 | Mock Register - Server Certificate | mtls\register.pfx | #M0ckRegister# |
-| Mock Data Holder - Server Certificate | mtls\server.pfx | #M0ckDataHolder# |
+| Mock Data Holder (Banking) - Server Certificate | mtls\server.pfx | #M0ckDataHolder# |
+| Mock Data Holder (Energy) - Server Certificate | mtls\server-energy.pfx | #M0ckDataHolder# |
 | Mock Data Recipient - Client Certificate | mtls\client.pfx | #M0ckDataRecipient# |
 
 ### Certificate Authority
@@ -52,14 +53,15 @@ The `openssl` commands to generate the client certificate by the Mock CDR Certif
 
 Endpoints that are not protected by mTLS are protected by TLS.  The server certificate used for TLS communication can be provisioned by the CDR CA, or alternatively participants can used a trusted third party CA.
 
-For the mock solutions, self-signed TLS certificates are used.  These self-signed certificates will not use the Mock CDR CA, like the mTLS certificates do.
+For the mock solutions, self-signed TLS certificates are used.  These self-signed certificates will be signed by the Mock CDR CA, like the mTLS certificates.
 
 Some certificates have been generated already and are available in the `tls` folder:
 
 | Participant | File Name | Password |
 |-------------|-----------|----------|
 | Mock Register | tls\mock-register.pfx | #M0ckRegister# |
-| Mock Data Holder | tls\mock-data-holder.pfx | #M0ckDataHolder# |
+| Mock Data Holder (Banking) | tls\mock-data-holder.pfx | #M0ckDataHolder# |
+| Mock Data Holder (Energy) | tls\mock-data-holder-energy.pfx | #M0ckDataHolder# |
 | Mock Data Recipient | tls\mock-data-recipient.pfx | #M0ckDataRecipient# |
 
 These certificates can be used by the community when developing CDR solutions, or you can generate your own self-signed certificates or alternatively use a third party generated certificate.

@@ -1,9 +1,7 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using FluentAssertions;
-using Microsoft.IdentityModel.Tokens;
 
 #nullable enable
 
@@ -11,7 +9,6 @@ namespace CDR.Register.IntegrationTests.Extensions
 {
     static public class JwtSecurityTokenExtensions
     {
-
         /// <summary>
         /// Get claim for claimType. Throws exception if no claim or multiple claims (ie must be a single claim for claimType).
         /// </summary>

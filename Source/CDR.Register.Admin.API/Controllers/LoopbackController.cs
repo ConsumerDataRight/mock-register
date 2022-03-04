@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog.Context;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -34,8 +35,10 @@ namespace CDR.Register.Admin.API.Controllers
         [Route("MockDataRecipientJwks")]
         public IActionResult MockDataRecipientJwks()
         {
-            _logger.LogInformation("Received request for Mock Data Recipient JWKS...");
-
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Received request for Mock Data Recipient JWKS...");
+            }
             var cert = new X509Certificate2("Certificates/client.pem");
             var key = (RSA)cert.PublicKey.Key;
             var rsaParams = key.ExportParameters(false);
@@ -67,8 +70,10 @@ namespace CDR.Register.Admin.API.Controllers
         [Route("MockDataRecipientClientAssertion")]
         public IActionResult MockDataRecipientClientAssertion()
         {
-            _logger.LogInformation("Received request for Mock Data Recipient Client Assertion...");
-
+            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
+            {
+                _logger.LogInformation("Received request for Mock Data Recipient Client Assertion...");
+            }
             var privateKeyRaw = System.IO.File.ReadAllText("Certificates/client.key");
             var privateKey = privateKeyRaw.Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Replace("\r\n", "").Trim();
             var privateKeyBytes = Convert.FromBase64String(privateKey);

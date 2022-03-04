@@ -43,7 +43,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -107,7 +107,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -179,7 +179,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -247,7 +247,7 @@ namespace CDR.Register.SSA.API.UnitTests
         {
             // Arrange.
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",

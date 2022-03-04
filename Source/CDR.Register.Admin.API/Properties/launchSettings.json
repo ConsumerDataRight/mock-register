@@ -1,5 +1,4 @@
-﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -8,33 +7,39 @@
       "sslPort": 7006
     }
   },
-    "profiles": {
-        "CDR.Register.Admin.API": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7006",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        },
-        "CDR.Register.Admin.API.Production": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7006",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Production"
-            }
-        },
-        "CDR.Register.Admin.API.Pipeline": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7006",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Pipeline"
-            }
-        }
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "CDR.Register.Admin.API": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7006"
+    },
+    "CDR.Register.Admin.API.Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7006"
+    },
+    "CDR.Register.Admin.API.Container": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Container"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7006"
+    },
+    "CDR.Register.Admin.API.Release": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Release"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7006"
     }
+  }
 }

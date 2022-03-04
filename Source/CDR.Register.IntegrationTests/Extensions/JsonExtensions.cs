@@ -29,12 +29,6 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// </summary>
         public static bool JsonCompare(this string json, string jsonToCompare)
         {
-            //var jsonObject = JsonSerializer.Deserialize<object>(json);
-            //var jsonToCompareObject = JsonSerializer.Deserialize<object>(jsonToCompare);
-            //var jsonNormalised = JsonSerializer.Serialize(jsonObject);
-            //var jsonToCompareNormalised = JsonSerializer.Serialize(jsonToCompareObject);
-            //return jsonNormalised == jsonToCompareNormalised;
-
             var jsonToken = JToken.Parse(json);
             var jsonToCompareToken = JToken.Parse(jsonToCompare);
             return JToken.DeepEquals(jsonToken, jsonToCompareToken);

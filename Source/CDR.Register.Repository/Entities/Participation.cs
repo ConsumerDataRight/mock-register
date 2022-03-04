@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDR.Register.Repository.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,7 +21,7 @@ namespace CDR.Register.Repository.Entities
         public ParticipationTypeEnum ParticipationTypeId { get; set; }
         public ParticipationType ParticipationType { get; set; }
 
-        public IndustryTypeEnum IndustryId { get; set; }
+        public IndustryEnum? IndustryId { get; set; }
         public IndustryType Industry { get; set; }
 
         public ParticipationStatusEnum StatusId { get; set; }

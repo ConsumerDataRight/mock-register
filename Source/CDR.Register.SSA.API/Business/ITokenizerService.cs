@@ -6,6 +6,6 @@ namespace CDR.Register.SSA.API.Business
     public interface ITokenizerService
     {
         Task<string> GenerateJwtTokenAsync<T>(T ssa)
-            where T : SoftwareStatementAssertionModel;
+            where T : SoftwareStatementAssertionModelV2;
     }
 }

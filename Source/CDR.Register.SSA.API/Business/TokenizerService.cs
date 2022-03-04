@@ -27,7 +27,7 @@ namespace CDR.Register.SSA.API.Business
         /// <param name="ssa">The software statement assertion.</param>
         /// <returns>The software statement assertion token as a string.</returns>
         public async Task<string> GenerateJwtTokenAsync<T>(T ssa)
-            where T : SoftwareStatementAssertionModel
+            where T : SoftwareStatementAssertionModelV2
         {
             if (ssa == null)
             {

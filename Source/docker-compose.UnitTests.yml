@@ -1,0 +1,32 @@
+# Docker compose for build pipeline
+
+version: '3.8'
+
+services:
+  mock-register-unit-tests:
+    container_name: mock-register-unit-tests
+    image: mock-register-unit-tests
+    build:
+      context: .
+      dockerfile: Dockerfile.unit-tests
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+    volumes:
+      - "./_temp/mock-register-unit-tests/testresults:/testresults"
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  mssql:
+    container_name: sql1
+    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    # ports: 
+    #   - "9933:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pa{}w0rd2019
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
+      timeout: 10s
+      interval: 10s
+      retries: 10    

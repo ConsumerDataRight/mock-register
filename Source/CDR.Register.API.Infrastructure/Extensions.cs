@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Authentication;
-using CDR.Register.API.Infrastructure.Authorization;
+﻿using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Authentication;
 
 namespace CDR.Register.API.Infrastructure
 {
@@ -69,13 +70,23 @@ namespace CDR.Register.API.Infrastructure
             {
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("cdr-register:bank:read", identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead, identityServerIssuer));
                     policy.Requirements.Add(new MTLSRequirement());
                 });
 
-                options.AddPolicy(AuthorisationPolicy.GetSoftwareStatementAssertion.ToString(), policy =>
+                options.AddPolicy(AuthorisationPolicy.GetSSA.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("cdr-register:bank:read", identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new MTLSRequirement());
+                });
+                options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry.ToString(), policy =>
+                {
+                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead + " " + CDSRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new MTLSRequirement());
+                });
+                options.AddPolicy(AuthorisationPolicy.GetSSAMultiIndustry.ToString(), policy =>
+                {
+                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead + " " + CDSRegistrationScopes.Read, identityServerIssuer));
                     policy.Requirements.Add(new MTLSRequirement());
                 });
             });
@@ -201,13 +212,12 @@ namespace CDR.Register.API.Infrastructure
             return uriBuilder.Uri;
         }
 
-        public static Industry ToIndustry(this string industry)
+        public static IndustryEnum ToIndustry(this string industry)
         {
-            return industry switch
-            {
-                "banking" => Industry.Banking,
-                _ => throw new NotSupportedException($"Invalid industry: {industry}"),
-            };
+            if (Enum.IsDefined(typeof(IndustryEnum), industry.ToUpper()))
+                return (IndustryEnum)Enum.Parse(typeof(IndustryEnum), industry, true);
+            else
+                throw new NotSupportedException($"Invalid industry: {industry}");
         }
     }
 }

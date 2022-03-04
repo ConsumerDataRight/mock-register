@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using CDR.Register.IdentityServer.Interfaces;
+﻿using CDR.Register.IdentityServer.Interfaces;
 using CDR.Register.IdentityServer.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog.Context;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CDR.Register.IdentityServer.Services
 {
@@ -27,9 +28,12 @@ namespace CDR.Register.IdentityServer.Services
         public async Task<IList<JsonWebKey>> GetJwksAsync(string jwksUrl)
         {
             var httpResponse = await _httpClient.GetAsync(jwksUrl);
-
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
-            _logger.LogDebug($"Http response body:\r\n{responseContent}");
+
+            using (LogContext.PushProperty("MethodName", "GetJwksAsync"))
+            {
+                _logger.LogDebug($"Http response body:\r\n{responseContent}");
+            }
 
             if (httpResponse.StatusCode == HttpStatusCode.NotFound)
             {

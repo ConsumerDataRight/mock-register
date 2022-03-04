@@ -5,7 +5,8 @@ namespace CDR.Register.SSA.API.Business
 {
     public interface IMapper
     {
+        public ResponseRegisterDataRecipientStatusListV1 Map(DataRecipientStatusV1[] dataRecipientStatuses);
         public ResponseRegisterDataRecipientStatusList Map(DataRecipientStatus[] dataRecipientStatuses);
-        public ResponseRegisterSoftwareProductStatusList Map(SoftwareProductStatus[] softwareProductStatuses);
+        public ResponseRegisterSoftwareProductStatusListV1 Map(SoftwareProductStatus[] softwareProductStatuses);
     }
 }

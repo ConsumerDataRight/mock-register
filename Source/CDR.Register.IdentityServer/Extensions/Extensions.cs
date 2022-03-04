@@ -77,7 +77,7 @@ namespace CDR.Register.IdentityServer
 
                 // Override default entries with custom entries to only show relevant otions for the CDR register
                 options.Discovery.ShowApiScopes = false;
-                options.Discovery.CustomEntries.Add("scopes_supported", new string[] { "cdr-register:bank:read" });
+                options.Discovery.CustomEntries.Add("scopes_supported", new string[] { CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read });
 
                 options.Discovery.ShowResponseTypes = false;
                 options.Discovery.CustomEntries.Add("response_types_supported", new string[] { "token" });
@@ -113,8 +113,7 @@ namespace CDR.Register.IdentityServer
             services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
             services.AddScoped<IRegisterIdSvrRepository, RegisterIdSvrRepository>();
 
-            services.AddDbContext<RegisterDatabaseContext>(options =>
-                                options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString("Register_DB")));
         }
 
         private static IIdentityServerBuilder AddRegisterSigningCredential(this IIdentityServerBuilder builder, IConfiguration configuration)

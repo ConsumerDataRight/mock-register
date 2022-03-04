@@ -1,10 +1,271 @@
 {
 	"info": {
-		"_postman_id": "efa6a08a-27f5-4340-998d-0ddeb6d0b27d",
+		"_postman_id": "1c7369cd-9f4d-4e02-a8f9-a35702a688fe",
 		"name": "CDR Mock Register",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Sector Agnostic APIs",
+			"item": [
+				{
+					"name": "Discovery API - Get Data Holder Brands (requires access token)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7001/cdr-register/v1/data-holders/brands",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-holders",
+								"brands"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "page-size",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "updated-since",
+									"value": "2022-04-29",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Discovery API - Get DH Brands with Industry params",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7001/cdr-register/v1/data-holders/brands/banking",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-holders",
+								"brands",
+								"banking"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "page-size",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "updated-since",
+									"value": "2022-04-29",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Discovery API - Get Data Recipients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "789B87B2DEC172259FA95607BE5EACFC3E520229DC9DF0A754286B9EEA08C466",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7000/cdr-register/v1/data-recipients",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-recipients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Status API - Get Data Recipients Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "355E6A1B3ABCEB1260D26027DC225531B9CD9A22E44DEE1ACE75147BEE4C0A77",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7000/cdr-register/v1/data-recipients/status",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-recipients",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Status API - Get Software Products Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "46574A21FCC8122664E7595CFE4E0275D7117566D55B48CDDE9C2948A540BDFC",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7000/cdr-register/v1/data-recipients/brands/software-products/status",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7000",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-recipients",
+								"brands",
+								"software-products",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SSA API - Get SSA (requires access token)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-v",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7001/cdr-register/v1/data-recipients/brands/F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021/software-products/6F7A1B8E-8799-48A8-9011-E3920391F713/ssa",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7001",
+							"path": [
+								"cdr-register",
+								"v1",
+								"data-recipients",
+								"brands",
+								"F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021",
+								"software-products",
+								"6F7A1B8E-8799-48A8-9011-E3920391F713",
+								"ssa"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Discovery API - Get Data Holder Brands (requires access token)",
 			"request": {

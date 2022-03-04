@@ -1,10 +1,10 @@
 [ req ]
-default_bits       = 2048
-distinguished_name = req_distinguished_name
-prompt 			   = no
-req_extensions     = req_ext
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+prompt 			    = no
+req_extensions      = req_ext
 [ req_distinguished_name ]
-commonName          = localhost
+commonName          = mock-data-recipient
 countryName         = AU
 stateOrProvinceName = ACT
 localityName        = Canberra
@@ -13,8 +13,7 @@ organizationalUnitName = CDR
 [ req_ext ]
 basicConstraints    = CA:FALSE
 keyUsage            = critical, nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage    = critical, serverAuth
-subjectAltName      = @alt_names
+extendedKeyUsage    = critical, clientAuth
 [alt_names]
-DNS.1   = localhost
-DNS.2   = datarecipient.mock
+DNS.1               = mock-data-recipient
+DNS.2               = localhost

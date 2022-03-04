@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Temp folders
+**/_temp/
+
 # VS Code
 **/.vscode/
 
@@ -329,3 +332,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+Source/CDR.Register.Admin.API/_healthcheck_ready

@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CDR.Register.Domain.Entities;
+﻿using CDR.Register.Domain.Entities;
 using CDR.Register.IdentityServer.Extensions;
 using CDR.Register.IdentityServer.Interfaces;
 using CDR.Register.IdentityServer.Models;
-using IdentityServer4;
+using CDR.Register.Repository.Infrastructure;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace CDR.Register.IdentityServer.Configurations
@@ -89,8 +89,7 @@ namespace CDR.Register.IdentityServer.Configurations
                 // scopes that client has access to
                 AllowedScopes = new List<string>
                 {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    "cdr-register:bank:read"
+                    StandardScopes.OpenId, CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read
                 },
 
                 AccessTokenType = AccessTokenType.Jwt,

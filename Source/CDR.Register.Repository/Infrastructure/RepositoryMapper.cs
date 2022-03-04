@@ -26,9 +26,9 @@ namespace CDR.Register.Repository.Infrastructure
             return _mapper.Map<DataRecipientBrand>(brand);
         }
 
-        public Domain.Entities.LegalEntity Map(Entities.LegalEntity legalEntity)
+        public Domain.Entities.LegalEntityV1 Map(Entities.LegalEntity legalEntity)
         {
-            return _mapper.Map<Domain.Entities.LegalEntity>(legalEntity);
+            return _mapper.Map<Domain.Entities.LegalEntityV1>(legalEntity);
         }
 
         public Domain.Entities.SoftwareProduct MapSoftwareProduct(Entities.SoftwareProduct softwareProduct)
