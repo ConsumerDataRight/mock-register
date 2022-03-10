@@ -72,7 +72,7 @@ namespace CDR.Register.Discovery.API.Controllers
             return Ok(response);
         }
 
-        [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApi)]
+        [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
         [HttpGet("v1/data-holders/brands", Name = "GetDataHolderBrands")]
         [CheckXV("1")]
         [ApiVersion("1")]
@@ -112,7 +112,7 @@ namespace CDR.Register.Discovery.API.Controllers
             return Ok(response);
         }
 
-        [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApi)]
+        [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
         [HttpGet("v1/data-holders/brands/{industry}", Name = "GetDataHolderBrandsIndustry")]
         [CheckXV("1")]
         [ApiVersion("1")]
