@@ -990,5 +990,50 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 }
             }
         }
+
+        [Theory]
+        [InlineData(null, "cdr-register:bank:read", HttpStatusCode.OK)] // No industry
+        [InlineData(null, "cdr-register:read", HttpStatusCode.OK)] // No industry
+        [InlineData("banking", "cdr-register:bank:read", HttpStatusCode.OK)]
+        [InlineData("banking", "cdr-register:read", HttpStatusCode.OK)]
+        [InlineData("energy", "cdr-register:bank:read", HttpStatusCode.OK)]  // ???
+        [InlineData("energy", "cdr-register:read", HttpStatusCode.OK)]
+        [InlineData("telco", "cdr-register:bank:read", HttpStatusCode.OK)]  // ???
+        [InlineData("telco", "cdr-register:read", HttpStatusCode.OK)]
+        public async Task ACX02_Get_WithScope_ShouldRespondWith_200OK(string industry, string scope, HttpStatusCode expectedStatusCode)
+        {
+            if (industry != null) 
+            {
+                industry = "/" + industry;
+            }
+
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                Scope = scope
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{industry}",
+                AccessToken = accessToken,
+                XV = "1",
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(expectedStatusCode);
+            }
+        }
     }
 }
