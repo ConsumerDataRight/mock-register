@@ -2,7 +2,7 @@
 {
     public enum IndustryEnum
     {
-        UNKNOWN = 0,
+        ALL = 0,
         BANKING,
         ENERGY,
         TELCO

@@ -37,6 +37,7 @@ namespace CDR.Register.Status.API.Controllers
             {
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
+
             return Ok(await _statusService.GetDataRecipientStatusesAsyncV1());
         }
 
@@ -52,6 +53,7 @@ namespace CDR.Register.Status.API.Controllers
             {
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
+
             return Ok(await _statusService.GetDataRecipientStatusesAsync(industry.ToIndustry()));
         }
 
@@ -67,9 +69,7 @@ namespace CDR.Register.Status.API.Controllers
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
 
-            // NB: IF this V2 routing is implemented AND IF the industry is parsed then it needs to be coded like the above method
-            // UNKNOWN industry type is parsed to NOT use industry filtering.
-            return Ok(await _statusService.GetDataRecipientStatusesAsync(IndustryEnum.UNKNOWN));
+            return Ok(await _statusService.GetDataRecipientStatusesAsync(IndustryEnum.ALL));
         }
 
         [Obsolete]
@@ -85,6 +85,7 @@ namespace CDR.Register.Status.API.Controllers
             {
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
+
             return Ok(await _statusService.GetSoftwareProductStatusesAsyncV1());
         }
 
@@ -100,6 +101,7 @@ namespace CDR.Register.Status.API.Controllers
             {
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
+
             return Ok(await _statusService.GetSoftwareProductStatusesAsync(industry.ToIndustry()));
         }
 
@@ -114,6 +116,7 @@ namespace CDR.Register.Status.API.Controllers
             {
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
+
             return Ok(await _statusService.GetSoftwareProductStatusesAsync());
         }
     }

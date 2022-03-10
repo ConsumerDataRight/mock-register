@@ -3,7 +3,6 @@ using CDR.Register.Repository.Entities;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,52 +20,25 @@ namespace CDR.Register.Repository
 
         public async Task<DataRecipientStatusV1[]> GetDataRecipientStatusesAsyncV1()
         {
-            var allParticipents = await this._registerDatabaseContext.Participations.AsNoTracking()
+            return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
                 .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
                 .OrderBy(p => p.ParticipationId)
-                .ToListAsync();
-
-            var res = new List<DataRecipientStatusV1>();
-            foreach (var p in allParticipents)
-            {
-                res.Add(new DataRecipientStatusV1
-                {
-                    DataRecipientId = p.LegalEntityId,
-                    DataRecipientStatus = p.Status.ParticipationStatusCode
-                });
-            }
-            return res.ToArray();
+                .Select(p => new DataRecipientStatusV1() { DataRecipientId = p.LegalEntityId, DataRecipientStatus = p.Status.ParticipationStatusCode })
+                .ToArrayAsync();
         }
 
+        /// <remarks>
+        /// industry parameter is passed but is not currently used.
+        /// </remarks>
         public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(IndustryEnum industry)
         {
-            var allParticipentsQuery = this._registerDatabaseContext.Participations.AsNoTracking()
+            return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
-                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr);
-
-            // Add the optional Industry
-            if (industry != IndustryEnum.UNKNOWN)
-            {
-                allParticipentsQuery = allParticipentsQuery.Where(p => p.IndustryId == industry);
-            }
-
-            // Apply ordering
-            allParticipentsQuery = allParticipentsQuery.OrderBy(p => p.ParticipationId);
-
-            // Return Data
-            var allParticipents = await allParticipentsQuery.ToListAsync();
-
-            var res = new List<DataRecipientStatus>();
-            foreach (var p in allParticipents)
-            {
-                res.Add(new DataRecipientStatus
-                {
-                    LegalEntityId = p.LegalEntityId,
-                    Status = p.Status.ParticipationStatusCode
-                });
-            }
-            return res.ToArray();
+                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
+                .OrderBy(p => p.ParticipationId)
+                .Select(p => new DataRecipientStatus() { LegalEntityId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
+                .ToArrayAsync();
         }
 
         public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsyncV1()
@@ -74,25 +46,21 @@ namespace CDR.Register.Repository
             return await GetSoftwareProductStatusesAsync();
         }
 
+        /// <remarks>
+        /// industry parameter is passed but is not currently used.
+        /// </remarks>
         public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(IndustryEnum industry)
         {
-            var allParticipentsQuery = this._registerDatabaseContext.Participations.AsNoTracking()
+            var allParticipants = await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Industry)
                 .Include(p => p.Brands)
                 .ThenInclude(brand => brand.SoftwareProducts)
                 .ThenInclude(softwareProduct => softwareProduct.Status)
-                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr);
-
-            // Add the optional Industry
-            if (industry != IndustryEnum.UNKNOWN)
-            {
-                allParticipentsQuery = allParticipentsQuery.Where(brand => brand.IndustryId == industry);
-            }
-
-            var allParticipents = await allParticipentsQuery.ToListAsync();
+                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
+                .ToListAsync();
 
             // Additionally sort participants.brands, participants.brands.softwareproducts by id
-            allParticipents.ForEach(p =>
+            allParticipants.ForEach(p =>
             {
                 p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
                 p.Brands.ToList().ForEach(b =>
@@ -101,41 +69,26 @@ namespace CDR.Register.Repository
                 });
             });
 
-            var allSoftWareProducts = new List<Domain.Entities.SoftwareProductStatus>();
-            foreach (var p in allParticipents)
-            {
-                foreach (var b in p.Brands)
-                {
-                    foreach (var s in b.SoftwareProducts)
+            return allParticipants
+                .SelectMany(p => p.Brands)
+                .SelectMany(b => b.SoftwareProducts)
+                .Select(sp => 
+                    new Domain.Entities.SoftwareProductStatus
                     {
-                        allSoftWareProducts.Add(new Domain.Entities.SoftwareProductStatus
-                        {
-                            SoftwareProductId = s.SoftwareProductId,
-                            Status = s.Status.SoftwareProductStatusCode
-                        });
+                        SoftwareProductId = sp.SoftwareProductId,
+                        Status = sp.Status.SoftwareProductStatusCode
                     }
-                }
-            }
-            return allSoftWareProducts.ToArray();
+                )
+                .ToArray();
         }
 
         public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync()
         {
-            var allSoftwareProducts = await this._registerDatabaseContext.SoftwareProducts.AsNoTracking()
+            return await this._registerDatabaseContext.SoftwareProducts.AsNoTracking()
                 .Include(p => p.Status)
                 .OrderBy(p => p.SoftwareProductId)
-                .ToListAsync();
-
-            var res = new List<Domain.Entities.SoftwareProductStatus>();
-            foreach (var p in allSoftwareProducts)
-            {
-                res.Add(new Domain.Entities.SoftwareProductStatus
-                {
-                    SoftwareProductId = p.SoftwareProductId,
-                    Status = p.Status.SoftwareProductStatusCode
-                });
-            }
-            return res.ToArray();
+                .Select(p => new Domain.Entities.SoftwareProductStatus() { SoftwareProductId = p.SoftwareProductId, Status = p.Status.SoftwareProductStatusCode })
+                .ToArrayAsync();
         }
     }
 }

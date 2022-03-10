@@ -98,7 +98,7 @@ namespace CDR.Register.Discovery.API.Controllers
             DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await _discoveryService.GetDataHolderBrandsAsync(IndustryEnum.UNKNOWN, updatedSinceDate, pageNumber, pageSizeNumber);
+            var response = await _discoveryService.GetDataHolderBrandsAsync(IndustryEnum.ALL, updatedSinceDate, pageNumber, pageSizeNumber);
 
             // Check if the given page number is out of range
             if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
@@ -180,7 +180,7 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("2")]
         [ApiVersion("2")]
         [ETag]
-        [CheckIndustry]
+        [CheckIndustry(IndustryEnum.BANKING)]
         public async Task<IActionResult> GetDataRecipientsV2(string industry)
         {
             using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))

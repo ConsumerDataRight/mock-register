@@ -25,31 +25,6 @@ namespace CDR.Register.API.Infrastructure.Services
             _registerDiscoveryRepository = registerDiscoveryRepository;
         }
 
-        public async Task<ResponseErrorList> ValidateSoftwareProductStatusByIndustry(IndustryEnum industry, Guid softwareProductId)
-        {
-            // Get the latest data recipient details from the repository
-            var softwareProduct = await _registerDiscoveryRepository.GetSoftwareProductIdByIndustryAsync(industry, softwareProductId);
-
-            // Perform validations
-            ResponseErrorList errorList = new ResponseErrorList();
-            if (softwareProduct == null)
-            {
-                errorList.Errors.Add(ResponseErrorList.DataRecipientSoftwareProductNotActive());
-                return errorList;
-            }
-
-            if (!softwareProduct.IsActive)
-            {
-                errorList.Errors.Add(ResponseErrorList.DataRecipientSoftwareProductNotActive());
-            }
-            if (!softwareProduct.DataRecipientBrand.IsActive || !softwareProduct.DataRecipientBrand.DataRecipient.IsActive)
-            {
-                errorList.Errors.Add(ResponseErrorList.DataRecipientParticipationNotActive());
-            }
-
-            return errorList;
-        }
-
         public async Task<ResponseErrorList> ValidateSoftwareProductStatus(Guid softwareProductId)
         {
             // Get the latest data recipient details from the repository

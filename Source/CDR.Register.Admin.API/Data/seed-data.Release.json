@@ -85,12 +85,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 2,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "d50b74cf-e992-42fd-86d4-582ac9d72dbb",
-              "BrandName": "Mock Energy Tool -- dummy data holder -- do not use",
+              "BrandName": "Mock Energy Tool",
               "LogoUri": "https://mocksoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-12-01T09:00:00",
@@ -108,7 +108,7 @@
                   "RevocationUri": "https://mock-data-recipient:9001/revocation",
                   "RedirectUris": "https://mock-data-recipient:9001/consent/callback",
                   "JwksUri": "https://mock-data-recipient:9001/jwks",
-                  "Scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",                  
+                  "Scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
                   "StatusId": 1,
                   "Certificates": [
                     {
@@ -187,12 +187,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
-              "BrandName": "Mock Finance Tools -- dummy data holder -- do not use",
+              "BrandName": "Mock Finance Tools",
               "LogoUri": "https://mocksoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",
@@ -1427,12 +1427,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "20c0864b-ceef-4de0-8944-eb0962f825eb",
-              "BrandName": "Finance X -- dummy data holder -- do not use",
+              "BrandName": "Finance X",
               "LogoUri": "https://fintechx/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",
@@ -1549,12 +1549,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "fe123396-4eba-4518-aade-b245ceea78af",
-              "BrandName": "XRay Financial -- dummy data holder -- do not use",
+              "BrandName": "XRay Financial",
               "LogoUri": "https://xraysoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",
@@ -1605,12 +1605,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "8fe9791a-e4a8-4104-b1cb-e0df41189520",
-              "BrandName": "WOW -- dummy data holder -- do not use",
+              "BrandName": "WOW",
               "LogoUri": "https://wowsoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-02-06T11:58:00",
@@ -1661,12 +1661,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "a7171ba3-fd05-456f-a859-be4e1cbcc17d",
-              "BrandName": "OLM Software -- dummy data holder -- do not use",
+              "BrandName": "OLM Software",
               "LogoUri": "https://olmsoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",
@@ -1717,12 +1717,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "8a3441aa-1242-493a-b466-dcbfffe5a441",
-              "BrandName": "xlogical -- dummy data holder -- do not use",
+              "BrandName": "xlogical",
               "LogoUri": "https://xlogical/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",
@@ -1773,12 +1773,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "46b33515-b4a5-4b1c-b5b4-25654d675be6",
-              "BrandName": "HotFinTech -- dummy data holder -- do not use",
+              "BrandName": "HotFinTech",
               "LogoUri": "https://hotfintech/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-05T11:58:00",
@@ -1851,12 +1851,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "ebbcc2f2-817e-42b8-8a28-cd45902159e0",
-              "BrandName": "ZeroFintech -- dummy data holder -- do not use",
+              "BrandName": "ZeroFintech",
               "LogoUri": "https://zerofintech/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-05T11:58:00",
@@ -1929,12 +1929,12 @@
       "Participations": [
         {
           "ParticipationTypeId": 2,
-          "IndustryId": 1,
+          "IndustryId": null,
           "StatusId": 1,
           "Brands": [
             {
               "BrandId": "f3f0c40b-9df8-491a-af1d-81cb9ab5f021",
-              "BrandName": "YoYo -- dummy data holder -- do not use",
+              "BrandName": "YoYo",
               "LogoUri": "https://yoyosoftware/img/logo.png",
               "BrandStatusId": 1,
               "LastUpdated": "2021-04-06T11:58:00",

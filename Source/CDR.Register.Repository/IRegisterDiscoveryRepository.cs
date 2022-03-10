@@ -12,7 +12,6 @@ namespace CDR.Register.Repository.Interfaces
         Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize);
         Task<DataRecipientV1[]> GetDataRecipientsAsyncV1(IndustryEnum industry);
         Task<DataRecipient[]> GetDataRecipientsAsync();
-        Task<SoftwareProduct> GetSoftwareProductIdByIndustryAsync(IndustryEnum industry, Guid softwareProductId);
         Task<SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId);
     }
 }

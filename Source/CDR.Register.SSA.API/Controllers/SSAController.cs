@@ -22,10 +22,11 @@ namespace CDR.Register.SSA.API.Controllers
         private readonly ICertificateService _certificateService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
 
-        public SSAController(ISSAService ssaService,
-                            ILogger<SSAController> logger,
-                            ICertificateService certificateService,
-                            IDataRecipientStatusCheckService statusCheckService)
+        public SSAController(
+            ISSAService ssaService,
+            ILogger<SSAController> logger,
+            ICertificateService certificateService,
+            IDataRecipientStatusCheckService statusCheckService)
         {
             _ssaService = ssaService;
             _logger = logger;
@@ -53,7 +54,7 @@ namespace CDR.Register.SSA.API.Controllers
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
 
-            var result = await CheckSoftwareProductByIndustry(industry.ToIndustry(), softwareProductId);
+            var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
@@ -74,7 +75,7 @@ namespace CDR.Register.SSA.API.Controllers
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
 
-            var result = await CheckSoftwareProductByIndustry(industry.ToIndustry(), softwareProductId);
+            var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
@@ -95,7 +96,7 @@ namespace CDR.Register.SSA.API.Controllers
                 _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
             }
 
-            var result = await CheckSoftwareProductByIndustry(industry.ToIndustry(), softwareProductId);
+            var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
@@ -146,31 +147,6 @@ namespace CDR.Register.SSA.API.Controllers
         }
 
         /// <summary>
-        /// Performs status check against the softwareProductId parameter.
-        /// </summary>
-        /// <param name="softwareProductId">Software Product ID</param>
-        /// <param name="industry">Selected Industry</param>
-        /// <returns>An ActionResult if there is an error to return, otherwise null if there are no issues.</returns>
-        private async Task<IActionResult> CheckSoftwareProductByIndustry(IndustryEnum industry, string softwareProductId)
-        {
-            // Get the software product id based on the access token.
-            var softwareProductIdAsGuid = GetSoftwareProductIdFromAccessToken();
-            if (softwareProductIdAsGuid == null)
-                return new BadRequestObjectResult(new ResponseErrorList(ResponseErrorList.UnknownError()));
-
-            // Ensure that the software product id from the access token matches the software product id in the request.
-            if (!softwareProductIdAsGuid.ToString().Equals(softwareProductId, StringComparison.OrdinalIgnoreCase))
-                return new NotFoundObjectResult(new ResponseErrorList(ResponseErrorList.InvalidSoftwareProduct(softwareProductId)));
-
-            // Check the status of the data recipient making the SSA request.
-            var statusErrors = await CheckStatusByIndustry(industry, softwareProductIdAsGuid.Value);
-            if (statusErrors.HasErrors())
-                return new RegisterForbidResult(statusErrors);
-
-            return null;
-        }
-
-        /// <summary>
         /// Performs status check against the softwareProductId parameter
         /// </summary>
         /// <param name="softwareProductId">Software Product ID</param>
@@ -192,11 +168,6 @@ namespace CDR.Register.SSA.API.Controllers
                 return new RegisterForbidResult(statusErrors);
 
             return null;
-        }
-
-        private async Task<ResponseErrorList> CheckStatusByIndustry(IndustryEnum industry, Guid softwareProductId)
-        {
-            return await _statusCheckService.ValidateSoftwareProductStatusByIndustry(industry, softwareProductId);
         }
 
         private async Task<ResponseErrorList> CheckStatus(Guid softwareProductId)

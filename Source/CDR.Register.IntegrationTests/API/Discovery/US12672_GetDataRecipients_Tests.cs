@@ -43,14 +43,13 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     .ThenInclude(brand => brand.SoftwareProducts)
                     .ThenInclude(softwareProduct => softwareProduct.Status)
                     .Where(participation => participation.ParticipationTypeId == ParticipationTypeEnum.Dr)
-                    .Where(participation => participation.IndustryId == IndustryEnum.BANKING)
                     .OrderBy(participation => participation.LegalEntityId)
                     .Select(participation => new
                     {
                         legalEntityId = participation.LegalEntityId,
                         legalEntityName = participation.LegalEntity.LegalEntityName,
                         accreditationNumber = XV >= 2 ? participation.LegalEntity.AccreditationNumber : null,
-                        industry = participation.Industry.IndustryTypeCode,
+                        industry = "banking", // banking is always returned for legacy API
                         logoUri = participation.LegalEntity.LogoUri,
                         dataRecipientBrands = participation.Brands.OrderBy(b => b.BrandId).Select(brand => new
                         {
