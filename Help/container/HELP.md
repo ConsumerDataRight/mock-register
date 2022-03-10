@@ -13,10 +13,12 @@
 <span style="display:inline-block;margin-left:1em;">
 	docker run -d -h mock-register -p 7000:7000 -p 7001:7001 -p 7006:7006 --add-host=host.docker.internal:host-gateway --name mock-register consumerdataright/mock-register
 	<br \><br \>
-	docker run -d -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Pa{}w0rd2019' -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest<br \><br \>
+	docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
+	<br \><br \>
 	Please note - This docker compose file utilises the Microsoft SQL Server Image from Docker Hub.<br \>
 	The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.<br \>
 	See the Microsoft SQL Server Image on Docker Hub for more information.<br \>
+	Using the above command from a MS Windows command prompt will run the database.<br \>
 </span>
 
 <br />
@@ -75,6 +77,8 @@
 	open a command prompt and execute the following;<br \>
 	docker build -f Dockerfile.container -t mock-register .<br \>
 	docker run -d -h mr-host -p 7000:7000 -p 7001:7001 -p 7006:7006 --add-host=host.docker.internal:host-gateway --name mock-register mock-register<br \>
+	Please note - By default, the container above will be using a MS SQL database container, using this command from a MS Windows command prompt will run the database,<br \><br \>
+	docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pa{}w0rd2019" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2019-latest
 </span>
 
 <span style="display:inline-block;margin-left:1em;margin-top:10px;margin-bottom:10px;">
@@ -91,7 +95,7 @@
 [<img src="./images/ssms-login-error.png" height='300' width='400' alt="SSMS Login Error"/>](./images/ssms-login-error.png)
 
 <p>
-	(NB: if the above error occurs whilst trying to connect to the MS SQL container, the SQL Server Service MUST BE STOPPED, you can do this from SQL Server Manager)
+	(Please note - if the above error occurs whilst trying to connect to the MS SQL container, the SQL Server Service MUST BE STOPPED, you can do this from SQL Server Manager)
 </p>
 
 <p>5. The running solution</p>
