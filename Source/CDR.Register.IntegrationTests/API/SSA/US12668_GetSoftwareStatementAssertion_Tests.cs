@@ -23,7 +23,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
     public class US12668_GetSoftwareStatementAssertion_Tests : BaseTest
     {
         // Participation/Brand/SoftwareProduct Ids
-        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
@@ -56,31 +56,21 @@ namespace CDR.Register.IntegrationTests.API.SSA
             async Task<string?> GetAccessToken()
             {
                 // Access token
-                switch (accessTokenType)
+                return accessTokenType switch
                 {
-                    case AccessTokenType.ValidAccessToken:
-                        // Get the access token with the valid certificate.
-                        return await new Infrastructure.AccessToken
-                        {
-                            CertificateFilename = getAccessTokenCertificateFilename ?? certificateFilename,
-                            CertificatePassword = getAccessTokenCertificatePassword ?? certificatePassword
-                        }.GetAsync();
-
-                    case AccessTokenType.InvalidAccessToken:
-                        return "foo";
-
-                    case AccessTokenType.ExpiredAccessToken:
-                        // Represents an expired access token.
-                        // "exp": 1621344825
-                        // Expired at "Tuesday, May 18, 2021 11:33:45 PM GMT+10:00"
-                        return "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2MjEzNDQ1MjUsImV4cCI6MTYyMTM0NDgyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiJDODRBNTM5MTA2QjI4NUJBODI2RjZGMDQ3MjU4RjBBNCIsImlhdCI6MTYyMTM0NDUyNSwic2NvcGUiOlsiY2RyLXJlZ2lzdGVyOmJhbms6cmVhZCJdLCJjbmYiOnsieDV0I1MyNTYiOiI1OEQ3NkY3QTYxQ0Q3MjZEQTFDNTRGNjg5OEU4RTY5RUE0Qzg4MDYwIn19.RTU-zrqkb-WXcJzCz62SJ4h19lj8MDyGcvLOmg0qx05WFbAsY4mEP3gsoqM1LJfq4ncw7RqSvbkCNQQ-NOnyoBHF8MGe7mzdUh3YrD0_lTg20Dkx1-l044svtP_CKTI3rXT3bZaYWce0Tb1s3mrJzfN3ja23o93FGR-wbIwHp2347b0DxjznpKBw5meLhAjS7OCx6_uMm1la6IziSQgqMd2WaA-od7w8J5br-Nn-QZZi7X1KGiPEKFDFNk8KrUdPc4NCH6t7f-Sbc34KNNEWfAOJkWdDrmsBaifSlWvSlS4nUnurGHYkmimA2JUuv3ZTqzCcLRamEER1ZoTcIs_PDw";
-
-                    case AccessTokenType.NoAccessToken:
-                        return null;
-
-                    default:
-                        throw new NotSupportedException();
-                }
+                    AccessTokenType.ValidAccessToken => await new Infrastructure.AccessToken
+                    {
+                        CertificateFilename = getAccessTokenCertificateFilename ?? certificateFilename,
+                        CertificatePassword = getAccessTokenCertificatePassword ?? certificatePassword
+                    }.GetAsync(),// Get the access token with the valid certificate.
+                    
+                    AccessTokenType.InvalidAccessToken => "foo",
+                    
+                    AccessTokenType.ExpiredAccessToken => "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2MjEzNDQ1MjUsImV4cCI6MTYyMTM0NDgyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiJDODRBNTM5MTA2QjI4NUJBODI2RjZGMDQ3MjU4RjBBNCIsImlhdCI6MTYyMTM0NDUyNSwic2NvcGUiOlsiY2RyLXJlZ2lzdGVyOmJhbms6cmVhZCJdLCJjbmYiOnsieDV0I1MyNTYiOiI1OEQ3NkY3QTYxQ0Q3MjZEQTFDNTRGNjg5OEU4RTY5RUE0Qzg4MDYwIn19.RTU-zrqkb-WXcJzCz62SJ4h19lj8MDyGcvLOmg0qx05WFbAsY4mEP3gsoqM1LJfq4ncw7RqSvbkCNQQ-NOnyoBHF8MGe7mzdUh3YrD0_lTg20Dkx1-l044svtP_CKTI3rXT3bZaYWce0Tb1s3mrJzfN3ja23o93FGR-wbIwHp2347b0DxjznpKBw5meLhAjS7OCx6_uMm1la6IziSQgqMd2WaA-od7w8J5br-Nn-QZZi7X1KGiPEKFDFNk8KrUdPc4NCH6t7f-Sbc34KNNEWfAOJkWdDrmsBaifSlWvSlS4nUnurGHYkmimA2JUuv3ZTqzCcLRamEER1ZoTcIs_PDw",// Represents an expired access token.
+                    
+                    AccessTokenType.NoAccessToken => null,
+                    _ => throw new NotSupportedException(),
+                };
             }
 
             // Arrange
@@ -129,7 +119,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             }
         }
 
-        public async Task Test_AC01_AC02_AC03(int? XV, int expectedXV)
+        public static async Task Test_AC01_AC02_AC03(int? XV, int expectedXV)
         {
             // Arrange - Get SoftwareProduct
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
@@ -384,7 +374,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         [InlineData("", HttpStatusCode.NotFound)]
         [InlineData("foo", HttpStatusCode.BadRequest, EXPECTEDCONTENT_INVALIDINDUSTRY)]
         [InlineData("banking", HttpStatusCode.OK)]
-        public async Task AC11_GetSSA_InvalidIndustry_ShouldRespondWith_400BadRequest(string industry, HttpStatusCode expectedStatusCode, string expectedContent = null)
+        public async Task AC11_GetSSA_InvalidIndustry_ShouldRespondWith_400BadRequest(string industry, HttpStatusCode expectedStatusCode, string? expectedContent = null)
         {
             await Test_GetSSA(
                 CERTIFICATE_FILENAME,

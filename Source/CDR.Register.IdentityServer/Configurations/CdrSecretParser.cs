@@ -63,56 +63,59 @@ namespace CDR.Register.IdentityServer.Configurations
 
             var body = context.Request.ReadFormAsync().Result;
 
-            if (body != null)
+            if (body == null)
             {
-                var clientId = body[OidcConstants.TokenRequest.ClientId].FirstOrDefault();
-                var clientAssertionType = body[OidcConstants.TokenRequest.ClientAssertionType].FirstOrDefault();
-                var clientAssertion = body[OidcConstants.TokenRequest.ClientAssertion].FirstOrDefault();
-
-                if (!string.IsNullOrWhiteSpace(clientAssertion)
-                    && clientAssertionType == OidcConstants.ClientAssertionTypes.JwtBearer)
-                {
-                    if (clientAssertion.Length > _options.InputLengthRestrictions.Jwt)
-                    {
-                        await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "705", null,
-                            "Client assertion token exceeds maximum length."), _logger);
-                        return null;
-                    }
-
-                    var assertionClientId = GetClientIdFromToken(clientAssertion);
-                    if (string.IsNullOrWhiteSpace(assertionClientId))
-                    {
-                        await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "706", null,
-                            "Client assertion token sub claim (client_id) is missing."), _logger);
-                        return null;
-                    }
-
-                    if (assertionClientId.Length > _options.InputLengthRestrictions.ClientId)
-                    {
-                        await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "707", null,
-                            "Client assertion token sub claim (client_id) exceeds maximum length."), _logger);
-                        return null;
-                    }
-
-                    if (!assertionClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "708", null,
-                            "Client assertion token sub claim (client_id) does not match token request body client_id"), _logger);
-                        return null;
-                    }
-
-                    return new ParsedSecret
-                    {
-                        Id = assertionClientId,
-                        Credential = new CdrCredential { Jwt = clientAssertion, CertificateThumbprintHeaderValues = certThumbprintHeaderValues, CertificateCommonNameHeaderValues = certCommonNameHeaderValues },
-                        Type = Constants.ParsedSecretTypes.CdrSecret
-                    };
-                }
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "902", null,
+                    "No JWT client assertion found in post body"), _logger);
+                return null;
             }
 
-            await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "902", null,
-                "No JWT client assertion found in post body"), _logger);
-            return null;
+            var clientId = body[OidcConstants.TokenRequest.ClientId].FirstOrDefault();
+            var clientAssertionType = body[OidcConstants.TokenRequest.ClientAssertionType].FirstOrDefault();
+            var clientAssertion = body[OidcConstants.TokenRequest.ClientAssertion].FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(clientAssertion) || clientAssertionType != OidcConstants.ClientAssertionTypes.JwtBearer)
+            {
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "902", null,
+                    "No JWT client assertion found in post body"), _logger);
+                return null;
+            }
+
+            if (clientAssertion.Length > _options.InputLengthRestrictions.Jwt)
+            {
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "705", null,
+                    "Client assertion token exceeds maximum length."), _logger);
+                return null;
+            }
+
+            var assertionClientId = GetClientIdFromToken(clientAssertion);
+            if (string.IsNullOrWhiteSpace(assertionClientId))
+            {
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "706", null,
+                    "Client assertion token sub claim (client_id) is missing."), _logger);
+                return null;
+            }
+
+            if (assertionClientId.Length > _options.InputLengthRestrictions.ClientId)
+            {
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "707", null,
+                    "Client assertion token sub claim (client_id) exceeds maximum length."), _logger);
+                return null;
+            }
+
+            if (!assertionClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase))
+            {
+                await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "708", null,
+                    "Client assertion token sub claim (client_id) does not match token request body client_id"), _logger);
+                return null;
+            }
+
+            return new ParsedSecret
+            {
+                Id = assertionClientId,
+                Credential = new CdrCredential { Jwt = clientAssertion, CertificateThumbprintHeaderValues = certThumbprintHeaderValues, CertificateCommonNameHeaderValues = certCommonNameHeaderValues },
+                Type = Constants.ParsedSecretTypes.CdrSecret
+            };
         }
 
         private string GetClientIdFromToken(string token)

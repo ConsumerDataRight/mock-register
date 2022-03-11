@@ -31,7 +31,7 @@ namespace CDR.Register.Repository
         /// <remarks>
         /// industry parameter is passed but is not currently used.
         /// </remarks>
-        public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(IndustryEnum industry)
+        public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
@@ -49,7 +49,7 @@ namespace CDR.Register.Repository
         /// <remarks>
         /// industry parameter is passed but is not currently used.
         /// </remarks>
-        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(IndustryEnum industry)
+        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Industry industry)
         {
             var allParticipants = await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Industry)

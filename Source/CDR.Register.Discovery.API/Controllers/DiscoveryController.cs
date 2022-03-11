@@ -18,15 +18,13 @@ namespace CDR.Register.Discovery.API.Controllers
     public class DiscoveryController : ControllerBase
     {
         private readonly IDiscoveryService _discoveryService;
-        private readonly ILogger<DiscoveryController> _logger;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
 
-        public DiscoveryController(IDiscoveryService discoveryService,
-                                    ILogger<DiscoveryController> logger, 
-                                    IDataRecipientStatusCheckService statusCheckService)
+        public DiscoveryController(
+            IDiscoveryService discoveryService,
+            IDataRecipientStatusCheckService statusCheckService)
         {
             _discoveryService = discoveryService;
-            _logger = logger;
             _statusCheckService = statusCheckService;
         }
 
@@ -35,18 +33,14 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataHolderBrandsLegacy(
             string industry,
             [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             // Check if the data recipient is active
             var result = await CheckSoftwareProduct();
             if (result != null)
@@ -77,16 +71,12 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataHolderBrands(
             [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             // Check if the data recipient is active
             var result = await CheckSoftwareProduct();
             if (result != null)
@@ -98,7 +88,7 @@ namespace CDR.Register.Discovery.API.Controllers
             DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await _discoveryService.GetDataHolderBrandsAsync(IndustryEnum.ALL, updatedSinceDate, pageNumber, pageSizeNumber);
+            var response = await _discoveryService.GetDataHolderBrandsAsync(Industry.ALL, updatedSinceDate, pageNumber, pageSizeNumber);
 
             // Check if the given page number is out of range
             if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
@@ -117,17 +107,13 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [CheckIndustry]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataHolderBrandsIndustry(
             [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize,
             string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             // Check if the data recipient is active
             var result = await CheckSoftwareProduct();
             if (result != null)
@@ -159,20 +145,17 @@ namespace CDR.Register.Discovery.API.Controllers
         /// was made to highest version of the Legacy endpoint supported.
         /// If this method is removed API Version will throw an exception error as the default endpoint will not be found.
         /// </remarks>
-        [Obsolete]
+        [Obsolete("This API version has been superseded")]
         [HttpGet]
         [Route("v1/{industry}/data-recipients")]
         [CheckXV("2")]
         [ApiVersion("1")]
         [ETag]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipientsV1(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-            return Ok(await _discoveryService.GetDataRecipientsAsyncV1(IndustryEnum.BANKING));
+            return Ok(await _discoveryService.GetDataRecipientsAsyncV1(Industry.BANKING));
         }
 
         [HttpGet]
@@ -180,13 +163,10 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("2")]
         [ApiVersion("2")]
         [ETag]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipientsV2(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
             return Ok(await _discoveryService.GetDataRecipientsAsyncV1(industry.ToIndustry()));
         }
 
@@ -195,12 +175,9 @@ namespace CDR.Register.Discovery.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipients()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
             return Ok(await _discoveryService.GetDataRecipientsAsync());
         }
 
@@ -230,8 +207,7 @@ namespace CDR.Register.Discovery.API.Controllers
         private Guid? GetSoftwareProductIdFromAccessToken()
         {
             string clientId = User.FindFirst("client_id")?.Value;
-            Guid softwareProductId;
-            if (Guid.TryParse(clientId, out softwareProductId))
+            if (Guid.TryParse(clientId, out Guid softwareProductId))
             {
                 return softwareProductId;
             }

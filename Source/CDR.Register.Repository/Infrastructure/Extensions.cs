@@ -16,8 +16,8 @@ namespace CDR.Register.Repository.Infrastructure
         {
             // Add Seed Data for the reference types
             modelBuilder.Entity<IndustryType>().HasData(
-                new IndustryType { IndustryTypeId = IndustryEnum.BANKING, IndustryTypeCode = IndustryEnum.BANKING.ToString().ToLower() },
-                new IndustryType { IndustryTypeId = IndustryEnum.ENERGY, IndustryTypeCode = IndustryEnum.ENERGY.ToString().ToLower() });
+                new IndustryType { IndustryTypeId = Industry.BANKING, IndustryTypeCode = Industry.BANKING.ToString().ToLower() },
+                new IndustryType { IndustryTypeId = Industry.ENERGY, IndustryTypeCode = Industry.ENERGY.ToString().ToLower() });
 
             modelBuilder.Entity<OrganisationType>().HasData(
                 new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
@@ -64,7 +64,7 @@ namespace CDR.Register.Repository.Infrastructure
         {
             if (!File.Exists(jsonFileFullPath))
             {
-                logger.LogDebug($"Seed data file '{jsonFileFullPath}' not found.");
+                logger.LogDebug("Seed data file '{jsonFileFullPath}' not found.", jsonFileFullPath);
                 return;
             }
 
@@ -82,15 +82,20 @@ namespace CDR.Register.Repository.Infrastructure
             bool overwriteExistingData = false)
         {
             bool hasExistingData = await registerDatabaseContext.Participations.AnyAsync();
-            if (hasExistingData && !overwriteExistingData)
+            if (hasExistingData)
             {
-                logger.LogInformation("Existing data found in the repository and not set to overwrite.  Repository will not be seeded.  Exiting.");
-                return false;
-            }
+                if (!overwriteExistingData)
+                {
+                    logger.LogInformation("Existing data found in the repository and not set to overwrite.  Repository will not be seeded.  Exiting.");
+                    return false;
+                }
 
-            logger.LogInformation(hasExistingData ?
-                 "Existing data found, but set to overwrite.  Seeding data..." :
-                 "No existing data found.  Seeding data...");
+                logger.LogInformation("Existing data found, but set to overwrite.  Seeding data...");
+            }
+            else
+            {
+                logger.LogInformation("No existing data found.  Seeding data...");
+            }
 
             return await registerDatabaseContext.ReSeedDatabaseFromJson(json, logger);
         }
@@ -99,8 +104,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// Retrieves all participant metadata from the database, serialises to JSON and return as a string.
         /// </summary>
         public async static Task<string> GetJsonFromDatabase(
-            this RegisterDatabaseContext registerDatabaseContext,
-            ILogger logger)
+            this RegisterDatabaseContext registerDatabaseContext)
         {
             var allData = await registerDatabaseContext.LegalEntities.AsNoTracking().OrderBy(l => l.LegalEntityName)
                 .Include(prop => prop.Participations)
@@ -164,7 +168,7 @@ namespace CDR.Register.Repository.Infrastructure
                 catch (Exception ex)
                 {
                     // Log any errors.
-                    logger.LogError($"Error while seeding the database. Error: {ex}");
+                    logger.LogError(ex, "Error while seeding the database.");
                     throw;
                 }
                 return false;

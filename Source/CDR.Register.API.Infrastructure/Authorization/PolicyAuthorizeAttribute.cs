@@ -27,7 +27,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             if (authorizationResult.Succeeded)
                 return;
 
-            if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MTLSRequirement)))
+            if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
             {
                 context.Result = new RegisterUnauthorizedResult(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                 return;

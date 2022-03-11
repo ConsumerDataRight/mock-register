@@ -37,7 +37,7 @@ namespace CDR.Register.IntegrationTests.Gateway
         private const string ISSUER = CLIENT_ID;
 
         // Participation/Brand/SoftwareProduct Ids
-        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 

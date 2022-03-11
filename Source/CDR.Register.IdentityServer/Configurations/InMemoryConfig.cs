@@ -17,7 +17,7 @@ namespace CDR.Register.IdentityServer.Configurations
                     UserClaims = { JwtClaimTypes.Subject },
                     Scopes =
                     {
-                        CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read
+                        CdsRegistrationScopes.BankRead, CdsRegistrationScopes.Read
                     }
                 }
             };
@@ -32,7 +32,7 @@ namespace CDR.Register.IdentityServer.Configurations
         {
             get
             {
-                return new List<ApiScope> { new ApiScope(CDSRegistrationScopes.BankRead, "CDR Register"), new ApiScope(CDSRegistrationScopes.Read, "CDR Register2") };
+                return new List<ApiScope> { new ApiScope(CdsRegistrationScopes.BankRead, "CDR Register"), new ApiScope(CdsRegistrationScopes.Read, "CDR Register2") };
             }
         }
     }

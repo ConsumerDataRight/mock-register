@@ -23,11 +23,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     public class US27562_GetDataHolderBrands_MultiIndustry_Tests : BaseTest
     {
         // Participation/Brand/SoftwareProduct Ids
-        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
-        private string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize, string? industry = null)
+        private static string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize, string? industry = null)
         {
             static string Link(string baseUrl, DateTime? updatedSince, int? page = null, int? pageSize = null)
             {
@@ -162,7 +162,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             return JsonConvert.SerializeObject(expectedResponse);
         }
 
-        private async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(DateTime? updatedSince, int? queryPage, int? queryPageSize, string? industry = null)
+        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(DateTime? updatedSince, int? queryPage, int? queryPageSize, string? industry = null)
         {
             static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
             {

@@ -20,7 +20,7 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>
     public class US12671_GetDataRecipientStatus_Tests : BaseTest
     {
-        private string GetExpectedDataRecipientsStatus()
+        private static string GetExpectedDataRecipientsStatus()
         {
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
 

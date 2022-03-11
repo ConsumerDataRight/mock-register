@@ -162,7 +162,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of SoftwareProduct
         /// </summary>
-        public int GetSoftwareProductStatusId(string softwareProductId)
+        public static int GetSoftwareProductStatusId(string softwareProductId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -176,7 +176,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Set status of SoftwareProduct
         /// </summary>
-        public void SetSoftwareProductStatusId(string softwareProductId, int statusId)
+        public static void SetSoftwareProductStatusId(string softwareProductId, int statusId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -200,7 +200,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Brand
         /// </summary>
-        public int GetBrandStatusId(string brandId)
+        public static int GetBrandStatusId(string brandId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -214,7 +214,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Set status of Brand
         /// </summary>
-        public void SetBrandStatusId(string brandId, int statusId)
+        public static void SetBrandStatusId(string brandId, int statusId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -238,7 +238,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get participationid for brand
         /// </summary>
-        public string GetParticipationId(string brandId)
+        public static string GetParticipationId(string brandId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -252,7 +252,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Participation
         /// </summary>
-        public int GetParticipationStatusId(string participationId)
+        public static int GetParticipationStatusId(string participationId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
@@ -266,7 +266,7 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Participation
         /// </summary>
-        public void SetParticipationStatusId(string participationId, int statusId)
+        public static void SetParticipationStatusId(string participationId, int statusId)
         {
             using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();

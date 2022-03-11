@@ -28,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError($"Unauthorized request. Access token is missing 'scope' claim for issuer '{requirement.Issuer}'.");
+                    _logger.LogError("Unauthorized request. Access token is missing 'scope' claim for issuer '{issuer}'.", requirement.Issuer);
                 }
                 return Task.CompletedTask;
             }
@@ -38,27 +38,11 @@ namespace CDR.Register.API.Infrastructure.Authorization
 
             // Succeed if the scope array contains the required scope
             // The space character is used to seperate the scopes as this is in line with CDS specifications.
-            string[] requiredScopes;
-            if (requirement.Scope.Contains(" "))
+            string[] requiredScopes = requirement.Scope.Split(' ');
+
+            if (userClaimScopes.Intersect(requiredScopes).Any())
             {
-                requiredScopes = requirement.Scope.Split(" ");
-                if (requiredScopes.Count() > 0)
-                {
-                    foreach (var scope in requiredScopes)
-                    {
-                        if (userClaimScopes.Any(s => s == scope))
-                        {
-                            context.Succeed(requirement);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (userClaimScopes.Any(s => s == requirement.Scope))
-                {
-                    context.Succeed(requirement);
-                }
+                context.Succeed(requirement);
             }
 
             return Task.CompletedTask;

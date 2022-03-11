@@ -47,7 +47,7 @@ namespace CDR.Register.IdentityServer.Configurations
 
             using (LogContext.PushProperty("MethodName", "ValidateAsync"))
             {
-                _logger.LogInformation($"Starting");
+                _logger.LogInformation("Starting");
             }
 
             if (parsedSecret == null)
@@ -64,7 +64,7 @@ namespace CDR.Register.IdentityServer.Configurations
                 return fail;
             }
 
-            if (parsedSecret.Credential == null || !(parsedSecret.Credential is CdrCredential credential))
+            if (parsedSecret.Credential is not CdrCredential credential)
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "606", null,
                     "ParsedSecret.Credential is not valid."), _logger);
@@ -95,6 +95,45 @@ namespace CDR.Register.IdentityServer.Configurations
                 return fail;
             }
 
+            if (!(await IsValidJwt(credential, trustedKeys, parsedSecret)))
+            {
+                return fail;
+            }
+
+            if (!(await IsValidCertificate(credential, secrets)))
+            {
+                return fail;
+            }
+
+            // Certificate validation passed so add the thumbprint of the certificate to the access token
+            var values = new Dictionary<string, string>
+            {
+                { "x5t#S256", credential.CertificateThumbprintHeaderValues.First() }
+            };
+
+            var cnf = JsonConvert.SerializeObject(values);
+
+            await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "0", null), _logger);
+
+            var result = new SecretValidationResult
+            {
+                Success = true,
+                Confirmation = cnf
+            };
+
+            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
+            {
+                _logger.LogInformation("Finishing Result: {result}", result.Success);
+            }
+
+            return result;
+        }
+
+        private async Task<bool> IsValidJwt(
+            CdrCredential credential,
+            List<SecurityKey> trustedKeys,
+            ParsedSecret parsedSecret)
+        {
             var validAudience = _configuration.GetValue<string>(Constants.ConfigurationKeys.TokenUri);
 
             var tokenValidationParameters = new TokenValidationParameters
@@ -118,11 +157,12 @@ namespace CDR.Register.IdentityServer.Configurations
                 handler.ValidateToken(credential.Jwt, tokenValidationParameters, out var token);
 
                 var jwtToken = (JwtSecurityToken)token;
+
                 if (string.IsNullOrEmpty(jwtToken.Id))
                 {
                     await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "709", null,
                         "'jti' in the client assertion token must have a value."), _logger);
-                    return fail;
+                    return false;
                 }
 
                 var tokenIdentifier = $"{jwtToken.Audiences.First()}:{jwtToken.Id}";
@@ -130,46 +170,52 @@ namespace CDR.Register.IdentityServer.Configurations
                 {
                     await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "710", null,
                         "'jti' in the client assertion token must be unique."), _logger);
-                    return fail;
+                    return false;
                 }
 
                 if (jwtToken.Subject != jwtToken.Issuer)
                 {
                     await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "712", null,
                         "Both 'sub' and 'iss' in the client assertion token must have the same value."), _logger);
-                    return fail;
+                    return false;
                 }
-
             }
             catch (Exception e)
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "711", null,
                     $"JWT token validation error. {e.Message}"), _logger);
-                return fail;
+                return false;
             }
 
+            return true;
+        }
+
+        private async Task<bool> IsValidCertificate(
+            CdrCredential credential,
+            IEnumerable<Secret> secrets)
+        {
             // validate certificate thumbprint
             if (StringValues.IsNullOrEmpty(credential.CertificateThumbprintHeaderValues))
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "609", null,
                     "No thumbprint found in X509 client certificate."), _logger);
-                return fail;
+                return false;
             }
 
             if (credential.CertificateThumbprintHeaderValues.Count > 1)
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "609", null,
                     $"Multiple thumbprints found in X509 client certificate."), _logger);
-                return fail;
+                return false;
             }
 
             string certThumbprint = credential.CertificateThumbprintHeaderValues.First();
 
-            var certThumbprintSecretMatch = secrets.Where(s =>
+            var certThumbprintSecretMatch = secrets.Any(s =>
                         !string.IsNullOrWhiteSpace(s.Type)
                         && s.Type.Equals(IdentityServerConstants.SecretTypes.X509CertificateThumbprint)
                         && !string.IsNullOrWhiteSpace(s.Value)
-                        && s.Value.Equals(certThumbprint, StringComparison.OrdinalIgnoreCase)).Any();
+                        && s.Value.Equals(certThumbprint, StringComparison.OrdinalIgnoreCase));
 
             using (LogContext.PushProperty("MethodName", "ValidateAsync"))
             {
@@ -180,31 +226,31 @@ namespace CDR.Register.IdentityServer.Configurations
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "611", null,
                     $"No matching x509 client certificate found for common name '{certThumbprint}'"), _logger);
-                return fail;
+                return false;
             }
 
             // validate certificate commonName
             if (StringValues.IsNullOrEmpty(credential.CertificateCommonNameHeaderValues))
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "610", null,
-                "No common name found in X509 client certificate."), _logger);
-                return fail;
+                    "No common name found in X509 client certificate."), _logger);
+                return false;
             }
 
             if (credential.CertificateCommonNameHeaderValues.Count > 1)
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "610", null,
                     $"Multiple common names found in X509 client certificate"), _logger);
-                return fail;
+                return false;
             }
 
             string certCommonName = credential.CertificateCommonNameHeaderValues.First();
 
-            var certNameSecretMatch = secrets.Where(s =>
+            var certNameSecretMatch = secrets.Any(s =>
                         !string.IsNullOrWhiteSpace(s.Type)
                         && s.Type.Equals(IdentityServerConstants.SecretTypes.X509CertificateName)
                         && !string.IsNullOrWhiteSpace(s.Value)
-                        && s.Value.Equals(certCommonName, StringComparison.OrdinalIgnoreCase)).Any();
+                        && s.Value.Equals(certCommonName, StringComparison.OrdinalIgnoreCase));
 
             using (LogContext.PushProperty("MethodName", "ValidateAsync"))
             {
@@ -217,31 +263,10 @@ namespace CDR.Register.IdentityServer.Configurations
             {
                 await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "611", null,
                     $"No matching x509 client certificate found for common name '{certCommonName}'"), _logger);
-                return fail;
+                return false;
             }
 
-            // Certificate validation passed so add the thumbprint of the certificate to the access token
-            var values = new Dictionary<string, string>
-            {
-                { "x5t#S256", certThumbprint }
-            };
-
-            var cnf = JsonConvert.SerializeObject(values);
-
-            await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "0", null), _logger);
-
-            var result = new SecretValidationResult
-            {
-                Success = true,
-                Confirmation = cnf
-            };
-
-            using (LogContext.PushProperty("MethodName", "ValidateAsync"))
-            {
-                _logger.LogInformation($"Finishing Result: {result.Success}");
-            }
-
-            return result;
+            return true;
         }
 
         private static bool IsTokenBlacklisted(string tokenId, DateTime expDate)

@@ -15,12 +15,10 @@ namespace CDR.Register.IdentityServer
     public class Startup
     {
         public readonly IConfiguration _configuration;
-        readonly IHostEnvironment _env;
 
-        public Startup(IConfiguration configuration, IHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            _env = env;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -28,7 +26,7 @@ namespace CDR.Register.IdentityServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
-            services.AddRegisterIdentityServer(_configuration, _env);
+            services.AddRegisterIdentityServer(_configuration);
             services.AddTransient<IDiscoveryResponseGenerator, RegisterDiscoveryResponseGenerator>();
             services.AddTransient<ITokenCreationService, TokenCreationService>();
         }

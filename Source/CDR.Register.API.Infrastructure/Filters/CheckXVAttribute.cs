@@ -28,52 +28,29 @@ namespace CDR.Register.API.Infrastructure.Filters
 
             // Get x_v value from request header
             var x_v = context.HttpContext.Request.Headers["x-v"];
-            int xvVersion;
-            var isNumber = int.TryParse(x_v, out xvVersion);
-
-            // 1 = Legacy, 2 = Multi Industry
-            int reqType = 2;
+            var isNumber = int.TryParse(x_v, out int xvVersion);
 
             // Get the path
             string reqPath = context.HttpContext.Request.Path;
 
-            // Am I a LEGACY request? (defaults to Multi Industry), ie /cdr-register/v1/{industry}/.../.../
-            reqPath = reqPath.TrimStart('/');
-            var splitPath = reqPath.Split('/');
-            if (splitPath.Length > 1)
-            {
-                for (int i = 0; i < splitPath.Length; i++)
-                {
-                    string pathItem = splitPath[i];
-                    if (Enum.IsDefined(typeof(IndustryEnum), pathItem.ToUpper()))
-                    {
-                        // Make sure the industry found is NOT tagged onto the end of the path
-                        if (i < splitPath.Length-1)
-                            reqType = 1;
-                        break;
-                    }
-                }
-            }
+            // Am I a LEGACY request? (legacy requests start with /cdr-register/v1/banking/...
+            bool isLegacy = (reqPath.StartsWith("/cdr-register/v1/banking/"));
 
             // x_v header does NOT EXIST
-            if (!headerSent)
+            if (!headerSent && !isLegacy)
             {
                 // MULTI INDUSTRY REQUEST - return 400 - BadRequest - MissingRequiredHeader -> (IS OPTIONAL for Legacy request)
-                if (reqType > 1)
+                context.Result = new ObjectResult(new ResponseErrorList().InvalidXVMissingRequiredHeader())
                 {
-                    context.Result = new ObjectResult(new ResponseErrorList().InvalidXVMissingRequiredHeader())
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest
-                    };
-                }
-
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
             }
 
             // x_v header EXISTS and the VALUE is EMPTY
             else if (string.IsNullOrEmpty(x_v))
             {
                 // MULTI INDUSTRY REQUEST - is MANDATORY -> return 400 - BadRequest - InvalidVersion -> (IS OPTIONAL for Legacy request)
-                if (reqType > 1)
+                if (!isLegacy)
                 {
                     context.Result = new ObjectResult(new ResponseErrorList().InvalidXVInvalidVersion())
                     {
@@ -85,8 +62,8 @@ namespace CDR.Register.API.Infrastructure.Filters
             // x_v header EXISTS and the VALUE is not a positive integer, eg invalid case is set to foo
             else if (!isNumber)
             {
-                // reqType == 1 LEGACY REQUEST - return 400 - BadRequest - InvalidVersion
-                // reqType != 1 MULTI INDUSTRY REQUEST - return 400 - BadRequest - InvalidVersion
+                // LEGACY REQUEST - return 400 - BadRequest - InvalidVersion
+                // MULTI INDUSTRY REQUEST - return 400 - BadRequest - InvalidVersion
                 context.Result = new ObjectResult(new ResponseErrorList().InvalidXVInvalidVersion())
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
@@ -94,10 +71,10 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // x_v header EXISTS and the VALUE is NEGATIVE
-            else if (isNumber && xvVersion < 0)
+            else if (xvVersion < 0)
             {                
-                // reqType == 1 LEGACY REQUEST - return 400 - BadRequest - InvalidVersion
-                // reqType != 1 MULTI INDUSTRY REQUEST - return 400 - BadRequest - InvalidVersion
+                // LEGACY REQUEST - return 400 - BadRequest - InvalidVersion
+                // MULTI INDUSTRY REQUEST - return 400 - BadRequest - InvalidVersion
                 context.Result = new ObjectResult(new ResponseErrorList().InvalidXVInvalidVersion())
                 {
                     StatusCode = (int)HttpStatusCode.BadRequest
@@ -105,10 +82,10 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // x_v header EXISTS and the VALUE doesn't match our version
-            else if (isNumber && x_v != _version)
+            else if (x_v != _version)
             {
-                // reqType == 1 LEGACY REQUEST - return 406 - NotAcceptable - UnsupportedVersion
-                // reqType != 1 MULTI INDUSTRY REQUEST - return 406 - NotAcceptable - UnsupportedVersion
+                // LEGACY REQUEST - return 406 - NotAcceptable - UnsupportedVersion
+                // MULTI INDUSTRY REQUEST - return 406 - NotAcceptable - UnsupportedVersion
                 context.Result = new ObjectResult(new ResponseErrorList().InvalidXVUnsupportedVersion())
                 {
                     StatusCode = (int)HttpStatusCode.NotAcceptable

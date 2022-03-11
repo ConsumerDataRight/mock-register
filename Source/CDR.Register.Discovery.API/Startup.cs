@@ -1,3 +1,4 @@
+using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Repository.Infrastructure;
@@ -47,6 +48,8 @@ namespace CDR.Register.Discovery.API
             services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Register_DB")));
 
             services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
+
+            services.AddScoped<LogActionEntryAttribute>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

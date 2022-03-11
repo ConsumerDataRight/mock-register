@@ -26,7 +26,7 @@ namespace CDR.Register.Status.API.Business
             return response;
         }
 
-        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsync(IndustryEnum industry)
+        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsync(Industry industry)
         {
             var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync(industry);
             var response = _mapper.Map<ResponseRegisterDataRecipientStatusList>(entity);
@@ -40,7 +40,7 @@ namespace CDR.Register.Status.API.Business
             return response;
         }
 
-        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsync(IndustryEnum industry)
+        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsync(Industry industry)
         {
             var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync(industry);
             var response = _mapper.Map<ResponseRegisterSoftwareProductStatusList>(entity);

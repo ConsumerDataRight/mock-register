@@ -18,18 +18,15 @@ namespace CDR.Register.SSA.API.Controllers
     public class SSAController : ControllerBase
     {
         private readonly ISSAService _ssaService;
-        private readonly ILogger<SSAController> _logger;
         private readonly ICertificateService _certificateService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
 
         public SSAController(
             ISSAService ssaService,
-            ILogger<SSAController> logger,
             ICertificateService certificateService,
             IDataRecipientStatusCheckService statusCheckService)
         {
             _ssaService = ssaService;
-            _logger = logger;
             _certificateService = certificateService;
             _statusCheckService = statusCheckService;
         }
@@ -40,26 +37,17 @@ namespace CDR.Register.SSA.API.Controllers
         /// was made to highest version of the Legacy endpoint supported.
         /// If this method is removed API Version will throw an exception error as the default endpoint will not be found.
         /// </remarks>
-        [Obsolete]
+        [Obsolete("This API version has been superseded")]
         [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
         [CheckXV("2")]
         [ApiVersion("1")]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertionV1(string industry, string dataRecipientBrandId, string softwareProductId)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
-            var result = await CheckSoftwareProduct(softwareProductId);
-            if (result != null)
-                return result;
-
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTV2Async(dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
+            return await GetSoftwareStatementAssertionJWTV2(dataRecipientBrandId, softwareProductId);
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
@@ -67,20 +55,11 @@ namespace CDR.Register.SSA.API.Controllers
         [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
         [CheckXV("2")]
         [ApiVersion("2")]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertionV2(string industry, string dataRecipientBrandId, string softwareProductId)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
-            var result = await CheckSoftwareProduct(softwareProductId);
-            if (result != null)
-                return result;
-
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTV2Async(dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
+            return await GetSoftwareStatementAssertionJWTV2(dataRecipientBrandId, softwareProductId);
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetSSAMultiIndustry)]
@@ -89,13 +68,9 @@ namespace CDR.Register.SSA.API.Controllers
         [CheckXV("3")]
         [ApiVersion("3")]
         [CheckIndustry]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertionV3(string industry, string dataRecipientBrandId, string softwareProductId)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
@@ -109,13 +84,9 @@ namespace CDR.Register.SSA.API.Controllers
         [Route("v1/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
         [CheckXV("1")]
         [ApiVersion("1")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertion(string dataRecipientBrandId, string softwareProductId)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
@@ -127,20 +98,16 @@ namespace CDR.Register.SSA.API.Controllers
         [HttpGet]
         [Route("v1/jwks")]
         [ApiVersion("1")]
-        public async Task<IActionResult> GetJwks()
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public IActionResult GetJwks()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
             return Ok(_certificateService.JsonWebKeySet);
         }
 
         private Guid? GetSoftwareProductIdFromAccessToken()
         {
             string clientId = User.FindFirst("client_id")?.Value;
-            Guid softwareProductId;
-            if (Guid.TryParse(clientId, out softwareProductId))
+            if (Guid.TryParse(clientId, out Guid softwareProductId))
                 return softwareProductId;
 
             return null;
@@ -173,6 +140,16 @@ namespace CDR.Register.SSA.API.Controllers
         private async Task<ResponseErrorList> CheckStatus(Guid softwareProductId)
         {
             return await _statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
+        }
+
+        private async Task<IActionResult> GetSoftwareStatementAssertionJWTV2(string dataRecipientBrandId, string softwareProductId)
+        {
+            var result = await CheckSoftwareProduct(softwareProductId);
+            if (result != null)
+                return result;
+
+            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTV2Async(dataRecipientBrandId, softwareProductId);
+            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
         }
     }
 }

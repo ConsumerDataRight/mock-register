@@ -1,4 +1,5 @@
-﻿using CDR.Register.Repository.Infrastructure;
+﻿using CDR.Register.API.Infrastructure.Filters;
+using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -23,13 +24,9 @@ namespace CDR.Register.Admin.API.Controllers
 
         [HttpPost]
         [Route("Metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task LoadData()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             using var reader = new StreamReader(Request.Body);
             string json = await reader.ReadToEndAsync();
             string respMsg = "";
@@ -60,14 +57,10 @@ namespace CDR.Register.Admin.API.Controllers
 
         [HttpGet]
         [Route("Metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task GetData()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation("Received request to GetData");
-            }
-
-            var metadata = await _dbContext.GetJsonFromDatabase(_logger);
+            var metadata = await _dbContext.GetJsonFromDatabase();
 
             // Return the raw JSON response.
             Response.ContentType = "application/json";

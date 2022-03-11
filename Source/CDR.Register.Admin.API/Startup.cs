@@ -1,3 +1,4 @@
+using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +31,8 @@ namespace CDR.Register.Admin.API
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
             services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Register_DBO")));
+
+            services.AddScoped<LogActionEntryAttribute>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

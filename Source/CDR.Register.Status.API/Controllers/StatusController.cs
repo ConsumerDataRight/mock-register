@@ -4,8 +4,6 @@ using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Status.API.Business;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Logging;
-using Serilog.Context;
 using System;
 using System.Threading.Tasks;
 
@@ -16,28 +14,22 @@ namespace CDR.Register.Status.API.Controllers
     public class StatusController : ControllerBase
     {
         private readonly IStatusService _statusService;
-        private readonly ILogger<StatusController> _logger;
 
-        public StatusController(IStatusService StatusService, ILogger<StatusController> logger)
+        public StatusController(IStatusService StatusService)
         {
             _statusService = StatusService;
-            _logger = logger;
         }
 
-        [Obsolete]
+        [Obsolete("This API version has been superseded")]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/status")]
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatusV1(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             return Ok(await _statusService.GetDataRecipientStatusesAsyncV1());
         }
 
@@ -47,13 +39,9 @@ namespace CDR.Register.Status.API.Controllers
         [ApiVersion("2")]
         [ETag]
         [CheckIndustry]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatus(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             return Ok(await _statusService.GetDataRecipientStatusesAsync(industry.ToIndustry()));
         }
 
@@ -62,30 +50,22 @@ namespace CDR.Register.Status.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatusV2()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
-            return Ok(await _statusService.GetDataRecipientStatusesAsync(IndustryEnum.ALL));
+            return Ok(await _statusService.GetDataRecipientStatusesAsync(Industry.ALL));
         }
 
-        [Obsolete]
+        [Obsolete("This API version has been superseded")]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/software-products/status")]
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
-        [CheckIndustry(IndustryEnum.BANKING)]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatusV1(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             return Ok(await _statusService.GetSoftwareProductStatusesAsyncV1());
         }
 
@@ -95,13 +75,9 @@ namespace CDR.Register.Status.API.Controllers
         [ApiVersion("2")]
         [ETag]
         [CheckIndustry]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatus(string industry)
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             return Ok(await _statusService.GetSoftwareProductStatusesAsync(industry.ToIndustry()));
         }
 
@@ -110,13 +86,9 @@ namespace CDR.Register.Status.API.Controllers
         [CheckXV("1")]
         [ApiVersion("1")]
         [ETag]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatusNoInd()
         {
-            using (LogContext.PushProperty("MethodName", ControllerContext.RouteData.Values["action"].ToString()))
-            {
-                _logger.LogInformation($"Received request to {ControllerContext.RouteData.Values["action"]}");
-            }
-
             return Ok(await _statusService.GetSoftwareProductStatusesAsync());
         }
     }

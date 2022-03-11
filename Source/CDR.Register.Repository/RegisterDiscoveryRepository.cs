@@ -24,7 +24,7 @@ namespace CDR.Register.Repository
             this._mapper = mapper;
         }
 
-        public async Task<Page<DataHolderBrandV1[]>> GetDataHolderBrandsAsyncV1(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<Page<DataHolderBrandV1[]>> GetDataHolderBrandsAsyncV1(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             (List<Entities.Brand> allBrands, int totalRecords) = await ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
 
@@ -38,7 +38,7 @@ namespace CDR.Register.Repository
             return result;
         }
 
-        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             (List<Entities.Brand> allBrands, int totalRecords) = await ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
             DataHolderBrand[] rtnData = _mapper.Map<DataHolderBrand[]>(allBrands);
@@ -46,19 +46,19 @@ namespace CDR.Register.Repository
             // NB: Below is more applicable to the future schema definition of including the IndustryId at the Brand level
             //     Currently it will only ever have 1 Brand record per DataHolder Record
             //     Must return a string array of Industries, ie each Participant has a unique Industry
-            foreach (var dh in rtnData)
+            foreach (var dh in rtnData.Select(x => x.DataHolder))
             {
-                if (dh.DataHolder.Brands.Count == 1)
+                if (dh.Brands.Count == 1)
                 {
-                    dh.DataHolder.Industries = new List<string> { dh.DataHolder.Industry };
+                    dh.Industries = new List<string> { dh.Industry };
                 }
                 else
                 {
                     var industries = new List<string>();
-                    if (!string.IsNullOrEmpty(dh.DataHolder.Industry))
-                        industries.Add(dh.DataHolder.Industry);
+                    if (!string.IsNullOrEmpty(dh.Industry))
+                        industries.Add(dh.Industry);
 
-                    dh.DataHolder.Industries = industries;
+                    dh.Industries = industries;
                 }
             }
 
@@ -72,7 +72,7 @@ namespace CDR.Register.Repository
             return result;
         }
 
-        protected async Task<(List<Entities.Brand>, int)> ProcessGetDataHolderBrands(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize)
+        protected async Task<(List<Entities.Brand>, int)> ProcessGetDataHolderBrands(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             var allBrandsQuery = this._registerDatabaseContext.Brands.AsNoTracking()
                 .Include(brand => brand.Endpoint)
@@ -84,7 +84,7 @@ namespace CDR.Register.Repository
                 .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh);
 
             // Add the optional Industry
-            if (industry != IndustryEnum.ALL)
+            if (industry != Industry.ALL)
             {
                 allBrandsQuery = allBrandsQuery.Where(brand => brand.Participation.IndustryId == industry);
             }
@@ -108,7 +108,7 @@ namespace CDR.Register.Repository
             return (allBrands, totalRecords);
         }
 
-        public async Task<DataRecipientV1[]> GetDataRecipientsAsyncV1(IndustryEnum industry)
+        public async Task<DataRecipientV1[]> GetDataRecipientsAsyncV1(Industry industry)
         {
             // UNKNOWN industry type is parsed to NOT use industry filtering.
             List<Participation> allParticipants = await ProcessGetDataRecipients(industry);
@@ -131,7 +131,7 @@ namespace CDR.Register.Repository
         public async Task<DataRecipient[]> GetDataRecipientsAsync()
         {
             // UNKNOWN industry type is parsed to NOT use industry filtering.
-            List<Participation> allParticipants = await ProcessGetDataRecipients(IndustryEnum.ALL);
+            List<Participation> allParticipants = await ProcessGetDataRecipients(Industry.ALL);
 
             // Additionally sort participants.brands, participants.brands.softwareproducts by id
             allParticipants.ForEach(p =>
@@ -149,7 +149,7 @@ namespace CDR.Register.Repository
         /// <remarks>
         /// The industry parameter is passed but currently not used.
         /// </remarks>
-        protected async Task<List<Participation>> ProcessGetDataRecipients(IndustryEnum industry)
+        protected async Task<List<Participation>> ProcessGetDataRecipients(Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)

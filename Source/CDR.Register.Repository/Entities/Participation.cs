@@ -21,7 +21,7 @@ namespace CDR.Register.Repository.Entities
         public ParticipationTypeEnum ParticipationTypeId { get; set; }
         public ParticipationType ParticipationType { get; set; }
 
-        public IndustryEnum? IndustryId { get; set; }
+        public Industry? IndustryId { get; set; }
         public IndustryType Industry { get; set; }
 
         public ParticipationStatusEnum StatusId { get; set; }

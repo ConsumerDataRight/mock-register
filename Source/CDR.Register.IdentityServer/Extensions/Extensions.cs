@@ -21,13 +21,15 @@ namespace CDR.Register.IdentityServer
 
     public static class IdSvrExtensions
     {
-        public static IServiceCollection AddRegisterIdentityServer(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+        public static IServiceCollection AddRegisterIdentityServer(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpClient<IJwkService, JwkService>()
                 .ConfigurePrimaryHttpMessageHandler(() =>
                 {
-                    var handler = new HttpClientHandler();
-                    handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
+                    var handler = new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (a, b, c, d) => true
+                    };
 
                     return handler;
                 });
@@ -77,7 +79,7 @@ namespace CDR.Register.IdentityServer
 
                 // Override default entries with custom entries to only show relevant otions for the CDR register
                 options.Discovery.ShowApiScopes = false;
-                options.Discovery.CustomEntries.Add("scopes_supported", new string[] { CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read });
+                options.Discovery.CustomEntries.Add("scopes_supported", new string[] { CdsRegistrationScopes.BankRead, CdsRegistrationScopes.Read });
 
                 options.Discovery.ShowResponseTypes = false;
                 options.Discovery.CustomEntries.Add("response_types_supported", new string[] { "token" });

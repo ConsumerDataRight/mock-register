@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure;
+using CDR.Register.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +65,7 @@ namespace CDR.Register.API.Gateway.mTLS
              // The default implementation uses a memory cache.
              .AddCertificateCache();
             services.AddOcelot();
+            services.AddScoped<LogActionEntryAttribute>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

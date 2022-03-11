@@ -8,9 +8,9 @@ namespace CDR.Register.Repository.Interfaces
 {
     public interface IRegisterDiscoveryRepository
     {
-        Task<Page<DataHolderBrandV1[]>> GetDataHolderBrandsAsyncV1(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize);
-        Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize);
-        Task<DataRecipientV1[]> GetDataRecipientsAsyncV1(IndustryEnum industry);
+        Task<Page<DataHolderBrandV1[]>> GetDataHolderBrandsAsyncV1(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<DataRecipientV1[]> GetDataRecipientsAsyncV1(Industry industry);
         Task<DataRecipient[]> GetDataRecipientsAsync();
         Task<SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId);
     }

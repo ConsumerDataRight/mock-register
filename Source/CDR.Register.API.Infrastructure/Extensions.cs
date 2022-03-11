@@ -70,29 +70,29 @@ namespace CDR.Register.API.Infrastructure
             {
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead, identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
 
                 options.AddPolicy(AuthorisationPolicy.GetSSA.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead, identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead + " " + CDSRegistrationScopes.Read, identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
                 options.AddPolicy(AuthorisationPolicy.GetSSAMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CDSRegistrationScopes.BankRead + " " + CDSRegistrationScopes.Read, identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
             });
             services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
             services.AddSingleton<IAuthorizationHandler, DataRecipientSoftwareProductIdHandler>();
-            services.AddSingleton<IAuthorizationHandler, MTLSHandler>();
+            services.AddSingleton<IAuthorizationHandler, MtlsHandler>();
 
             services.AddSwaggerGen(c =>
             {
@@ -212,10 +212,10 @@ namespace CDR.Register.API.Infrastructure
             return uriBuilder.Uri;
         }
 
-        public static IndustryEnum ToIndustry(this string industry)
+        public static Industry ToIndustry(this string industry)
         {
-            if (Enum.IsDefined(typeof(IndustryEnum), industry.ToUpper()))
-                return (IndustryEnum)Enum.Parse(typeof(IndustryEnum), industry, true);
+            if (Enum.IsDefined(typeof(Industry), industry.ToUpper()))
+                return (Industry)Enum.Parse(typeof(Industry), industry, true);
             else
                 throw new NotSupportedException($"Invalid industry: {industry}");
         }

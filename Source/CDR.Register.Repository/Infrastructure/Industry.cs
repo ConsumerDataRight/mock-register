@@ -1,6 +1,6 @@
 ﻿namespace CDR.Register.Repository.Infrastructure
 {
-    public enum IndustryEnum
+    public enum Industry
     {
         ALL = 0,
         BANKING,

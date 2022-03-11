@@ -23,7 +23,7 @@ namespace CDR.Register.Discovery.API.Business
             _mapper = mapper;
         }
 
-        public async Task<ResponseRegisterDataHolderBrandListV1> GetDataHolderBrandsAsyncV1(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<ResponseRegisterDataHolderBrandListV1> GetDataHolderBrandsAsyncV1(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             var entity = await _registerDiscoveryRepository.GetDataHolderBrandsAsyncV1(industry, updatedSince, page, pageSize);
             var response = _mapper.Map<ResponseRegisterDataHolderBrandListV1>(entity);
@@ -31,7 +31,7 @@ namespace CDR.Register.Discovery.API.Business
             return response;
         }
 
-        public async Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(IndustryEnum industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             var entity = await _registerDiscoveryRepository.GetDataHolderBrandsAsync(industry, updatedSince, page, pageSize);
             var response = _mapper.Map<ResponseRegisterDataHolderBrandList>(entity);
@@ -39,7 +39,7 @@ namespace CDR.Register.Discovery.API.Business
             return response;
         }
 
-        public async Task<ResponseRegisterDataRecipientListV1> GetDataRecipientsAsyncV1(IndustryEnum industry)
+        public async Task<ResponseRegisterDataRecipientListV1> GetDataRecipientsAsyncV1(Industry industry)
         {
             var entity = await _registerDiscoveryRepository.GetDataRecipientsAsyncV1(industry);
             var response = _mapper.Map<ResponseRegisterDataRecipientListV1>(entity);

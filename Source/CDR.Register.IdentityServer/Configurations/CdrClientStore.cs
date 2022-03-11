@@ -89,7 +89,7 @@ namespace CDR.Register.IdentityServer.Configurations
                 // scopes that client has access to
                 AllowedScopes = new List<string>
                 {
-                    StandardScopes.OpenId, CDSRegistrationScopes.BankRead, CDSRegistrationScopes.Read
+                    StandardScopes.OpenId, CdsRegistrationScopes.BankRead, CdsRegistrationScopes.Read
                 },
 
                 AccessTokenType = AccessTokenType.Jwt,

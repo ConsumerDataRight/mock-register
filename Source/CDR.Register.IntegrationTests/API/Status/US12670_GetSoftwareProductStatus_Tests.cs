@@ -19,7 +19,7 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>   
     public class US12670_GetSoftwareProductStatus_Tests : BaseTest
     {
-        private string GetExpectedSoftwareProductStatus()
+        private static string GetExpectedSoftwareProductStatus()
         {
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
 

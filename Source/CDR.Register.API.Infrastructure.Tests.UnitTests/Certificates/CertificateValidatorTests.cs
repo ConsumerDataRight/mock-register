@@ -60,37 +60,6 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         }
 
         [Fact]
-        public void IsValid_EmptyCertificate_ShouldThrowException()
-        {
-            // Arrange.
-            var logger = Substitute.For<ILogger<CertificateValidator>>();
-            var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
-            };
-
-            IConfiguration configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-            var validator = new CertificateValidator(logger, configuration);
-
-            // Act.
-            Exception expectedException = null;
-            try
-            {
-                validator.IsValid(new X509Certificate2());
-            }
-            catch (Exception ex)
-            {
-                expectedException = ex;
-            }
-
-            // Assert.
-            Assert.IsType<ArgumentException>(expectedException);
-            Assert.Equal("The certificate chain cannot be discovered from the provided client certificate.", expectedException.Message);
-        }
-
-        [Fact]
         public void IsValid_SelfSignedCertificate_ShouldReturnFalse()
         {
             // Arrange.

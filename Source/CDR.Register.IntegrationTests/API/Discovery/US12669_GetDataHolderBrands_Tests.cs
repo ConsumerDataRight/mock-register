@@ -23,7 +23,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     public class US12669_GetDataHolderBrands_Tests : BaseTest
     {
         // Participation/Brand/SoftwareProduct Ids
-        private string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
@@ -67,7 +67,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
                 .Include(brand => brand.Participation.Industry)
                 .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh)
-                .Where(brand => brand.Participation.IndustryId == IndustryEnum.BANKING) // Only want banking brands
+                .Where(brand => brand.Participation.IndustryId == Industry.BANKING) // Only want banking brands
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
 
             var data = allData
@@ -149,7 +149,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 });
         }
 
-        private async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(DateTime? updatedSince, int? queryPage, int? queryPageSize)
+        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(DateTime? updatedSince, int? queryPage, int? queryPageSize)
         {
             static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
             {

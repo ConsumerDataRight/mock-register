@@ -12,7 +12,7 @@ namespace CDR.Register.IdentityServer.Extensions
         {
             using (LogContext.PushProperty("MethodName", "LogErrorAndPublish"))
             {
-                logger.LogError($"Error: {notificationMessage.Code}: {notificationMessage.Content}");
+                logger.LogError("Error: {code}: {content}", notificationMessage.Code, notificationMessage.Content);
             }
             await mediator.Publish(notificationMessage);
         }

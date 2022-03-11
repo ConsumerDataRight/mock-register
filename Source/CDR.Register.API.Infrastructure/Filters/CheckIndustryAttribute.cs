@@ -12,14 +12,14 @@ namespace CDR.Register.API.Infrastructure.Filters
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class CheckIndustryAttribute : ActionFilterAttribute
     {
-        private readonly string _industryRestriction = "";
+        private readonly string _industryRestriction;
 
         public CheckIndustryAttribute()
         {
             _industryRestriction = "";
         }
 
-        public CheckIndustryAttribute(IndustryEnum industryRestriction)
+        public CheckIndustryAttribute(Industry industryRestriction)
         {
             _industryRestriction = industryRestriction.ToString().ToUpper();
         }
@@ -45,7 +45,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // Convert the incoming industry value to an enum.
-            if (!Enum.TryParse<IndustryEnum>(industry.ToUpper(), out IndustryEnum industryItem))
+            if (!Enum.TryParse<Industry>(industry.ToUpper(), out Industry industryItem))
             {
                 return false;
             }
@@ -57,7 +57,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // The use of the "all" industry path parameter is not currently supported, but may be in the future.
-            return (industryItem != IndustryEnum.ALL);
+            return (industryItem != Industry.ALL);
         }
     }
 }

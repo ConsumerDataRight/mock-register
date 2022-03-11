@@ -334,3 +334,4 @@ ASALocalRun/
 .mfractor/
 
 Source/CDR.Register.Admin.API/_healthcheck_ready
+/Source/.sonarqube

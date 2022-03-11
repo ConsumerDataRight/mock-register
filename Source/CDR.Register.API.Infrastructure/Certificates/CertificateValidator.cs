@@ -49,7 +49,7 @@ namespace CDR.Register.API.Infrastructure
 
             if (ch.ChainStatus.Any())
             {
-                _logger.LogError($"The client cert could not be verified to have been issued by '{ROOT_CA_SUBJECT}'. ${ch.ChainStatus[0].StatusInformation}");
+                _logger.LogError("The client cert could not be verified to have been issued by '{ROOT_CA_SUBJECT}'. ${statusInformation}", ROOT_CA_SUBJECT, ch.ChainStatus[0].StatusInformation);
                 return false;
             }
 

@@ -30,7 +30,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError($"Unauthorized request. Access token is missing 'client_id' claim for issuer '{requirement.Issuer}'.");
+                    _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim for issuer '{issuer}'.", requirement.Issuer);
                 }
                 return Task.CompletedTask;
             }
@@ -52,7 +52,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError($"Unauthorized request. Access token client_id '{accessTokenClientId}' does not match request softwareProductId '{requestDataRecipientProductId}'");
+                    _logger.LogError("Unauthorized request. Access token client_id '{accessTokenClientId}' does not match request softwareProductId '{requestDataRecipientProductId}'", accessTokenClientId, requestDataRecipientProductId);
                 }
                 return Task.CompletedTask;
             }

@@ -32,7 +32,7 @@ namespace CDR.Register.IdentityServer.Services
 
             using (LogContext.PushProperty("MethodName", "GetJwksAsync"))
             {
-                _logger.LogDebug($"Http response body:\r\n{responseContent}");
+                _logger.LogDebug("Http response body:\r\n{responseContent}", responseContent);
             }
 
             if (httpResponse.StatusCode == HttpStatusCode.NotFound)

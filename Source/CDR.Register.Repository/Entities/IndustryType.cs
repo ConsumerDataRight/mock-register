@@ -6,7 +6,7 @@ namespace CDR.Register.Repository.Entities
     public class IndustryType
     {
         [Key]
-        public IndustryEnum IndustryTypeId { get; set; }
+        public Industry IndustryTypeId { get; set; }
 
         [MaxLength(25), Required]
         public string IndustryTypeCode { get; set; }
