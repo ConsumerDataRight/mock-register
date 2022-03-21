@@ -71,3 +71,87 @@ These certificates can be used by the community when developing CDR solutions, o
 When a Data Recipient requests a Software Statement Assertion (SSA) from the Register, the contents of the SSA is signed by a private key managed by the Register.  The Data Holder that receives the SSA can verify its authenticity by utilising the public key data hosted at the Register's SSA JWKS endpoint (`/cdr-register/v1/jwks`).
 
 The private/public key information used within the SSA and Dynamic Client Registration (DCR) process utilises an X509 certificate.  This certificate is a self-signed certificate that is generated using the `openssl` commands found in the `ssa\ssa.cmd` file.
+
+## How To: Replace the certificates used in the Mock Register
+
+The TLS and mTLS gateway projects are the external facing endpoints of the Mock Register.  The gateway projects receive the incoming requests and route them to the appropriate backend service.  So when a client connects to the Mock Register, they are connecting via the TLS abd mTLS gateways.
+
+Therefore, to change the certificates that a client interacts with on the TLS/mTLS handshake, the certificate configured for the TLS and mTLS gateways need to be changed.
+
+The steps to do this are outlined below:
+
+
+1. Clone the Mock Register repository from (GitHub)[https://github.com/ConsumerDataRight/mock-register].
+
+```
+git clone https://github.com/ConsumerDataRight/mock-register.git
+```
+
+2. Browse to the `mock-register/source/CDR.Register.API.Gateway.TLS/Certificates` folder.
+
+3. Copy the new certificate into this location.
+
+4. Edit the `appsettings.json` file in the `mock-register/source/CDR.Register.API.Gateway.TLS` folder.
+
+5. Change the `Kestrel.Endpoints.Https.Certificate` settings with details for the new certificate:
+
+```
+"Kestrel": {
+    "Endpoints": {
+        "Https": {
+            "Url": "https://0.0.0.0:7000",
+            "Certificate": {
+                "Path": "Certificates/{new certificate file name}",
+                "Password": "{new certificate password}"
+            }
+        }
+    }
+}
+```
+
+For e.g.:
+
+```
+"Kestrel": {
+    "Endpoints": {
+        "Https": {
+            "Url": "https://0.0.0.0:7000",
+            "Certificate": {
+                "Path": "Certificates/new-mock-register-certificate.pfx",
+                "Password": "#Password#"
+            }
+        }
+    }
+}
+```
+
+6. Save the `appSettings.json` file.
+
+7. Edit the `CDR.Register.API.Gateway.TLS.csproj` file in the `mock-register/source/CDR.Register.API.Gateway.TLS` folder, to include the new certificate file into the output.
+
+Add the following elements:
+
+```
+<ItemGroup>
+    <None Remove="Certificates\{new certificate file name}" />
+</ItemGroup>
+<ItemGroup>
+    <Content Include="Certificates\{new certificate file name}">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+</ItemGroup>
+```
+
+For e.g.:
+
+[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert-csproj.png" height='600' width='800' alt="Updated RegisterCert Project File"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert-csproj.png)
+
+7. Repeat for the mTLS gateway (`mock-register/source/CDR.Register.API.Gateway.mTLS`), if required.
+
+8. From the `mock-register/source` directory, build and run the container:
+
+To get help buidling and running the container, see the [help guide](../Help/container/HELP.md).
+
+9. Browse to an endpoint to check the certificate:
+
+[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert.png" height='600' width='800' alt="Updated Register Cert"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert.png)
