@@ -27,7 +27,7 @@ To get started, clone the source code.
 git clone https://github.com/ConsumerDataRight/mock-register.git
 ```
 
-To get help on launching and debuging the solution, see the [help guide](./Help/debugging/HELP.md).
+To get help on launching and debugging the solution, see the [help guide](./Help/debugging/HELP.md).
 
 If you would like to contribute features or fixes back to the Mock Register repository, consult the [contributing guidelines](CONTRIBUTING.md).
 
@@ -154,6 +154,9 @@ The following technologies have been used to build the Mock Register:
 # Testing
 
 A collection of API requests has been made available in [Postman](https://www.postman.com/) in order to test the Mock Register and view the expected interactions.  See the Mock Register [Postman](Postman/README.md) documentation for more information.
+
+# Frequently Asked Questions
+See the [Frequently Asked Questions](./Help/faq/README.md) page for answers to some common questions and links to help files.
 
 # Contribute
 We encourage contributions from the community.  See our [contributing guidelines](CONTRIBUTING.md).

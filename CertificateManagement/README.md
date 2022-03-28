@@ -150,7 +150,7 @@ For e.g.:
 
 8. From the `mock-register/source` directory, build and run the container:
 
-To get help buidling and running the container, see the [help guide](../Help/container/HELP.md).
+To get help building and running the container, see the [help guide](../Help/container/HELP.md).
 
 9. Browse to an endpoint to check the certificate:
 
