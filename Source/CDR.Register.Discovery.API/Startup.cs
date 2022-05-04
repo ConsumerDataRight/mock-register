@@ -63,8 +63,6 @@ namespace CDR.Register.Discovery.API
 
             app.UseSerilogRequestLogging();
 
-            app.UseSerilogRequestLogging();
-
             app.UseRegisterDiscoverySwagger();
 
             app.UseHttpsRedirection();
