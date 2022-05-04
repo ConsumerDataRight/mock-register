@@ -47,13 +47,13 @@ namespace CDR.Register.API.Infrastructure.Models
         }
 
         // Return Unsupported Version
-        public ResponseErrorList InvalidXVUnsupportedVersion()
+        public ResponseErrorList InvalidXVUnsupportedVersion(string detail = null)
         {
             Errors.Add(new Error()
             {
                 Code = "urn:au-cds:error:cds-all:Header/UnsupportedVersion",
                 Title = "Unsupported Version",
-                Detail = "",
+                Detail = detail,
                 Meta = new object()
             });
 

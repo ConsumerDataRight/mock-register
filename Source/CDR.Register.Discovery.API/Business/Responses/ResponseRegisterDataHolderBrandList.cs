@@ -4,16 +4,16 @@ using CDR.Register.Discovery.API.Business.Models;
 
 namespace CDR.Register.Discovery.API.Business.Responses
 {
-    public class ResponseRegisterDataHolderBrandListV1
+    public class ResponseRegisterDataHolderBrandList
     {
-        public IEnumerable<RegisterDataHolderBrandModelV1> Data { get; set; }
+        public IEnumerable<RegisterDataHolderBrandModel> Data { get; set; }
         public LinksPaginated Links { get; set; } = new LinksPaginated();
         public MetaPaginated Meta { get; set; } = new MetaPaginated();
     }
 
-    public class ResponseRegisterDataHolderBrandList
+    public class ResponseRegisterDataHolderBrandListV2
     {
-        public IEnumerable<RegisterDataHolderBrandModel> Data { get; set; }
+        public IEnumerable<RegisterDataHolderBrandModelV2> Data { get; set; }
         public LinksPaginated Links { get; set; } = new LinksPaginated();
         public MetaPaginated Meta { get; set; } = new MetaPaginated();
     }

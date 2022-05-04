@@ -1,5 +1,7 @@
 using CDR.Register.API.Infrastructure.Filters;
+using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,8 +36,8 @@ namespace CDR.Register.Status.API
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ApiVersionReader = new HeaderApiVersionReader("x-v");
                 options.ErrorResponses = new ErrorResponseVersion();
+                options.ApiVersionSelector = new ApiVersionSelector(options);
             });
 
             // This is to manage the EF database context through the web API DI.
@@ -50,10 +52,10 @@ namespace CDR.Register.Status.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseExceptionHandler(exceptionHandlerApp =>
             {
-                app.UseDeveloperExceptionPage();
-            }
+                exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+            });
 
             app.UseSerilogRequestLogging();
 

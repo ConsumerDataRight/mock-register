@@ -6,11 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 2022-03-10
+## [0.5.0] - 2022-05-05
 ### Added
-- Sector Agnostic APIs added to the Mock Register. This includes Sector Agnostic versions of GetDataRecipients, GetDataRecipientStatus, GetSoftwareProductStatus, GetSoftwareStatementAssertion and GetDataHolderBrands. The existing Banking sector version of these APIs are available for backwards compatibility.
+- Support for multiple industries added to the Mock Register. Banking, Energy, Telco and 'all' are now valid industries for GetDataRecipients, GetDataRecipientsStatus, GetSoftwareProductStatus, GetSoftwareStatementAssertion, GetDataHolderBrands, GetDataHoldersStatus. Banking industry only versions of these APIs are available for backwards compatibility.
 - Energy and Telco as supported sectors.
-- Data Holder Brands entry to support and represent a [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy).
+- GetDataHoldersStatus API.
+- Data Holder Brands entry to support and represent the upcoming [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy).
 - Energy scopes for the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient).
 
 ### Changed

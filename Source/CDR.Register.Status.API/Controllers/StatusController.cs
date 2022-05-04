@@ -23,73 +23,70 @@ namespace CDR.Register.Status.API.Controllers
         [Obsolete("This API version has been superseded")]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/status")]
-        [CheckXV("1")]
+        [ReturnXV("1")]
         [ApiVersion("1")]
         [ETag]
         [CheckIndustry(Industry.BANKING)]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetDataRecipientsStatusV1(string industry)
+        public async Task<IStatusCodeActionResult> GetDataRecipientsStatusXV1(string industry)
         {
-            return Ok(await _statusService.GetDataRecipientStatusesAsyncV1());
+            return Ok(await _statusService.GetDataRecipientStatusesAsyncXV1(industry.ToIndustry()));
         }
 
         [HttpGet]
         [Route("v1/{industry}/data-recipients/status")]
-        [CheckXV("2")]
+        [ReturnXV("2")]
         [ApiVersion("2")]
         [ETag]
         [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetDataRecipientsStatus(string industry)
+        public async Task<IStatusCodeActionResult> GetDataRecipientsStatusXV2(string industry)
         {
-            return Ok(await _statusService.GetDataRecipientStatusesAsync(industry.ToIndustry()));
-        }
-
-        [HttpGet]
-        [Route("v1/data-recipients/status")]
-        [CheckXV("1")]
-        [ApiVersion("1")]
-        [ETag]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetDataRecipientsStatusV2()
-        {
-            return Ok(await _statusService.GetDataRecipientStatusesAsync(Industry.ALL));
+            var response = await _statusService.GetDataRecipientStatusesAsyncXV2(industry.ToIndustry());
+            response.Links = this.GetSelf();
+            return Ok(response);
         }
 
         [Obsolete("This API version has been superseded")]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/software-products/status")]
-        [CheckXV("1")]
+        [ReturnXV("1")]
         [ApiVersion("1")]
         [ETag]
         [CheckIndustry(Industry.BANKING)]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetSoftwareProductStatusV1(string industry)
+        public async Task<IStatusCodeActionResult> GetSoftwareProductStatusXV1(string industry)
         {
-            return Ok(await _statusService.GetSoftwareProductStatusesAsyncV1());
+            return Ok(await _statusService.GetSoftwareProductStatusesAsyncXV1(industry.ToIndustry()));
         }
 
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/software-products/status")]
-        [CheckXV("2")]
+        [ReturnXV("2")]
         [ApiVersion("2")]
         [ETag]
         [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetSoftwareProductStatus(string industry)
+        public async Task<IStatusCodeActionResult> GetSoftwareProductStatusXV2(string industry)
         {
-            return Ok(await _statusService.GetSoftwareProductStatusesAsync(industry.ToIndustry()));
+            var response = await _statusService.GetSoftwareProductStatusesAsyncXV2(industry.ToIndustry());
+            response.Links = this.GetSelf();
+            return Ok(response);
         }
 
         [HttpGet]
-        [Route("v1/data-recipients/brands/software-products/status")]
-        [CheckXV("1")]
+        [Route("v1/{industry}/data-holders/status")]
+        [ReturnXV("1")]
         [ApiVersion("1")]
         [ETag]
+        [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IStatusCodeActionResult> GetSoftwareProductStatusNoInd()
+        public async Task<IStatusCodeActionResult> GetDataHolderStatusXV1(string industry)
         {
-            return Ok(await _statusService.GetSoftwareProductStatusesAsync());
+            var response = await _statusService.GetDataHolderStatusesAsyncXV1(industry.ToIndustry());
+            response.Links = this.GetSelf();
+            return Ok(response);
         }
+
     }
 }

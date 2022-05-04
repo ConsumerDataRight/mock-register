@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CDR.Register.SSA.API.Business.Models
 {
-    public class SoftwareStatementAssertionModelV2
+    public class SoftwareStatementAssertionModel
     {
         /// <summary>
         /// iss (issuer) claim denoting the party attesting to the claims in the software statement
@@ -118,7 +118,7 @@ namespace CDR.Register.SSA.API.Business.Models
         public string scope { get; set; }
     }
 
-    public class SoftwareStatementAssertionModel : SoftwareStatementAssertionModelV2
+    public class SoftwareStatementAssertionModelV2 : SoftwareStatementAssertionModel
     {
         /// <summary>
         /// URL string that references a sector uri for the client. If present, the server SHOULD display this image to the end-user during approval
@@ -134,5 +134,9 @@ namespace CDR.Register.SSA.API.Business.Models
         /// Human-readable string legal entity name of the Accredited Data Recipient to be presented to the end user during authorization.
         /// </summary>
         public string legal_entity_name { get; set; }
+    }
+
+    public class SoftwareStatementAssertionModelV3 : SoftwareStatementAssertionModelV2
+    {
     }
 }

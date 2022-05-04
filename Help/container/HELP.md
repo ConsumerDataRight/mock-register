@@ -25,7 +25,7 @@
 <p>3. Use the docker compose file to run a multi-container mock CDR Ecosystem.</p>
 
 <span style="display:inline-block;margin-left:1em;">
-	The <a href="Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a> can be used to run multiple containers from the Mock CDR Ecosystem, by starting the <a href="https://hub.docker.com/editions/community/docker-ce-desktop-windows" title="Docker Desktop for Windows" alt="Docker Desktop for Windows">docker desktop</a>
+	The <a href="../../Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a> can be used to run multiple containers from the Mock CDR Ecosystem, by starting the <a href="https://hub.docker.com/editions/community/docker-ce-desktop-windows" title="Docker Desktop for Windows" alt="Docker Desktop for Windows">docker desktop</a>
 	 (if using a non MS Windows environment, you will need to add this route to the network), this will be added to your hosts file and is used for inter container connectivity via your host IP Address, eg C:\Windows\System32\drivers\etc\hosts
 </span>
 
@@ -39,7 +39,7 @@
 
 [<img src="./images/docker-desktop.png" height='300' width='625' alt="MS Docker Desktop"/>](./images/docker-desktop.png)
 
-<p>4. Execute the <a href="Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a>, the default configuration is to run all mock solutions and executing the comand below will run all the solutions.
+<p>4. Execute the <a href="../../Source/DockerCompose/docker-compose.yml" title="/DockerCompose/docker-compose.yml" alt="Use the docker compose file located here - /DockerCompose/docker-compose.yml">docker compose file</a>, the default configuration is to run all mock solutions and executing the comand below will run all the solutions.
 </p>
 
 <span style="display:inline-block;margin-left:1em;margin-bottom:10px;">
@@ -64,7 +64,7 @@
 	connect to the running containers, this will result in the Mock Data Recipient running in MS Visual Studio,<br \>
 	connected to the Mock Register and the Mock Data Holder running in docker.<br \>
 	For details on how to run a Mock solution in MS Visual Studio 
-	see <a href="https://github.com/ConsumerDataRight/mock-register/Help/debug/HELP.md" title="Debug Help Guide" alt="View the Debug Help Guide.">help guide</a>
+	see <a href="../debugging/HELP.md" title="Debug Help Guide" alt="View the Debug Help Guide.">help guide</a>
 </span>
 <br />
 <br />

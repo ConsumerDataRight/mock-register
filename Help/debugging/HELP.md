@@ -6,14 +6,15 @@
 <div style="margin-left:18px;">
 git clone https://github.com/ConsumerDataRight/mock-register.git<br />
 </div>
-4. Start the projects in the solution, can be done in multiple ways, examples below are from .Net command line and using MS Visual Studio<br />
+4. Install the required certificates. See certificate details <a href="../../CertificateManagement/README.md" title="Certificate Management" alt="Certificate Management - CertificateManagement/README.md"> here</a>.<br />
+5. Start the projects in the solution, can be done in multiple ways, examples below are from .Net command line and using MS Visual Studio<br />
 </div>
 
 <h2>.Net command line</h2>
 <div style="margin-left:18px;">
 <p>1. Download and install the free <a href="https://docs.microsoft.com/en-us/windows/terminal/get-started" title="Download the free Windows Terminal here" alt="Download the free MS Windows Terminal here">MS Windows Terminal</a>
 <br />
-2. Use the <a href="https://github.com/ConsumerDataRight/mock-register/Source/Start-Register.bat" title="Use the Start-Register .Net CLI batch file here" alt="Use the Start-Register .Net CLI batch file here">Start-Register</a> batch file to build and run the required projects to start the Mock Register,
+2. Use the <a href="../../Source/Start-Register.bat" title="Use the Start-Register .Net CLI batch file here" alt="Use the Start-Register .Net CLI batch file here">Start-Register</a> batch file to build and run the required projects to start the Mock Register,
 <br />
 this will create the LocalDB instance by default and seed the database with the supplied sample data.
 </p>

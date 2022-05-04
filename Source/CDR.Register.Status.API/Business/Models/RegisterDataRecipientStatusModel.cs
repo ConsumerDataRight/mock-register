@@ -1,12 +1,12 @@
 ﻿namespace CDR.Register.Status.API.Business.Models
 {
-    public class RegisterDataRecipientStatusModelV1 : BaseModel
+    public class RegisterDataRecipientStatusModel : BaseModel
     {
         public string DataRecipientId { get; set; }
         public string DataRecipientStatus { get; set; }
     }
 
-    public class RegisterDataRecipientStatusModel : BaseModel
+    public class RegisterDataRecipientStatusModelV2 : BaseModel
     {
         public string LegalEntityId { get; set; }
         public string Status { get; set; }

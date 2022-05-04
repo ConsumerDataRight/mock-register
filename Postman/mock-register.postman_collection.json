@@ -1,289 +1,64 @@
 {
 	"info": {
-		"_postman_id": "1c7369cd-9f4d-4e02-a8f9-a35702a688fe",
+		"_postman_id": "54946f45-89ee-4740-9fe8-28fac95daea5",
 		"name": "CDR Mock Register",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Sector Agnostic APIs",
-			"item": [
-				{
-					"name": "Discovery API - Get Data Holder Brands (requires access token)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7001/cdr-register/v1/data-holders/brands",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7001",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-holders",
-								"brands"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"disabled": true
-								},
-								{
-									"key": "page-size",
-									"value": "5",
-									"disabled": true
-								},
-								{
-									"key": "updated-since",
-									"value": "2022-04-29",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Discovery API - Get DH Brands with Industry params",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7001/cdr-register/v1/data-holders/brands/banking",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7001",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-holders",
-								"brands",
-								"banking"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"disabled": true
-								},
-								{
-									"key": "page-size",
-									"value": "5",
-									"disabled": true
-								},
-								{
-									"key": "updated-since",
-									"value": "2022-04-29",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Discovery API - Get Data Recipients",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "789B87B2DEC172259FA95607BE5EACFC3E520229DC9DF0A754286B9EEA08C466",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7000/cdr-register/v1/data-recipients",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7000",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-recipients"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Status API - Get Data Recipients Status",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "355E6A1B3ABCEB1260D26027DC225531B9CD9A22E44DEE1ACE75147BEE4C0A77",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7000/cdr-register/v1/data-recipients/status",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7000",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-recipients",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Status API - Get Software Products Status",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "46574A21FCC8122664E7595CFE4E0275D7117566D55B48CDDE9C2948A540BDFC",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7000/cdr-register/v1/data-recipients/brands/software-products/status",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7000",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-recipients",
-								"brands",
-								"software-products",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "SSA API - Get SSA (requires access token)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-v",
-								"value": "1",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "https://localhost:7001/cdr-register/v1/data-recipients/brands/F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021/software-products/6F7A1B8E-8799-48A8-9011-E3920391F713/ssa",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7001",
-							"path": [
-								"cdr-register",
-								"v1",
-								"data-recipients",
-								"brands",
-								"F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021",
-								"software-products",
-								"6F7A1B8E-8799-48A8-9011-E3920391F713",
-								"ssa"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Discovery API - Get Data Holder Brands (requires access token)",
+			"name": "Discovery API - Get Data Holder Brands - All (requires access token)",
 			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{access_token}}",
-							"type": "string"
-						}
-					]
-				},
 				"method": "GET",
 				"header": [
 					{
 						"key": "x-v",
-						"value": "1",
+						"value": "2",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7001/cdr-register/v1/all/data-holders/brands",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-holders",
+						"brands"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "5",
+							"disabled": true
+						},
+						{
+							"key": "updated-since",
+							"value": "2022-04-29",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Discovery API - Get Data Holder Brands - Banking (requires access token)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
 						"type": "text"
 					}
 				],
@@ -323,7 +98,87 @@
 			"response": []
 		},
 		{
-			"name": "Discovery API - Get Data Recipients",
+			"name": "Discovery API - Get Data Holder Brands - Energy (requires access token)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7001/cdr-register/v1/energy/data-holders/brands",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
+						"data-holders",
+						"brands"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "5",
+							"disabled": true
+						},
+						{
+							"key": "updated-since",
+							"value": "2022-04-29",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Discovery API - Get Data Recipients - All",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "3",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "789B87B2DEC172259FA95607BE5EACFC3E520229DC9DF0A754286B9EEA08C466",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/all/data-recipients",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-recipients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Discovery API - Get Data Recipients - Banking",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -357,7 +212,76 @@
 			"response": []
 		},
 		{
-			"name": "Status API - Get Data Recipients Status",
+			"name": "Discovery API - Get Data Recipients - Energy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "3",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "789B87B2DEC172259FA95607BE5EACFC3E520229DC9DF0A754286B9EEA08C466",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/energy/data-recipients",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
+						"data-recipients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Data Recipients Status - All",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/all/data-recipients/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-recipients",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Data Recipients Status - Banking",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -368,7 +292,7 @@
 					},
 					{
 						"key": "If-None-Match",
-						"value": "355E6A1B3ABCEB1260D26027DC225531B9CD9A22E44DEE1ACE75147BEE4C0A77",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
 						"type": "text",
 						"disabled": true
 					}
@@ -392,7 +316,42 @@
 			"response": []
 		},
 		{
-			"name": "Status API - Get Software Products Status",
+			"name": "Status API - Get Data Recipients Status - Energy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/energy/data-recipients/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
+						"data-recipients",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Data Holders Status - All",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -403,7 +362,149 @@
 					},
 					{
 						"key": "If-None-Match",
-						"value": "46574A21FCC8122664E7595CFE4E0275D7117566D55B48CDDE9C2948A540BDFC",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/all/data-holders/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-holders",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Data Holders Status - Banking",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/banking/data-holders/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"banking",
+						"data-holders",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Data Holders Status - Energy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "0713515C6CDE452120ED3F545474EB78C45D3130C4011D24782614E94E2C7C17",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/energy/data-holders/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
+						"data-holders",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Software Products Status - All",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "E8138BDBE459BE6B5651281CCA5988E6F9933053348812956E90604C6895D765",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/all/data-recipients/brands/software-products/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-recipients",
+						"brands",
+						"software-products",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Software Products Status - Banking",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "E8138BDBE459BE6B5651281CCA5988E6F9933053348812956E90604C6895D765",
 						"type": "text",
 						"disabled": true
 					}
@@ -419,6 +520,43 @@
 						"cdr-register",
 						"v1",
 						"banking",
+						"data-recipients",
+						"brands",
+						"software-products",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status API - Get Software Products Status - Energy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "If-None-Match",
+						"value": "E8138BDBE459BE6B5651281CCA5988E6F9933053348812956E90604C6895D765",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7000/cdr-register/v1/energy/data-recipients/brands/software-products/status",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
 						"data-recipients",
 						"brands",
 						"software-products",
@@ -549,7 +687,7 @@
 						},
 						{
 							"key": "client_assertion",
-							"value": "eyJhbGciOiJQUzI1NiIsImtpZCI6ImdQMzJHVHYwYmU3aEdlazFPTk1QZzBUNlA0UnJLdFJMbDRsMGVtN1hDdzQiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiJiNjJiOWJlZC00ZmU5LTQwMWMtODc3ZC03OTVjMmFmNTVhZDEiLCJzdWIiOiI4NmVjYjY1NS05ZWJhLTQwOWMtOWJlMy01OWU3YWRmNzA4MGQiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo4NDQzL2lkcC9jb25uZWN0L3Rva2VuIiwiZXhwIjoiMTYyMDM1MDUzOSIsImlzcyI6Ijg2ZWNiNjU1LTllYmEtNDA5Yy05YmUzLTU5ZTdhZGY3MDgwZCIsImlhdCI6IjE2MjAzNDk5MzkiLCJuYmYiOiIxNjIwMzQ5OTM5In0.ykMHPT3IOopfZAom3P_B1OqHKxBHQ_R-QurvGDagVuYjmC7FZu35_vysD9FW87q7aZ0sJUGbbug8u4Fo1kVjuHPqioxyamRDthTOPA8uMvTMIVC4ytjZjvMvXkk29mropF5BdXmp7mDUioFPT-ArUDyxelyt40D-LqpP1kgzLSPCdJe8rIR4gPzE-4H70nDBC9YpZmZ-tP-0xmBjKmN51siZO-DwvkgOH-sACIM-3q8kWnBuGL52IGJE7l2e6iIwmy9ar7hd06Zc3b4Kae3WbXx9b4DYGuEq1ypt6hBJ9p-O7kAmOEk6aZBdlsdoPvAM6pF4FDHrbtTyhogCY2a2vg",
+							"value": "eyJhbGciOiJQUzI1NiIsImtpZCI6ImdQMzJHVHYwYmU3aEdlazFPTk1QZzBUNlA0UnJLdFJMbDRsMGVtN1hDdzQiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2RjdBMUI4RS04Nzk5LTQ4QTgtOTAxMS1FMzkyMDM5MUY3MTMiLCJqdGkiOiIxZGM2MWU2YS0zMzhjLTQ0ODEtODgwOC02NTgwNjc3YmE4NDIiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo3MDAxL2lkcC9jb25uZWN0L3Rva2VuIiwiZXhwIjoxNjQyNjU1NTc4LCJpc3MiOiI2RjdBMUI4RS04Nzk5LTQ4QTgtOTAxMS1FMzkyMDM5MUY3MTMiLCJpYXQiOjE2NDI2NTQ5NzgsIm5iZiI6MTY0MjY1NDk3OH0.LU0RnvoYrX9s_qDBWjNUQCSZU0luc0FX0UkG9TR3qPR0iFOtO1FVpj_0c5-uBA7xzWrKy2yTF9VyHhjzWmMRGy1eLy2VL68zBmfJ1AQtlnMEgh4iIrVSfmoQz9kQ9A8vU-XKYOjr28Jo6Cwj-t09WYr87txLc1eqm5iKNdYS7qfXSwXpmBWo26oS1Qp3x9M6dsct6cRRSwyrQVEc0Np5gVvEfPXX-DRurI0LQUOQ4vCTm9rqMsf62eQUStdbuMEPjsgNuxkMoWX3kXBXQvE-AaU0rshz0Xr02w0jTdIrdpKRbN_q8cgr4MjXtfOlNcGLBgLxBZyRB1bNJltqh4sShQ",
 							"type": "text",
 							"disabled": true
 						}
@@ -574,6 +712,16 @@
 		{
 			"name": "SSA API - SSA JWKS",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2NDY2OTA4NzQsImV4cCI6MTY0NjY5MTE3NCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiI0MUVDMzg0MzIwOERBMDdGQjBBQ0I5MThGMUEyOUVFMSIsImlhdCI6MTY0NjY5MDg3NCwiY25mIjp7Ing1dCNTMjU2IjoiNThENzZGN0E2MUNENzI2REExQzU0RjY4OThFOEU2OUVBNEM4ODA2MCJ9LCJzY29wZSI6WyJjZHItcmVnaXN0ZXI6YmFuazpyZWFkIl19.vU7eApD_DLTgec8gY7eq8Ren55oORjNxam4KJcyASAQMG6iKIjGFyXaU7N1OsmEyEztb9kolftlVw36AIh9nvyCx8-nFyB7lm5162RCwT6yERNDicV5uNfcNUwvm-qAnF0cs5SzrUjKyPWR1UZWzLjzGRnV7yxapNh4WgjZPsE5_3j3IWg_JytU0rkzwnYKLMqxt9wfER_mVTQaPVwlCjh8zkOw46akms91S4MWZ-LybsK63MfUVPgxWbdss7TqZOp-aZhPmjeqcz4Y1_lTFRkHLpSPMhceTzpvqNkJEUxLWMxLi_QJIVWfak01Yp9gNhGColYg3RJtREwwUmLUO_g",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -593,20 +741,49 @@
 			"response": []
 		},
 		{
-			"name": "SSA API - Get SSA (requires access token)",
+			"name": "SSA API - Get SSA - All (requires access token)",
 			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{access_token}}",
-							"type": "string"
-						}
-					]
-				},
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-v",
+						"value": "3",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7001/cdr-register/v1/all/data-recipients/brands/F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021/software-products/6F7A1B8E-8799-48A8-9011-E3920391F713/ssa",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"cdr-register",
+						"v1",
+						"all",
+						"data-recipients",
+						"brands",
+						"F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021",
+						"software-products",
+						"6F7A1B8E-8799-48A8-9011-E3920391F713",
+						"ssa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SSA API - Get SSA - Banking (requires access token)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "2",
+						"type": "default"
+					}
+				],
 				"url": {
 					"raw": "https://localhost:7001/cdr-register/v1/banking/data-recipients/brands/F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021/software-products/6F7A1B8E-8799-48A8-9011-E3920391F713/ssa",
 					"protocol": "https",
@@ -618,6 +795,39 @@
 						"cdr-register",
 						"v1",
 						"banking",
+						"data-recipients",
+						"brands",
+						"F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021",
+						"software-products",
+						"6F7A1B8E-8799-48A8-9011-E3920391F713",
+						"ssa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SSA API - Get SSA - Energy (requires access token)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-v",
+						"value": "3",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "https://localhost:7001/cdr-register/v1/energy/data-recipients/brands/F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021/software-products/6F7A1B8E-8799-48A8-9011-E3920391F713/ssa",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7001",
+					"path": [
+						"cdr-register",
+						"v1",
+						"energy",
 						"data-recipients",
 						"brands",
 						"F3F0C40B-9DF8-491A-AF1D-81CB9AB5F021",
@@ -723,6 +933,43 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2NDkyMTg4NjksImV4cCI6MTY0OTIxOTE2OSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiJEMEUzQjhBQTJDOUYwRDE2Q0EyQTFENzQ5MUE1NEY4OCIsImlhdCI6MTY0OTIxODg2OSwiY25mIjp7Ing1dCNTMjU2IjoiNThENzZGN0E2MUNENzI2REExQzU0RjY4OThFOEU2OUVBNEM4ODA2MCJ9LCJzY29wZSI6WyJjZHItcmVnaXN0ZXI6YmFuazpyZWFkIl19.MlHlUYoYouMc-7sOTW2yomb3qMzQOYCjZUpPi5Vo_ewZhBG9qQRjBmfPGAQHkCPl2F0WUO3jMbz5rOzmli3djzTYKvH-6D79joglrsv3EbY4t7T19AprMpibmN9Vyj4CbfCqoe3ayqxqrk3ljb6xTMgPiuKwKe2xyLL6tymUp-XFPC6boz_vCqbSG6-t2aJRvPPP6KSVaoBVUeDGFerXvECrEXUeoY7oWmNUrTzZiCPQFBncGFcvURkKEKdk8FnVYofY9cvsC-ff982zdOt8eNkB8zDF1wWB_N-eBHJgOaoJiik242tX50qTV-ndEPmm3XbOgUmzb_6LROdzaI7M3A",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "{{access_token}}",
+			"value": "",
+			"type": "default"
 		}
 	]
 }

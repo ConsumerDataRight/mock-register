@@ -71,9 +71,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
                 .Include(brand => brand.Participation.Industry)
                 .Where(brand =>
-                    brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh &&
+                    brand.Participation.ParticipationTypeId == ParticipationTypes.Dh &&
                     (industry == null || (industry != null && brand.Participation.Industry.IndustryTypeCode == industry))
                 )
+                .Where(brand => brand.Participation.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active) // DF: only active data holders should be returned.
+                .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
+                .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
 
             var totalRecords = allData.Count();
@@ -97,7 +100,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 {
                     dataHolderBrandId = brand.BrandId,
                     brandName = brand.BrandName,
-                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode },
+                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode.ToLower() }, //DF: industry should be lowercase.
                     logoUri = brand.LogoUri,
                     legalEntity = new
                     {
@@ -112,7 +115,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         arbn = brand.Participation.LegalEntity.Arbn,
                         anzsicDivision = brand.Participation.LegalEntity.AnzsicDivision,
                         organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode,
-                        status = brand.Participation.LegalEntity.LegalEntityStatus.LegalEntityStatusCode,
+                        status = brand.Participation.LegalEntity.LegalEntityStatus.LegalEntityStatusCode.ToUpper() //DF: status should be uppercase.
                     },
                     status = brand.BrandStatus.BrandStatusCode,
                     endPointDetail = new
@@ -162,7 +165,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             return JsonConvert.SerializeObject(expectedResponse);
         }
 
-        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(DateTime? updatedSince, int? queryPage, int? queryPageSize, string? industry = null)
+        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(
+            DateTime? updatedSince,
+            int? queryPage,
+            int? queryPageSize,
+            string? industry = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
             {
@@ -189,11 +197,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             }
 
             // Arrange
-            var baseUrl = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands";
-            if (industry != null)
-            {
-                baseUrl += $"/{industry}";
-            }
+            var baseUrl = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands";
             var url = GetUrl(baseUrl, updatedSince, queryPage, queryPageSize);
 
             var expectedResponse = GetExpectedResponse(baseUrl, url, updatedSince, queryPage, queryPageSize, industry);
@@ -211,7 +215,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 HttpMethod = HttpMethod.Get,
                 URL = url,
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -221,87 +225,78 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                response.StatusCode.Should().Be(expectedStatusCode);
 
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    // Assert - Check content type
+                    Assert_HasContentType_ApplicationJson(response.Content);
 
-                // Assert - Check XV
-                Assert_HasHeader(api.XV, response.Headers, "x-v");
+                    // Assert - Check XV
+                    Assert_HasHeader(api.XV, response.Headers, "x-v");
 
-                // Assert - Check json
-                await Assert_HasContent_Json(expectedResponse, response.Content);
+                    // Assert - Check json
+                    await Assert_HasContent_Json(expectedResponse, response.Content);
+                }
             }
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC01_Get_WithNoQueryString_ShouldRespondWith_200OK_First25RecordsAsync(string? industry)
+        public async Task AC01_Get_WithNoQueryString_ShouldRespondWith_200OK_First25RecordsAsync(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, null, null, industry);
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, null, null, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
-        public async Task AC02_Get_WithPageSize5_ShouldRespondWith_200OK_Page1Of5Records(string? industry)
+        public async Task AC02_Get_WithPageSize5_ShouldRespondWith_200OK_Page1Of5Records(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, null, 5, industry);
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, null, 5, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
-        public async Task AC03_Get_WithPageSize5_AndPage3_ShouldRespondWith_200OK_Page3Of5Records(string? industry)
+        public async Task AC03_Get_WithPageSize5_AndPage3_ShouldRespondWith_200OK_Page3Of5Records(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, 3, 5, industry);
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, 3, 5, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
-        public async Task AC04_Get_WithPageSize5_AndPage6_ShouldRespondWith_200OK_Page6Of5Records(string? industry)
+        public async Task AC04_Get_WithPageSize5_AndPage6_ShouldRespondWith_200OK_Page6Of5Records(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, 6, 5, industry);
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, 6, 5, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
-        public async Task AC05_Get_WithUpdatedSince01042021_ShouldRespondWith_200OK_2Records(string? industry)
+        public async Task AC05_Get_WithUpdatedSince01042021_ShouldRespondWith_200OK_2Records(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(new DateTime(2021, 04, 01, 0, 0, 0, DateTimeKind.Utc), 6, 5, industry);
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(new DateTime(2021, 04, 01, 0, 0, 0, DateTimeKind.Utc), 6, 5, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC06_Get_WithUpdatedSince30042021_ShouldRespondWith_200OK_0Records(string? industry)
+        public async Task AC06_Get_WithUpdatedSince30042021_ShouldRespondWith_200OK_0Records(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            await Test_AC01_AC02_AC03_AC04_AC05_AC06(new DateTime(2021, 04, 30, 0, 0, 0, DateTimeKind.Utc), null, null, industry);
-        }
-
-        private static string IndustryPath(string? industry = null)
-        {
-            if (industry == null)
-            {
-                return "";
-            }
-            else
-            {
-                return $"/{industry}";
-            }
+            await Test_AC01_AC02_AC03_AC04_AC05_AC06(new DateTime(2021, 04, 30, 0, 0, 0, DateTimeKind.Utc), null, null, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData("", HttpStatusCode.OK, null)] // "" is effectively no date so the filter will not take effect. It won't be invalid, it will be a 200 OK.
-        [InlineData("foo", HttpStatusCode.BadRequest, null)] // abc in AC
-        [InlineData("32/32/2021", HttpStatusCode.BadRequest, null)]
+        [InlineData("", HttpStatusCode.NotFound, null)] // "" is effectively no date so the filter will not take effect. It won't be invalid, it will be a 200 OK.
+        [InlineData("foo", HttpStatusCode.NotFound, null)] // abc in AC
+        [InlineData("32/32/2021", HttpStatusCode.NotFound, null)]
         [InlineData("", HttpStatusCode.OK, "banking")] // "" is effectively no date so the filter will not take effect. It won't be invalid, it will be a 200 OK.
         [InlineData("foo", HttpStatusCode.BadRequest, "banking")] // abc in AC
         [InlineData("32/32/2021", HttpStatusCode.BadRequest, "banking")]
@@ -324,9 +319,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}?updated-since={updatedSince}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands?updated-since={updatedSince}",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -339,7 +334,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 response.StatusCode.Should().Be(expectedStatusCode);
 
                 // Assert - Check error response
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
                 {
                     // Assert - Check content type 
                     Assert_HasContentType_ApplicationJson(response.Content);
@@ -375,7 +370,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
                 XV = xv
             };
@@ -390,7 +385,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 response.StatusCode.Should().Be(expectedStatusCode);
 
                 // Assert - Check error response
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
                 {
                     // Assert - Check content type 
                     Assert_HasContentType_ApplicationJson(response.Content);
@@ -402,14 +397,14 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("1", HttpStatusCode.OK, null)]
-        [InlineData("2", HttpStatusCode.NotAcceptable, null)]
-        [InlineData("1", HttpStatusCode.OK, "banking")]
-        [InlineData("2", HttpStatusCode.NotAcceptable, "banking")]
-        [InlineData("1", HttpStatusCode.OK, "energy")]
-        [InlineData("2", HttpStatusCode.NotAcceptable, "energy")]
-        [InlineData("1", HttpStatusCode.OK, "telco")]
-        [InlineData("2", HttpStatusCode.NotAcceptable, "telco")]
+        [InlineData("2", HttpStatusCode.NotFound, null)] // DF: will return a 404.
+        [InlineData("3", HttpStatusCode.NotFound, null)] // DF: will return a 404.
+        [InlineData("2", HttpStatusCode.OK, "banking")]
+        [InlineData("3", HttpStatusCode.NotAcceptable, "banking")]
+        [InlineData("2", HttpStatusCode.OK, "energy")]
+        [InlineData("3", HttpStatusCode.NotAcceptable, "energy")]
+        [InlineData("2", HttpStatusCode.OK, "telco")]
+        [InlineData("3", HttpStatusCode.NotAcceptable, "telco")]
         public async Task AC08_Get_WithUnsupportedXV_ShouldRespondWith_406NotAcceptable(string xv, HttpStatusCode expectedStatusCode, string? industry)
         {
             await Test_AC08_AC20_AC21(xv, expectedStatusCode, @"
@@ -418,7 +413,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         {
                         ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                         ""title"": ""Unsupported Version"",
-                        ""detail"": """",
+                        ""detail"": ""minimum version: 1, maximum version: 2"",
                         ""meta"": {}
                         }
                     ]
@@ -426,16 +421,16 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 industry);
         }
 
-        private static async Task Test_AC09_AC10(string? accessToken, string? industry)
+        private static async Task Test_AC09_AC10(string? accessToken, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
         {
             var api = new Infrastructure.API
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -445,36 +440,36 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+                response.StatusCode.Should().Be(expectedStatusCode);
             }
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC09_Get_WithNoAccessToken_ShouldRespondWith_401Unauthorized(string? industry)
+        public async Task AC09_Get_WithNoAccessToken_ShouldRespondWith_401Unauthorized(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
         {
-            await Test_AC09_AC10(null, industry);
+            await Test_AC09_AC10(null, industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC10_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorized(string? industry)
+        public async Task AC10_Get_WithInvalidAccessToken_ShouldRespondWith_401Unauthorized(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
         {
-            await Test_AC09_AC10("foo", industry);
+            await Test_AC09_AC10("foo", industry, expectedStatusCode);
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC11_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(string? industry)
+        public async Task AC11_Get_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
         {
             // Arrange
             // Expired at "Tuesday, May 18, 2021 11:33:45 PM GMT+10:00"
@@ -485,9 +480,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -497,16 +492,16 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+                response.StatusCode.Should().Be(expectedStatusCode);
             }
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData(null, HttpStatusCode.NotFound)] // DF: this will be a 404 now.
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
-        public async Task AC12_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string? industry)
+        public async Task AC12_Get_WithDifferentHolderOfKey_ShouldRespondWith_401Unauthorized(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
         {
             // Arrange
             var accessToken = await new Infrastructure.AccessToken
@@ -520,9 +515,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = ADDITIONAL_CERTIFICATE_FILENAME,  // ie different holder of key
                 CertificatePassword = ADDITIONAL_CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -532,7 +527,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+                response.StatusCode.Should().Be(expectedStatusCode);
             }
         }
 
@@ -550,9 +545,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}?{queryString}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands?{queryString}",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -565,7 +560,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 response.StatusCode.Should().Be(expectedStatusCode);
 
                 // Assert - Check error response
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
                 {
                     // Assert - Check content type 
                     Assert_HasContentType_ApplicationJson(response.Content);
@@ -577,11 +572,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("", HttpStatusCode.OK, null)] // "" is effectively not providing a page-size, so it will default to 25.
-        [InlineData("0", HttpStatusCode.BadRequest, null)]
-        [InlineData("-1", HttpStatusCode.BadRequest, null)]
-        [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.BadRequest, null)]
-        [InlineData("foo", HttpStatusCode.BadRequest, null)]
+        [InlineData("", HttpStatusCode.NotFound, null)] // "" is effectively not providing a page-size, so it will default to 25.
+        [InlineData("0", HttpStatusCode.NotFound, null)]
+        [InlineData("-1", HttpStatusCode.NotFound, null)]
+        [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.NotFound, null)]
+        [InlineData("foo", HttpStatusCode.NotFound, null)]
         [InlineData("", HttpStatusCode.OK, "banking")] // "" is effectively not providing a page-size, so it will default to 25.
         [InlineData("0", HttpStatusCode.BadRequest, "banking")]
         [InlineData("-1", HttpStatusCode.BadRequest, "banking")]
@@ -614,11 +609,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("", HttpStatusCode.OK, null)] // "" is effectively not providing a page-size, so it will default to 25.
-        [InlineData("0", HttpStatusCode.BadRequest, null)]
-        [InlineData("-1", HttpStatusCode.BadRequest, null)]
-        [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.BadRequest, null)]
-        [InlineData("foo", HttpStatusCode.BadRequest, null)]
+        [InlineData("", HttpStatusCode.NotFound, null)] // "" is effectively not providing a page-size, so it will default to 25.
+        [InlineData("0", HttpStatusCode.NotFound, null)]
+        [InlineData("-1", HttpStatusCode.NotFound, null)]
+        [InlineData("99999999999999999999999999999999999999999999999999", HttpStatusCode.NotFound, null)]
+        [InlineData("foo", HttpStatusCode.NotFound, null)]
         [InlineData("", HttpStatusCode.OK, "banking")] // "" is effectively not providing a page-size, so it will default to 25.
         [InlineData("0", HttpStatusCode.BadRequest, "banking")]
         [InlineData("-1", HttpStatusCode.BadRequest, "banking")]
@@ -651,13 +646,13 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("3", null)]
+        [InlineData("3", null, HttpStatusCode.NotFound)]
         [InlineData("3", "banking")]
         [InlineData("3", "energy")]
         [InlineData("3", "telco")]
-        public async Task AC15_Get_WithPageOutOfRange_ShouldRespondWith_400BadRequest_PageExceedsMaxNumberOfPages(string page, string? industry)
+        public async Task AC15_Get_WithPageOutOfRange_ShouldRespondWith_400BadRequest_PageExceedsMaxNumberOfPages(string page, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC13_AC14_AC15_AC16($"page={page}", HttpStatusCode.BadRequest, @"
+            await Test_AC13_AC14_AC15_AC16($"page={page}", expectedStatusCode, @"
                 {
                     ""errors"": [
                         {
@@ -672,13 +667,13 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("1001", null)]
+        [InlineData("1001", null, HttpStatusCode.NotFound)]
         [InlineData("1001", "banking")]
         [InlineData("1001", "energy")]
         [InlineData("1001", "telco")]
-        public async Task AC16_Get_WithPageSizeTooLarge_ShouldRespondWith_400BadRequest_PageSizeTooLarge(string pageSize, string? industry)
+        public async Task AC16_Get_WithPageSizeTooLarge_ShouldRespondWith_400BadRequest_PageSizeTooLarge(string pageSize, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC13_AC14_AC15_AC16($"page-size={pageSize}", HttpStatusCode.BadRequest, @"
+            await Test_AC13_AC14_AC15_AC16($"page-size={pageSize}", expectedStatusCode, @"
                 {
                     ""errors"": [
                         {
@@ -710,9 +705,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             beforeRequest?.Invoke();
@@ -728,7 +723,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     response.StatusCode.Should().Be(expectedStatusCode);
 
                     // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
                     {
                         // Assert - Check content type 
                         Assert_HasContentType_ApplicationJson(response.Content);
@@ -756,12 +751,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(1, HttpStatusCode.OK, null)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden, null)] // Removed 
-        [InlineData(3, HttpStatusCode.Forbidden, null)] // Suspended 
-        [InlineData(4, HttpStatusCode.Forbidden, null)] // Revoked 
-        [InlineData(5, HttpStatusCode.Forbidden, null)] // Surrendered
-        [InlineData(6, HttpStatusCode.Forbidden, null)] // Inactive         
+        [InlineData(1, HttpStatusCode.NotFound, null)]        // Active
+        [InlineData(2, HttpStatusCode.NotFound, null)] // Removed 
+        [InlineData(3, HttpStatusCode.NotFound, null)] // Suspended 
+        [InlineData(4, HttpStatusCode.NotFound, null)] // Revoked 
+        [InlineData(5, HttpStatusCode.NotFound, null)] // Surrendered
+        [InlineData(6, HttpStatusCode.NotFound, null)] // Inactive         
         [InlineData(1, HttpStatusCode.OK, "banking")]        // Active
         [InlineData(2, HttpStatusCode.Forbidden, "banking")] // Removed 
         [InlineData(3, HttpStatusCode.Forbidden, "banking")] // Suspended 
@@ -795,9 +790,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(1, HttpStatusCode.OK, null)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden, null)] // Inactive 
-        [InlineData(3, HttpStatusCode.Forbidden, null)] // Removed 
+        [InlineData(1, HttpStatusCode.NotFound, null)]        // Active
+        [InlineData(2, HttpStatusCode.NotFound, null)] // Inactive 
+        [InlineData(3, HttpStatusCode.NotFound, null)] // Removed 
         [InlineData(1, HttpStatusCode.OK, "banking")]        // Active
         [InlineData(2, HttpStatusCode.Forbidden, "banking")] // Inactive 
         [InlineData(3, HttpStatusCode.Forbidden, "banking")] // Removed 
@@ -823,9 +818,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(1, HttpStatusCode.OK, null)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden, null)] // Inactive 
-        [InlineData(3, HttpStatusCode.Forbidden, null)] // Removed 
+        [InlineData(1, HttpStatusCode.NotFound, null)]        // Active
+        [InlineData(2, HttpStatusCode.NotFound, null)] // Inactive 
+        [InlineData(3, HttpStatusCode.NotFound, null)] // Removed 
         [InlineData(1, HttpStatusCode.OK, "banking")]        // Active
         [InlineData(2, HttpStatusCode.Forbidden, "banking")] // Inactive 
         [InlineData(3, HttpStatusCode.Forbidden, "banking")] // Removed 
@@ -851,7 +846,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(null)]
+        [InlineData("all")]
         public async Task ACX20_Get_WithIfNoneMatchKnownETAG_ShouldRespondWith_304NotModified_ETag(string? industry)
         {
             var accessToken = await new Infrastructure.AccessToken
@@ -866,9 +861,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1",
+                XV = "2",
                 IfNoneMatch = null, // ie If-None-Match is not set                
             }.SendAsync()).Headers.GetValues("ETag").First().Trim('"');
 
@@ -878,9 +873,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{IndustryPath(industry)}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1",
+                XV = "2",
                 IfNoneMatch = expectedETag,
             }.SendAsync();
 
@@ -896,13 +891,13 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("foo", null)]
+        [InlineData("foo", null, HttpStatusCode.NotFound)]
         [InlineData("foo", "banking")]
         [InlineData("foo", "energy")]
         [InlineData("foo", "telco")]
-        public async Task AC20_Get_WithInvalidXV_ShouldRespondWith_400BadRequest(string xv, string? industry)
+        public async Task AC20_Get_WithInvalidXV_ShouldRespondWith_400BadRequest(string xv, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC08_AC20_AC21(xv, HttpStatusCode.BadRequest, @"
+            await Test_AC08_AC20_AC21(xv, expectedStatusCode, @"
                 {
                     ""errors"": [
                         {
@@ -917,19 +912,19 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData(null, "banking")]
+        [InlineData(null, null, HttpStatusCode.NotFound)]
+        [InlineData(null, "banking", HttpStatusCode.OK)] // DF: this will call the x-v: 1 version and will be successful.
         [InlineData(null, "energy")]
         [InlineData(null, "telco")]
-        public async Task AC21_Get_WithMissingXV_ShouldRespondWith_400BadRequest(string xv, string? industry)
+        public async Task AC21_Get_WithMissingXV_ShouldRespondWith_400BadRequest(string xv, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC08_AC20_AC21(xv, HttpStatusCode.BadRequest, @"
+            await Test_AC08_AC20_AC21(xv, expectedStatusCode, @"
                 {
                     ""errors"": [
                         {
-                        ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
-                        ""title"": ""Missing Required Header"",
-                        ""detail"": """",
+                        ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
+                        ""title"": ""Invalid Field"",
+                        ""detail"": ""industry"",
                         ""meta"": {}
                         }
                     ]
@@ -939,7 +934,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
         [Theory]
         [InlineData("foo")]
-        [InlineData("all")]
         public async Task ACX01_Get_WithInvalidIndustry_ShouldRespondWith_400BadRequest(string industry)
         {
             // Arrange
@@ -954,9 +948,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands/{industry}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1"
+                XV = "2"
             };
 
             // Act
@@ -992,8 +986,8 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(null, "cdr-register:bank:read", HttpStatusCode.OK)] // No industry
-        [InlineData(null, "cdr-register:read", HttpStatusCode.OK)] // No industry
+        [InlineData(null, "cdr-register:bank:read", HttpStatusCode.NotFound)] // No industry
+        [InlineData(null, "cdr-register:read", HttpStatusCode.NotFound)] // No industry
         [InlineData("banking", "cdr-register:bank:read", HttpStatusCode.OK)]
         [InlineData("banking", "cdr-register:read", HttpStatusCode.OK)]
         [InlineData("energy", "cdr-register:bank:read", HttpStatusCode.OK)]  // ???
@@ -1002,11 +996,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("telco", "cdr-register:read", HttpStatusCode.OK)]
         public async Task ACX02_Get_WithScope_ShouldRespondWith_200OK(string industry, string scope, HttpStatusCode expectedStatusCode)
         {
-            if (industry != null) 
-            {
-                industry = "/" + industry;
-            }
-
             // Arrange
             var accessToken = await new Infrastructure.AccessToken
             {
@@ -1020,9 +1009,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-holders/brands{industry}",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "1",
+                XV = "2",
             };
 
             // Act
@@ -1033,6 +1022,208 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             {
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedStatusCode);
+            }
+        }
+
+        [Theory]
+        [InlineData("99", "2")]
+        public async Task ACXX_Get_WithMinXV_ShouldRespondWith_200OK(string xv, string minXv)
+        {
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-holders/brands",
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = minXv
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                Assert_HasContentType_ApplicationJson(response.Content);
+
+                // Assert - Check error response
+                Assert_HasHeader("2", response.Headers, "x-v");
+            }
+        }
+
+        [Theory]
+        [InlineData("2", "2")]
+        [InlineData("2", "3")]
+        public async Task ACXX_Get_WithMinXVGreaterThanOrEqualToXV_ShouldBeIgnored_200OK(string xv, string minXv)
+        {
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-holders/brands",
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = minXv
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                Assert_HasContentType_ApplicationJson(response.Content);
+
+                // Assert - Check error response
+                Assert_HasHeader("2", response.Headers, "x-v");
+            }
+        }
+
+        [Theory]
+        [InlineData(null, "2")]
+        [InlineData(null, "3")]
+        public async Task ACXX_Get_WithMinXVAndNoXV_ShouldBeIgnored_200OK(string xv, string minXv)
+        {
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands",
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = minXv,
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                Assert_HasContentType_ApplicationJson(response.Content);
+
+                // Assert - Check error response
+                Assert_HasHeader("1", response.Headers, "x-v");
+            }
+        }
+
+        [Theory]
+        [InlineData("99", "foo")]
+        [InlineData("99", "0")]
+        [InlineData("99", "-1")]
+        public async Task ACXX_Get_WithInvalidMinXV_ShouldReturnInvalidVersionError_400BadRequest(string xv, string minXv)
+        {
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-holders/brands",
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = minXv
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+                // Assert - Check content type
+                Assert_HasContentType_ApplicationJson(response.Content);
+
+                // Assert - Check error response
+                await Assert_HasContent_Json(EXPECTEDCONTENT_INVALIDXV, response.Content);
+            }
+        }
+
+        [Theory]
+        [InlineData("99", "10")]
+        public async Task ACXX_Get_WithUnsupportedMinXV_ShouldReturnUnsupportedVersionError_406NotAccepted(string xv, string minXv)
+        {
+            // Arrange
+            var expectedContent = EXPECTEDCONTENT_UNSUPPORTEDXV.Replace("#{minVersion}", "1").Replace("#{maxVersion}", "2");
+
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-holders/brands",
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = minXv
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
+
+                // Assert - Check content type
+                Assert_HasContentType_ApplicationJson(response.Content);
+
+                // Assert - Check error response
+                await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }
     }

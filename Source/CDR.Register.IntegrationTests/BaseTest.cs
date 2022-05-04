@@ -77,6 +77,31 @@ namespace CDR.Register.IntegrationTests
         static public string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
         static public string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
 
+        protected const string EXPECTEDCONTENT_INVALIDXV = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
+                    ""title"": ""Invalid Version"",
+                    ""detail"": """",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
+
+        protected const string EXPECTEDCONTENT_UNSUPPORTEDXV = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
+                    ""title"": ""Unsupported Version"",
+                    ""detail"": ""minimum version: #{minVersion}, maximum version: #{maxVersion}"",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
         /// <summary>
         /// Assert response content and expectedJson are equivalent
         /// </summary>

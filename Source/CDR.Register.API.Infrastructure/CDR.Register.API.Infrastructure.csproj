@@ -18,6 +18,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.1" />
+		<PackageReference Include="System.Collections" Version="4.3.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
 	</ItemGroup>

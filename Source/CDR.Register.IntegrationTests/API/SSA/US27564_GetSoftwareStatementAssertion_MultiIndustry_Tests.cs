@@ -44,11 +44,13 @@ namespace CDR.Register.IntegrationTests.API.SSA
            AccessTokenType accessTokenType = AccessTokenType.ValidAccessToken,
            BeforeSSARequest? beforeRequest = null,
            AfterSSARequest? afterRequest = null,
-           string? x_v = "1",
+           string? x_v = "3",
+           string? x_min_v = null,
            string? expectedContent = null,
            string? getAccessTokenCertificateFilename = null,
            string? getAccessTokenCertificatePassword = null,
            string? expectedXV = null,
+           string? industry = "all",
            string brandId = BRANDID,
            string softwareProductId = SOFTWAREPRODUCTID)
         {
@@ -83,7 +85,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             }
 
             // Arrange
-            string URL = $"{MTLS_BaseURL}/cdr-register/v1/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa";
+            string URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa";
 
             var accessToken = await GetAccessToken();
 
@@ -95,6 +97,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 URL = URL,
                 AccessToken = accessToken,
                 XV = x_v,
+                XMinV = x_min_v
             };
 
             beforeRequest?.Invoke();
@@ -129,8 +132,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData(1)]
-        public async Task AC01_GetSSA_WithXV1_ShouldRespondWith_200OK_V1ofSSA(int XV)
+        [InlineData(3)]
+        public async Task AC01_GetSSA_WithXV1_ShouldRespondWith_200OK_V3ofSSA(int XV)
         {
             // Arrange - Get SoftwareProduct
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
@@ -152,7 +155,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
                 XV = XV.ToString(),
                 AccessToken = accessToken
             }.SendAsync();
@@ -235,29 +238,130 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData(null)]
-        public async Task AC02_GetSSA_WithMissingXV_ShouldRespondWith_400BadRequest(string? XV)
+        [InlineData("all")]
+        [InlineData("banking")]
+        [InlineData("energy")]
+        [InlineData("telco")]
+        public async Task ACX99_GetSSA_WithDifferentIndustry_ShouldRespondWith_DifferentScopes(string industry)
         {
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.BadRequest,
-                x_v: XV,
-                expectedContent: @"
+            // Arrange - Get SoftwareProduct
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
+            var softwareProduct = dbContext.SoftwareProducts.AsNoTracking()
+                    .Include(sp => sp.Brand)
+                    .Where(sp => sp.SoftwareProductId == new Guid(SOFTWAREPRODUCTID))
+                    .Single();
+
+            // Arrange - Get access token
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD
+            }.GetAsync();
+
+            // Act - Send request to SSA API
+            var response = await new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
+                XV = "3",
+                AccessToken = accessToken
+            }.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    ""errors"": [
-                            {
-                            ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
-                            ""title"": ""Missing Required Header"",
-                            ""detail"": """",
-                            ""meta"": {}
-                            }
-                        ]
-                }");
+                    // Get the SSA JWKS from the Register.
+                    var ssaJwks = await GetSsaJwks();
+
+                    // Assert - Check XV
+                    Assert_HasHeader("3", response.Headers, "x-v");
+
+                    // Assert - SSA
+                    var SSA = new JwtSecurityTokenHandler().ReadJwtToken(await response.Content.ReadAsStringAsync());
+
+                    // Assert - SSA Header
+                    SSA.Header.Alg.Should().Be("PS256");
+                    SSA.Header.Kid.Should().Be(ssaJwks.Keys.First().Kid);
+                    SSA.Header.Typ.Should().Be("JWT");
+
+                    // Assert - SSA Claims
+                    SSA.AssertClaim("iss", "cdr-register");
+
+                    SSA.AssertClaim("iat", null);
+                    SSA.AssertClaim("exp", null);
+                    long iat = Convert.ToInt64(SSA.Claim("iat").Value);
+                    long exp = Convert.ToInt64(SSA.Claim("exp").Value);
+                    exp.Should().Be(iat + 600); // Check expiry is 10 minutes (ie 600 seconds)
+
+                    SSA.AssertClaim("jti", null);
+                    SSA.AssertClaim("org_id", softwareProduct.Brand.BrandId.ToString());
+                    SSA.AssertClaim("org_name", softwareProduct.Brand.BrandName);
+                    SSA.AssertClaim("client_name", softwareProduct.SoftwareProductName);
+                    SSA.AssertClaim("client_description", softwareProduct.SoftwareProductDescription);
+                    SSA.AssertClaim("client_uri", softwareProduct.ClientUri);
+                    SSA.AssertClaim("redirect_uris", softwareProduct.RedirectUris);
+                    SSA.AssertClaim("logo_uri", softwareProduct.LogoUri);
+                    SSA.AssertClaim("tos_uri", softwareProduct.TosUri, true);
+                    SSA.AssertClaim("policy_uri", softwareProduct.PolicyUri, true);
+                    SSA.AssertClaim("jwks_uri", softwareProduct.JwksUri);
+                    SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
+                    SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
+                    SSA.AssertClaim("software_roles", "data-recipient-software-product");
+                    SSA.AssertClaim("scope", softwareProduct.Scope);
+
+                    // Assert - Validate SSA Signature
+                    var validationParameters = new TokenValidationParameters()
+                    {
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(2),
+
+                        RequireSignedTokens = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = ssaJwks.Keys.First(),
+
+                        ValidateIssuer = true,
+                        ValidIssuer = "cdr-register",
+
+                        ValidateAudience = false,
+                    };
+
+                    // Validate token (throws exception if token fails to validate)
+                    new JwtSecurityTokenHandler().ValidateToken(SSA.RawData, validationParameters, out var validatedToken);
+                }
+            }
         }
 
+        //[Theory]
+        //[InlineData(null)] // DF: this will no longer error.
+        //public async Task AC02_GetSSA_WithMissingXV_ShouldRespondWith_400BadRequest(string? XV)
+        //{
+        //    await Test_GetSSA(
+        //        CERTIFICATE_FILENAME,
+        //        CERTIFICATE_PASSWORD,
+        //        HttpStatusCode.BadRequest,
+        //        x_v: XV,
+        //        expectedContent: @"
+        //        {
+        //            ""errors"": [
+        //                    {
+        //                    ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
+        //                    ""title"": ""Missing Required Header"",
+        //                    ""detail"": """",
+        //                    ""meta"": {}
+        //                    }
+        //                ]
+        //        }");
+        //}
+
         [Theory]
-        [InlineData("")]
+        //[InlineData("")] // DF: will no longer error
         [InlineData("foo")]
         public async Task ACX02_GetSSA_WithInvalidXV_ShouldRespondWith_400BadRequest(string? XV)
         {
@@ -355,7 +459,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("1")]
+        [InlineData("3")]
         public async Task AC06_GetSSA_WithNoAccessToken_ShouldRespondWith_401Unauthorized(string x_v)
         {
             await Test_GetSSA(
@@ -367,7 +471,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("1")]
+        [InlineData("3")]
         public async Task AC07_GetSSA_WithInvalidAccessToken_ShouldRespondWith_401Unauthorized(string x_v)
         {
             await Test_GetSSA(
@@ -379,7 +483,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("1")]
+        [InlineData("3")]
         public async Task AC08_GetSSA_WithExpiredAccessToken_ShouldRespondWith_401Unauthorized(string x_v)
         {
             await Test_GetSSA(
@@ -403,7 +507,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("2")]
+        [InlineData("4")]
         [InlineData("99")]
         public async Task AC10_GetSSA_UnsupportedXV_ShouldRespondWith_406NotAcceptable(string XV)
         {
@@ -418,7 +522,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                                 {
                                 ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                                 ""title"": ""Unsupported Version"",
-                                ""detail"": """",
+                                ""detail"": ""minimum version: 1, maximum version: 3"",
                                 ""meta"": {}
                                 }
                             ]
@@ -426,7 +530,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("1", "foo")]
+        [InlineData("3", "foo")]
         public async Task AC11_GetSSA_InvalidSoftwareProductId_ShouldRespondWith_404NotFound(string XV, string softwareProductId)
         {
             await Test_GetSSA(
@@ -479,6 +583,89 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var jwksClient = new HttpClient(clientHandler);
             var jwksResponse = await jwksClient.GetAsync($"{TLS_BaseURL}/cdr-register/v1/jwks");
             return new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
+        }
+
+        [Theory]
+        [InlineData("99", "3")]
+        public async Task ACXX_Get_WithMinXV_ShouldRespondWith_200OK(string xv, string minXv)
+        {
+            // Act
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.OK,
+                x_v: xv,
+                x_min_v: minXv,
+                expectedXV: "3"
+            );
+        }
+
+        [Theory]
+        [InlineData("2", "2")]
+        [InlineData("2", "3")]
+        public async Task ACXX_Get_WithMinXVGreaterThanOrEqualToXV_ShouldBeIgnored_200OK(string xv, string minXv)
+        {
+            // Act
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.OK,
+                x_v: xv,
+                x_min_v: minXv,
+                industry: "banking"
+            );
+        }
+
+        [Theory]
+        [InlineData(null, "2")]
+        [InlineData(null, "3")]
+        public async Task ACXX_Get_WithMinXVAndNoXV_ShouldBeIgnored_200OK(string xv, string minXv)
+        {
+            // Act
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.OK,
+                x_v: xv,
+                x_min_v: minXv,
+                expectedXV: "1",
+                industry: "banking"
+            );
+        }
+
+        [Theory]
+        [InlineData("99", "foo")]
+        [InlineData("99", "0")]
+        [InlineData("99", "-1")]
+        public async Task ACXX_Get_WithInvalidMinXV_ShouldReturnInvalidVersionError_400BadRequest(string xv, string minXv)
+        {
+            // Act
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.BadRequest,
+                x_v: xv,
+                x_min_v: minXv,
+                expectedContent: EXPECTEDCONTENT_INVALIDXV
+            );
+        }
+
+        [Theory]
+        [InlineData("99", "10")]
+        public async Task ACXX_Get_WithUnsupportedMinXV_ShouldReturnUnsupportedVersionError_406NotAccepted(string xv, string minXv)
+        {
+            // Arrange
+            var expectedContent = EXPECTEDCONTENT_UNSUPPORTEDXV.Replace("#{minVersion}", "1").Replace("#{maxVersion}", "3");
+
+            // Act
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.NotAcceptable,
+                x_v: xv,
+                x_min_v: minXv,
+                expectedContent: expectedContent
+            );
         }
     }
 }

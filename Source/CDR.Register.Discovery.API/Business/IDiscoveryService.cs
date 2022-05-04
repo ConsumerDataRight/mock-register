@@ -7,9 +7,10 @@ namespace CDR.Register.Discovery.API.Business
 {
     public interface IDiscoveryService
     {
-        Task<ResponseRegisterDataHolderBrandListV1> GetDataHolderBrandsAsyncV1(Industry industry, DateTime? updatedSince, int page, int pageSize);
-        Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize);
-        Task<ResponseRegisterDataRecipientListV1> GetDataRecipientsAsyncV1(Industry industry);
-        Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsync();
+        Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsyncXV1(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<ResponseRegisterDataHolderBrandListV2> GetDataHolderBrandsAsyncXV2(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsyncXV1(Industry industry);
+        Task<ResponseRegisterDataRecipientListV2> GetDataRecipientsAsyncXV2(Industry industry);
+        Task<ResponseRegisterDataRecipientListV3> GetDataRecipientsAsyncXV3(Industry industry);
     }
 }

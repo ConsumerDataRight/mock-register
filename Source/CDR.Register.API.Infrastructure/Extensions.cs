@@ -155,6 +155,21 @@ namespace CDR.Register.API.Infrastructure
             return links;
         }
 
+        public static Links GetSelf(this ControllerBase controller)
+        {
+            var links = new Links();
+
+            string forwardedHost = null;
+            if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+            {
+                forwardedHost = forwardedHosts.First();
+            }
+
+            links.Self = ReplaceUriHost(controller.Request.GetDisplayUrl(), forwardedHost);
+
+            return links;
+        }
+
         public static Uri GetPageUri(this ControllerBase controller, string routeName, DateTime? updatedSince, int? currentPage, int? pageSize, string forwardedHost)
         {
             string url = null;
@@ -218,6 +233,17 @@ namespace CDR.Register.API.Infrastructure
                 return (Industry)Enum.Parse(typeof(Industry), industry, true);
             else
                 throw new NotSupportedException($"Invalid industry: {industry}");
+        }
+
+        public static IEnumerable<string> GetValueAsList(this IConfiguration configuration, string key, string delimiter)
+        {
+            string value = configuration.GetValue<string>(key);
+            if (string.IsNullOrEmpty(value))
+            {
+                return Array.Empty<string>();
+            }
+
+            return value.Split(delimiter);
         }
     }
 }

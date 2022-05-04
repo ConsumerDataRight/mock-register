@@ -1,6 +1,6 @@
 ﻿namespace CDR.Register.Discovery.API.Business.Models
 {
-    public class LegalEntityModelV1
+    public class DataHolderLegalEntityModel
     {
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
@@ -15,7 +15,7 @@
         public string OrganisationType { get; set; }
     }
 
-    public class LegalEntityDataHolderModel
+    public class DataHolderLegalEntityModelV2
     {
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
@@ -31,10 +31,4 @@
         public string Status { get; set; }
     }
 
-    public class LegalEntityDataRecipientModel
-    {
-        public string LegalEntityId { get; set; }
-        public string LegalEntityName { get; set; }
-        public string LogoUri { get; set; }
-    }
 }

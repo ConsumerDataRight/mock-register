@@ -16,7 +16,7 @@
       "DangerousAcceptAnyServerCertificateValidator": true
     },
 
-    // GetDataHolderBrands - Legacy
+    // GetDataHolderBrands
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/brands",
       "DownstreamScheme": "https",
@@ -31,37 +31,7 @@
       "DangerousAcceptAnyServerCertificateValidator": true
     },
 
-    // GetDataHolderBrands - Multi Industry
-    {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-holders/brands",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7003
-        }
-      ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-holders/brands",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-
-    // GetDataHolderBrands - Multi Industry with optional industry
-    {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-holders/brands/{industry}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7003
-        }
-      ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-holders/brands/{industry}",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-
-    // GetSSA - Legacy
+    // GetSSA
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
       "DownstreamScheme": "https",
@@ -72,21 +42,6 @@
         }
       ],
       "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-
-    // GetSSA - Multi Industry
-    {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7005
-        }
-      ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa",
       "UpstreamHttpMethod": [ "Get" ],
       "DangerousAcceptAnyServerCertificateValidator": true
     }

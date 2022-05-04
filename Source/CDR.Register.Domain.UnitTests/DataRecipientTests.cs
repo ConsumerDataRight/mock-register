@@ -20,7 +20,7 @@ namespace CDR.Register.Domain.UnitTests
         public void LastUpdated_NoBrands_ShouldReturnNull(DataRecipientBrand[] brands)
         {
             // Arrange
-            DataRecipientV1 sut = new DataRecipientV1()
+            var sut = new DataRecipient()
             {
                 DataRecipientBrands = brands
             };
@@ -40,7 +40,7 @@ namespace CDR.Register.Domain.UnitTests
         {
             // Arrange
             DateTime latestLastUpdated = DateTime.Now.AddDays(-1);
-            DataRecipientV1 sut = new DataRecipientV1()
+            var sut = new DataRecipient()
             {
                 DataRecipientBrands = new DataRecipientBrand[]
                 {

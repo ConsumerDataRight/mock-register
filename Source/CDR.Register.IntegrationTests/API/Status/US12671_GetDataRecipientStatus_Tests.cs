@@ -28,13 +28,13 @@ namespace CDR.Register.IntegrationTests.API.Status
             {
                 dataRecipients = dbContext.Participations.AsNoTracking<Repository.Entities.Participation>()
                     .Include(p => p.Status)
-                    .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
-                    .OrderBy(p => p.ParticipationId)
+                    .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
                     .Select(p => new
                     {
                         dataRecipientId = p.LegalEntityId,
                         dataRecipientStatus = p.Status.ParticipationStatusCode
                     })
+                    .OrderBy(p => p.dataRecipientId.ToString())
                     .ToList()
             };
 
@@ -139,7 +139,7 @@ namespace CDR.Register.IntegrationTests.API.Status
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
-                    ""detail"": """",
+                    ""detail"": ""minimum version: 1, maximum version: 2"",
                     ""meta"": {}
                     }
                 ]

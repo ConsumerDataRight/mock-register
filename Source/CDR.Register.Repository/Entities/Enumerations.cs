@@ -14,7 +14,7 @@ namespace CDR.Register.Repository.Entities.erations
         TELCO
     }
 
-    public enum OrganisationType : int
+    public enum OrganisationType
     {
         Unknown = 0,
         SoleTrader = 1,
@@ -25,14 +25,14 @@ namespace CDR.Register.Repository.Entities.erations
         Other = 6
     }
 
-    public enum AccreditationLevel : int
+    public enum AccreditationLevel
     {
         //Sponsored by Default 
         Sponsored = 0,
         Unrestricted = 1
     }
 
-    public enum ParticipationStatus : int
+    public enum ParticipationStatus
     {
         Unknown = 0,
         Active = 1,
@@ -43,13 +43,13 @@ namespace CDR.Register.Repository.Entities.erations
         Inactive = 6
     }
 
-    public enum LegalEntityStatus : int
+    public enum LegalEntityStatus
     {
         Active = 1,
         Removed = 2
     }
 
-    public enum BrandStatus : int
+    public enum BrandStatus
     {
         Unknown = 0,
         Active = 1,
@@ -57,20 +57,20 @@ namespace CDR.Register.Repository.Entities.erations
         Removed = 3
     }
 
-    public enum ParticipationType : int
+    public enum ParticipationType
     {
         Unknown = 0,
         Dh = 1,
         Dr = 2
     }
 
-    public enum RegisterUType : int
+    public enum RegisterUType
     {
         Unknown = 0,
         SignedJwt = 1
     }
 
-    public enum SoftwareProductStatus : int
+    public enum SoftwareProductStatus
     {
         Unknown = 0,
         Active = 1,

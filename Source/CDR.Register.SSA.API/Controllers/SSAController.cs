@@ -6,8 +6,6 @@ using CDR.Register.API.Infrastructure.Services;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.SSA.API.Business;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Serilog.Context;
 using System;
 using System.Threading.Tasks;
 
@@ -31,67 +29,56 @@ namespace CDR.Register.SSA.API.Controllers
             _statusCheckService = statusCheckService;
         }
 
-        /// <remarks>
-        /// This x-v version = 1 method is required by the API Version dependency injection pipeline as set in Startup.cs
-        /// If NO x-v header is sent in the request the API Version will default to x-v = 1 ie. this method, and it will respond as if a request
-        /// was made to highest version of the Legacy endpoint supported.
-        /// If this method is removed API Version will throw an exception error as the default endpoint will not be found.
-        /// </remarks>
         [Obsolete("This API version has been superseded")]
         [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [CheckXV("2")]
+        [ReturnXV("1")]
         [ApiVersion("1")]
         [CheckIndustry(Industry.BANKING)]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertionV1(string industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            return await GetSoftwareStatementAssertionJWTV2(dataRecipientBrandId, softwareProductId);
-        }
-
-        [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
-        [HttpGet]
-        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [CheckXV("2")]
-        [ApiVersion("2")]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertionV2(string industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            return await GetSoftwareStatementAssertionJWTV2(dataRecipientBrandId, softwareProductId);
-        }
-
-        [PolicyAuthorize(AuthorisationPolicy.GetSSAMultiIndustry)]
-        [HttpGet]
-        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [CheckXV("3")]
-        [ApiVersion("3")]
-        [CheckIndustry]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertionV3(string industry, string dataRecipientBrandId, string softwareProductId)
+        public async Task<IActionResult> GetSoftwareStatementAssertionXV1(string industry, string dataRecipientBrandId, string softwareProductId)
         {
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsync(dataRecipientBrandId, softwareProductId);
+            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV1(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
+            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
+        }
+
+        [Obsolete("This API version has been superseded")]
+        [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
+        [HttpGet]
+        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
+        [ReturnXV("2")]
+        [ApiVersion("2")]
+        [CheckIndustry(Industry.BANKING)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task<IActionResult> GetSoftwareStatementAssertionXV2(string industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            var result = await CheckSoftwareProduct(softwareProductId);
+            if (result != null)
+                return result;
+
+            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV2(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
             return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetSSAMultiIndustry)]
         [HttpGet]
-        [Route("v1/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [CheckXV("1")]
-        [ApiVersion("1")]
+        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
+        [ReturnXV("3")]
+        [ApiVersion("3")]
+        [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertion(string dataRecipientBrandId, string softwareProductId)
+        public async Task<IActionResult> GetSoftwareStatementAssertionXV3(string industry, string dataRecipientBrandId, string softwareProductId)
         {
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsync(dataRecipientBrandId, softwareProductId);
+            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV3(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
             return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
         }
 
@@ -142,14 +129,5 @@ namespace CDR.Register.SSA.API.Controllers
             return await _statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
         }
 
-        private async Task<IActionResult> GetSoftwareStatementAssertionJWTV2(string dataRecipientBrandId, string softwareProductId)
-        {
-            var result = await CheckSoftwareProduct(softwareProductId);
-            if (result != null)
-                return result;
-
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTV2Async(dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
-        }
     }
 }

@@ -17,7 +17,8 @@ namespace CDR.Register.SSA.API.Business
 
             var configuration = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModelV2>()
+                // Base mapping.
+                cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModel>()
                 .ForMember(d => d.client_name, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductName))
                 .ForMember(d => d.client_description, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductDescription))
                 .ForMember(d => d.client_uri, s => s.MapFrom(source => source.SoftwareProduct.ClientUri))
@@ -38,25 +39,46 @@ namespace CDR.Register.SSA.API.Business
                 .ForMember(d => d.jti, s => s.MapFrom(source => Guid.NewGuid().ToString().Replace("-", string.Empty)))
                 .ForMember(d => d.exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds + long.Parse(_config["SSA:ExpiryInSeconds"])));
 
-                cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModel>()
-                .IncludeBase<SoftwareStatementAssertion, SoftwareStatementAssertionModelV2>()
+                // Additional V2 mapping.
+                cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModelV2>()
+                .IncludeBase<SoftwareStatementAssertion, SoftwareStatementAssertionModel>()
                 .ForMember(d => d.legal_entity_id, s => s.MapFrom(source => source.LegalEntity.LegalEntityId))
                 .ForMember(d => d.legal_entity_name, s => s.MapFrom(source => source.LegalEntity.LegalEntityName))
                 .ForMember(d => d.sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri));
 
+                // Additional V3 mapping.
+                cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModelV3>()
+                .IncludeBase<SoftwareStatementAssertion, SoftwareStatementAssertionModelV2>();
             });
 
             _mapper = configuration.CreateMapper();
         }
 
+        public SoftwareStatementAssertionModel Map(SoftwareStatementAssertion softwareStatementAssertion)
+        {
+            if (softwareStatementAssertion == null)
+            {
+                return null;
+            }
+            return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
+        }
+
         public SoftwareStatementAssertionModelV2 MapV2(SoftwareStatementAssertion softwareStatementAssertion)
         {
+            if (softwareStatementAssertion == null)
+            {
+                return null;
+            }
             return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModelV2>(softwareStatementAssertion);
         }
 
-        public SoftwareStatementAssertionModel Map(SoftwareStatementAssertion softwareStatementAssertion)
+        public SoftwareStatementAssertionModelV3 MapV3(SoftwareStatementAssertion softwareStatementAssertion)
         {
-            return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
+            if (softwareStatementAssertion == null)
+            {
+                return null;
+            }
+            return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModelV3>(softwareStatementAssertion);
         }
     }
 }

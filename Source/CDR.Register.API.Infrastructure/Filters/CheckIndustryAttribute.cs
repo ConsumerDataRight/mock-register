@@ -56,8 +56,7 @@ namespace CDR.Register.API.Infrastructure.Filters
                 return false;
             }
 
-            // The use of the "all" industry path parameter is not currently supported, but may be in the future.
-            return (industryItem != Industry.ALL);
+            return true;
         }
     }
 }

@@ -5,8 +5,8 @@ namespace CDR.Register.SSA.API.Business
 {
     public interface IMapper
     {
-        SoftwareStatementAssertionModelV2 MapV2(SoftwareStatementAssertion softwareStatementAssertion);
-
         SoftwareStatementAssertionModel Map(SoftwareStatementAssertion softwareStatementAssertion);
+        SoftwareStatementAssertionModelV2 MapV2(SoftwareStatementAssertion softwareStatementAssertion);
+        SoftwareStatementAssertionModelV3 MapV3(SoftwareStatementAssertion softwareStatementAssertion);
     }
 }

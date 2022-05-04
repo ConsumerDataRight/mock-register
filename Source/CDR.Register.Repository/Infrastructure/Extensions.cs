@@ -20,37 +20,37 @@ namespace CDR.Register.Repository.Infrastructure
                 new IndustryType { IndustryTypeId = Industry.ENERGY, IndustryTypeCode = Industry.ENERGY.ToString().ToLower() });
 
             modelBuilder.Entity<OrganisationType>().HasData(
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Company, OrganisationTypeCode = "COMPANY" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Partnership, OrganisationTypeCode = "PARTNERSHIP" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Trust, OrganisationTypeCode = "TRUST" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.GovernmentEntity, OrganisationTypeCode = "GOVERNMENT_ENTITY" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Other, OrganisationTypeCode = "OTHER" });
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Company, OrganisationTypeCode = "COMPANY" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Partnership, OrganisationTypeCode = "PARTNERSHIP" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Trust, OrganisationTypeCode = "TRUST" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.GovernmentEntity, OrganisationTypeCode = "GOVERNMENT_ENTITY" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Other, OrganisationTypeCode = "OTHER" });
 
             modelBuilder.Entity<ParticipationType>().HasData(
-                new ParticipationType { ParticipationTypeId = ParticipationTypeEnum.Dh, ParticipationTypeCode = "DH" },
-                new ParticipationType { ParticipationTypeId = ParticipationTypeEnum.Dr, ParticipationTypeCode = "DR" });
+                new ParticipationType { ParticipationTypeId = ParticipationTypes.Dh, ParticipationTypeCode = "DH" },
+                new ParticipationType { ParticipationTypeId = ParticipationTypes.Dr, ParticipationTypeCode = "DR" });
 
             modelBuilder.Entity<ParticipationStatus>().HasData(
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Active, ParticipationStatusCode = "ACTIVE" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Removed, ParticipationStatusCode = "REMOVED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Suspended, ParticipationStatusCode = "SUSPENDED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Revoked, ParticipationStatusCode = "REVOKED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Surrendered, ParticipationStatusCode = "SURRENDERED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Inactive, ParticipationStatusCode = "INACTIVE" });
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Active, ParticipationStatusCode = "ACTIVE" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Removed, ParticipationStatusCode = "REMOVED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE" });
 
             modelBuilder.Entity<BrandStatus>().HasData(
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Active, BrandStatusCode = "ACTIVE" },
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Inactive, BrandStatusCode = "INACTIVE" },
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Removed, BrandStatusCode = "REMOVED" });
+                new BrandStatus { BrandStatusId = BrandStatusType.Active, BrandStatusCode = "ACTIVE" },
+                new BrandStatus { BrandStatusId = BrandStatusType.Inactive, BrandStatusCode = "INACTIVE" },
+                new BrandStatus { BrandStatusId = BrandStatusType.Removed, BrandStatusCode = "REMOVED" });
 
             modelBuilder.Entity<SoftwareProductStatus>().HasData(
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Active, SoftwareProductStatusCode = "ACTIVE" },
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Inactive, SoftwareProductStatusCode = "INACTIVE" },
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Removed, SoftwareProductStatusCode = "REMOVED" });
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Active, SoftwareProductStatusCode = "ACTIVE" },
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Inactive, SoftwareProductStatusCode = "INACTIVE" },
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Removed, SoftwareProductStatusCode = "REMOVED" });
 
             modelBuilder.Entity<RegisterUType>().HasData(
-                new RegisterUType { RegisterUTypeId = RegisterUTypeEnum.SignedJwt, RegisterUTypeCode = "SIGNED-JWT" });
+                new RegisterUType { RegisterUTypeId = RegisterUTypes.SignedJwt, RegisterUTypeCode = "SIGNED-JWT" });
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/cdr-logo.png) 
 
-[![Consumer Data Standards v1.14.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.14.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.14.0/#introduction)
+[![Consumer Data Standards v1.16.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.16.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-register)](./LICENSE)
@@ -12,7 +12,7 @@ This project includes source code, documentation and instructions for the Consum
 The ACCC operates the CDR Register within the CDR ecosystem.  This repository contains a mock implementation of the Mock Register and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Register - Alignment
-The Mock Register aligns to [v1.14.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.14.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
+The Mock Register aligns to [v1.16.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:
@@ -129,7 +129,7 @@ The Mock Register contains the following components:
   - Accessed via the TLS Gateway (`GetDataRecipients`) and mTLS gateway (`GetDataHolderBrands`).
 - Status API
   - Hosted at `https://localhost:7004`
-  - Contains the `GetDataRecipientsStatus` and `GetSoftwareProductsStatus` Register APIs.
+  - Contains the `GetDataRecipientsStatus`, `GetSoftwareProductsStatus` and `GetDataHoldersStatus` Register APIs.
   - Accessed via the TLS Gateway.
 - SSA API
   - Hosted at `https://localhost:7005`
@@ -166,6 +166,9 @@ This project has adopted the **Contributor Covenant**.  For more information see
 
 # License
 [MIT License](./LICENSE)
+
+# Terms of Use
+[Terms of Use](./TERMS_OF_USE.md)
 
 # Notes
 The Mock Register is provided as a development tool and is not an exact replica of the production CDR Register.  

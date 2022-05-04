@@ -66,8 +66,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .ThenInclude(authDetail => authDetail.RegisterUType)
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
                 .Include(brand => brand.Participation.Industry)
-                .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypeEnum.Dh)
+                .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypes.Dh)
                 .Where(brand => brand.Participation.IndustryId == Industry.BANKING) // Only want banking brands
+                .Where(brand => brand.Participation.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active) // DF: only active data holders should be returned.
+                .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
+                .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
 
             var data = allData
@@ -78,7 +81,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 {
                     dataHolderBrandId = brand.BrandId,
                     brandName = brand.BrandName,
-                    industry = brand.Participation.Industry.IndustryTypeCode,
+                    industry = brand.Participation.Industry.IndustryTypeCode.ToLower(),
                     logoUri = brand.LogoUri,
                     legalEntity = new
                     {
@@ -363,7 +366,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
         [Theory]
         [InlineData("", HttpStatusCode.OK)] // "" will effectively be no version specified, so it will default to 1
-        [InlineData("2", HttpStatusCode.NotAcceptable)]
+        [InlineData("3", HttpStatusCode.NotAcceptable)]
         public async Task AC09_Get_WithAccessToken_AndInvalidXV_ShouldRespondWith_406NotAcceptable(string xv, HttpStatusCode expectedStatusCode)
         {
             // Arrange
@@ -405,7 +408,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                             {
                             ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                             ""title"": ""Unsupported Version"",
-                            ""detail"": """",
+                            ""detail"": ""minimum version: 1, maximum version: 2"",
                             ""meta"": {}
                             }
                         ]

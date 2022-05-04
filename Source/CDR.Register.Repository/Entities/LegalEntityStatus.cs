@@ -10,13 +10,13 @@ namespace CDR.Register.Repository.Entities
     public class LegalEntityStatus
     {
         [Key]
-        public LegalEntityStatusEnum LegalEntityStatusId { get; set; }
+        public LegalEntityStatusType LegalEntityStatusId { get; set; }
 
         [MaxLength(100), Required]
         public string LegalEntityStatusCode { get; set; }
     }
 
-    public enum LegalEntityStatusEnum : int
+    public enum LegalEntityStatusType
     {
         Active = 1,
         Removed = 2

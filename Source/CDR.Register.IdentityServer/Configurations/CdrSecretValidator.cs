@@ -164,9 +164,8 @@ namespace CDR.Register.IdentityServer.Configurations
                         "'jti' in the client assertion token must have a value."), _logger);
                     return false;
                 }
-
-                var tokenIdentifier = $"{jwtToken.Audiences.First()}:{jwtToken.Id}";
-                if (IsTokenBlacklisted(tokenIdentifier, jwtToken.ValidTo))
+                
+                if (IsTokenBlacklisted)
                 {
                     await _mediator.LogErrorAndPublish(new NotificationMessage(GetType().Name, "710", null,
                         "'jti' in the client assertion token must be unique."), _logger);
@@ -269,9 +268,7 @@ namespace CDR.Register.IdentityServer.Configurations
             return true;
         }
 
-        private static bool IsTokenBlacklisted(string tokenId, DateTime expDate)
-        {
-            return false;
-        }
+        //Placeholder for the implemtnation of BlackListed Tokens
+        private static bool IsTokenBlacklisted = false;
     }
 }

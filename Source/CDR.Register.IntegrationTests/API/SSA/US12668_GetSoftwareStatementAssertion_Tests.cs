@@ -194,7 +194,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                     SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
                     SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
                     SSA.AssertClaim("software_roles", "data-recipient-software-product");
-                    SSA.AssertClaim("scope", softwareProduct.Scope);
+                    SSA.AssertClaim("scope", "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration"); 
 
                     if (XV >= 2)
                     {
@@ -230,9 +230,9 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Fact]
-        public async Task AC03_GetSSA_WithNoXV_ShouldRespondWith_200OK_V2ofSSA()
+        public async Task AC03_GetSSA_WithNoXV_ShouldRespondWith_200OK_V1ofSSA()
         {
-            await Test_AC01_AC02_AC03(null, 2);
+            await Test_AC01_AC02_AC03(null, 1);
         }
 
         const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
@@ -391,13 +391,26 @@ namespace CDR.Register.IntegrationTests.API.SSA
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
+                    ""detail"": ""minimum version: 1, maximum version: 3"",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
+        const string EXPECTEDCONTENT_INVALIDXV = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
+                    ""title"": ""Invalid Version"",
                     ""detail"": """",
                     ""meta"": {}
                     }
                 ]
             }";
+
         [Theory]
-        [InlineData("1", HttpStatusCode.NotAcceptable, EXPECTEDCONTENT_UNSUPPORTEDXV)] // AC02
+        [InlineData("0", HttpStatusCode.BadRequest, EXPECTEDCONTENT_INVALIDXV)] // AC02
         [InlineData("100", HttpStatusCode.NotAcceptable, EXPECTEDCONTENT_UNSUPPORTEDXV)] // AC12
         public async Task AC02_AC12_GetSSA_InvalidXV_ShouldRespondWith_406NotAcceptable(string x_v, HttpStatusCode expectedStatusCode, string? expectedContent = null, string? expectedXV = null)
         {

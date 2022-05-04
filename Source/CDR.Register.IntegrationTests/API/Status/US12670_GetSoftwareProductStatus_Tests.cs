@@ -27,12 +27,12 @@ namespace CDR.Register.IntegrationTests.API.Status
             {
                 softwareProducts = dbContext.SoftwareProducts.AsNoTracking<Repository.Entities.SoftwareProduct>()
                     .Include(sp => sp.Status)
-                    .OrderBy(sp => sp.SoftwareProductId)
                     .Select(sp => new
                     {
                         softwareProductId = sp.SoftwareProductId,
                         softwareProductStatus = sp.Status.SoftwareProductStatusCode
                     })
+                    .OrderBy(sp => sp.softwareProductId.ToString())
                     .ToList()
             };
 
@@ -137,7 +137,7 @@ namespace CDR.Register.IntegrationTests.API.Status
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
-                    ""detail"": """",
+                    ""detail"": ""minimum version: 1, maximum version: 2"",
                     ""meta"": {}
                     }
                 ]

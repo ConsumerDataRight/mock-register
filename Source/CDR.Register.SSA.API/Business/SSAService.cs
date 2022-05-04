@@ -1,8 +1,13 @@
-﻿using CDR.Register.Domain.Repositories;
+﻿using CDR.Register.API.Infrastructure;
+using CDR.Register.Domain.Entities;
+using CDR.Register.Domain.Repositories;
+using CDR.Register.Repository.Infrastructure;
 using CDR.Register.SSA.API.Business.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -14,35 +19,58 @@ namespace CDR.Register.SSA.API.Business
         private readonly ILogger<SSAService> _logger;
         private readonly IMapper _mapper;
         private readonly ISoftwareStatementAssertionRepository _repository;
-        private readonly ITokenizerService _tokenizer;
+        private readonly ITokenizerService _tokenizer;        
 
-        public SSAService(ILogger<SSAService> logger, IMapper mapper, ISoftwareStatementAssertionRepository repository, ITokenizerService tokenizer)
+        public SSAService(
+            ILogger<SSAService> logger,
+            IConfiguration configuration,
+            IMapper mapper,
+            ISoftwareStatementAssertionRepository repository,
+            ITokenizerService tokenizer)
         {
             _logger = logger;
             _mapper = mapper;
             _repository = repository;
-            _tokenizer = tokenizer;
+            _tokenizer = tokenizer;            
         }
 
-        public async Task<string> GetSoftwareStatementAssertionJWTV2Async(string dataRecipientBrandId, string softwareProductId)
+        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV1(Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             // Get the SSA to be put in a JWT
-            var ssa = await GetSoftwareStatementAssertionAsyncV2(dataRecipientBrandId, softwareProductId);
+            var ssa = await GetSoftwareStatementAssertionAsyncXV1(industry, dataRecipientBrandId, softwareProductId);
             return await _tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
-        public async Task<SoftwareStatementAssertionModelV2> GetSoftwareStatementAssertionAsyncV2(string dataRecipientBrandId, string softwareProductId)
+        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsyncXV1(Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
-            if (string.IsNullOrWhiteSpace(dataRecipientBrandId) || string.IsNullOrWhiteSpace(softwareProductId))
+            var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
+            var ssa = _mapper.Map(softwareProductEntity);
+            if (ssa == null)
             {
                 return null;
             }
 
-            var dataRecipientBrandGuid = Guid.Parse(dataRecipientBrandId);
-            var softwareProductGuid = Guid.Parse(softwareProductId);
+            using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionAsync"))
+            {
+                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
+            }
 
-            // RETURN using SoftwareStatementAssertionV2Model
-            var softwareProductEntity = await _repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
+            // Validate the SSA
+            Validate(ssa);
+
+            return ssa;
+        }
+
+        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV2(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            // Get the SSA to be put in a JWT
+            var ssa = await GetSoftwareStatementAssertionAsyncXV2(industry, dataRecipientBrandId, softwareProductId);
+            return await _tokenizer.GenerateJwtTokenAsync(ssa);
+        }
+
+        public async Task<SoftwareStatementAssertionModelV2> GetSoftwareStatementAssertionAsyncXV2(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
             var ssa = _mapper.MapV2(softwareProductEntity);
             if (ssa == null)
             {
@@ -55,24 +83,50 @@ namespace CDR.Register.SSA.API.Business
             }
 
             // Validate the SSA
+            Validate(ssa);
+
+            return ssa;
+        }
+
+        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV3(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            // Get the SSA to be put in a JWT
+            var ssa = await GetSoftwareStatementAssertionAsyncXV3(industry, dataRecipientBrandId, softwareProductId);
+            return await _tokenizer.GenerateJwtTokenAsync(ssa);
+        }
+
+        public async Task<SoftwareStatementAssertionModelV3> GetSoftwareStatementAssertionAsyncXV3(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
+            var ssa = _mapper.MapV3(softwareProductEntity);
+            if (ssa == null)
+            {
+                return null;
+            }
+
+            using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionAsync"))
+            {
+                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
+            }
+
+            // Validate the SSA
+            Validate(ssa);
+
+            return ssa;
+        }
+
+        private void Validate(SoftwareStatementAssertionModel ssa)
+        {
             var validationContext = new ValidationContext(ssa);
             var validationResults = new List<ValidationResult>();
             if (!Validator.TryValidateObject(ssa, validationContext, validationResults, true))
             {
-                var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{validationResults.ToJson()}";
+                var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {ssa.org_id} / softwareProductId: {ssa.software_id} \r\n{validationResults.ToJson()}";
                 throw new SSAValidationException(errorMessage);
             }
-            return ssa;
         }
 
-        public async Task<string> GetSoftwareStatementAssertionJWTAsync(string dataRecipientBrandId, string softwareProductId)
-        {
-            // Get the SSA to be put in a JWT
-            var ssa = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
-            return await _tokenizer.GenerateJwtTokenAsync(ssa);
-        }
-
-        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(string dataRecipientBrandId, string softwareProductId)
+        private async Task<SoftwareStatementAssertion> GetSoftwareStatementAssertionAsync(string dataRecipientBrandId, string softwareProductId)
         {
             if (string.IsNullOrWhiteSpace(dataRecipientBrandId) || string.IsNullOrWhiteSpace(softwareProductId))
             {
@@ -81,30 +135,8 @@ namespace CDR.Register.SSA.API.Business
 
             var dataRecipientBrandGuid = Guid.Parse(dataRecipientBrandId);
             var softwareProductGuid = Guid.Parse(softwareProductId);
-
-            var softwareProduct = await _repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
-            if (softwareProduct == null)
-            {
-                return null;
-            }
-
-            // RETURN using SoftwareStatementAssertionModel
-            var ssa = _mapper.Map(softwareProduct);
-
-            using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionV2Async"))
-            {
-                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
-            }
-
-            // Validate the SSA
-            var validationContext = new ValidationContext(ssa);
-            var validationResults = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(ssa, validationContext, validationResults, true))
-            {
-                var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{validationResults.ToJson()}";
-                throw new SSAValidationException(errorMessage);
-            }
-            return ssa;
+            return await _repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
         }
+        
     }
 }

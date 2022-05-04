@@ -10,13 +10,13 @@ namespace CDR.Register.Repository.Entities
     public class AccreditationLevel
     {
         [Key]
-        public AccreditationLevelEnum AccreditationLevelId { get; set; }
+        public AccreditationLevelType AccreditationLevelId { get; set; }
 
         [MaxLength(100), Required]
         public string AccreditationLevelCode { get; set; }
     }
 
-    public enum AccreditationLevelEnum : int
+    public enum AccreditationLevelType
     {
         //Sponsored by Default 
         Sponsored = 0,                  

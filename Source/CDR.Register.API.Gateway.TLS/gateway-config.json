@@ -1,7 +1,7 @@
 {
   "Routes": [
 
-    // GetDataRecipients - Legacy
+    // GetDataRecipients
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
       "DownstreamScheme": "https",
@@ -16,22 +16,7 @@
       "DangerousAcceptAnyServerCertificateValidator": true
     },
 
-    // GetDataRecipients - Multi Industry
-    {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-recipients",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7003
-        }
-      ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-recipients",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-
-    // GetDataRecipientsStatus - Legacy
+    // GetDataRecipientsStatus
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/status",
       "DownstreamScheme": "https",
@@ -46,22 +31,7 @@
       "DangerousAcceptAnyServerCertificateValidator": true
     },
 
-    // GetDataRecipientsStatus - Multi Industry
-    {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-recipients/status",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7004
-        }
-      ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-recipients/status",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-
-    // GetSoftwareProductsStatus - Legacy
+    // GetSoftwareProductsStatus
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
       "DownstreamScheme": "https",
@@ -76,9 +46,9 @@
       "DangerousAcceptAnyServerCertificateValidator": true
     },
 
-    // GetSoftwareProductsStatus - Multi Industry
+    // GetDataHoldersStatus
     {
-      "DownstreamPathTemplate": "/cdr-register/v1/data-recipients/brands/software-products/status",
+      "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/status",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -86,7 +56,7 @@
           "Port": 7004
         }
       ],
-      "UpstreamPathTemplate": "/cdr-register/v1/data-recipients/brands/software-products/status",
+      "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/status",
       "UpstreamHttpMethod": [ "Get" ],
       "DangerousAcceptAnyServerCertificateValidator": true
     },

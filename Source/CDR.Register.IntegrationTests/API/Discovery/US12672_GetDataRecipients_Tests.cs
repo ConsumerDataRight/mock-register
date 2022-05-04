@@ -23,10 +23,10 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         // Get expected data recipients (for Banking)
         private static string GetExpectedResponse_Banking(int? XV)
         {
-            // If XV header is omitted then we should expect API to treat XV as 2
+            // If XV header is omitted then we should expect API to treat XV as 1
             if (XV == null)
             {
-                XV = 2;
+                XV = 1;
             }
 
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
@@ -42,13 +42,13 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     .Include(participation => participation.Brands)
                     .ThenInclude(brand => brand.SoftwareProducts)
                     .ThenInclude(softwareProduct => softwareProduct.Status)
-                    .Where(participation => participation.ParticipationTypeId == ParticipationTypeEnum.Dr)
+                    .Where(participation => participation.ParticipationTypeId == ParticipationTypes.Dr)
                     .OrderBy(participation => participation.LegalEntityId)
                     .Select(participation => new
                     {
+                        accreditationNumber = XV >= 2 ? participation.LegalEntity.AccreditationNumber : null,
                         legalEntityId = participation.LegalEntityId,
                         legalEntityName = participation.LegalEntity.LegalEntityName,
-                        accreditationNumber = XV >= 2 ? participation.LegalEntity.AccreditationNumber : null,
                         industry = "banking", // banking is always returned for legacy API
                         logoUri = participation.LegalEntity.LogoUri,
                         dataRecipientBrands = participation.Brands.OrderBy(b => b.BrandId).Select(brand => new
@@ -81,7 +81,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(null, "2")] // AC02
+        [InlineData(null, "1")] // AC02
         [InlineData(2, "2")] // AC01 // AC05 was changed in AC, it's now same as AC01
         public async Task AC01_AC02_AC05_Get_ShouldRespondWith_200OK_DataRecipientsStatus(int? XV, string expectedXV)
         {
@@ -115,7 +115,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
         [Theory]
         [InlineData("foo", "2")]
-        // [InlineData("foo", "")] // XV not set  - No longer needed US30562
+        // [InlineData("foo", "")] // XV not set  - No longer needed US30562    
         public async Task AC03_Get_WithInvalidIndustry_ShouldRespondWith_400BadRequest_ErrorResponse(string industry, string XV)
         {
             // Act
@@ -155,8 +155,8 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("3")] // AC04
-        [InlineData("1")] // AC10
+        [InlineData("4")] // AC04
+        //[InlineData("1")] // AC10
         public async Task AC04_AC10_Get_UnsupportedXV_ShouldRespondWith_406NotAcceptable_ErrorResponse(string XV)
         {
             // Act
@@ -186,7 +186,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
-                    ""detail"": """",
+                    ""detail"": ""minimum version: 1, maximum version: 3"",
                     ""meta"": {}
                     }
                 ]
@@ -204,6 +204,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         {
             // Arrange 
             var expectedDataRecipients = GetExpectedResponse_Banking(XV);
+            var expectedXV = XV.HasValue ? XV.Value : 1;
 
             // Act
             var response = await new Infrastructure.API
@@ -224,7 +225,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 Assert_HasContentType_ApplicationJson(response.Content);
 
                 // Assert - Check XV
-                Assert_HasHeader("2", response.Headers, "x-v");
+                Assert_HasHeader(expectedXV.ToString(), response.Headers, "x-v");
 
                 // Assert - Check has any ETag
                 Assert_HasHeader(null, response.Headers, "ETag");

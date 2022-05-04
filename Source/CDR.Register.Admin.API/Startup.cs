@@ -59,7 +59,7 @@ namespace CDR.Register.Admin.API
             // Migrate the database to the latest version during application startup.
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {               
-                const string HEALTHCHECK_READY_FILENAME = "_healthcheck_ready"; // TODO - MJS - Should be using ASPNet health check, not a file
+                const string HEALTHCHECK_READY_FILENAME = "_healthcheck_ready"; // MJS - Should be using ASPNet health check, not a file
                 File.Delete(HEALTHCHECK_READY_FILENAME);
 
                 // Run EF database migrations.
@@ -79,7 +79,7 @@ namespace CDR.Register.Admin.API
                     }
                 }
                 
-                File.WriteAllText(HEALTHCHECK_READY_FILENAME, "");  // Create file to indicate Register is ready, this can be used by Docker/Dockercompose health checks // TODO - MJS - Should be using ASPNet health check, not a file
+                File.WriteAllText(HEALTHCHECK_READY_FILENAME, "");  // Create file to indicate Register is ready, this can be used by Docker/Dockercompose health checks // MJS - Should be using ASPNet health check, not a file
             }
         }
 

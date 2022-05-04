@@ -1,20 +1,23 @@
 ﻿using System.Collections.Generic;
+using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Discovery.API.Business.Models;
 
 namespace CDR.Register.Discovery.API.Business.Responses
 {
-    public class ResponseRegisterDataRecipientListV1
+    public class ResponseRegisterDataRecipientList
     {
-        public IEnumerable<RegisterDataRecipientModelV1> Data { get; set; }
+        public IEnumerable<RegisterDataRecipientModel> Data { get; set; }
     }
 
     public class ResponseRegisterDataRecipientListV2
     {
-        public IEnumerable<RegisterDataRecipientV2> Data { get; set; }
+        public IEnumerable<RegisterDataRecipientModelV2> Data { get; set; }
     }
 
-    public class ResponseRegisterDataRecipientList
+    public class ResponseRegisterDataRecipientListV3
     {
-        public IEnumerable<RegisterDataRecipient> Data { get; set; }
+        public IEnumerable<RegisterDataRecipientModelV3> Data { get; set; }
+        public Links Links { get; set; } = new Links();
+        public Meta Meta { get; set; } = new Meta();
     }
 }

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
 {
-    public partial class CertificateValidatorTests
+    public class CertificateValidatorTests
     {
         [Fact]
         public void IsValid_ValidCertificate_ShouldReturnTrue()

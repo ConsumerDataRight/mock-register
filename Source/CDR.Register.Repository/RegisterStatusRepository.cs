@@ -18,37 +18,16 @@ namespace CDR.Register.Repository
             this._registerDatabaseContext = registerDatabaseContext;
         }
 
-        public async Task<DataRecipientStatusV1[]> GetDataRecipientStatusesAsyncV1()
-        {
-            return await this._registerDatabaseContext.Participations.AsNoTracking()
-                .Include(p => p.Status)
-                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
-                .OrderBy(p => p.ParticipationId)
-                .Select(p => new DataRecipientStatusV1() { DataRecipientId = p.LegalEntityId, DataRecipientStatus = p.Status.ParticipationStatusCode })
-                .ToArrayAsync();
-        }
-
-        /// <remarks>
-        /// industry parameter is passed but is not currently used.
-        /// </remarks>
         public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
-                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
-                .OrderBy(p => p.ParticipationId)
-                .Select(p => new DataRecipientStatus() { LegalEntityId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
+                .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
+                .Select(p => new DataRecipientStatus() { DataRecipientId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
+                .OrderBy(p => p.DataRecipientId.ToString())
                 .ToArrayAsync();
         }
 
-        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsyncV1()
-        {            
-            return await GetSoftwareProductStatusesAsync();
-        }
-
-        /// <remarks>
-        /// industry parameter is passed but is not currently used.
-        /// </remarks>
         public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Industry industry)
         {
             var allParticipants = await this._registerDatabaseContext.Participations.AsNoTracking()
@@ -56,7 +35,7 @@ namespace CDR.Register.Repository
                 .Include(p => p.Brands)
                 .ThenInclude(brand => brand.SoftwareProducts)
                 .ThenInclude(softwareProduct => softwareProduct.Status)
-                .Where(p => p.ParticipationTypeId == ParticipationTypeEnum.Dr)
+                .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
                 .ToListAsync();
 
             // Additionally sort participants.brands, participants.brands.softwareproducts by id
@@ -72,22 +51,29 @@ namespace CDR.Register.Repository
             return allParticipants
                 .SelectMany(p => p.Brands)
                 .SelectMany(b => b.SoftwareProducts)
-                .Select(sp => 
+                .Select(sp =>
                     new Domain.Entities.SoftwareProductStatus
                     {
                         SoftwareProductId = sp.SoftwareProductId,
                         Status = sp.Status.SoftwareProductStatusCode
                     }
                 )
+                .OrderBy(sp => sp.SoftwareProductId)
                 .ToArray();
         }
 
-        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync()
+        public async Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Industry industry)
         {
-            return await this._registerDatabaseContext.SoftwareProducts.AsNoTracking()
+            return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
-                .OrderBy(p => p.SoftwareProductId)
-                .Select(p => new Domain.Entities.SoftwareProductStatus() { SoftwareProductId = p.SoftwareProductId, Status = p.Status.SoftwareProductStatusCode })
+                .Include(p => p.Industry)
+                .Include(p => p.LegalEntity)
+                .Where(p => p.ParticipationTypeId == ParticipationTypes.Dh)
+                .Where(p => industry == Industry.ALL || p.IndustryId == industry)
+                .Where(p => p.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active)
+                .Where(p => p.StatusId == ParticipationStatusType.Active)
+                .Select(p => new DataHolderStatus() { LegalEntityId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
+                .OrderBy(p => p.LegalEntityId)
                 .ToArrayAsync();
         }
     }

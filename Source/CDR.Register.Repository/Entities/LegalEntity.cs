@@ -40,16 +40,16 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(100)]
         public string AnzsicDivision { get; set; }
 
-        public OrganisationTypeEnum? OrganisationTypeId { get; set; }
+        public OrganisationTypes? OrganisationTypeId { get; set; }
         public OrganisationType OrganisationType { get; set; }
 
-        public LegalEntityStatusEnum? LegalEntityStatusId { get; set; }
+        public LegalEntityStatusType? LegalEntityStatusId { get; set; }
         public LegalEntityStatus LegalEntityStatus { get; set; }
 
         [MaxLength(25)]
         public string AccreditationNumber { get; set; }
 
-        public AccreditationLevelEnum? AccreditationLevelId { get; set; }
+        public AccreditationLevelType? AccreditationLevelId { get; set; }
         public AccreditationLevel AccreditationLevel { get; set; }
 
         public virtual ICollection<Participation> Participations { get; set; }

@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace CDR.Register.Domain.Entities
 {
-    public class DataHolderV1
+    public class DataHolder
     {
         public Guid DataHolderId { get; set; }
         public string Status { get; set; }
         public bool IsActive { get; set; }
         public string Industry { get; set; }
-        public LegalEntityV1 LegalEntity { get; set; }
-        public IList<DataHolderBrandV1> DataHolderBrands { get; set; }
+        public DataHolderLegalEntity LegalEntity { get; set; }
+        public IList<DataHolderBrand> DataHolderBrands { get; set; }
 
         public DateTime? LastUpdated
         {
@@ -24,16 +24,15 @@ namespace CDR.Register.Domain.Entities
         }
     }
 
-    // NB: This is required for V1 backward compatibility and to bridge between (Industry) and future versions using (Industries)
-    public class DataHolderV1Tmp
+    public class DataHolderV2
     {
         public Guid DataHolderId { get; set; }
         public string Status { get; set; }
         public bool IsActive { get; set; }
         public string Industry { get; set; }
         public List<string> Industries { get; set; }
-        public LegalEntityDataHolder LegalEntity { get; set; }
-        public IList<DataHolderBrandTempV1> Brands { get; set; }
+        public DataHolderLegalEntityV2 LegalEntity { get; set; }
+        public IList<DataHolderBrand> Brands { get; set; }
 
         public DateTime? LastUpdated
         {

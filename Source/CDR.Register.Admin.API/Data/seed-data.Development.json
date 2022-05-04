@@ -283,7 +283,7 @@
       "Arbn": null,
       "AnzsicDivision": null,
       "OrganisationTypeId": 2,
-      "LegalEntityStatusId": null,
+      "LegalEntityStatusId": 1,
       "AccreditationNumber": null,
       "AccreditationLevelId": null,
       "Participations": [
@@ -555,7 +555,7 @@
       "Arbn": null,
       "AnzsicDivision": null,
       "OrganisationTypeId": 2,
-      "LegalEntityStatusId": null,
+      "LegalEntityStatusId": 1,
       "AccreditationNumber": null,
       "AccreditationLevelId": null,
       "Participations": [
@@ -1153,7 +1153,7 @@
       "Arbn": null,
       "AnzsicDivision": null,
       "OrganisationTypeId": 2,
-      "LegalEntityStatusId": null,
+      "LegalEntityStatusId": 1,
       "AccreditationNumber": null,
       "AccreditationLevelId": null,
       "Participations": [
