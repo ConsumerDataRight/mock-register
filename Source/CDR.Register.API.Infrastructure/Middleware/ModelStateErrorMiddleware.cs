@@ -19,11 +19,11 @@ namespace CDR.Register.API.Infrastructure.Middleware
             {
                 foreach (var modelStateEntry in modelStateEntries)
                 {
-                    foreach (var modelStateError in modelStateEntry.Value.Errors)
+                    foreach (var errorMessage in modelStateEntry.Value.Errors.Select(x => x.ErrorMessage))
                     {
                         try
                         {
-                            var error = JsonConvert.DeserializeObject<Error>(modelStateError.ErrorMessage);
+                            var error = JsonConvert.DeserializeObject<Error>(errorMessage);
                             error.Detail = string.Format(error.Detail, modelStateEntry.Key);
                             responseErrorList.Errors.Add(error);
                         }
@@ -34,7 +34,7 @@ namespace CDR.Register.API.Infrastructure.Middleware
                             {
                                 Code = StatusCodes.Status400BadRequest.ToString(),
                                 Title = HttpStatusCode.BadRequest.ToString(),
-                                Detail = $"{modelStateEntry.Key}: {modelStateError.ErrorMessage}"
+                                Detail = $"{modelStateEntry.Key}: {errorMessage}"
                             };
                             responseErrorList.Errors.Add(error);
                         }

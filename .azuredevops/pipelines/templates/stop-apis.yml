@@ -1,0 +1,11 @@
+# Stop APIs so that logs and DBs are closed.
+
+steps:
+  - task: PowerShell@2
+    displayName: Stop APIs
+    condition: always()
+    inputs:
+      targetType: "inline"
+      script: |
+        Get-Process -Name *CDR.Register* | Stop-Process
+        Get-Process -Name *dotnet* | Stop-Process

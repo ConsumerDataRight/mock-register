@@ -4,6 +4,6 @@
     {
         public DataRecipientBrand DataRecipientBrand { get; set; }
         public SoftwareProduct SoftwareProduct { get; set; }
-        public LegalEntity LegalEntity { get; set; }
+        public DataRecipientLegalEntity LegalEntity { get; set; }
     }
 }

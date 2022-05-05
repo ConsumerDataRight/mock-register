@@ -1,0 +1,152 @@
+# Build pipeline v2 (Containerised)
+
+trigger:
+  - develop
+  
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+# Build mock-register
+- task: Docker@2
+  displayName: Build mock-register image
+  inputs:
+    command: build 
+    Dockerfile: ./Source/Dockerfile
+    buildContext: ./Source
+    repository: mock-register
+    tags: latest
+
+# Build mock-register-unit-tests
+- task: Docker@2
+  displayName: Build mock-register-unit-tests image
+  inputs:
+    command: build 
+    Dockerfile: ./Source/Dockerfile.unit-tests
+    buildContext: ./Source
+    repository: mock-register-unit-tests
+    tags: latest
+
+# Build mock-register-integration-tests
+- task: Docker@2
+  displayName: Build mock-register-integration-tests image
+  inputs:
+    command: build 
+    Dockerfile: ./Source/Dockerfile.integration-tests
+    buildContext: ./Source
+    repository: mock-register-integration-tests
+    tags: latest
+
+# List docker images
+- task: Docker@2
+  displayName: List Docker images
+  condition: always() 
+  inputs:
+    command: images
+
+# Run unit tests
+- task: DockerCompose@0
+  displayName: Unit Tests - Up
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.UnitTests.yml     
+    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-unit-tests
+
+# Remove unit tests
+- task: DockerCompose@0
+  displayName: Unit Tests - Down
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.UnitTests.yml     
+    dockerComposeCommand: down
+
+# Run integration tests
+- task: DockerCompose@0
+  displayName: Integration Tests - Up
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
+    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+
+# Remove integration tests
+- task: DockerCompose@0
+  displayName: Integration Tests - Down
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
+    dockerComposeCommand: down
+
+# Save docker image to TAR so it can be published
+- task: Docker@2
+  displayName: Save MockRegister image to TAR
+  # condition: always() 
+  inputs:
+    repository: mock-register
+    command: save
+    arguments: --output $(build.artifactstagingdirectory)/mock-register.image.tar mock-register
+    addPipelineData: false
+
+# Publish docker image
+- task: PublishPipelineArtifact@1
+  displayName: Publish container images  
+  # condition: always()
+  inputs:
+    path: $(build.artifactstagingdirectory)
+    artifact: Container Images
+
+# Publish mock-register logs
+- publish: Source/_temp/mock-register/tmp
+  displayName: Publish MockRegister logs
+  condition: always()
+  artifact: Mock-Register - Logs
+
+# Publish mock-register unit tests results
+- publish: Source/_temp/mock-register-unit-tests/testresults
+  displayName: Publish unit tests
+  condition: always()
+  artifact: Mock-Register - Unit tests
+
+# Publish mock-register integration tests results
+- publish: Source/_temp/mock-register-integration-tests/testresults
+  displayName: Publish MockRegister Integration tests
+  condition: always()
+  artifact: Mock-Register - Integration tests 
+
+# TODO - MJS - Run formatter over TRX to produce formatted report suitable for attaching to Devops US & publish as artifact
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 6 sdk'
+  condition: always()
+  inputs:
+    packageType: sdk
+    version: '6.0.x'
+    performMultiLevelLookup: true
+
+- task: CmdLine@2
+  displayName: 'Install dotnet-ef'
+  condition: always()
+  inputs:
+    script: 'dotnet tool install --global dotnet-ef'
+    
+- task: CmdLine@2
+  displayName: 'Check dotnet-ef version'
+  condition: always()
+  inputs:
+    script: 'dotnet-ef'
+
+- script: |
+    cd Source/CDR.Register.Repository 
+    dotnet ef migrations bundle --context RegisterDatabaseContext --verbose --self-contained
+    ls
+  displayName: 'Run EF Migrations bundle'
+  condition: always()
+
+- publish: Source/CDR.Register.Repository/efbundle
+  displayName: Publish EF Migration bundle
+  condition: always()
+  artifact: Database Migration Scripts
+  

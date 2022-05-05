@@ -1,8 +1,11 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.Repository.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -21,29 +24,43 @@ namespace CDR.Register.Admin.API.Controllers
 
         [HttpPost]
         [Route("Metadata")]
-        public async Task<IActionResult> LoadData()
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task LoadData()
         {
             using var reader = new StreamReader(Request.Body);
             string json = await reader.ReadToEndAsync();
+            string respMsg = "";
 
             try
             {
-                await _dbContext.SeedDatabaseFromJson(json, _logger, true);
+                bool updated = await _dbContext.SeedDatabaseFromJson(json, _logger, true);
+                if (updated)
+                    Response.StatusCode = StatusCodes.Status200OK;
+                else
+                {
+                    Response.StatusCode = StatusCodes.Status400BadRequest;
+                    respMsg = "Database not updated";
+                }
             }
             catch
             {
                 // SeedDatabaseFromJson doesn't throw specific error exceptions, so lets just consider any exception a BadRequest
-                return new BadRequestObjectResult(new CDR.Register.API.Infrastructure.Models.ResponseErrorList("UnexpectedError", "An error occurred loading the database.", null));
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                respMsg = "UnexpectedError, An error occurred loading the database.";
             }
-
-            return Ok();
+            finally
+            {
+                Response.ContentType = "application/json";
+                await Response.BodyWriter.WriteAsync(System.Text.Encoding.UTF8.GetBytes(respMsg));
+            }
         }
 
         [HttpGet]
         [Route("Metadata")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task GetData()
         {
-            var metadata = await _dbContext.GetJsonFromDatabase(_logger);
+            var metadata = await _dbContext.GetJsonFromDatabase();
 
             // Return the raw JSON response.
             Response.ContentType = "application/json";

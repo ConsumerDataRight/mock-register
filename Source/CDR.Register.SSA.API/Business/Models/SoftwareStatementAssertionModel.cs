@@ -95,6 +95,12 @@ namespace CDR.Register.SSA.API.Business.Models
         public string revocation_uri { get; set; }
 
         /// <summary>
+        /// Base URI for the Consumer Data Standard data recipient endpoints. This should be the base to provide reference to all other Data Recipient Endpoints
+        /// </summary>
+        [Required(AllowEmptyStrings = false)]
+        public string recipient_base_uri { get; set; }
+
+        /// <summary>
         /// String representing a unique identifier assigned by the ACCC Register and used by registration endpoints to identify the software product to be dynamically registered
         /// </summary>
         [Required(AllowEmptyStrings = false)]
@@ -110,5 +116,27 @@ namespace CDR.Register.SSA.API.Business.Models
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string scope { get; set; }
+    }
+
+    public class SoftwareStatementAssertionModelV2 : SoftwareStatementAssertionModel
+    {
+        /// <summary>
+        /// URL string that references a sector uri for the client. If present, the server SHOULD display this image to the end-user during approval
+        /// </summary>
+        public string sector_identifier_uri { get; set; }
+
+        /// <summary>
+        /// Human-readable string legal entity id of the Accredited Data Recipient to be presented to the end user during authorization.
+        /// </summary>
+        public string legal_entity_id { get; set; }
+
+        /// <summary>
+        /// Human-readable string legal entity name of the Accredited Data Recipient to be presented to the end user during authorization.
+        /// </summary>
+        public string legal_entity_name { get; set; }
+    }
+
+    public class SoftwareStatementAssertionModelV3 : SoftwareStatementAssertionModelV2
+    {
     }
 }

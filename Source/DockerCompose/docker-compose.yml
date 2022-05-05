@@ -1,26 +1,25 @@
-################################################################################
-# Add the following to your hosts file, eg C:\Windows\System32\drivers\etc\hosts
-#
-# 127.0.0.1 mock-data-holder
-# 127.0.0.1 mock-data-recipient
-# 127.0.0.1 mock-register
-#
-# Then flush the DNS cache, on Windows use: ipconfig /flushdns
-################################################################################
-
 version: '3.8'
 
-services:      
-
+services:
   mock-register:
     container_name: mock-register
     image: consumerdataright/mock-register
     ports: 
       - "7000:7000"
-      - "7001:7001"          
+      - "7001:7001"
       - "7006:7006"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Container
+    healthcheck:
+      test: test -f /app/admin/_healthcheck_ready || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 20      
+    depends_on:
+      mssql:
+        condition: service_healthy
 
   mock-data-holder:
     container_name: mock-data-holder
@@ -29,11 +28,40 @@ services:
       - "8000:8000"
       - "8001:8001"
       - "8002:8002"
-      - "8003:8003"
-      - "8004:8004"
       - "8005:8005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Container
+    healthcheck:
+      test: test -f /app/admin/_healthcheck_ready || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 20      
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  mock-data-holder-energy:
+    container_name: mock-data-holder-energy
+    image: consumerdataright/mock-data-holder-energy
+    ports: 
+      - "8100:8100"
+      - "8101:8101"
+      - "8102:8102"
+      - "8105:8105"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Container
+    healthcheck:
+      test: test -f /app/admin/_healthcheck_ready || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 20      
+    depends_on:
+      mssql:
+        condition: service_healthy
 
   mock-data-recipient:
     container_name: mock-data-recipient
@@ -41,4 +69,28 @@ services:
     ports: 
       - "9001:9001"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Container
+    healthcheck:
+      test: test -f /app/web/_healthcheck_ready || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 20      
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  mssql:
+    container_name: sql1
+    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    ports:
+      - '1433:1433'
+    environment:
+      - ACCEPT_EULA=${ACCEPT_MSSQL_EULA:?This docker compose file utilises the Microsoft SQL Server Image from Docker Hub. 
+            The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue. Replace this unset ACCEPT_MSSQL_EULA variable with a Y if you accept the EULA. eg ACCEPT_EULA=Y. 
+            See the Microsoft SQL Server Image on Docker Hub for more information.}
+      - SA_PASSWORD=Pa{}w0rd2019
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
+      timeout: 10s
+      interval: 10s
+      retries: 10    

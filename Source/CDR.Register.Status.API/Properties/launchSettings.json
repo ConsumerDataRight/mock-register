@@ -3,34 +3,38 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-        "applicationUrl": "https://localhost:7004/",
-        "sslPort": 7004
+      "applicationUrl": "https://localhost:7004/",
+      "sslPort": 7004
     }
   },
-    "profiles": {
-        "CDR.Register.Status.API": {
-            "commandName": "Project",
-            "launchBrowser": false,
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "applicationUrl": "https://localhost:7004"
-        },
-        "CDR.Register.Status.API.Production": {
-            "commandName": "Project",
-            "launchBrowser": false,
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Production"
-            },
-            "applicationUrl": "https://localhost:7004"
-        },
-        "CDR.Register.Status.API.Pipeline": {
-            "commandName": "Project",
-            "launchBrowser": false,
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Pipeline"
-            },
-            "applicationUrl": "https://localhost:7004"
-        }
+  "profiles": {
+    "CDR.Register.Status.API": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:7004"
+    },
+    "CDR.Register.Status.API.Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:7004"
+    },
+    "CDR.Register.Status.API.Container": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Container"
+      },
+      "applicationUrl": "https://localhost:7004"
+    },
+    "CDR.Register.Status.API.Release": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Release"
+      },
+      "applicationUrl": "https://localhost:7004"
     }
+  }
 }

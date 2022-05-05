@@ -1,0 +1,23 @@
+# Dockerfile for running unit tests
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+
+# Default ASPNETCORE_ENVIRONMENT to Release
+ENV ASPNETCORE_ENVIRONMENT=Release
+
+# Copy source
+COPY . ./
+
+# Install ca certificate
+RUN apt-get update && apt-get install -y sudo
+RUN sudo cp ./CDR.Register.API.Gateway.mTLS/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt
+RUN sudo update-ca-certificates
+
+# Build tests
+WORKDIR /src
+RUN dotnet build --configuration Release
+
+# Run tests
+ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--filter", "UnitTests", "--no-build", "--logger", "trx;verbosity=detailed", "-r", "/testresults"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

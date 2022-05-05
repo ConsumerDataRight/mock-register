@@ -1,39 +1,44 @@
-﻿{
-    "iisSettings": {
-        "windowsAuthentication": false,
-        "anonymousAuthentication": true,
-        "iisExpress": {
-            "applicationUrl": "https://localhost:7000",
-            "sslPort": 7000
-        }
-    },
-    "profiles": {
-        "CDR.Register.API.Gateway.TLS": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7000",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        },
-        "CDR.Register.API.Gateway.TLS.Production": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7000",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Production"
-            }
-        },
-        "CDR.Register.API.Gateway.TLS.Pipeline": {
-            "commandName": "Project",
-            "dotnetRunMessages": "true",
-            "launchBrowser": false,
-            "applicationUrl": "https://localhost:7000",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Pipeline"
-            }
-        }
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "https://localhost:7000",
+      "sslPort": 7000
     }
+  },
+  "profiles": {
+    "CDR.Register.API.Gateway.TLS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7000"
+    },
+    "CDR.Register.API.Gateway.TLS.Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7000"
+    },
+    "CDR.Register.API.Gateway.TLS.Container": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Container"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7000"
+    },
+    "CDR.Register.API.Gateway.TLS.Release": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Release"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7000"
+    }
+  }
 }

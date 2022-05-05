@@ -3,6 +3,7 @@ using CDR.Register.API.Infrastructure.Services;
 using CDR.Register.Domain.Repositories;
 using CDR.Register.Repository;
 using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Repository.Interfaces;
 using CDR.Register.SSA.API.Business;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -27,8 +28,7 @@ namespace CDR.Register.SSA.API
             services.AddSingleton<ICertificateService, CertificateService>();
             services.AddSingleton<ITokenizerService, TokenizerService>();
 
-            services.AddDbContext<RegisterDatabaseContext>(options =>
-                options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(configuration.GetConnectionString("Register_DB")));
 
             services.AddMediatR(typeof(Startup));
 

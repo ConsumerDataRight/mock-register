@@ -1,15 +1,16 @@
-﻿using System;
+﻿using CDR.Register.Discovery.API.Business.Responses;
+using CDR.Register.Repository.Infrastructure;
+using System;
 using System.Threading.Tasks;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Discovery.API.Business.Models;
-using CDR.Register.Discovery.API.Business.Responses;
 
 namespace CDR.Register.Discovery.API.Business
 {
     public interface IDiscoveryService
     {
-        Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize);
-        Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsync(Industry industry);
-        Task<ResponseRegisterDataRecipientListV2> GetDataRecipientsV2Async(Industry industry);
+        Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsyncXV1(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<ResponseRegisterDataHolderBrandListV2> GetDataHolderBrandsAsyncXV2(Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsyncXV1(Industry industry);
+        Task<ResponseRegisterDataRecipientListV2> GetDataRecipientsAsyncXV2(Industry industry);
+        Task<ResponseRegisterDataRecipientListV3> GetDataRecipientsAsyncXV3(Industry industry);
     }
 }
