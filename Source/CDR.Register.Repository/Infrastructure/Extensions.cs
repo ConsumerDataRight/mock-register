@@ -16,40 +16,41 @@ namespace CDR.Register.Repository.Infrastructure
         {
             // Add Seed Data for the reference types
             modelBuilder.Entity<IndustryType>().HasData(
-                new IndustryType { IndustryTypeId = IndustryTypeEnum.Banking, IndustryTypeCode = "banking" });
+                new IndustryType { IndustryTypeId = Industry.BANKING, IndustryTypeCode = Industry.BANKING.ToString().ToLower() },
+                new IndustryType { IndustryTypeId = Industry.ENERGY, IndustryTypeCode = Industry.ENERGY.ToString().ToLower() });
 
             modelBuilder.Entity<OrganisationType>().HasData(
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Company, OrganisationTypeCode = "COMPANY" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Partnership, OrganisationTypeCode = "PARTNERSHIP" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Trust, OrganisationTypeCode = "TRUST" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.GovernmentEntity, OrganisationTypeCode = "GOVERNMENT_ENTITY" },
-                new OrganisationType { OrganisationTypeId = OrganisationTypeEnum.Other, OrganisationTypeCode = "OTHER" });
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Company, OrganisationTypeCode = "COMPANY" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Partnership, OrganisationTypeCode = "PARTNERSHIP" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Trust, OrganisationTypeCode = "TRUST" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.GovernmentEntity, OrganisationTypeCode = "GOVERNMENT_ENTITY" },
+                new OrganisationType { OrganisationTypeId = OrganisationTypes.Other, OrganisationTypeCode = "OTHER" });
 
             modelBuilder.Entity<ParticipationType>().HasData(
-                new ParticipationType { ParticipationTypeId = ParticipationTypeEnum.Dh, ParticipationTypeCode = "DH" },
-                new ParticipationType { ParticipationTypeId = ParticipationTypeEnum.Dr, ParticipationTypeCode = "DR" });
+                new ParticipationType { ParticipationTypeId = ParticipationTypes.Dh, ParticipationTypeCode = "DH" },
+                new ParticipationType { ParticipationTypeId = ParticipationTypes.Dr, ParticipationTypeCode = "DR" });
 
             modelBuilder.Entity<ParticipationStatus>().HasData(
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Active, ParticipationStatusCode = "ACTIVE" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Removed, ParticipationStatusCode = "REMOVED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Suspended, ParticipationStatusCode = "SUSPENDED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Revoked, ParticipationStatusCode = "REVOKED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Surrendered, ParticipationStatusCode = "SURRENDERED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusEnum.Inactive, ParticipationStatusCode = "INACTIVE" });
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Active, ParticipationStatusCode = "ACTIVE" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Removed, ParticipationStatusCode = "REMOVED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED" },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE" });
 
             modelBuilder.Entity<BrandStatus>().HasData(
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Active, BrandStatusCode = "ACTIVE" },
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Inactive, BrandStatusCode = "INACTIVE" },
-                new BrandStatus { BrandStatusId = BrandStatusEnum.Removed, BrandStatusCode = "REMOVED" });
+                new BrandStatus { BrandStatusId = BrandStatusType.Active, BrandStatusCode = "ACTIVE" },
+                new BrandStatus { BrandStatusId = BrandStatusType.Inactive, BrandStatusCode = "INACTIVE" },
+                new BrandStatus { BrandStatusId = BrandStatusType.Removed, BrandStatusCode = "REMOVED" });
 
             modelBuilder.Entity<SoftwareProductStatus>().HasData(
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Active, SoftwareProductStatusCode = "ACTIVE" },
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Inactive, SoftwareProductStatusCode = "INACTIVE" },
-                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusEnum.Removed, SoftwareProductStatusCode = "REMOVED" });
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Active, SoftwareProductStatusCode = "ACTIVE" },
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Inactive, SoftwareProductStatusCode = "INACTIVE" },
+                new SoftwareProductStatus { SoftwareProductStatusId = SoftwareProductStatusType.Removed, SoftwareProductStatusCode = "REMOVED" });
 
             modelBuilder.Entity<RegisterUType>().HasData(
-                new RegisterUType { RegisterUTypeId = RegisterUTypeEnum.SignedJwt, RegisterUTypeCode = "SIGNED-JWT" });
+                new RegisterUType { RegisterUTypeId = RegisterUTypes.SignedJwt, RegisterUTypeCode = "SIGNED-JWT" });
         }
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace CDR.Register.Repository.Infrastructure
         {
             if (!File.Exists(jsonFileFullPath))
             {
-                logger.LogDebug($"Seed data file '{jsonFileFullPath}' not found.");
+                logger.LogDebug("Seed data file '{jsonFileFullPath}' not found.", jsonFileFullPath);
                 return;
             }
 
@@ -74,32 +75,36 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database
         /// </summary>
-        public async static Task SeedDatabaseFromJson(
+        public async static Task<bool> SeedDatabaseFromJson(
             this RegisterDatabaseContext registerDatabaseContext,
             string json,
             ILogger logger,
             bool overwriteExistingData = false)
         {
             bool hasExistingData = await registerDatabaseContext.Participations.AnyAsync();
-            if (hasExistingData && !overwriteExistingData)
+            if (hasExistingData)
             {
-                logger.LogInformation("Existing data found in the repository and not set to overwrite.  Repository will not be seeded.  Exiting.");
-                return;
+                if (!overwriteExistingData)
+                {
+                    logger.LogInformation("Existing data found in the repository and not set to overwrite.  Repository will not be seeded.  Exiting.");
+                    return false;
+                }
+
+                logger.LogInformation("Existing data found, but set to overwrite.  Seeding data...");
+            }
+            else
+            {
+                logger.LogInformation("No existing data found.  Seeding data...");
             }
 
-            logger.LogInformation(hasExistingData ?
-                 "Existing data found, but set to overwrite.  Seeding data..." :
-                 "No existing data found.  Seeding data...");
-
-            await registerDatabaseContext.ReSeedDatabaseFromJson(json, logger);
+            return await registerDatabaseContext.ReSeedDatabaseFromJson(json, logger);
         }
 
         /// <summary>
         /// Retrieves all participant metadata from the database, serialises to JSON and return as a string.
         /// </summary>
         public async static Task<string> GetJsonFromDatabase(
-            this RegisterDatabaseContext registerDatabaseContext,
-            ILogger logger)
+            this RegisterDatabaseContext registerDatabaseContext)
         {
             var allData = await registerDatabaseContext.LegalEntities.AsNoTracking().OrderBy(l => l.LegalEntityName)
                 .Include(prop => prop.Participations)
@@ -127,7 +132,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Re-Seed the database from the input JSON data. All existing data in the database will be removed prior to creating the new data set.
         /// </summary>
-        public async static Task ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
+        public async static Task<bool> ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
         {
             using (var transaction = registerDatabaseContext.Database.BeginTransaction())
             {
@@ -147,21 +152,26 @@ namespace CDR.Register.Repository.Infrastructure
 
                     // Re-create all participants from the incoming JSON.
                     var allData = JsonConvert.DeserializeObject<JObject>(json);
-                    var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
-                    registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
-                    registerDatabaseContext.SaveChanges();
+                    if (allData != null && allData.ContainsKey("LegalEntities"))
+                    {
+                        var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
+                        registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
+                        registerDatabaseContext.SaveChanges();
 
-                    // Finally commit the transaction
-                    transaction.Commit();
+                        // Finally commit the transaction
+                        transaction.Commit();
 
-                    logger.LogInformation("JSON data added to the repository.");
+                        logger.LogInformation("JSON data added to the repository.");
+                        return true;
+                    }
                 }
                 catch (Exception ex)
                 {
                     // Log any errors.
-                    logger.LogError($"Error while seeding the database. Error: {ex}");
+                    logger.LogError(ex, "Error while seeding the database.");
                     throw;
                 }
+                return false;
             }
         }
     }

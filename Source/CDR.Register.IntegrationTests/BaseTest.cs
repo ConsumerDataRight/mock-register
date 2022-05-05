@@ -1,64 +1,106 @@
-﻿using System;
+﻿using CDR.Register.IntegrationTests.Extensions;
+using FluentAssertions;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
-using CDR.Register.IntegrationTests.Extensions;
-using CDR.Register.IntegrationTests.Fixtures;
-using CDR.Register.IntegrationTests.Infrastructure;
-using FluentAssertions;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Xunit;
+using Xunit.Sdk;
 
 #nullable enable
 
 namespace CDR.Register.IntegrationTests
 {
-    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
-    // Use SeedDatabaseFixture to seed database prior to running tests.
-    [Collection("IntegrationTests")]
-    abstract public class BaseTest : IClassFixture<SeedDatabaseFixture>
+    class DisplayTestMethodNameAttribute : BeforeAfterTestAttribute
     {
+        static int count = 0;
 
-        private IConfiguration _configuration;
-
-        public BaseTest()
+        public override void Before(MethodInfo methodUnderTest)
         {
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
-                .Build();
+            Console.WriteLine($"Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name}");
         }
 
-        public IConfiguration Configuration
+        // public override void After(MethodInfo methodUnderTest)
+        // {
+        // }
+    }
+
+    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
+    [Collection("IntegrationTests")]
+    [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
+    [DisplayTestMethodName]
+    abstract public class BaseTest : IClassFixture<TestFixture> 
+    {
+        static private IConfigurationRoot? configuration;
+        static public IConfigurationRoot Configuration
         {
             get
             {
-                return _configuration;
+                if (configuration == null)
+                {
+                    configuration = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json")
+                        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+                        .Build();
+                }
+
+                return configuration;
             }
         }
 
         // Client certificates
-        protected const string CERTIFICATE_FILENAME = "certificates\\client.pfx";
+        protected const string CERTIFICATE_FILENAME = "Certificates/client.pfx";
         protected const string CERTIFICATE_PASSWORD = "#M0ckDataRecipient#";
-        protected const string ADDITIONAL_CERTIFICATE_FILENAME = "certificates\\client-additional.pfx";
+        protected const string ADDITIONAL_CERTIFICATE_FILENAME = "Certificates/client-additional.pfx";
         protected const string ADDITIONAL_CERTIFICATE_PASSWORD = CERTIFICATE_PASSWORD;
 
-        public const string SEEDDATA_FILENAME = "Data\\seed-data.json";
-
+        // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)
+        public static string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
+        
         // URLs
-        public const string TLS_BaseURL = "https://localhost:7000";
-        public const string MTLS_BaseURL = "https://localhost:7001";
-        public const string ADMIN_URL = "https://localhost:7006/admin/metadata";
-        public const string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
+        static public string TLS_BaseURL => Configuration["TLS_BaseURL"]
+            ?? throw new Exception($"{nameof(TLS_BaseURL)} - configuration setting not found");
+        static public string MTLS_BaseURL => Configuration["MTLS_BaseURL"]
+            ?? throw new Exception($"{nameof(MTLS_BaseURL)} - configuration setting not found");
+        static public string ADMIN_BaseURL => Configuration["Admin_BaseURL"]
+            ?? throw new Exception($"{nameof(ADMIN_BaseURL)} - configuration setting not found");
+
+        static public string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
+        static public string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
+
+        protected const string EXPECTEDCONTENT_INVALIDXV = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
+                    ""title"": ""Invalid Version"",
+                    ""detail"": """",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
+
+        protected const string EXPECTEDCONTENT_UNSUPPORTEDXV = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
+                    ""title"": ""Unsupported Version"",
+                    ""detail"": ""minimum version: #{minVersion}, maximum version: #{maxVersion}"",
+                    ""meta"": {}
+                    }
+                ]
+            }";
 
         /// <summary>
         /// Assert response content and expectedJson are equivalent
@@ -75,32 +117,19 @@ namespace CDR.Register.IntegrationTests
         /// Assert actual json is equivalent to expected json
         /// </summary>
         /// <param name="expectedJson">The expected json</param>
-        /// <param name="actualJson">The actual json</param>
+        /// <param name="actualJson">The actual json</param>       
         public static void Assert_Json(string expectedJson, string actualJson)
         {
-            //var expectedObject = JsonSerializer.Deserialize<object>(expectedJson);
+            // Remove formatting from expectedJson
             var expectedObject = JsonConvert.DeserializeObject<object>(expectedJson);
+            expectedJson = JsonConvert.SerializeObject(expectedObject, new JsonSerializerSettings { Formatting = Formatting.None });
 
-            //var actualObject = JsonSerializer.Deserialize<object>(actualJson);
+            // Remove formatting from actualJson
             var actualObject = JsonConvert.DeserializeObject<object>(actualJson);
+            actualJson = JsonConvert.SerializeObject(actualObject, new JsonSerializerSettings { Formatting = Formatting.None });
 
-            //var expectedJsonNormalised = JsonSerializer.Serialize(expectedObject);
-            var expectedJsonNormalised = JsonConvert.SerializeObject(expectedObject);
-
-            //var actualJsonNormalised = JsonSerializer.Serialize(actualObject);
-            var actualJsonNormalised = JsonConvert.SerializeObject(actualObject);
-
-            // actualJsonNormalised.Should().Be(expectedJsonNormalised, because);
-
-            // var actual = JToken.Parse(actualJson);
-            // var expected = JToken.Parse(expectedJson);
-            // actual.Should().BeEquivalentTo(expected, because);
-
-            expectedJson.Should().NotBeNull();
-            actualJson.Should().NotBeNull();
-            actualJson?.JsonCompare(expectedJson).Should().BeTrue(
-                $"\r\nExpected json:\r\n{expectedJsonNormalised}\r\nActual Json:\r\n{actualJsonNormalised}\r\n"
-            );
+            // Compare
+            actualJson.Should().Be(expectedJson);
         }
 
         /// <summary>
@@ -115,7 +144,8 @@ namespace CDR.Register.IntegrationTests
             headers.Should().NotBeNull();
             if (headers != null)
             {
-                headers.Contains(name).Should().BeTrue($"Header '{name}' is missing");
+                // headers.Contains(name).Should().BeTrue($"Header '{name}' is missing");
+                headers.Contains(name).Should().BeTrue($"should contain {name} header");
                 if (headers.Contains(name))
                 {
                     var headerValues = headers.GetValues(name);
@@ -154,16 +184,15 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-
         /// <summary>
         /// Get status of SoftwareProduct
         /// </summary>
-        public int GetSoftwareProductStatusId(string softwareProductId)
+        public static int GetSoftwareProductStatusId(string softwareProductId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
-            using var selectCommand = new SqliteCommand("select statusid from softwareproduct where softwareproductid = @softwareproductid", connection);
+            using var selectCommand = new SqlCommand("select statusid from softwareproduct where softwareproductid = @softwareproductid", connection);
             selectCommand.Parameters.AddWithValue("@softwareproductid", softwareProductId);
 
             return selectCommand.ExecuteScalarInt32();
@@ -172,19 +201,19 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Set status of SoftwareProduct
         /// </summary>
-        public void SetSoftwareProductStatusId(string softwareProductId, int statusId)
+        public static void SetSoftwareProductStatusId(string softwareProductId, int statusId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
             // Update status
-            using var updateCommand = new SqliteCommand("update softwareproduct set statusid = @statusid where softwareproductid = @softwareproductid", connection);
+            using var updateCommand = new SqlCommand("update softwareproduct set statusid = @statusid where softwareproductid = @softwareproductid", connection);
             updateCommand.Parameters.AddWithValue("@softwareproductid", softwareProductId);
             updateCommand.Parameters.AddWithValue("@statusid", statusId);
-            updateCommand.ExecuteNonQueryAsync();
+            updateCommand.ExecuteNonQuery();
 
             // Check status was updated
-            using var selectCommand = new SqliteCommand("select count(*) from softwareproduct where softwareproductid = @softwareproductid and statusid = @statusid", connection);
+            using var selectCommand = new SqlCommand("select count(*) from softwareproduct where softwareproductid = @softwareproductid and statusid = @statusid", connection);
             selectCommand.Parameters.AddWithValue("@softwareproductid", softwareProductId);
             selectCommand.Parameters.AddWithValue("@statusid", statusId);
             if (selectCommand.ExecuteScalarInt32() != 1)
@@ -196,12 +225,12 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Brand
         /// </summary>
-        public int GetBrandStatusId(string brandId)
+        public static int GetBrandStatusId(string brandId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
-            using var selectCommand = new SqliteCommand("select brandstatusid from brand where brandid = @brandid", connection);
+            using var selectCommand = new SqlCommand("select brandstatusid from brand where brandid = @brandid", connection);
             selectCommand.Parameters.AddWithValue("@brandid", brandId);
 
             return selectCommand.ExecuteScalarInt32();
@@ -210,19 +239,19 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Set status of Brand
         /// </summary>
-        public void SetBrandStatusId(string brandId, int statusId)
+        public static void SetBrandStatusId(string brandId, int statusId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
             // Update status
-            using var updateCommand = new SqliteCommand("update brand set brandstatusid = @brandstatusid where brandid = @brandid", connection);
+            using var updateCommand = new SqlCommand("update brand set brandstatusid = @brandstatusid where brandid = @brandid", connection);
             updateCommand.Parameters.AddWithValue("@brandid", brandId);
             updateCommand.Parameters.AddWithValue("@brandstatusid", statusId);
-            updateCommand.ExecuteNonQueryAsync();
+            updateCommand.ExecuteNonQuery();
 
             // Check status was updated
-            using var selectCommand = new SqliteCommand("select count(*) from brand where brandid = @brandid and brandstatusid = @brandstatusid", connection);
+            using var selectCommand = new SqlCommand("select count(*) from brand where brandid = @brandid and brandstatusid = @brandstatusid", connection);
             selectCommand.Parameters.AddWithValue("@brandid", brandId);
             selectCommand.Parameters.AddWithValue("@brandstatusid", statusId);
             if (selectCommand.ExecuteScalarInt32() != 1)
@@ -234,12 +263,12 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get participationid for brand
         /// </summary>
-        public string GetParticipationId(string brandId)
+        public static string GetParticipationId(string brandId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
-            using var selectCommand = new SqliteCommand("select participationid from brand where brandid = @brandid", connection);
+            using var selectCommand = new SqlCommand("select participationid from brand where brandid = @brandid", connection);
             selectCommand.Parameters.AddWithValue("@brandid", brandId);
 
             return selectCommand.ExecuteScalarString(); // presumably brand only has single participation with legal entity, anyway if not this will throw
@@ -248,12 +277,12 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Participation
         /// </summary>
-        public int GetParticipationStatusId(string participationId)
+        public static int GetParticipationStatusId(string participationId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
-            using var selectCommand = new SqliteCommand("select statusid from participation where participationid = @participationid", connection);
+            using var selectCommand = new SqlCommand("select statusid from participation where participationid = @participationid", connection);
             selectCommand.Parameters.AddWithValue("@participationid", participationId);
 
             return selectCommand.ExecuteScalarInt32();
@@ -262,19 +291,19 @@ namespace CDR.Register.IntegrationTests
         /// <summary>
         /// Get status of Participation
         /// </summary>
-        public void SetParticipationStatusId(string participationId, int statusId)
+        public static void SetParticipationStatusId(string participationId, int statusId)
         {
-            using var connection = new SqliteConnection(Configuration.GetConnectionString("DefaultConnection"));
+            using var connection = new SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
             connection.Open();
 
             // Update status
-            using var updateCommand = new SqliteCommand("update participation set statusid = @statusid where participationid = @participationid", connection);
+            using var updateCommand = new SqlCommand("update participation set statusid = @statusid where participationid = @participationid", connection);
             updateCommand.Parameters.AddWithValue("@participationid", participationId);
             updateCommand.Parameters.AddWithValue("@statusid", statusId);
-            updateCommand.ExecuteNonQueryAsync();
+            updateCommand.ExecuteNonQuery();
 
             // Check status was updated
-            using var selectCommand = new SqliteCommand("select count(*) from participation where participationid = @participationid and statusid = @statusid", connection);
+            using var selectCommand = new SqlCommand("select count(*) from participation where participationid = @participationid and statusid = @statusid", connection);
             selectCommand.Parameters.AddWithValue("@participationid", participationId);
             selectCommand.Parameters.AddWithValue("@statusid", statusId);
             if (selectCommand.ExecuteScalarInt32() != 1)
@@ -283,5 +312,4 @@ namespace CDR.Register.IntegrationTests
             };
         }
     }
-
 }

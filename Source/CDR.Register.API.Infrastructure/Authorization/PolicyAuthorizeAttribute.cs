@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using CDR.Register.API.Infrastructure.Models;
+﻿using CDR.Register.API.Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
@@ -22,15 +22,12 @@ namespace CDR.Register.API.Infrastructure.Authorization
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             var authorizationService = (IAuthorizationService)context.HttpContext.RequestServices.GetService(typeof(IAuthorizationService));
-
             var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, policy.ToString());
 
             if (authorizationResult.Succeeded)
-            {
                 return;
-            }
 
-            if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MTLSRequirement)))
+            if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
             {
                 context.Result = new RegisterUnauthorizedResult(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                 return;

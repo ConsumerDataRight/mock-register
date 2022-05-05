@@ -6,12 +6,12 @@ namespace CDR.Register.Repository.Entities
 	public class BrandStatus
 	{
 		[Key]
-		public BrandStatusEnum BrandStatusId { get; set; }
+		public BrandStatusType BrandStatusId { get; set; }
 		[MaxLength(25), Required]
 		public string BrandStatusCode { get; set; }
 	}
 
-	public enum BrandStatusEnum : int
+	public enum BrandStatusType
 	{
 		Unknown = 0,
 		Active = 1,

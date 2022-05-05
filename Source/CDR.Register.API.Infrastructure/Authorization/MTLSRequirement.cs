@@ -2,7 +2,7 @@
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
-    public class MTLSRequirement : IAuthorizationRequirement
+    public class MtlsRequirement : IAuthorizationRequirement
     {
     }
 }

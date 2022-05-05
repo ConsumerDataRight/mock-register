@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
@@ -27,14 +28,20 @@ namespace CDR.Register.API.Infrastructure.Authorization
             // If user does not have the scope claim, get out of here
             if (!context.User.HasClaim(c => c.Type == "client_id" && c.Issuer == requirement.Issuer))
             {
-                _logger.LogError($"Unauthorized request. Access token is missing 'client_id' claim for issuer '{requirement.Issuer}'.");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim for issuer '{issuer}'.", requirement.Issuer);
+                }
                 return Task.CompletedTask;
             }
 
             var accessTokenClientId = context.User.FindFirst("client_id")?.Value;
             if (string.IsNullOrWhiteSpace(accessTokenClientId))
             {
-                _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim.");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim.");
+                }
                 return Task.CompletedTask;
             }
 
@@ -43,7 +50,10 @@ namespace CDR.Register.API.Infrastructure.Authorization
             // Token ClientId should match the ProductId.
             if (!accessTokenClientId.Equals(requestDataRecipientProductId, System.StringComparison.InvariantCultureIgnoreCase))
             {
-                _logger.LogError($"Unauthorized request. Access token client_id '{accessTokenClientId}' does not match request softwareProductId '{requestDataRecipientProductId}'");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. Access token client_id '{accessTokenClientId}' does not match request softwareProductId '{requestDataRecipientProductId}'", accessTokenClientId, requestDataRecipientProductId);
+                }
                 return Task.CompletedTask;
             }
 

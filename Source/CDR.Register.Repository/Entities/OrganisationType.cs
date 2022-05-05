@@ -5,13 +5,13 @@ namespace CDR.Register.Repository.Entities
     public class OrganisationType
     {
         [Key]
-        public OrganisationTypeEnum OrganisationTypeId { get; set; }
+        public OrganisationTypes OrganisationTypeId { get; set; }
 
         [MaxLength(100), Required]
         public string OrganisationTypeCode { get; set; }
     }
 
-    public enum OrganisationTypeEnum : int
+    public enum OrganisationTypes
     {
         Unknown = 0,
         SoleTrader = 1,

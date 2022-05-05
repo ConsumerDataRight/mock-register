@@ -5,13 +5,13 @@ namespace CDR.Register.Repository.Entities
     public class ParticipationStatus
     {
         [Key]
-        public ParticipationStatusEnum ParticipationStatusId { get; set; }
+        public ParticipationStatusType ParticipationStatusId { get; set; }
 
         [MaxLength(25), Required]
         public string ParticipationStatusCode { get; set; }
     }
 
-    public enum ParticipationStatusEnum : int
+    public enum ParticipationStatusType
     {
         Unknown = 0,
         Active = 1,
