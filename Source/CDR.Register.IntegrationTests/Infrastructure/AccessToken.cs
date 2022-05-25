@@ -6,7 +6,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using CDR.Register.IntegrationTests.Infrastructure;
 
 #nullable enable
 
@@ -14,8 +13,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
 {
     public class AccessToken
     {
-        private const string IDENTITYSERVER_URL = BaseTest.IDENTITYSERVER_URL;
-        private const string AUDIENCE = IDENTITYSERVER_URL;
+        private static readonly string IDENTITYSERVER_URL = BaseTest.IDENTITYSERVER_URL;
+        private static readonly string AUDIENCE = IDENTITYSERVER_URL;
         private const string SCOPE = "cdr-register:bank:read";
         private const string GRANT_TYPE = "client_credentials";
         private const string CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";

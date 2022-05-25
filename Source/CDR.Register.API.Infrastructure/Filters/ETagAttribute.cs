@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Net.Http.Headers;
@@ -27,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Filters
                 var etag = GenerateETag(res);
 
                 // Fetch etag from the incoming request header.
-                if (request.Headers.Keys.Contains(HeaderNames.IfNoneMatch))
+                if (request.Headers.ContainsKey(HeaderNames.IfNoneMatch))
                 {
                     var incomingEtag = request.Headers[HeaderNames.IfNoneMatch].ToString().Trim('"');
 
@@ -50,7 +51,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             if (String.IsNullOrEmpty(response))
                 return String.Empty;
 
-            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            using (var sha = SHA256.Create())
             {
                 byte[] textData = System.Text.Encoding.UTF8.GetBytes(response);
                 byte[] hash = sha.ComputeHash(textData);

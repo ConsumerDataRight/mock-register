@@ -17,7 +17,7 @@ namespace CDR.Register.Repository.Entities
         public string BrandName { get; set; }
         [MaxLength(1000), Required]
         public string LogoUri { get; set; }
-        public BrandStatusEnum BrandStatusId { get; set; }
+        public BrandStatusType BrandStatusId { get; set; }
         public BrandStatus BrandStatus { get; set; }
         public Guid ParticipationId { get; set; }
         public Participation Participation { get; set; }

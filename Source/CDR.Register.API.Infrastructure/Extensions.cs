@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Authentication;
-using CDR.Register.API.Infrastructure.Authorization;
+﻿using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Authentication;
 
 namespace CDR.Register.API.Infrastructure
 {
@@ -69,19 +70,29 @@ namespace CDR.Register.API.Infrastructure
             {
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("cdr-register:bank:read", identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
 
-                options.AddPolicy(AuthorisationPolicy.GetSoftwareStatementAssertion.ToString(), policy =>
+                options.AddPolicy(AuthorisationPolicy.GetSSA.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement("cdr-register:bank:read", identityServerIssuer));
-                    policy.Requirements.Add(new MTLSRequirement());
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
+                });
+                options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry.ToString(), policy =>
+                {
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
+                });
+                options.AddPolicy(AuthorisationPolicy.GetSSAMultiIndustry.ToString(), policy =>
+                {
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new MtlsRequirement());
                 });
             });
             services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
             services.AddSingleton<IAuthorizationHandler, DataRecipientSoftwareProductIdHandler>();
-            services.AddSingleton<IAuthorizationHandler, MTLSHandler>();
+            services.AddSingleton<IAuthorizationHandler, MtlsHandler>();
 
             services.AddSwaggerGen(c =>
             {
@@ -140,6 +151,21 @@ namespace CDR.Register.API.Infrastructure
                     links.Next = controller.GetPageUri(routeName, updatedSince, currentPage + 1, pageSize, forwardedHost);
                 }
             }
+
+            return links;
+        }
+
+        public static Links GetSelf(this ControllerBase controller)
+        {
+            var links = new Links();
+
+            string forwardedHost = null;
+            if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+            {
+                forwardedHost = forwardedHosts.First();
+            }
+
+            links.Self = ReplaceUriHost(controller.Request.GetDisplayUrl(), forwardedHost);
 
             return links;
         }
@@ -203,11 +229,21 @@ namespace CDR.Register.API.Infrastructure
 
         public static Industry ToIndustry(this string industry)
         {
-            return industry switch
+            if (Enum.IsDefined(typeof(Industry), industry.ToUpper()))
+                return (Industry)Enum.Parse(typeof(Industry), industry, true);
+            else
+                throw new NotSupportedException($"Invalid industry: {industry}");
+        }
+
+        public static IEnumerable<string> GetValueAsList(this IConfiguration configuration, string key, string delimiter)
+        {
+            string value = configuration.GetValue<string>(key);
+            if (string.IsNullOrEmpty(value))
             {
-                "banking" => Industry.Banking,
-                _ => throw new NotSupportedException($"Invalid industry: {industry}"),
-            };
+                return Array.Empty<string>();
+            }
+
+            return value.Split(delimiter);
         }
     }
 }

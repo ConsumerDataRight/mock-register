@@ -1,5 +1,6 @@
 ﻿using CDR.Register.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CDR.Register.Repository.Infrastructure
 {
@@ -32,11 +33,11 @@ namespace CDR.Register.Repository.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            foreach (var clrType in modelBuilder.Model.GetEntityTypes().Select(e => e.ClrType))
             {
                 // Use the entity name instead of the Context.DbSet<T> name
                 // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
-                modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+                modelBuilder.Entity(clrType).ToTable(clrType.Name);
             }
 
             // Add composite primary keys

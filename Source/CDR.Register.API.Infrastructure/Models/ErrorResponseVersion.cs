@@ -12,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Models
             switch (context.ErrorCode)
             {
                 case "UnsupportedApiVersion":
-                    return new ObjectResult(new ResponseErrorList().InvalidXV())
+                    return new ObjectResult(new ResponseErrorList().InvalidXVUnsupportedVersion())
                     {
                         StatusCode = (int)HttpStatusCode.NotAcceptable
                     };

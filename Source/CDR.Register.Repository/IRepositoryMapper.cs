@@ -4,9 +4,9 @@ namespace CDR.Register.Repository
 {
     public interface IRepositoryMapper
     {
-        SoftwareProductIdSvr Map(Entities.SoftwareProduct softwareProduct);
+        DataRecipientLegalEntity Map(Entities.LegalEntity legalEntity);
         DataRecipientBrand Map(Entities.Brand brand);
+        SoftwareProductIdSvr Map(Entities.SoftwareProduct softwareProduct);
         SoftwareProduct MapSoftwareProduct(Entities.SoftwareProduct softwareProduct);
-        LegalEntity Map(Entities.LegalEntity legalEntity);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Services;
 using CDR.Register.Discovery.API.Business;
-using CDR.Register.Domain.Repositories;
+using CDR.Register.Repository.Interfaces;
 using CDR.Register.Repository;
 using MediatR;
 using Microsoft.AspNetCore.Builder;

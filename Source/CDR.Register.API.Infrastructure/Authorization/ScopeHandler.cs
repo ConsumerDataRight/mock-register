@@ -1,7 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
@@ -25,21 +26,23 @@ namespace CDR.Register.API.Infrastructure.Authorization
             // If user does not have the scope claim, get out of here
             if (!context.User.HasClaim(c => c.Type == "scope" && c.Issuer == requirement.Issuer))
             {
-                _logger.LogError($"Unauthorized request. Access token is missing 'scope' claim for issuer '{requirement.Issuer}'.");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. Access token is missing 'scope' claim for issuer '{issuer}'.", requirement.Issuer);
+                }
                 return Task.CompletedTask;
             }
 
-            // Split the scopes string into an array
-            var scopes = context.User.FindFirst(c => c.Type == "scope" && c.Issuer == requirement.Issuer).Value.Split(' ');
+            // Return the user claim scope
+            var userClaimScopes = context.User.FindFirst(c => c.Type == "scope" && c.Issuer == requirement.Issuer).Value.Split(' ');
 
             // Succeed if the scope array contains the required scope
-            if (scopes.Any(s => s == requirement.Scope))
+            // The space character is used to seperate the scopes as this is in line with CDS specifications.
+            string[] requiredScopes = requirement.Scope.Split(' ');
+
+            if (userClaimScopes.Intersect(requiredScopes).Any())
             {
                 context.Succeed(requirement);
-            }
-            else
-            {
-                _logger.LogError($"Unauthorized request. Access token does not contain scope '{requirement.Scope}' for issuer '{requirement.Issuer}'.");
             }
 
             return Task.CompletedTask;

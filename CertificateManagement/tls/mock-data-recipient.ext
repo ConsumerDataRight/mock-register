@@ -4,5 +4,6 @@ keyUsage            = critical, nonRepudiation, digitalSignature, keyEnciphermen
 extendedKeyUsage    = critical, serverAuth
 subjectAltName      = @alt_names
 [alt_names]
-DNS.1               = localhost
-DNS.2               = datarecipient.mock
+DNS.1               = mock-data-recipient
+DNS.2               = localhost
+

@@ -10,7 +10,7 @@ namespace CDR.Register.Repository.Entities
         {
             // Populate any default values to make the creation easy.
             this.SoftwareProductId = Guid.NewGuid();
-            this.Scope = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration";
+            this.Scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration";
         }
 
         [Key]
@@ -52,7 +52,7 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(1000), Required]
         public string Scope { get; set; }
 
-        public SoftwareProductStatusEnum StatusId { get; set; }
+        public SoftwareProductStatusType StatusId { get; set; }
         public SoftwareProductStatus Status { get; set; }
 
         public Guid BrandId { get; set; }
