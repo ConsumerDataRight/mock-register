@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 2022-05-05
+## [0.5.0] - 2022-05-25
 ### Added
 - Support for multiple industries added to the Mock Register. Banking, Energy, Telco and 'all' are now valid industries for GetDataRecipients, GetDataRecipientsStatus, GetSoftwareProductStatus, GetSoftwareStatementAssertion, GetDataHolderBrands, GetDataHoldersStatus. Banking industry only versions of these APIs are available for backwards compatibility.
 - Energy and Telco as supported sectors.
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced SQLite database with MSSQL database.
 - Changed the TLS certificates for the Mock Register to be signed by the Mock CDR CA.
 - Extra steps detailed for using the solution in visual studio, docker containers and docker compose file.
+- Regenerated all mTLS, SSA and TLS certificates to allow for another year before they expire.
 
 ## [0.4.0] - 2021-10-01
 ### Added 

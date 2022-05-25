@@ -49,6 +49,8 @@ A Data Recipient can use the client certificate issued by the Mock CDR CA for mT
 
 The `openssl` commands to generate the client certificate by the Mock CDR Certificate Authority can be found in: `mtls\client.cmd`.  One has already been generated and is available at: `mtls\client.pfx`.  This certificate has been configured for use within the metadata stored within the Mock Register repository.
 
+NOTE: If the `mtls\client.pfx` is updated then the thumbprint of the new certificate needs to be replace the thumbprint in the seed data and postman collection.
+
 ## TLS
 
 Endpoints that are not protected by mTLS are protected by TLS.  The server certificate used for TLS communication can be provisioned by the CDR CA, or alternatively participants can used a trusted third party CA.
@@ -71,6 +73,10 @@ These certificates can be used by the community when developing CDR solutions, o
 When a Data Recipient requests a Software Statement Assertion (SSA) from the Register, the contents of the SSA is signed by a private key managed by the Register.  The Data Holder that receives the SSA can verify its authenticity by utilising the public key data hosted at the Register's SSA JWKS endpoint (`/cdr-register/v1/jwks`).
 
 The private/public key information used within the SSA and Dynamic Client Registration (DCR) process utilises an X509 certificate.  This certificate is a self-signed certificate that is generated using the `openssl` commands found in the `ssa\ssa.cmd` file.
+
+| Participant | File Name | Password |
+|-------------|-----------|----------|
+| Mock Register | ssa\ssa.pfx | #M0ckRegister# |
 
 ## How To: Replace the certificates used in the Mock Register
 

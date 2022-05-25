@@ -32,9 +32,9 @@ namespace CDR.Register.SSA.API.UnitTests
 
             var jwk = jwks.keys[0];
             Assert.Equal("PS256", jwk.alg);
-            Assert.Equal("542A9B91600488088CD4D816916A9F4488DD2651", jwk.kid);
+            Assert.Equal("F4EA299C607947E459AC47E69F7289F174B5B4DF", jwk.kid);
             Assert.Equal("RSA", jwk.kty);
-            Assert.Equal("0qE0TxxopsXaRNZ7qr9w0Sy0-kBGabAjB5BDn0ekvevomMFCvxdxw2d95aLc09k59cFH_dNsP0DCCE9ALp5Ob8gXNHcKEnKzFeLnZGo0xDSw6Xu-JuBw5-Z9bDfSWG_iSoPitG4Bk9j1S2brsKkOOa8iIE0JqkFMu___0ifoaA0C62c5QJIH8qvEr7x-zG9H9Bt1aFOznMy-TvI2s91otg4N_E1RKfRHnwPRjuw7fO1UCxn2LRLR0J_vz_uEHBs9CjH7KcPknPw43nmL-JDWQjUgM2FioTXDwhBEb5o_FQkLJlZmVrxg27iyAePYnoWDenGQsSS_2AhBAfZjqTIXBQ", jwk.n);
+            Assert.Equal("sMMObx8cM9OnP9IXUJ4jHuC95-xLkwQ-0qtXgDwEW3KszNMCFMokcuGbqhWeOpY0rGkZEVfD25Wr1rsStgbD4b1LhcMAFF63O_hQAtaj3-Lnv4MVSUBH_e-y4sxpxhgx_iX1e1Ycvq3I57JLNfT9_8MGg-pasSjUVeAFYi59zX4-pC55cBM25uTT7Th6JoZq9-El8-W2eOtmjIFRbYzrj1abmjpInLkMVTzGNviqRzuBVCwMscea4_Xk1eHY7ZYb2T0fcXSmMrbgwfXOVQDSZJy5kDVJJqqwsTWYIpaPBkc8vsTDWTfoZ9bjrs56bqUkC0pqICBGP7H58TEXJ-rLRw", jwk.n);
             Assert.Equal("AQAB", jwk.e);
             Assert.Equal(2, jwk.key_ops.Length);
         }

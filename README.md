@@ -167,9 +167,6 @@ This project has adopted the **Contributor Covenant**.  For more information see
 # License
 [MIT License](./LICENSE)
 
-# Terms of Use
-[Terms of Use](./TERMS_OF_USE.md)
-
 # Notes
 The Mock Register is provided as a development tool and is not an exact replica of the production CDR Register.  
-It conforms to the Register Design, however there may be slight differences due to infrastructure and technology stack variances with the production CDR Register.
+It conforms to the Consumer Data Standards, however there may be slight differences due to infrastructure and technology stack variances with the production CDR Register.
