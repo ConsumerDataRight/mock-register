@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Domain.Repositories;
+using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Repository.Interfaces;
 
 namespace CDR.Register.API.Infrastructure.Services
 {
@@ -24,7 +25,7 @@ namespace CDR.Register.API.Infrastructure.Services
             _registerDiscoveryRepository = registerDiscoveryRepository;
         }
 
-        public async Task<ResponseErrorList> ValidateDataRecipientStatus(Guid softwareProductId)
+        public async Task<ResponseErrorList> ValidateSoftwareProductStatus(Guid softwareProductId)
         {
             // Get the latest data recipient details from the repository
             var softwareProduct = await _registerDiscoveryRepository.GetSoftwareProductIdAsync(softwareProductId);

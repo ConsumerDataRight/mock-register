@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
+﻿using CDR.Register.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog.Context;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -17,12 +19,10 @@ namespace CDR.Register.Admin.API.Controllers
     public class LoopbackController : Controller
     {
 
-        private readonly ILogger<LoopbackController> _logger;
         private readonly IConfiguration _config;
 
-        public LoopbackController(ILogger<LoopbackController> logger, IConfiguration config)
+        public LoopbackController(IConfiguration config)
         {
-            _logger = logger;
             _config = config;
         }
 
@@ -32,12 +32,11 @@ namespace CDR.Register.Admin.API.Controllers
         /// <returns>JWKS</returns>
         [HttpGet]
         [Route("MockDataRecipientJwks")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult MockDataRecipientJwks()
         {
-            _logger.LogInformation("Received request for Mock Data Recipient JWKS...");
-
             var cert = new X509Certificate2("Certificates/client.pem");
-            var key = (RSA)cert.PublicKey.Key;
+            var key = cert.GetRSAPublicKey();
             var rsaParams = key.ExportParameters(false);
             var kid = GenerateKid(rsaParams, out var e, out var n);
             var jwk = new CDR.Register.API.Infrastructure.Models.JsonWebKey()
@@ -65,10 +64,9 @@ namespace CDR.Register.Admin.API.Controllers
         /// </remarks>
         [HttpGet]
         [Route("MockDataRecipientClientAssertion")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult MockDataRecipientClientAssertion()
         {
-            _logger.LogInformation("Received request for Mock Data Recipient Client Assertion...");
-
             var privateKeyRaw = System.IO.File.ReadAllText("Certificates/client.key");
             var privateKey = privateKeyRaw.Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Replace("\r\n", "").Trim();
             var privateKeyBytes = Convert.FromBase64String(privateKey);

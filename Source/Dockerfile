@@ -1,10 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 7000
 EXPOSE 7001
+EXPOSE 7006
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+# Default ASPNETCORE_ENVIRONMENT to Release
+ENV ASPNETCORE_ENVIRONMENT=Release 
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
 COPY . ./

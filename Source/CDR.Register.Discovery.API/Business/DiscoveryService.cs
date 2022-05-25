@@ -1,10 +1,9 @@
+using AutoMapper;
+using CDR.Register.Discovery.API.Business.Responses;
+using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Repository.Interfaces;
 using System;
 using System.Threading.Tasks;
-using AutoMapper;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Discovery.API.Business.Models;
-using CDR.Register.Discovery.API.Business.Responses;
-using CDR.Register.Domain.Repositories;
 
 namespace CDR.Register.Discovery.API.Business
 {
@@ -21,29 +20,34 @@ namespace CDR.Register.Discovery.API.Business
             _mapper = mapper;
         }
 
-        public async Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsyncXV1(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
-            var entity = await _registerDiscoveryRepository.GetDataHolderBrandsAsync((Domain.Entities.Industry)industry, updatedSince, page, pageSize);
-            var response = _mapper.Map<ResponseRegisterDataHolderBrandList>(entity);
-
-            return response;
+            var entity = await _registerDiscoveryRepository.GetDataHolderBrandsAsyncXV1(industry, updatedSince, page, pageSize);
+            return _mapper.Map<ResponseRegisterDataHolderBrandList>(entity);
         }
 
-        public async Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsync(Industry industry)
+        public async Task<ResponseRegisterDataHolderBrandListV2> GetDataHolderBrandsAsyncXV2(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
-            var entity = await _registerDiscoveryRepository.GetDataRecipientsAsync((Domain.Entities.Industry)industry);
-            var response = _mapper.Map<ResponseRegisterDataRecipientList>(entity);
-
-            return response;
+            var entity = await _registerDiscoveryRepository.GetDataHolderBrandsAsyncXV2(industry, updatedSince, page, pageSize);
+            return _mapper.Map<ResponseRegisterDataHolderBrandListV2>(entity);
         }
 
-        public async Task<ResponseRegisterDataRecipientListV2> GetDataRecipientsV2Async(Industry industry)
+        public async Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsyncXV1(Industry industry)
         {
-            var entity = await _registerDiscoveryRepository.GetDataRecipientsAsync((Domain.Entities.Industry)industry);
-            var response = _mapper.Map<ResponseRegisterDataRecipientListV2>(entity);
-
-            return response;
+            var entity = await _registerDiscoveryRepository.GetDataRecipientsAsyncXV1(industry);
+            return _mapper.Map<ResponseRegisterDataRecipientList>(entity);
         }
 
+        public async Task<ResponseRegisterDataRecipientListV2> GetDataRecipientsAsyncXV2(Industry industry)
+        {
+            var entity = await _registerDiscoveryRepository.GetDataRecipientsAsyncXV2(industry);
+            return _mapper.Map<ResponseRegisterDataRecipientListV2>(entity);
+        }
+
+        public async Task<ResponseRegisterDataRecipientListV3> GetDataRecipientsAsyncXV3(Industry industry)
+        {
+            var entity = await _registerDiscoveryRepository.GetDataRecipientsAsyncXV3(industry);
+            return _mapper.Map<ResponseRegisterDataRecipientListV3>(entity);
+        }
     }
 }

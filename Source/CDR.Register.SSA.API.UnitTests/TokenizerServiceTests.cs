@@ -43,7 +43,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -62,7 +62,7 @@ namespace CDR.Register.SSA.API.UnitTests
                     "https://fintechx.io/products/trackxpense/cb"
                 },
                 revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration",
+                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
                 software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
                 software_roles = "data-recipient-software-product",
             };
@@ -107,7 +107,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -126,7 +126,7 @@ namespace CDR.Register.SSA.API.UnitTests
                     "https://fintechx.io/products/trackxpense/cb"
                 },
                 revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration",
+                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
                 software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
                 software_roles = "data-recipient-software-product",
             };
@@ -179,7 +179,7 @@ namespace CDR.Register.SSA.API.UnitTests
             //Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -198,7 +198,7 @@ namespace CDR.Register.SSA.API.UnitTests
                     "https://fintechx.io/products/trackxpense/cb"
                 },
                 revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration",
+                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
                 software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
                 software_roles = "data-recipient-software-product",
             };
@@ -247,7 +247,7 @@ namespace CDR.Register.SSA.API.UnitTests
         {
             // Arrange.
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
-            var ssa = new SoftwareStatementAssertionV2Model
+            var ssa = new SoftwareStatementAssertionModel
             {
                 client_description = "Application to allow you to track your expenses",
                 client_name = "Track Xpense",
@@ -266,7 +266,7 @@ namespace CDR.Register.SSA.API.UnitTests
                     "https://fintechx.io/products/trackxpense/cb"
                 },
                 revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration",
+                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
                 software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
                 software_roles = "data-recipient-software-product",
             };

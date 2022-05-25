@@ -1,0 +1,114 @@
+trigger:
+  - develop  
+  - main
+  
+pool:
+  vmImage: windows-2019
+
+steps:
+
+# Restore
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+# Build    
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    arguments: '--configuration Release'
+    projects: '**/*.csproj'    
+
+# Set timezone to AEST
+- task: CmdLine@2
+  displayName: Set AEST timezone
+  inputs:
+    script: |
+      cd $(Build.SourcesDirectory)
+      tzutil /s "AUS Eastern Standard Time"
+
+# Install certificates      
+- task: PowerShell@2
+  displayName: Install root certificate
+  inputs:
+    targetType: 'inline'
+    script: |
+      $PlainPassword = "#M0ckCDRCA#" 
+      $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force      
+      Import-PfxCertificate -Password $SecurePassword -FilePath "CertificateManagement/mtls/ca.pfx" -CertStoreLocation Cert:\LocalMachine\Root
+    
+# Run unit tests    
+- task: VSTest@2
+  displayName: Unit Tests
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*UnitTests*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+      !**/ref/**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+# Start APIs
+- task: CmdLine@2
+  displayName: Run Register projects
+  inputs:
+    script: |     
+      echo Starting CDR.Register.API.Gateway.mTLS      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.API.Gateway.mTLS      
+      start /B dotnet run CDR.Register.API.Gateway.mTLS.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.API.Gateway.mTLS.Pipeline
+
+      echo Starting CDR.Register.API.Gateway.TLS      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.API.Gateway.TLS      
+      start /B dotnet run CDR.Register.API.Gateway.TLS.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.API.Gateway.TLS.Pipeline
+
+      echo Starting CDR.Register.IdentityServer      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.IdentityServer
+      start /B dotnet run CDR.Register.IdentityServer.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.IdentityServer.Pipeline
+
+      echo Starting CDR.Register.Discovery.API      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.Discovery.API      
+      start /B dotnet run CDR.Register.Discovery.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.Discovery.API.Pipeline
+
+      echo Starting CDR.Register.SSA.API      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.SSA.API      
+      start /B dotnet run CDR.Register.SSA.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.SSA.API.Pipeline
+
+      echo Starting CDR.Register.Status.API      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.Status.API      
+      start /B dotnet run CDR.Register.Status.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.Status.API.Pipeline
+
+      echo Starting CDR.Register.Admin.API      
+      cd $(Build.SourcesDirectory)\Source\CDR.Register.Admin.API      
+      start /B dotnet run CDR.Register.Admin.API.csproj --no-build --no-restore --configuration=Release --launch-profile CDR.Register.Admin.API.Pipeline
+
+      cd $(Build.SourcesDirectory)  
+
+# Run integration tests
+- task: VSTest@2
+  displayName: Integration Tests
+  inputs:    
+    runSettingsFile: $(Build.SourcesDirectory)\Source\CDR.Register.IntegrationTests\integration.runsettings
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*IntegrationTests*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+      !**/ref/**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+# Stop APIs and copy artifacts for integration tests
+- template: templates/stop-apis.yml
+- template: templates/copy-artifacts.yml
+  parameters:
+    name: Integration Tests
+
+# Publish artifacts
+- publish: $(Build.SourcesDirectory)\Publish
+  displayName: Publish artifacts
+  condition: always()
+  artifact: Mock-Register Build $(Build.BuildNumber)
+  

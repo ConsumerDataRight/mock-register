@@ -1,97 +1,112 @@
 {
-    "Routes": [
+  "Routes": [
 
-        // GetDataRecipients
+    // GetDataRecipients
+    {
+      "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
         {
-            "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7003
-                }
-            ],
-            "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
-        },
-
-        // GetDataRecipientsStatus
-        {
-            "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/status",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7004
-                }
-            ],
-            "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/status",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
-        },
-
-        // GetSoftwareProductsStatus
-        {
-            "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7004
-                }
-            ],
-            "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
-        },
-
-        // SSA JWKS
-        {
-            "DownstreamPathTemplate": "/cdr-register/v1/jwks",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7005
-                }
-            ],
-            "UpstreamPathTemplate": "/cdr-register/v1/jwks",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
-        },
-
-        // OIDC Configuration
-        {
-            "DownstreamPathTemplate": "/.well-known/openid-configuration",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7002
-                }
-            ],
-            "UpstreamPathTemplate": "/idp/.well-known/openid-configuration",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
-        },
-
-        // OIDC JWKS
-        {
-            "DownstreamPathTemplate": "/.well-known/openid-configuration/jwks",
-            "DownstreamScheme": "https",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 7002
-                }
-            ],
-            "UpstreamPathTemplate": "/idp/.well-known/openid-configuration/jwks",
-            "UpstreamHttpMethod": [ "Get" ],
-            "DangerousAcceptAnyServerCertificateValidator": true
+          "Host": "localhost",
+          "Port": 7003
         }
-    ],
-    "GlobalConfiguration": {
-        "BaseUrl": "https://localhost:7000"
+      ],
+      "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // GetDataRecipientsStatus
+    {
+      "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/status",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/status",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // GetSoftwareProductsStatus
+    {
+      "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // GetDataHoldersStatus
+    {
+      "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/status",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/cdr-register/v1/{industry}/data-holders/status",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // SSA JWKS
+    {
+      "DownstreamPathTemplate": "/cdr-register/v1/jwks",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7005
+        }
+      ],
+      "UpstreamPathTemplate": "/cdr-register/v1/jwks",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // OIDC Configuration
+    {
+      "DownstreamPathTemplate": "/.well-known/openid-configuration",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "UpstreamPathTemplate": "/idp/.well-known/openid-configuration",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+
+    // OIDC JWKS
+    {
+      "DownstreamPathTemplate": "/.well-known/openid-configuration/jwks",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "UpstreamPathTemplate": "/idp/.well-known/openid-configuration/jwks",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
     }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7000"
+  }
 }

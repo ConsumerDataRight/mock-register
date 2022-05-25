@@ -1,25 +1,26 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
+using Serilog.Context;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
-    public class MTLSHandler : AuthorizationHandler<MTLSRequirement>
+    public class MtlsHandler : AuthorizationHandler<MtlsRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<MTLSHandler> _logger;
+        private readonly ILogger<MtlsHandler> _logger;
 
-        public MTLSHandler(IHttpContextAccessor httpContextAccessor, ILogger<MTLSHandler> logger)
+        public MtlsHandler(IHttpContextAccessor httpContextAccessor, ILogger<MtlsHandler> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MTLSRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MtlsRequirement requirement)
         {
             // Check that authentication was successful before doing anything else
             if (!context.User.Identity.IsAuthenticated)
@@ -39,7 +40,10 @@ namespace CDR.Register.API.Infrastructure.Authorization
 
             if (string.IsNullOrWhiteSpace(requestHeaderClientCertThumprint))
             {
-                _logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
+                }
                 return Task.CompletedTask;
             }
 
@@ -53,13 +57,19 @@ namespace CDR.Register.API.Infrastructure.Authorization
 
             if (string.IsNullOrWhiteSpace(accessTokenClientCertThumbprint))
             {
-                _logger.LogError("Unauthorized request. cnf:x5t#S256 claim is missing from access token.");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. cnf:x5t#S256 claim is missing from access token.");
+                }
                 return Task.CompletedTask;
             }
 
             if (!accessTokenClientCertThumbprint.Equals(requestHeaderClientCertThumprint))
             {
-                _logger.LogError($"Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'");
+                using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
+                {
+                    _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
+                }
                 return Task.CompletedTask;
             }
 

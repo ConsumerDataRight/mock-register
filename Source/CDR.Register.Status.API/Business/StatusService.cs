@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
 using AutoMapper;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Domain.Repositories;
+using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Repository.Interfaces;
 using CDR.Register.Status.API.Business.Responses;
+using System.Threading.Tasks;
 
 namespace CDR.Register.Status.API.Business
 {
@@ -19,20 +19,34 @@ namespace CDR.Register.Status.API.Business
             _mapper = mapper;
         }
 
-        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsync(Industry industry)
+        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsyncXV1(Industry industry)
         {
-            var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync((Domain.Entities.Industry)industry);
-
-            var response = _mapper.Map<ResponseRegisterDataRecipientStatusList>(entity);
-            return response;
+            var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync(industry);
+            return _mapper.Map<ResponseRegisterDataRecipientStatusList>(entity);
         }
 
-        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsync(Industry industry)
+        public async Task<ResponseRegisterDataRecipientStatusListV2> GetDataRecipientStatusesAsyncXV2(Industry industry)
         {
-            var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync((Domain.Entities.Industry)industry);
+            var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync(industry);
+            return _mapper.Map<ResponseRegisterDataRecipientStatusListV2>(entity);
+        }
 
-            var response = _mapper.Map<ResponseRegisterSoftwareProductStatusList>(entity);
-            return response;
+        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsyncXV1(Industry industry)
+        {
+            var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync(industry);
+            return _mapper.Map<ResponseRegisterSoftwareProductStatusList>(entity);
+        }
+
+        public async Task<ResponseRegisterSoftwareProductStatusListV2> GetSoftwareProductStatusesAsyncXV2(Industry industry)
+        {
+            var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync(industry);
+            return _mapper.Map<ResponseRegisterSoftwareProductStatusListV2>(entity);
+        }
+
+        public async Task<ResponseRegisterDataHolderStatusList> GetDataHolderStatusesAsyncXV1(Industry industry)
+        {
+            var entity = await _registerStatusRepository.GetDataHolderStatusesAsync(industry);
+            return _mapper.Map<ResponseRegisterDataHolderStatusList>(entity);
         }
     }
 }

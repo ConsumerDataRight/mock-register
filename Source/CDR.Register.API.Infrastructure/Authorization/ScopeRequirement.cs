@@ -14,4 +14,10 @@ namespace CDR.Register.API.Infrastructure.Authorization
             Issuer = issuer ?? throw new ArgumentNullException(nameof(issuer));
         }
     }
+
+    public class AuthFailure
+    {
+        public string Issuer { get; set; }
+        public string Scope { get; set; }
+    }
 }

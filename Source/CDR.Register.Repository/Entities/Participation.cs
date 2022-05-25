@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDR.Register.Repository.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,13 +18,13 @@ namespace CDR.Register.Repository.Entities
         public Guid LegalEntityId { get; set; }
         public LegalEntity LegalEntity { get; set; }
 
-        public ParticipationTypeEnum ParticipationTypeId { get; set; }
+        public ParticipationTypes ParticipationTypeId { get; set; }
         public ParticipationType ParticipationType { get; set; }
 
-        public IndustryTypeEnum IndustryId { get; set; }
+        public Industry? IndustryId { get; set; }
         public IndustryType Industry { get; set; }
 
-        public ParticipationStatusEnum StatusId { get; set; }
+        public ParticipationStatusType StatusId { get; set; }
         public ParticipationStatus Status { get; set; }
 
         public virtual ICollection<Brand> Brands { get; set; }
