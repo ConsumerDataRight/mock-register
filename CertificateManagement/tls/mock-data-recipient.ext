@@ -1,7 +1,7 @@
 authorityKeyIdentifier=keyid,issuer
 basicConstraints    = CA:FALSE
 keyUsage            = critical, nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage    = critical, clientAuth
+extendedKeyUsage    = critical, serverAuth
 subjectAltName      = @alt_names
 [alt_names]
 DNS.1               = mock-data-recipient
