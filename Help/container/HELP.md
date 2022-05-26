@@ -185,5 +185,10 @@ The environment variables for each mock solution that require setting in order t
 | Mock Data Recipient     | MockDataRecipient__SoftwareProduct__redirectUris | https://mock-data-recipient:9001/consent/callback |
 | Mock Data Recipient     | MockDataRecipient__SoftwareProduct__recipientBaseUri | https://mock-data-recipient:9001 |
 
+### Note: Update Mock Register data
+If the host names are changed, then the data stored in the Mock Register should be updated to reflect the updated mock solution endpoints.
+
+This can be achieved by using the Admin API, as outlined in the solution README.
+
 ## Host on your own infrastructure
 The mock solutions can also be hosted on your own infrastructure, such as virtual machines or kubernetes clusters, in your private data centre or in the public cloud. 
