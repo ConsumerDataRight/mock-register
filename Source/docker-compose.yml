@@ -12,6 +12,9 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
+      - IssuerUri=https://localhost:7000/idp
+      - JwksUri=https://localhost:7000/idp/.well-known/openid-configuration/jwks
+      - TokenUri=https://localhost:7001/idp/connect/token
     healthcheck:
       test: test -f /app/admin/_healthcheck_ready || exit 1
       timeout: 5s
