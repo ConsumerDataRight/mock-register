@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2022-06-02
+
+### Added
+- Split the Docker compose functionality. There is now a Doker Compose file to start the mock CDR ecosystem and a Docker Compose file to start the mock register on its own.
+
+### Changed
+- Updated container help instructions
+- Updated Read Me
+- Updated Certificate Management Read Me
+
 ## [0.5.0] - 2022-05-25
 ### Added
 - Support for multiple industries added to the Mock Register. Banking, Energy, Telco and 'all' are now valid industries for GetDataRecipients, GetDataRecipientsStatus, GetSoftwareProductStatus, GetSoftwareStatementAssertion, GetDataHolderBrands, GetDataHoldersStatus. Banking industry only versions of these APIs are available for backwards compatibility.
