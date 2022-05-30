@@ -120,7 +120,7 @@ POST https://localhost:7006/admin/metadata
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
 
-[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png" height='600' width='800' alt="Mock Register - Architecture"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png)
+[<img src="mock-register-architecture.png" height='600' width='800' alt="Mock Register - Architecture"/>](mock-register-architecture.png)
 
 ## Mock Register - Components
 The Mock Register contains the following components:
