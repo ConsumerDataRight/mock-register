@@ -1,0 +1,37 @@
+   
+name: Test Report
+
+on:
+  workflow_run:
+    workflows: ['Build and Test']
+    types:
+      - completed
+
+jobs:
+  unit-test-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Publish Unit Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: unit-test-results
+        name: Unit Tests
+        path: '*.trx'
+        reporter: dotnet-trx
+
+  integration-test-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Publish Integration Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: integration-test-results
+        name: Integration Tests
+        path: '*.trx'
+        reporter: dotnet-trx
