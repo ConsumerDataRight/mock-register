@@ -47,7 +47,7 @@ To get help on running the Mock Register container, see the [help guide](./Help/
 
 The [docker-compose.Ecosystem.yml file](Source/docker-compose.Ecosystem.yml) can be used to run multiple containers to create a Mock CDR Ecosystem.
 
-To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/container/HELP.md). The [help guide](./Help/container/HELP.md) also contains instructions for swapping out one of the containers with your own solution or a solution running in Visual Studio.
+To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/container/HELP.md). The [help guide](./Help/container/HELP.md) also contains instructions for swapping out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution. 
 
 ## Try it out
 
