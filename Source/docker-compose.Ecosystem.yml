@@ -85,7 +85,9 @@ services:
     ports:
       - '1433:1433'
     environment:
-      - ACCEPT_EULA=Y
+      - ACCEPT_EULA=${ACCEPT_MSSQL_EULA:?This docker compose file utilises the Microsoft SQL Server Image from Docker Hub. 
+            The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue. Replace this unset ACCEPT_MSSQL_EULA variable with a Y if you accept the EULA. eg ACCEPT_EULA=Y. 
+            See the Microsoft SQL Server Image on Docker Hub for more information.}
       - SA_PASSWORD=Pa{}w0rd2019
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 

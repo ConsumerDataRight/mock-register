@@ -47,7 +47,7 @@ To get help on running the Mock Register container, see the [help guide](./Help/
 
 The [docker-compose.Ecosystem.yml file](Source/docker-compose.Ecosystem.yml) can be used to run multiple containers to create a Mock CDR Ecosystem.
 
-To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/container/HELP.md).
+To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/container/HELP.md). The [help guide](./Help/container/HELP.md) also contains instructions for swapping out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution. 
 
 ## Try it out
 
@@ -120,7 +120,7 @@ POST https://localhost:7006/admin/metadata
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
 
-[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png" height='600' width='800' alt="Mock Register - Architecture"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png)
+[<img src="mock-register-architecture.png" height='600' width='850' alt="Mock Register - Architecture"/>](mock-register-architecture.png)
 
 ## Mock Register - Components
 The Mock Register contains the following components:

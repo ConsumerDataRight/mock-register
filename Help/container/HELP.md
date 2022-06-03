@@ -101,6 +101,35 @@ If running locally, each of these host names can be registered in the local mach
 127.0.0.1   mock-data-recipient
 ```
 
+### Switching out a container in the multi-container Mock CDR Ecosystem with your own solution
+
+You can switch out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution.
+
+Within the `docker-compose.Ecosystem.yml` file, comment out the solution that you do not want to be started by the docker compose file. Next, change all ASPNETCORE_ENVIRONMENT settings to use the Container setting.
+
+```
+ASPNETCORE_ENVIRONMENT=Container
+```
+Start the Mock Solutions using the docker compose file.
+```
+# Run the Mock and SQL Server containers.
+docker-compose -f docker-compose.Ecosystem.yml up -d
+```
+
+In this example we will be switching out our Mock Data Recipient. 
+Clone the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) repository from GitHub and open the solution in MS Visual Studio.  
+Changing the `ASPNETCORE_ENVIRONMENT` setting to use the `Container` settings will allow the Mock Data Recipient to connect to the mock solutions running in the multi-container Mock CDR Ecosystem. 
+
+We are using the database connection string Server=host.docker.internal and the endpoints shown below to connect to the running containers.
+
+[<img src="./images/mdr-switch-out-settings.png" height='300' width='625' alt="Mock Data Recipient switched out settings"/>](./images/mdr-switch-out-settings.png)
+
+Build and run the Mock Data Recipient in MS Visual Studio. Our switched out Mock Data Recipient solution will now be running. This will result in the Mock Data Recipient running in MS Visual Studio, connected to the Mock Register and the Mock Data Holder running in docker.
+
+[<img src="./images/mdr-switch-out-running.png" height='300' width='625' alt="The Mock Data Recipient solution"/>](./images/mdr-switch-out-running.png)
+
+For more details on how to run a mock solution in MS Visual Studio see [help guide](../debugging/HELP.md).
+
 ## Changing the host names of the mock solutions
 
 The host names used in the mock solutions can be changed by overriding environment variables in each container.  
