@@ -100,7 +100,7 @@ jobs:
         name: integration-test-results
         path: ${{ github.workspace }}/mock-register/Source/_temp/mock-register-integration-tests/testresults
 
-    # Archive mock register logs
+    # Archive mock register logs 
     - name: Archive mock register logs
       uses: actions/upload-artifact@v2
       if: always()
