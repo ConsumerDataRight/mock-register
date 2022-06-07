@@ -41,34 +41,55 @@ A version of the Mock Register is built into a single Docker image that is made 
 docker pull consumerdataright/mock-register
 ```
 
-To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
+To get help on running the Mock Register container, see the [help guide](./Help/container/HELP.md).
 
-#### Try it out
+### Use the docker-compose.Ecosystem.yml file to run a multi-container Mock CDR Ecosystem
 
-Once the Mock Register container is running, you can use the provided [Mock Register Postman API collection](Postman/README.md) to try it out.
+The [docker-compose.Ecosystem.yml file](Source/docker-compose.Ecosystem.yml) can be used to run multiple containers to create a Mock CDR Ecosystem.
 
-#### Certificate Management
+To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/container/HELP.md). The [help guide](./Help/container/HELP.md) also contains instructions for swapping out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution. 
+
+## Try it out
+
+Once the Mock Register is running, you can use the provided [Mock Register Postman API collection](Postman/README.md) to try it out.
+
+## Certificate Management
 
 Consult the [Certificate Management](CertificateManagement/README.md) documentation for more information about how certificates are used for the Mock Register.
 
-#### Loading your own data
+## Loading your own data
 
-When the Mock Register container first starts it will load data from the included `seed-data.json` file that is included in the `CDR.Register.Admin.API` project.  This file includes dummy metadata for data holders and data recipients.  When calls are made to the Mock Register endpoints the dummy metadata is returned.
+When the Mock Register first starts it will load data from the included `seed-data.json` file that is included in the `CDR.Register.Admin.API` project.  This file includes dummy metadata for data holders and data recipients.  When calls are made to the Mock Register endpoints the dummy metadata is returned.
 
-There are a couple of ways to load your own data into the container instance:
-1. Provide your own `seed-data.json` file within the Mock Register container
-  - Within the `/app/admin/Data` folder of the container, make a copy of the `seed-data.json` file, renaming to a name of your choice, e.g. `my-seed-data.json`.
-  - Update your seed data file with your desired metadata.
-  - Change the `/app/admin/appsettings.json` file to load the new data file and overwrite the existing data:
+There are a couple of ways to load your own data into the Mock Register:
+1. Provide your own `seed-data.json` file within the Mock Register
+    - Mock Register container:
+        - Within the `/app/admin/Data` folder of the container, make a copy of the `seed-data.Release.json` file, renaming to a name of your choice, e.g. `my-seed-data.json`.
+        - Update your seed data file with your desired metadata.
+        - Change the `/app/admin/appsettings.Release.json` file to load the new data file and overwrite the existing data:
 
-```
-"SeedData": {
-    "FilePath": "Data/my-seed-data.json",
-    "OverwriteExistingData": true
-},
-```
+        ```
+        "SeedData": {
+            "FilePath": "Data/my-seed-data.json",
+            "OverwriteExistingData": true
+        },
+        ```
 
-  - Restart the container.
+        - Restart the Mock Register container.
+
+    - Mock Register source:
+        - Within the `.\Source\CDR.Register.Admin.API\Data` folder, make a copy of the `seed-data.Development.json` file, renaming to a name of your choice, e.g. `my-seed-data.json`.
+        - Update your seed data file with your desired metadata.
+        - Change the `.\Source\appsettings.Development.json` file to load the new data file and overwrite the existing data:
+
+        ```
+        "SeedData": {
+            "FilePath": "Data/my-seed-data.json",
+            "OverwriteExistingData": true
+        },
+        ```
+
+        - Build and run the Mock Register.
 
 2. Use the Admin API endpoint to load data
 
@@ -96,18 +117,10 @@ POST https://localhost:7006/admin/metadata
 
 **Note:** there is currently no authentication/authorisation applied to the Admin API endpoints as these are seen to be under the control of the container owner.  This can be added if there is community feedback to that effect or if a pull request is submitted.
 
-### Use the docker compose file to run a multi-container mock CDR Ecosystem
-
-The [docker compose file](Source/DockerCompose/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
-
-**Note:** the [docker compose file](Source/DockerCompose/docker-compose.yml) utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to use the [docker compose file](Source/DockerCompose/docker-compose.yml). See the Microsoft SQL Server Image on Docker Hub for more information.
-
-To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
-
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
 
-[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png" height='600' width='800' alt="Mock Register - Architecture"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/mock-register-architecture.png)
+[<img src="mock-register-architecture.png" height='600' width='850' alt="Mock Register - Architecture"/>](mock-register-architecture.png)
 
 ## Mock Register - Components
 The Mock Register contains the following components:

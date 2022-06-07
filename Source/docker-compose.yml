@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mock-register:
+    container_name: mock-register
+    image: consumerdataright/mock-register
+    ports: 
+      - "7000:7000"
+      - "7001:7001"
+      - "7006:7006"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - IssuerUri=https://localhost:7000/idp
+      - JwksUri=https://localhost:7000/idp/.well-known/openid-configuration/jwks
+      - TokenUri=https://localhost:7001/idp/connect/token
+    healthcheck:
+      test: test -f /app/admin/_healthcheck_ready || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 20      
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+  mssql:
+    container_name: sql1
+    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    ports:
+      - '1433:1433'
+    environment:
+      - ACCEPT_EULA=${ACCEPT_MSSQL_EULA:?This docker compose file utilises the Microsoft SQL Server Image from Docker Hub. 
+            The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue. Replace this unset ACCEPT_MSSQL_EULA variable with a Y if you accept the EULA. eg ACCEPT_EULA=Y. 
+            See the Microsoft SQL Server Image on Docker Hub for more information.}
+      - SA_PASSWORD=Pa{}w0rd2019
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
+      timeout: 10s
+      interval: 10s
+      retries: 10    
