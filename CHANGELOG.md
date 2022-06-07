@@ -5,7 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+- Split the Docker compose functionality. There is now a Docker Compose file to start the mock CDR ecosystem and a Docker Compose file to start the mock register on its own.
+
 ### Changed
+- Updated container help instructions.
+- Updated Read Me.
+- Updated Certificate Management Read Me.
+- Build and Test action to archive test results. Add Test Report action.
 - Return all data holders from the Get Data Holder Brands API to match the production Register.
 
 ## [0.5.0] - 2022-05-25
