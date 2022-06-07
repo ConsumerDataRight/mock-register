@@ -60,10 +60,7 @@ namespace CDR.Register.Repository
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
                 .Include(brand => brand.Participation.Industry)
                 .Include(brand => brand.Participation.Status)
-                .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypes.Dh)
-                .Where(brand => brand.Participation.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active)
-                .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
-                .Where(brand => brand.BrandStatusId == BrandStatusType.Active);
+                .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypes.Dh);
 
             if (industry != Industry.ALL)
             {
