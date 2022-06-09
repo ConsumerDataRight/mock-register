@@ -78,7 +78,32 @@ jobs:
     - name: Run integration tests
       run: |
         docker-compose -f ./mock-register/Source/docker-compose.IntegrationTests.yml up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+
     # Remove integration tests
     - name: Remove integration tests
       run: |
         docker-compose -f ./mock-register/Source/docker-compose.IntegrationTests.yml down
+
+    # Archive unit test results
+    - name: Archive unit test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: unit-test-results
+        path: ${{ github.workspace }}/mock-register/Source/_temp/mock-register-unit-tests/testresults
+
+    # Archive integration test results
+    - name: Archive integration test results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-results
+        path: ${{ github.workspace }}/mock-register/Source/_temp/mock-register-integration-tests/testresults
+
+    # Archive mock register logs 
+    - name: Archive mock register logs
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-test-artifacts
+        path: ${{ github.workspace }}/mock-register/Source/_temp/mock-register/tmp

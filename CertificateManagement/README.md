@@ -2,7 +2,7 @@
 
 Certificates play an important part in the CDR ecosystem to establish trust between participants and protect communications.  **DigiCert** is the Certificate Authority (CA) for the CDR and the ACCC is responsible for provisioning DigiCert certificates to participants during the on-boarding process.
 
-For more information, consult the [Certificate Management](https://cdr-register.github.io/register/#certificate-management) section of the Register Design.
+For more information, consult the [Certificate Management](https://consumerdatastandardsaustralia.github.io/standards/#certificate-management) section of the Consumer Data Standards.
 
 The Mock Register will mimic the behaviour of the CDR ecosystem and therefore will use certificates in its interactions.  However, the use of DigiCert for this person is not feasible or scalable so an alternative approach must be adopted.
 
@@ -150,7 +150,7 @@ Add the following elements:
 
 For e.g.:
 
-[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert-csproj.png" height='600' width='800' alt="Updated RegisterCert Project File"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert-csproj.png)
+[<img src="updated-register-cert-csproj.png" height='600' width='800' alt="Updated RegisterCert Project File"/>](updated-register-cert-csproj.png)
 
 7. Repeat for the mTLS gateway (`mock-register/source/CDR.Register.API.Gateway.mTLS`), if required.
 
@@ -160,4 +160,4 @@ To get help building and running the container, see the [help guide](../Help/con
 
 9. Browse to an endpoint to check the certificate:
 
-[<img src="https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert.png" height='600' width='800' alt="Updated Register Cert"/>](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/certificatemanagement/updated-register-cert.png)
+[<img src="updated-register-cert.png" height='600' width='800' alt="Updated Register Cert"/>](updated-register-cert.png)
