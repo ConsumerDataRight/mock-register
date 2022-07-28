@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.1] - 2022-06-09
 ### Added
-- Split the Docker compose functionality. There is now a Doker Compose file to start the mock CDR ecosystem and a Docker Compose file to start the mock register on its own.
+- Split the Docker compose functionality. There is now a Docker Compose file to start the mock CDR ecosystem and a Docker Compose file to start the mock register on its own.
 
 ### Changed
 - Updated container help instructions
