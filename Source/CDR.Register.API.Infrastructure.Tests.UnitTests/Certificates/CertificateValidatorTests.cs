@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using CDR.Register.API.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -30,10 +31,11 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(goodClientCert);
+            validator.ValidateClientCertificate(goodClientCert);
 
             // Assert.
-            Assert.Equal(expected, actual);
+            // No exception has been raised so test has passed.
+            Assert.True(true);
         }
 
         [Fact]
@@ -54,7 +56,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            Assert.Throws<ArgumentNullException>(() => validator.IsValid(null));
+            Assert.Throws<ArgumentNullException>(() => validator.ValidateClientCertificate(null));
 
             // Assert.
         }
@@ -77,11 +79,8 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var selfSignedCert = new X509Certificate2(selfSignedCertPath, "#M0ckRegister#");
             var validator = new CertificateValidator(logger, configuration);
 
-            // Act.
-            var actual = validator.IsValid(selfSignedCert);
-
-            // Assert.
-            Assert.Equal(expected, actual);
+            // Act and Assert.
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(selfSignedCert));
         }
 
         [Fact]
@@ -103,10 +102,9 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(cert);
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(cert));
 
             // Assert.
-            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -128,10 +126,9 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(cert);
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(cert));
 
             // Assert.
-            Assert.Equal(expected, actual);
         }
 
     }

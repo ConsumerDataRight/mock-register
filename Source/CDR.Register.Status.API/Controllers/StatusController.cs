@@ -4,6 +4,7 @@ using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Status.API.Business;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -14,10 +15,14 @@ namespace CDR.Register.Status.API.Controllers
     public class StatusController : ControllerBase
     {
         private readonly IStatusService _statusService;
+        private readonly IConfiguration _configuration;
 
-        public StatusController(IStatusService StatusService)
+        public StatusController(
+            IStatusService StatusService,
+            IConfiguration configuration)
         {
             _statusService = StatusService;
+            _configuration = configuration;
         }
 
         [Obsolete("This API version has been superseded")]
@@ -43,7 +48,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatusXV2(string industry)
         {
             var response = await _statusService.GetDataRecipientStatusesAsyncXV2(industry.ToIndustry());
-            response.Links = this.GetSelf();
+            response.Links = this.GetSelf(_configuration.GetValue<string>("PublicHostName"));
             return Ok(response);
         }
 
@@ -70,7 +75,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatusXV2(string industry)
         {
             var response = await _statusService.GetSoftwareProductStatusesAsyncXV2(industry.ToIndustry());
-            response.Links = this.GetSelf();
+            response.Links = this.GetSelf(_configuration.GetValue<string>("PublicHostName"));
             return Ok(response);
         }
 
@@ -84,7 +89,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataHolderStatusXV1(string industry)
         {
             var response = await _statusService.GetDataHolderStatusesAsyncXV1(industry.ToIndustry());
-            response.Links = this.GetSelf();
+            response.Links = this.GetSelf(_configuration.GetValue<string>("PublicHostName"));
             return Ok(response);
         }
 

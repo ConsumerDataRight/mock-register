@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-EXPOSE 80
 EXPOSE 7000
 EXPOSE 7001
 EXPOSE 7006
@@ -62,6 +61,17 @@ RUN apt-get update && apt-get install -y sudo
 RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt
 
 RUN sudo update-ca-certificates
+
+RUN addgroup --group appgroup --gid 2000 \
+&& adduser \    
+    --uid 1000 \
+    --gid 2000 \
+    "appuser" 
+
+RUN chown -R appuser:appgroup /app
+RUN chown -R appuser:appgroup /usr
+RUN chown -R appuser:appgroup /tmp
+USER appuser:appgroup 
 
 ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
 
