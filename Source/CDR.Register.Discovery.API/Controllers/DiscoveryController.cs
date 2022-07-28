@@ -6,6 +6,7 @@ using CDR.Register.API.Infrastructure.Services;
 using CDR.Register.Discovery.API.Business;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace CDR.Register.Discovery.API.Controllers
     {
         private readonly IDiscoveryService _discoveryService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
+        private readonly IConfiguration _configuration;
 
         // Route names.
         private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV1 = "GetDataHolderBrandsXV1";
@@ -27,9 +29,11 @@ namespace CDR.Register.Discovery.API.Controllers
 
         public DiscoveryController(
             IDiscoveryService discoveryService,
+            IConfiguration configuration,
             IDataRecipientStatusCheckService statusCheckService)
         {
             _discoveryService = discoveryService;
+            _configuration = configuration;
             _statusCheckService = statusCheckService;
         }
 
@@ -66,7 +70,7 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV1, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber);
+            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV1, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, _configuration.GetValue<string>("SecureHostName"));
 
             return Ok(response);
         }
@@ -104,7 +108,7 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber);
+            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, _configuration.GetValue<string>("SecureHostName"));
 
             return Ok(response);
         }
@@ -141,7 +145,7 @@ namespace CDR.Register.Discovery.API.Controllers
         public async Task<IActionResult> GetDataRecipientsXV3(string industry)
         {
             var response = await _discoveryService.GetDataRecipientsAsyncXV3(industry.ToIndustry());
-            response.Links = this.GetSelf();
+            response.Links = this.GetSelf(_configuration.GetValue<string>("PublicHostName"));
             return Ok(response);
         }
 

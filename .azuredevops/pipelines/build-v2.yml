@@ -2,6 +2,8 @@
 
 trigger:
   - develop
+  - main    
+  - releases/*
   
 pool:
   vmImage: ubuntu-latest
@@ -38,6 +40,16 @@ steps:
     repository: mock-register-integration-tests
     tags: latest
 
+# Build mock-register-for-testing
+- task: Docker@2
+  displayName: Build mock-register-for-testing image
+  inputs:
+    command: build 
+    Dockerfile: ./Source/Dockerfile.for-testing
+    buildContext: ./Source
+    repository: mock-register-for-testing
+    tags: latest
+
 # List docker images
 - task: Docker@2
   displayName: List Docker images
@@ -65,7 +77,6 @@ steps:
 # Run integration tests
 - task: DockerCompose@0
   displayName: Integration Tests - Up
-  condition: always()
   inputs:
     action: Run a Docker Compose command
     dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
@@ -80,10 +91,11 @@ steps:
     dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
     dockerComposeCommand: down
 
+
+
 # Save docker image to TAR so it can be published
 - task: Docker@2
   displayName: Save MockRegister image to TAR
-  # condition: always() 
   inputs:
     repository: mock-register
     command: save
@@ -150,3 +162,16 @@ steps:
   condition: always()
   artifact: Database Migration Scripts
   
+- task: PublishTestResults@2
+  displayName: 'Surface Integration Test TRX results to devops'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: '**/results.trx' 
+    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    #mergeTestResults: false # Optional
+    #failTaskOnFailedTests: false # Optional
+    #testRunTitle: # Optional
+    #buildPlatform: # Optional
+    #buildConfiguration: # Optional
+    #publishRunAttachments: true # Optional  
