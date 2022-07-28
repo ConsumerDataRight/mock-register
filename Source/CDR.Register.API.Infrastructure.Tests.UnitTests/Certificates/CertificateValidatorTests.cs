@@ -15,8 +15,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_ValidCertificate_ShouldReturnTrue()
         {
-            // Arrange.
-            var expected = true;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -64,8 +63,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_SelfSignedCertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -86,8 +84,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_FakeMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -110,8 +107,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_NonMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {

@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-07-22
+## [1.0.0] - 2022-08-02
 ### Changed
 - First version of the Mock Register deployed into the CDR Sandbox.
 

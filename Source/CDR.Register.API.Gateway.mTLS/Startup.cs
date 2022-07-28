@@ -89,10 +89,9 @@ namespace CDR.Register.API.Gateway.mTLS
                     {
                         context.Response.StatusCode = StatusCodes.Status502BadGateway;
                     }
-
-                    // using static System.Net.Mime.MediaTypeNames;
+                    
                     context.Response.ContentType = Text.Plain;
-                    await context.Response.WriteAsync($"An error occurred handling the request: {ex.Message}");
+                    await context.Response.WriteAsync($"An error occurred handling the request: {ex?.Message}");
                 });
             });
 
