@@ -4,11 +4,11 @@ version: '3.8'
 
 services:
   mock-register:
-    container_name: mock-register
-    image: mock-register
+    container_name: mock-register-for-testing
+    image: mock-register-for-testing
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.for-testing
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     volumes:
@@ -17,7 +17,7 @@ services:
       test: test -f /app/admin/_healthcheck_ready || exit 1
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50
     depends_on:
       mssql:
         condition: service_healthy

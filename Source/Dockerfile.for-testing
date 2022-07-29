@@ -45,15 +45,6 @@ COPY supervisord.conf /app/publish/supervisord.conf
 FROM base AS final
 WORKDIR /app
 
-#COPY --chown=appuser:appgroup --from=publish /app/publish/supervisord.conf .
-#COPY --chown=appuser:appgroup --from=publish /app/publish/discovery ./discovery
-#COPY --chown=appuser:appgroup --from=publish /app/publish/admin ./admin
-#COPY --chown=appuser:appgroup --from=publish /app/publish/status ./status
-#COPY --chown=appuser:appgroup --from=publish /app/publish/idsvr ./idsvr
-#COPY --chown=appuser:appgroup --from=publish /app/publish/gateway-mtls ./gateway-mtls
-#COPY --chown=appuser:appgroup --from=publish /app/publish/gateway-tls ./gateway-tls
-#COPY --chown=appuser:appgroup --from=publish /app/publish/ssa ./ssa
-
 COPY --from=publish /app/publish/supervisord.conf .
 COPY --from=publish /app/publish/discovery ./discovery
 COPY --from=publish /app/publish/admin ./admin
@@ -71,17 +62,6 @@ RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/
 
 RUN sudo update-ca-certificates
 
-RUN addgroup --group appgroup --gid 2000 \
-&& adduser \
-    --uid 1000 \
-    --gid 2000 \
-    "appuser"
-RUN chown -R appuser:appgroup /app
-RUN chown -R appuser:appgroup /usr/bin
-RUN chown -R appuser:appgroup /usr/local
-RUN chown -R appuser:appgroup /tmp
-USER appuser:appgroup 
-
 ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]

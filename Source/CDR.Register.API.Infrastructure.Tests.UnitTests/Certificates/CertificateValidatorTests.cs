@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using CDR.Register.API.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -14,8 +15,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_ValidCertificate_ShouldReturnTrue()
         {
-            // Arrange.
-            var expected = true;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -30,10 +30,11 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(goodClientCert);
+            validator.ValidateClientCertificate(goodClientCert);
 
             // Assert.
-            Assert.Equal(expected, actual);
+            // No exception has been raised so test has passed.
+            Assert.True(true);
         }
 
         [Fact]
@@ -54,7 +55,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            Assert.Throws<ArgumentNullException>(() => validator.IsValid(null));
+            Assert.Throws<ArgumentNullException>(() => validator.ValidateClientCertificate(null));
 
             // Assert.
         }
@@ -62,8 +63,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_SelfSignedCertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -77,18 +77,14 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var selfSignedCert = new X509Certificate2(selfSignedCertPath, "#M0ckRegister#");
             var validator = new CertificateValidator(logger, configuration);
 
-            // Act.
-            var actual = validator.IsValid(selfSignedCert);
-
-            // Assert.
-            Assert.Equal(expected, actual);
+            // Act and Assert.
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(selfSignedCert));
         }
 
         [Fact]
         public void IsValid_FakeMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -103,17 +99,15 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(cert);
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(cert));
 
             // Assert.
-            Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void IsValid_NonMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.
-            var expected = false;
+            // Arrange.            
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string> {
@@ -128,10 +122,9 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
-            var actual = validator.IsValid(cert);
+            Assert.Throws<ClientCertificateException>(() => validator.ValidateClientCertificate(cert));
 
             // Assert.
-            Assert.Equal(expected, actual);
         }
 
     }

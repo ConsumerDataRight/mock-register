@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using CDR.Register.API.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +12,6 @@ namespace CDR.Register.API.Infrastructure
     /// </summary>
     public class CertificateValidator : ICertificateValidator
     {
-        private const string ROOT_CA_SUBJECT = "CN=Mock CDR CA, OU=CDR, O=ACCC, L=Canberra, S=ACT, C=AU";
         private readonly ILogger<CertificateValidator> _logger;
         private readonly IConfiguration _config;
 
@@ -21,7 +21,7 @@ namespace CDR.Register.API.Infrastructure
             _config = config;
         }
 
-        public bool IsValid(X509Certificate2 clientCert)
+        public void ValidateClientCertificate(X509Certificate2 clientCert)
         {
             _logger.LogInformation($"Validating certificate within the {nameof(CertificateValidator)}");
 
@@ -34,7 +34,8 @@ namespace CDR.Register.API.Infrastructure
             var rootCACertificate = new X509Certificate2(_config.GetValue<string>("RootCACertificatePath"));
             var ch = new X509Chain();
             ch.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-            ch.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
+            ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+            ch.ChainPolicy.CustomTrustStore.Clear();
             ch.ChainPolicy.CustomTrustStore.Add(rootCACertificate);
             ch.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
 
@@ -44,16 +45,13 @@ namespace CDR.Register.API.Infrastructure
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("The certificate chain cannot be discovered from the provided client certificate.", ex);
+                throw new ClientCertificateException("The certificate chain cannot be discovered from the provided client certificate.", ex);
             }
 
             if (ch.ChainStatus.Any())
             {
-                _logger.LogError("The client cert could not be verified to have been issued by '{ROOT_CA_SUBJECT}'. ${statusInformation}", ROOT_CA_SUBJECT, ch.ChainStatus[0].StatusInformation);
-                return false;
+                throw new ClientCertificateException(ch.ChainStatus.First().StatusInformation);
             }
-
-            return true;
         }
     }
 }
