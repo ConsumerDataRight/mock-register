@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: CDR Website
+    url: http://cdr.gov.au/
+    about: For information relating to the Consumer Data Right
+  - name: Consumer Data Standards
+    url: https://consumerdatastandardsaustralia.github.io/standards/#introduction
+    about: The place for information relating to the Consumer Data Standards
