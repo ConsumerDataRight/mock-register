@@ -118,29 +118,53 @@ namespace CDR.Register.API.Infrastructure
             });
         }
 
-        public static LinksPaginated GetPaginated(this ControllerBase controller, string routeName, DateTime? updatedSince, int? currentPage, int totalPages, int? pageSize)
+        public static string GetHostName(this string url)
         {
-            var links = new LinksPaginated();
+            return url.Replace("https://", "").Replace("http://", "").Split('/')[0];
+        }
 
-            string forwardedHost = null;
-            if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+        public static LinksPaginated GetPaginated(
+            this ControllerBase controller, 
+            string routeName, 
+            DateTime? updatedSince, 
+            int? currentPage, 
+            int totalPages,
+            int? pageSize, 
+            string hostName = null)
+        {
+            var currentUrl = controller.Request.GetDisplayUrl();
+            var links = new LinksPaginated
             {
-                forwardedHost = forwardedHosts.First();
+                Self = new Uri(currentUrl)
+            };
+
+            if (string.IsNullOrEmpty(hostName))
+            {
+                if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+                {
+                    hostName = forwardedHosts.First();
+                    links.Self = ReplaceUriHost(currentUrl, hostName);
+                }
+            }
+            else
+            {
+                var currentHostName = currentUrl.GetHostName();
+                links.Self = new Uri(currentUrl.Replace(currentHostName, hostName));
             }
 
-            links.Self = ReplaceUriHost(controller.Request.GetDisplayUrl(), forwardedHost);
+            hostName = links.Self.ToString().GetHostName();
 
             if (totalPages > 0)
             {
-                links.First = controller.GetPageUri(routeName, updatedSince, 1, pageSize, forwardedHost);
-                links.Last = controller.GetPageUri(routeName, updatedSince, totalPages, pageSize, forwardedHost);
+                links.First = controller.GetPageUri(routeName, updatedSince, 1, pageSize, hostName);
+                links.Last = controller.GetPageUri(routeName, updatedSince, totalPages, pageSize, hostName);
                 if (currentPage <= 1)
                 {
                     links.Prev = null;
                 }
                 else
                 {
-                    links.Prev = controller.GetPageUri(routeName, updatedSince, currentPage - 1, pageSize, forwardedHost);
+                    links.Prev = controller.GetPageUri(routeName, updatedSince, currentPage - 1, pageSize, hostName);
                 }
                 if (currentPage >= totalPages)
                 {
@@ -148,29 +172,45 @@ namespace CDR.Register.API.Infrastructure
                 }
                 else
                 {
-                    links.Next = controller.GetPageUri(routeName, updatedSince, currentPage + 1, pageSize, forwardedHost);
+                    links.Next = controller.GetPageUri(routeName, updatedSince, currentPage + 1, pageSize, hostName);
                 }
             }
 
             return links;
         }
 
-        public static Links GetSelf(this ControllerBase controller)
+        public static Links GetSelf(this ControllerBase controller, string hostName = null)
         {
-            var links = new Links();
-
-            string forwardedHost = null;
-            if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+            var currentUrl = controller.Request.GetDisplayUrl();
+            var links = new Links
             {
-                forwardedHost = forwardedHosts.First();
-            }
+                Self = new Uri(currentUrl)
+            };
 
-            links.Self = ReplaceUriHost(controller.Request.GetDisplayUrl(), forwardedHost);
+            if (string.IsNullOrEmpty(hostName))
+            {
+                if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
+                {
+                    hostName = forwardedHosts.First();
+                    links.Self = ReplaceUriHost(currentUrl, hostName);
+                }
+            }
+            else
+            {
+                var currentHostName = currentUrl.GetHostName();
+                links.Self = new Uri(currentUrl.Replace(currentHostName, hostName));
+            }
 
             return links;
         }
 
-        public static Uri GetPageUri(this ControllerBase controller, string routeName, DateTime? updatedSince, int? currentPage, int? pageSize, string forwardedHost)
+        public static Uri GetPageUri(
+            this ControllerBase controller,
+            string routeName,
+            DateTime? updatedSince,
+            int? currentPage,
+            int? pageSize,
+            string newHostName)
         {
             string url = null;
 
@@ -200,14 +240,14 @@ namespace CDR.Register.API.Infrastructure
             {
                 return null;
             }
-            else
-            {
-                url = url.Replace("updated_since", "updated-since");
-                url = url.Replace("page_size", "page-size");
 
-                return ReplaceUriHost(url, forwardedHost);
-            }
+            url = url.Replace("updated_since", "updated-since");
+            url = url.Replace("page_size", "page-size");
+
+            var currentHost = url.GetHostName();
+            return new Uri(url.Replace(currentHost, newHostName));
         }
+
         private static Uri ReplaceUriHost(string url, string newHost = null)
         {
             var uriBuilder = new UriBuilder(url);

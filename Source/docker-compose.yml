@@ -19,7 +19,7 @@ services:
       test: test -f /app/admin/_healthcheck_ready || exit 1
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50      
     depends_on:
       mssql:
         condition: service_healthy
