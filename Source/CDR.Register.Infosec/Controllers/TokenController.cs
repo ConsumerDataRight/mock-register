@@ -3,11 +3,6 @@ using CDR.Register.Domain.Entities;
 using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 
 namespace CDR.Register.Infosec.Controllers
 {
