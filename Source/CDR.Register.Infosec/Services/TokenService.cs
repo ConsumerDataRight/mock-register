@@ -50,12 +50,7 @@ namespace CDR.Register.Infosec.Services
                 {
                     return (false, "Invalid client_assertion - 'jti' is required");
                 }
-
-                if (IsTokenBlacklisted(jwtToken.Id))
-                {
-                    return (false, "Invalid client_assertion - 'jti' must be unique");
-                }
-
+                
                 if (!client.Id.Equals(jwtToken.Subject, StringComparison.OrdinalIgnoreCase)
                  || !client.Id.Equals(jwtToken.Issuer, StringComparison.OrdinalIgnoreCase))
                 {
@@ -160,11 +155,5 @@ namespace CDR.Register.Infosec.Services
 
             return keys.Keys;
         }
-
-        private bool IsTokenBlacklisted(string id)
-        {
-            return false;
-        }
-
     }
 }
