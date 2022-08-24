@@ -48,29 +48,33 @@ namespace CDR.Register.Infosec.Controllers
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var thumbprint = Base64Url.Encode(cert.GetCertHash());
             var rsa = cert.GetRSAPublicKey();
-            var parameters = rsa.ExportParameters(false);
-            var exponent = Base64Url.Encode(parameters.Exponent);
-            var modulus = Base64Url.Encode(parameters.Modulus);
 
-            var jwks = new API.Infrastructure.Models.JsonWebKeySet
+            if (rsa != null)
             {
-                keys = new[] 
-                { 
-                    new API.Infrastructure.Models.JsonWebKey
-                    {
-                        kty = "RSA",
-                        use = "sig",
-                        kid = signingCredentials.Kid,
-                        x5t = thumbprint,
-                        e = exponent,
-                        n = modulus,
-                        x5c = new[] { cert64 },
-                        alg = "PS256"
-                    } 
-                }
-            };
+                var parameters = rsa.ExportParameters(false);
+                var exponent = Base64Url.Encode(parameters.Exponent);
+                var modulus = Base64Url.Encode(parameters.Modulus);
 
-            return jwks;
+                var jwks = new API.Infrastructure.Models.JsonWebKeySet
+                {
+                    keys = new[]
+                    {
+                        new API.Infrastructure.Models.JsonWebKey
+                        {
+                            kty = "RSA",
+                            use = "sig",
+                            kid = signingCredentials.Kid,
+                            x5t = thumbprint,
+                            e = exponent,
+                            n = modulus,
+                            x5c = new[] { cert64 },
+                            alg = "PS256"
+                        }
+                    }
+                };
+                return jwks;
+            }
+            return null;
         }
     }
 }
