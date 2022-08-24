@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1] - 2022-08-16
+## [1.0.1] - 2022-08-30
 ### Changed
 - Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.
 - Updated package references.
