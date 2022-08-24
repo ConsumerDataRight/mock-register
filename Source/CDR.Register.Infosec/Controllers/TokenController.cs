@@ -36,7 +36,7 @@ namespace CDR.Register.Infosec.Controllers
         [Route("token")]
         public async Task<IActionResult> GetAccessToken([FromForm] ClientAssertionRequest clientAssertion)
         {
-            var (isValid, error, errorDescription, client) = await Validate(clientAssertion);
+            var (isValid, error, client) = await Validate(clientAssertion);
             if (!isValid)
             {
                 return BadRequest(new ErrorResponse() { Error = error });
@@ -55,48 +55,50 @@ namespace CDR.Register.Infosec.Controllers
             });
         }
 
-        private async Task<(bool isValid, string? error, string? errorDescription, SoftwareProductInfosec? client)> Validate(ClientAssertionRequest clientAssertion)
+        private async Task<(bool isValid, string? error, SoftwareProductInfosec? client)> Validate(ClientAssertionRequest clientAssertion)
         {
-            // Basic validation.
+            // Basic validation.            
             if (string.IsNullOrEmpty(clientAssertion.client_id))
-            {
-                return (false, "invalid_client", "client_id not provided", null);
+            {                
+                return (false, "invalid_client", null);
             }
-
+            
             if (string.IsNullOrEmpty(clientAssertion.grant_type))
             {
-                return (false, "unsupported_grant_type", "grant_type not provided", null);
+                return (false, "unsupported_grant_type", null);
             }
 
             if (string.IsNullOrEmpty(clientAssertion.client_assertion))
             {
-                return (false, "invalid_client", "client_assertion not provided", null);
+                return (false, "invalid_client", null);
             }
 
             if (string.IsNullOrEmpty(clientAssertion.client_assertion_type))
             {
-                return (false, "invalid_client", "client_assertion_type not provided", null);
+                return (false, "invalid_client", null);
             }
 
             // Grant type needs to be client_credentials.
+            //"grant_type must be client_credentials"
             if (!clientAssertion.grant_type.Equals("client_credentials", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "unsupported_grant_type", "grant_type must be client_credentials", null);
+                return (false, "unsupported_grant_type", null);
             }
 
             // Client assertion type needs to be urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            //"client_assertion_type must be urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
             if (!clientAssertion.client_assertion_type.Equals("urn:ietf:params:oauth:client-assertion-type:jwt-bearer", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "invalid_client", "client_assertion_type must be urn:ietf:params:oauth:client-assertion-type:jwt-bearer", null);
+                return (false, "invalid_client", null);
             }
 
-            // If scope is provided it must include "cdr-register:bank:read" or "cdr-register:read"
+            // If scope is provided it must include "cdr-register:bank:read" or "cdr-register:read"            
             if (!string.IsNullOrEmpty(clientAssertion.scope))
             {
                 var scopes = clientAssertion.scope.Split(' ');
                 if (!scopes.Contains(Constants.Scopes.RegisterRead) && !scopes.Contains(Constants.Scopes.RegisterBankRead))
                 {
-                    return (false, "invalid_client", "invalid scope", null);
+                    return (false, "invalid_client", null);
                 }
             }
 
@@ -104,22 +106,22 @@ namespace CDR.Register.Infosec.Controllers
             var client = await _clientService.GetClientAsync(clientAssertion.client_id);
             if (client == null)
             {
-                return (false, "invalid_client", "invalid client_id", null);
+                return (false, "invalid_client", null);
             }
 
             // Validate the client assertion.
             var clientAssertionResult = await _tokenService.ValidateClientAssertion(client, clientAssertion.client_assertion);
             if (!clientAssertionResult.isValid)
             {
-                return (false, "invalid_client", clientAssertionResult.message, null);
+                return (false, "invalid_client", null);
             }
 
             if (!IsValidCertificate(client))
             {
-                return (false, "invalid_client", "Client certificate validation failed", null);
+                return (false, "invalid_client", null);
             }
 
-            return (true, null, null, client);
+            return (true, null, client);
         }
 
         private bool IsValidCertificate(
