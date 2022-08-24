@@ -1,9 +1,7 @@
-using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Infosec.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace CDR.Register.Infosec.Controllers
@@ -11,15 +9,12 @@ namespace CDR.Register.Infosec.Controllers
     [ApiController]
     [Route(".well-known")]
     public class DiscoveryController : ControllerBase
-    {
-        private readonly ILogger<DiscoveryController> _logger;
+    {        
         private readonly IConfiguration _configuration;
 
-        public DiscoveryController(
-            ILogger<DiscoveryController> logger,
+        public DiscoveryController(            
             IConfiguration configuration)
-        {
-            _logger = logger;
+        {            
             _configuration = configuration;
         }
 
