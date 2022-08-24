@@ -91,8 +91,6 @@ steps:
     dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
     dockerComposeCommand: down
 
-
-
 # Save docker image to TAR so it can be published
 - task: Docker@2
   displayName: Save MockRegister image to TAR
@@ -175,3 +173,37 @@ steps:
     #buildPlatform: # Optional
     #buildConfiguration: # Optional
     #publishRunAttachments: true # Optional  
+
+- task: Docker@2
+  displayName: Login to ACR
+  inputs:
+    command: login
+    containerRegistry: acrcdrsandboxdev
+
+- task: Docker@2
+  displayName: 'Re-Tag Mock Register container image with :branch-name'
+  inputs:
+    containerRegistry: acrcdrsandboxdev
+    repository: 'mock-register'
+    command: tag
+    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)'
+
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with :latest (for develop branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    containerRegistry: acrcdrsandboxdev
+    repository: 'mock-register'
+    command: tag
+    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:latest'
+
+- task: CmdLine@2
+  displayName: 'Push Register container image with :branch-name tag to ACR'
+  inputs:
+    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)' 
+
+- task: CmdLine@2
+  displayName: 'Push Register container image with :latest tag to ACR (develop branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:latest' 

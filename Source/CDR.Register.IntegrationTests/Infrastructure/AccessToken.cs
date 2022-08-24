@@ -15,7 +15,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
     {
         private static readonly string IDENTITYSERVER_URL = BaseTest.IDENTITYSERVER_URL;
         private static readonly string AUDIENCE = IDENTITYSERVER_URL;
-        private const string SCOPE = "cdr-register:bank:read";
+        private const string SCOPE = "cdr-register:bank:read cdr-register:read";
         private const string GRANT_TYPE = "client_credentials";
         private const string CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
         private const string CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";

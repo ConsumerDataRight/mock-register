@@ -1,4 +1,6 @@
-﻿namespace CDR.Register.IntegrationTests.Models
+﻿using System.Collections.Generic;
+
+namespace CDR.Register.IntegrationTests.Models
 {
     /// <summary>
     /// Access token

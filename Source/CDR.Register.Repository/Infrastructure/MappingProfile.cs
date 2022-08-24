@@ -105,13 +105,13 @@ namespace CDR.Register.Repository.Infrastructure
                 .ForMember(dest => dest.DataRecipientBrand, source => source.MapFrom(s => s.Brand))
                 .ReverseMap();
 
-            CreateMap<SoftwareProduct, DomainEntities.SoftwareProductIdSvr>()
+            CreateMap<SoftwareProduct, DomainEntities.SoftwareProductInfosec>()
                 .ForMember(dest => dest.Id, source => source.MapFrom(s => s.SoftwareProductId))
                 .ForMember(dest => dest.Name, source => source.MapFrom(s => s.SoftwareProductName))
                 .ForMember(dest => dest.JwksUri, source => source.MapFrom(s => s.JwksUri))
                 .ForMember(dest => dest.X509Certificates, source => source.MapFrom(s => s.Certificates));
 
-            CreateMap<SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateIdSvr>();
+            CreateMap<SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateInfosec>();
 
             CreateMap<AuthDetail, DomainEntities.DataHolderAuthentication>()
                 .ForMember(dest => dest.RegisterUType, source => source.MapFrom(source => source.RegisterUType.RegisterUTypeCode))
