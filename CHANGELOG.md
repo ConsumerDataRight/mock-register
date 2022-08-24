@@ -6,7 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-08-02
+## [1.0.1] - 2022-08-30
+### Changed
+- Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.
+- Updated package references.
+
+### Fixed
+- Fixed incorrect element in Get Data Holder Brands response. [Issue 1](https://github.com/ConsumerDataRight/sandbox/issues/1)
+- Fixed issue with authorisation scopes for latest version of authenticated register APIs. Get Data Holder Brands and Get SSA.
+
+### Changed
+- Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.
+
+## [1.0.0] - 2022-07-22
 ### Changed
 - First version of the Mock Register deployed into the CDR Sandbox.
 

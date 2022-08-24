@@ -21,7 +21,7 @@ COPY ./CDR.Register.Admin.API/. /app/CDR.Register.Admin.API
 COPY ./CDR.Register.Discovery.API/. /app/CDR.Register.Discovery.API
 COPY ./CDR.Register.Status.API/. /app/CDR.Register.Status.API
 COPY ./CDR.Register.SSA.API/. /app/CDR.Register.SSA.API
-COPY ./CDR.Register.IdentityServer/. /app/CDR.Register.IdentityServer
+COPY ./CDR.Register.Infosec/. /app/CDR.Register.Infosec
 COPY ./CDR.Register.API.Gateway.mTLS/. /app/CDR.Register.API.Gateway.mTLS
 COPY ./CDR.Register.API.Gateway.TLS/. /app/CDR.Register.API.Gateway.TLS
 
@@ -33,8 +33,8 @@ WORKDIR /app/CDR.Register.Status.API
 RUN dotnet publish -c Release -o /app/publish/status
 WORKDIR /app/CDR.Register.SSA.API
 RUN dotnet publish -c Release -o /app/publish/ssa
-WORKDIR /app/CDR.Register.IdentityServer
-RUN dotnet publish -c Release -o /app/publish/idsvr
+WORKDIR /app/CDR.Register.Infosec
+RUN dotnet publish -c Release -o /app/publish/infosec
 WORKDIR /app/CDR.Register.API.Gateway.mTLS
 RUN dotnet publish -c Release -o /app/publish/gateway-mtls
 WORKDIR /app/CDR.Register.API.Gateway.TLS
@@ -49,7 +49,7 @@ COPY --from=publish /app/publish/supervisord.conf .
 COPY --from=publish /app/publish/discovery ./discovery
 COPY --from=publish /app/publish/admin ./admin
 COPY --from=publish /app/publish/status ./status
-COPY --from=publish /app/publish/idsvr ./idsvr
+COPY --from=publish /app/publish/infosec ./infosec
 COPY --from=publish /app/publish/gateway-mtls ./gateway-mtls
 COPY --from=publish /app/publish/gateway-tls ./gateway-tls
 COPY --from=publish /app/publish/ssa ./ssa

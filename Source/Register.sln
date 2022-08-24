@@ -12,9 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 		Dockerfile.container = Dockerfile.container
+		Dockerfile.for-testing = Dockerfile.for-testing
 		Dockerfile.integration-tests = Dockerfile.integration-tests
 		Dockerfile.unit-tests = Dockerfile.unit-tests
-		README.md = README.md
+		..\README.md = ..\README.md
 		run-integration-tests.ps1 = run-integration-tests.ps1
 		run-unit-tests.ps1 = run-unit-tests.ps1
 		supervisord.conf = supervisord.conf
@@ -30,14 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.Discovery.API"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.SSA.API", "CDR.Register.SSA.API\CDR.Register.SSA.API.csproj", "{516509DF-40C1-466B-8650-148A29AB386E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "030 Identity Server", "030 Identity Server", "{230F6496-D6D5-4679-B613-197F582A0891}"
-	ProjectSection(SolutionItems) = preProject
-		CDR.Register.IdentityServer\appsettings.NonContainer.json = CDR.Register.IdentityServer\appsettings.NonContainer.json
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.IdentityServer", "CDR.Register.IdentityServer\CDR.Register.IdentityServer.csproj", "{3DD7B4C9-6D09-4EBC-859C-B804455A394B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.IdentityServer.Tests.UnitTests", "CDR.Register.IdentityServer.Tests.UnitTests\CDR.Register.IdentityServer.Tests.UnitTests.csproj", "{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "030 Infosec", "030 Infosec", "{230F6496-D6D5-4679-B613-197F582A0891}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "040 Domain", "040 Domain", "{EF906D5A-C313-4FCB-985E-DE469A33E176}"
 EndProject
@@ -69,6 +63,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.SSA.API.UnitTe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit Tests", "Unit Tests", "{DDB4AB2E-31BD-4063-8B1C-3E7ED1B5B0B1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDR.Register.Infosec", "CDR.Register.Infosec\CDR.Register.Infosec.csproj", "{B704C8B2-3DB0-4465-9886-5863B1C28333}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,14 +83,6 @@ Global
 		{516509DF-40C1-466B-8650-148A29AB386E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{516509DF-40C1-466B-8650-148A29AB386E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{516509DF-40C1-466B-8650-148A29AB386E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3DD7B4C9-6D09-4EBC-859C-B804455A394B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3DD7B4C9-6D09-4EBC-859C-B804455A394B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3DD7B4C9-6D09-4EBC-859C-B804455A394B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3DD7B4C9-6D09-4EBC-859C-B804455A394B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48CAE287-0CE6-4007-A969-703F1F5BFF24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48CAE287-0CE6-4007-A969-703F1F5BFF24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48CAE287-0CE6-4007-A969-703F1F5BFF24}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -135,6 +123,10 @@ Global
 		{A166246C-5E3F-4E44-B316-D780446F83D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A166246C-5E3F-4E44-B316-D780446F83D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A166246C-5E3F-4E44-B316-D780446F83D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B704C8B2-3DB0-4465-9886-5863B1C28333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B704C8B2-3DB0-4465-9886-5863B1C28333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B704C8B2-3DB0-4465-9886-5863B1C28333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B704C8B2-3DB0-4465-9886-5863B1C28333}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,8 +135,6 @@ Global
 		{C2E7D55B-43B6-4664-A066-D1C0276314E3} = {6130BA29-CE67-48FC-8380-98B2FE85786D}
 		{A382203B-0F33-41A2-81B3-88473BE2F62D} = {CE22CF4A-72DA-4EDB-9378-E40EA633E9E1}
 		{516509DF-40C1-466B-8650-148A29AB386E} = {CE22CF4A-72DA-4EDB-9378-E40EA633E9E1}
-		{3DD7B4C9-6D09-4EBC-859C-B804455A394B} = {230F6496-D6D5-4679-B613-197F582A0891}
-		{51D6DFAB-FDB5-451B-A2F5-047D78F7AD56} = {230F6496-D6D5-4679-B613-197F582A0891}
 		{48CAE287-0CE6-4007-A969-703F1F5BFF24} = {EF906D5A-C313-4FCB-985E-DE469A33E176}
 		{EBF22236-2DF2-460C-B966-6CB6255EF86F} = {19E7E869-2818-4B77-9CCF-DBA87DC7E8A9}
 		{C2B9A0B3-ED80-45B6-B1EB-FB63F28A14A0} = {CE22CF4A-72DA-4EDB-9378-E40EA633E9E1}
@@ -156,6 +146,7 @@ Global
 		{E63501A6-23C1-4D85-9417-E3824291E65F} = {69150745-81B1-49D8-A14F-ACA353732AE0}
 		{A166246C-5E3F-4E44-B316-D780446F83D9} = {DDB4AB2E-31BD-4063-8B1C-3E7ED1B5B0B1}
 		{DDB4AB2E-31BD-4063-8B1C-3E7ED1B5B0B1} = {CE22CF4A-72DA-4EDB-9378-E40EA633E9E1}
+		{B704C8B2-3DB0-4465-9886-5863B1C28333} = {230F6496-D6D5-4679-B613-197F582A0891}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C05D931-EB3F-496C-A1D6-42D22F3651D7}

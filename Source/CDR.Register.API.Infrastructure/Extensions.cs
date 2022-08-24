@@ -4,6 +4,7 @@ using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -81,12 +82,12 @@ namespace CDR.Register.API.Infrastructure
                 });
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
                 options.AddPolicy(AuthorisationPolicy.GetSSAMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead + " " + CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read, identityServerIssuer));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
             });
@@ -284,6 +285,26 @@ namespace CDR.Register.API.Infrastructure
             }
 
             return value.Split(delimiter);
+        }
+
+        public static string GetClientCertificateThumbprint(this HttpContext context)
+        {
+            if (context.Request.Headers.TryGetValue(Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT, out StringValues headerThumbprints))
+            {
+                return headerThumbprints.First();
+            }
+
+            return "";
+        }
+
+        public static string GetClientCertificateCommonName(this HttpContext context)
+        {
+            if (context.Request.Headers.TryGetValue(Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME, out StringValues headerCommonNames))
+            {
+                return headerCommonNames.First();
+            }
+
+            return "";
         }
     }
 }

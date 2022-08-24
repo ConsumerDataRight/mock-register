@@ -28,7 +28,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
         // Client assertion
         private static readonly string AUDIENCE = IDENTITYSERVER_URL;
-        private const string SCOPE = "cdr-register:bank:read";
+        private const string SCOPE = "cdr-register:bank:read cdr-register:read";
 
         // Token request
         private const string GRANT_TYPE = "client_credentials";
@@ -121,8 +121,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
             // Expected AccessToken
             const int ACCESSTOKEN_EXPIRESIN = 300;
-            const string ACCESSTOKEN_TOKENTYPE = "Bearer";
-            const string ACCESSTOKEN_SCOPE = "cdr-register:bank:read";
+            const string ACCESSTOKEN_TOKENTYPE = "Bearer";            
 
             // Arrange 
             var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
@@ -150,7 +149,8 @@ namespace CDR.Register.IntegrationTests.Gateway
                 accessToken.token_type.Should().Be(ACCESSTOKEN_TOKENTYPE);
 
                 // Assert - Check scope
-                accessToken.scope.Should().Be(ACCESSTOKEN_SCOPE);
+                accessToken.scope.Should().Contain("cdr-register:bank:read");
+                accessToken.scope.Should().Contain("cdr-register:read");
 
                 // Assert - Check the JWT access_token
                 var jwt = new JwtSecurityTokenHandler().ReadJwtToken(accessToken.access_token);

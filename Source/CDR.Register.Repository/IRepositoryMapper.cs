@@ -6,7 +6,7 @@ namespace CDR.Register.Repository
     {
         DataRecipientLegalEntity Map(Entities.LegalEntity legalEntity);
         DataRecipientBrand Map(Entities.Brand brand);
-        SoftwareProductIdSvr Map(Entities.SoftwareProduct softwareProduct);
+        SoftwareProductInfosec Map(Entities.SoftwareProduct softwareProduct);
         SoftwareProduct MapSoftwareProduct(Entities.SoftwareProduct softwareProduct);
     }
 }

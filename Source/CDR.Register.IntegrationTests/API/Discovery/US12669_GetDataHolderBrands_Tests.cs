@@ -98,7 +98,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode
                     },
                     status = brand.BrandStatus.BrandStatusCode,
-                    endPointDetail = new
+                    endpointDetail = new
                     {
                         version = brand.Endpoint.Version,
                         publicBaseUri = brand.Endpoint.PublicBaseUri,
