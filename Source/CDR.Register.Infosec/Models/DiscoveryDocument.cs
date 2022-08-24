@@ -1,45 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 namespace CDR.Register.Infosec.Models
-{
-
-    /*
- {
-    "issuer": "https://localhost:7000/idp",
-    "jwks_uri": "https://localhost:7000/idp/.well-known/openid-configuration/jwks",
-    "token_endpoint": "https://localhost:7001/idp/connect/token",
-    "claims_supported": [
-        "sub"
-    ],
-    "id_token_signing_alg_values_supported": [
-        "PS256"
-    ],
-    "subject_types_supported": [
-        "public"
-    ],
-    "code_challenge_methods_supported": [
-        "plain",
-        "S256"
-    ],
-    "scopes_supported": [
-        "cdr-register:bank:read",
-        "cdr-register:read"
-    ],
-    "response_types_supported": [
-        "token"
-    ],
-    "grant_types_supported": [
-        "client_credentials"
-    ],
-    "token_endpoint_auth_methods_supported": [
-        "private_key_jwt"
-    ],
-    "tls_client_certificate_bound_access_tokens": true,
-    "token_endpoint_auth_signing_alg_values_supported": [
-        "PS256"
-    ]
-}
-     */
+{    
     public class DiscoveryDocument
     {
         [JsonProperty("issuer")]
