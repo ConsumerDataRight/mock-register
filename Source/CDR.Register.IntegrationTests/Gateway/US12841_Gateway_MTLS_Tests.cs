@@ -121,8 +121,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
             // Expected AccessToken
             const int ACCESSTOKEN_EXPIRESIN = 300;
-            const string ACCESSTOKEN_TOKENTYPE = "Bearer";
-            const string ACCESSTOKEN_SCOPE = "cdr-register:bank:read cdr-register:read";
+            const string ACCESSTOKEN_TOKENTYPE = "Bearer";            
 
             // Arrange 
             var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
