@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/cdr-logo.png) 
 
-[![Consumer Data Standards v1.16.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.16.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction)
+[![Consumer Data Standards v1.17.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.17.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/#introduction)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-register)](./LICENSE)
@@ -12,7 +12,7 @@ This project includes source code, documentation and instructions for the Consum
 The ACCC operates the CDR Register within the CDR ecosystem.  This repository contains a mock implementation of the Mock Register and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Register - Alignment
-The Mock Register aligns to [v1.16.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.16.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
+The Mock Register aligns to [v1.17.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:
@@ -134,7 +134,7 @@ The Mock Register contains the following components:
   - Performs certificate validation
 - Identity Provider
   - Hosted at `https://localhost:7002`
-  - Register identity provider implementation utilising `Identity Server 4`
+  - Register identity provider implementation utilising `.Net 6`
   - Accessed via the TLS and mTLS Gateways, depending on the target endpoint.
 - Discovery API
   - Hosted at `https://localhost:7003`
@@ -160,7 +160,7 @@ The Mock Register contains the following components:
 
 The following technologies have been used to build the Mock Register:
 - The source code has been written in `C#` using the `.Net 6` framework.
-- The Identity Provider is implemented using `Identity Server 4`.
+- The Identity Provider is implemented using `.Net 6`.
 - The TLS and mTLS Gateways have been implemented using `Ocelot`.
 - The Repository utilises a `SQL` instance.
 

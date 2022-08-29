@@ -44,7 +44,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     ""claims_supported"": [""sub""],
                     ""id_token_signing_alg_values_supported"": [""PS256""],
                     ""subject_types_supported"": [""public""],
-                    ""code_challenge_methods_supported"": [""plain"", ""S256""],
                     ""scopes_supported"": [""cdr-register:bank:read"",""cdr-register:read""],
                     ""response_types_supported"": [""token""],
                     ""grant_types_supported"": [""client_credentials""],

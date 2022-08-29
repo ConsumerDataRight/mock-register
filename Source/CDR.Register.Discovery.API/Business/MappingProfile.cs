@@ -58,7 +58,7 @@ namespace CDR.Register.Discovery.API.Business
                 .ForMember(dest => dest.Industry, source => source.MapFrom(source => source.DataHolder.Industry.ToLower()))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.BrandStatus))
                 .ForMember(dest => dest.AuthDetails, source => source.MapFrom(source => source.DataHolderAuthentications))
-                .ForMember(dest => dest.EndPointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
+                .ForMember(dest => dest.EndpointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source.DataHolder.LegalEntity));
 
             CreateMap<DataHolderBrandV2, RegisterDataHolderBrandModelV2>()
@@ -66,7 +66,7 @@ namespace CDR.Register.Discovery.API.Business
                 .ForMember(dest => dest.Industries, source => source.MapFrom(source => new List<string> { source.DataHolder.Industry.ToLower() }))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.BrandStatus))
                 .ForMember(dest => dest.AuthDetails, source => source.MapFrom(source => source.DataHolderAuthentications))
-                .ForMember(dest => dest.EndPointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
+                .ForMember(dest => dest.EndpointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source.DataHolder.LegalEntity));
 
             CreateMap<DataRecipientBrand, DataRecipientBrandModel>()

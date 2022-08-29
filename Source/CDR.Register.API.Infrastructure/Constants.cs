@@ -12,6 +12,8 @@ namespace CDR.Register.API.Infrastructure
         {
             public const string X_V = "x-v";
             public const string X_MIN_V = "x-min-v";
+            public const string X_TLS_CLIENT_CERT_THUMBPRINT = "X-TlsClientCertThumbprint";
+            public const string X_TLS_CLIENT_CERT_COMMON_NAME = "X-TlsClientCertCN";
         }
     }
 }

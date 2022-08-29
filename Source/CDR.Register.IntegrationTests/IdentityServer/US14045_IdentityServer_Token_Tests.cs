@@ -30,7 +30,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
         protected const string CLIENTASSERTION_GRANT_TYPE = "client_credentials";
         protected const string CLIENTASSERTION_CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
-        protected const string CLIENTASSERTION_SCOPE = "cdr-register:bank:read";
+        protected const string CLIENTASSERTION_SCOPE = "cdr-register:bank:read cdr-register:read";
         protected const string CLIENTASSERTION_CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
         private static HttpClient GetClient()
@@ -177,7 +177,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     accessToken.token_type.Should().Be("Bearer");
 
                     // Assert - Check scope
-                    accessToken.scope.Should().Be("cdr-register:bank:read");
+                    accessToken.scope.Should().Contain("cdr-register:bank:read");
 
                     // Assert - Validate access token                
                     SecurityToken? validatedToken = null;

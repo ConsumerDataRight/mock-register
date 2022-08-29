@@ -11,7 +11,7 @@ namespace CDR.Register.Discovery.API.Business.Models
         public string LogoUri { get; set; }
         public DataHolderLegalEntityModel LegalEntity { get; set; }
         public string Status { get; set; }
-        public EndpointDetailModel EndPointDetail { get; set; }
+        public EndpointDetailModel EndpointDetail { get; set; }
         public AuthDetailModel[] AuthDetails { get; set; }
         public DateTime LastUpdated { get; set; }
     }
@@ -24,7 +24,7 @@ namespace CDR.Register.Discovery.API.Business.Models
         public string LogoUri { get; set; }
         public DataHolderLegalEntityModelV2 LegalEntity { get; set; }
         public string Status { get; set; }
-        public EndpointDetailModel EndPointDetail { get; set; }
+        public EndpointDetailModel EndpointDetail { get; set; }
         public AuthDetailModel[] AuthDetails { get; set; }
         public DateTime LastUpdated { get; set; }
     }

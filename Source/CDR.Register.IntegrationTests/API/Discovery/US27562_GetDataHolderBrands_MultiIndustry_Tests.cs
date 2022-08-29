@@ -118,7 +118,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         status = brand.Participation.LegalEntity.LegalEntityStatus.LegalEntityStatusCode.ToUpper() //DF: status should be uppercase.
                     },
                     status = brand.BrandStatus.BrandStatusCode,
-                    endPointDetail = new
+                    endpointDetail = new
                     {
                         version = brand.Endpoint.Version,
                         publicBaseUri = brand.Endpoint.PublicBaseUri,
@@ -988,11 +988,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [Theory]
         [InlineData(null, "cdr-register:bank:read", HttpStatusCode.NotFound)] // No industry
         [InlineData(null, "cdr-register:read", HttpStatusCode.NotFound)] // No industry
-        [InlineData("banking", "cdr-register:bank:read", HttpStatusCode.OK)]
+        [InlineData("banking", "cdr-register:bank:read", HttpStatusCode.Forbidden)]
         [InlineData("banking", "cdr-register:read", HttpStatusCode.OK)]
-        [InlineData("energy", "cdr-register:bank:read", HttpStatusCode.OK)]  // ???
+        [InlineData("energy", "cdr-register:bank:read", HttpStatusCode.Forbidden)]  // ???
         [InlineData("energy", "cdr-register:read", HttpStatusCode.OK)]
-        [InlineData("telco", "cdr-register:bank:read", HttpStatusCode.OK)]  // ???
+        [InlineData("telco", "cdr-register:bank:read", HttpStatusCode.Forbidden)]  // ???
         [InlineData("telco", "cdr-register:read", HttpStatusCode.OK)]
         public async Task ACX02_Get_WithScope_ShouldRespondWith_200OK(string industry, string scope, HttpStatusCode expectedStatusCode)
         {

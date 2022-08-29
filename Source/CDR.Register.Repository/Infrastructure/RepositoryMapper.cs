@@ -16,9 +16,9 @@ namespace CDR.Register.Repository.Infrastructure
             _mapper = configuration.CreateMapper();
         }
 
-        public SoftwareProductIdSvr Map(Entities.SoftwareProduct softwareProduct)
+        public SoftwareProductInfosec Map(Entities.SoftwareProduct softwareProduct)
         {
-            return _mapper.Map<SoftwareProductIdSvr>(softwareProduct);
+            return _mapper.Map<SoftwareProductInfosec>(softwareProduct);
         }
 
         public DataRecipientBrand Map(Entities.Brand brand)
