@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/cdr-logo.png) 
 
-[![Consumer Data Standards v1.17.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.17.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/#introduction)
+[![Consumer Data Standards v1.18.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.18.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards/#introduction)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-register)](./LICENSE)
@@ -12,7 +12,7 @@ This project includes source code, documentation and instructions for the Consum
 The ACCC operates the CDR Register within the CDR ecosystem.  This repository contains a mock implementation of the Mock Register and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Register - Alignment
-The Mock Register aligns to [v1.17.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
+The Mock Register aligns to [v1.18.0](https://consumerdatastandardsaustralia.github.io/standards/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards/#introduction).
 
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:

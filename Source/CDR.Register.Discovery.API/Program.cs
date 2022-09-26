@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using CDR.Register.API.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +32,8 @@ namespace CDR.Register.Discovery.API
                 .Enrich.WithThreadName()
                 .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
                 .CreateLogger();
+
+            Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Debug(msg));
 
             try
             {

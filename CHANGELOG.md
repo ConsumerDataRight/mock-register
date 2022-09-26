@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-09-15
+### Added
+- Logging middleware to create a centralised list of all API requests and responses
+
+### Changed
+- Get SSA x-v 1 and 2 now only return banking scopes. x-v 3 still returns banking and energy scopes
+- Transactional database tables updated to temporal tables
+
 ## [1.0.1] - 2022-08-30
 ### Changed
 - Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.

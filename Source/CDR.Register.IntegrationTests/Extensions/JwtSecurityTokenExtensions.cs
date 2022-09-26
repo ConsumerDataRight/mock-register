@@ -42,5 +42,15 @@ namespace CDR.Register.IntegrationTests.Extensions
                 claim.Value.Should().Be(claimValue, claimType);
             }
         }
+
+        static public void AssertClaimIsArray(this JwtSecurityToken jwt, string claimType, string[]? claimValues)
+        {
+            var claims = jwt.Claims.Where(claim => claim.Type == claimType);
+
+            claims.Should().NotBeNull(claimType);
+
+            var claimsAsArray = claims.Select(claim => claim.Value);
+            claimsAsArray.Should().BeEquivalentTo(claimValues);
+        }
     }
 }

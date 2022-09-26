@@ -9,6 +9,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.for-testing
+    ports: 
+      - "7000:7000"
+      - "7001:7001"
+      - "7006:7006"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     volumes:
@@ -41,8 +45,9 @@ services:
   mssql:
     container_name: sql1
     image: 'mcr.microsoft.com/mssql/server:2019-latest'
-    # ports: 
-    #   - "9933:1433"
+    ports: 
+      - "1433:1433"
+      # - "9933:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Pa{}w0rd2019

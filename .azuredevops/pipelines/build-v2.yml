@@ -120,13 +120,28 @@ steps:
   condition: always()
   artifact: Mock-Register - Unit tests
 
+# Login to ACR
+- task: Docker@2
+  displayName: Login to ACR
+  condition: always()
+  inputs:
+    command: login
+    containerRegistry: acrcdrsandboxdev
+
+# Run trx formatter to output .MD and .CSV
+- script: |
+    docker run \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
+      acrcdrsandboxdev.azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
+  displayName: 'Run trx-formatter'  
+  condition: always()   
+
 # Publish mock-register integration tests results
 - publish: Source/_temp/mock-register-integration-tests/testresults
   displayName: Publish MockRegister Integration tests
   condition: always()
   artifact: Mock-Register - Integration tests 
-
-# TODO - MJS - Run formatter over TRX to produce formatted report suitable for attaching to Devops US & publish as artifact
 
 - task: UseDotNet@2
   displayName: 'Use .NET 6 sdk'
@@ -174,11 +189,11 @@ steps:
     #buildConfiguration: # Optional
     #publishRunAttachments: true # Optional  
 
-- task: Docker@2
-  displayName: Login to ACR
-  inputs:
-    command: login
-    containerRegistry: acrcdrsandboxdev
+# - task: Docker@2
+#   displayName: Login to ACR
+#   inputs:
+#     command: login
+#     containerRegistry: acrcdrsandboxdev
 
 - task: Docker@2
   displayName: 'Re-Tag Mock Register container image with :branch-name'

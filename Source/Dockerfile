@@ -24,6 +24,7 @@ COPY ./CDR.Register.SSA.API/. /app/CDR.Register.SSA.API
 COPY ./CDR.Register.Infosec/. /app/CDR.Register.Infosec
 COPY ./CDR.Register.API.Gateway.mTLS/. /app/CDR.Register.API.Gateway.mTLS
 COPY ./CDR.Register.API.Gateway.TLS/. /app/CDR.Register.API.Gateway.TLS
+COPY ./CDR.Register.API.Logger/. /app/CDR.Register.API.Logger
 
 WORKDIR /app/CDR.Register.Admin.API
 RUN dotnet publish -c Release -o /app/publish/admin
@@ -42,6 +43,8 @@ RUN dotnet publish -c Release -o /app/publish/gateway-tls
 
 COPY supervisord.conf /app/publish/supervisord.conf
 
+COPY waitfileexists.sh /app/publish/waitfileexists.sh
+
 FROM base AS final
 WORKDIR /app
 
@@ -55,6 +58,7 @@ WORKDIR /app
 #COPY --chown=appuser:appgroup --from=publish /app/publish/ssa ./ssa
 
 COPY --from=publish /app/publish/supervisord.conf .
+COPY --from=publish /app/publish/waitfileexists.sh .
 COPY --from=publish /app/publish/discovery ./discovery
 COPY --from=publish /app/publish/admin ./admin
 COPY --from=publish /app/publish/status ./status

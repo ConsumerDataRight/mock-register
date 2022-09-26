@@ -4,9 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.1</Version>
-    <FileVersion>1.0.1</FileVersion>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <FileVersion>1.1.0</FileVersion>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CDR.Register.API.Infrastructure\CDR.Register.API.Infrastructure.csproj" />
+    <ProjectReference Include="..\CDR.Register.API.Logger\CDR.Register.API.Logger.csproj" />
   </ItemGroup>
 
 </Project>

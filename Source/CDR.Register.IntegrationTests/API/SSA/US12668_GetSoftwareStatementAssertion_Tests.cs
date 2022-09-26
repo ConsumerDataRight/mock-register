@@ -186,7 +186,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                     SSA.AssertClaim("client_name", softwareProduct.SoftwareProductName);
                     SSA.AssertClaim("client_description", softwareProduct.SoftwareProductDescription);
                     SSA.AssertClaim("client_uri", softwareProduct.ClientUri);
-                    SSA.AssertClaim("redirect_uris", softwareProduct.RedirectUris);
+                    SSA.AssertClaimIsArray("redirect_uris", softwareProduct.RedirectUris.Split(" "));
                     SSA.AssertClaim("logo_uri", softwareProduct.LogoUri);
                     SSA.AssertClaim("tos_uri", softwareProduct.TosUri, true);
                     SSA.AssertClaim("policy_uri", softwareProduct.PolicyUri, true);
@@ -194,7 +194,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
                     SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
                     SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
                     SSA.AssertClaim("software_roles", "data-recipient-software-product");
-                    SSA.AssertClaim("scope", "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration"); 
+                    SSA.AssertClaim("scope", "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read cdr:registration"); 
+                    SSA.AssertClaim("sector_identifier_uri", softwareProduct.SectorIdentifierUri, true);
 
                     if (XV >= 2)
                     {
