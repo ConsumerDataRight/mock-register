@@ -126,14 +126,14 @@ steps:
   condition: always()
   inputs:
     command: login
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
 
 # Run trx formatter to output .MD and .CSV
 - script: |
     docker run \
       -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
       -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
-      acrcdrsandboxdev.azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
+      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
   displayName: 'Run trx-formatter'  
   condition: always()   
 
@@ -193,32 +193,32 @@ steps:
 #   displayName: Login to ACR
 #   inputs:
 #     command: login
-#     containerRegistry: acrcdrsandboxdev
+#     containerRegistry: <<yourContainerRegistryName>>
 
 - task: Docker@2
   displayName: 'Re-Tag Mock Register container image with :branch-name'
   inputs:
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)'
+    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
 
 - task: Docker@2
   displayName: 'Re-Tag Register API image with :latest (for develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:latest'
+    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :branch-name tag to ACR'
   inputs:
-    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)' 
+    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)' 
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :latest tag to ACR (develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:latest' 
+    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:latest' 
