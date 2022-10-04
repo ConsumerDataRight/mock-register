@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get SSA x-v 1 and 2 now only return banking scopes. x-v 3 still returns banking and energy scopes
 - Transactional database tables updated to temporal tables
 
+### Fixed
+- Issue occuring when using docker compose eco system. [Issue 52](https://github.com/ConsumerDataRight/mock-data-recipient/issues/52)
+
 ## [1.0.1] - 2022-08-30
 ### Changed
 - Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.
@@ -22,9 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed incorrect element in Get Data Holder Brands response. [Issue 1](https://github.com/ConsumerDataRight/sandbox/issues/1)
 - Fixed issue with authorisation scopes for latest version of authenticated register APIs. Get Data Holder Brands and Get SSA.
-
-### Changed
-- Removed CDR.Register.IdentityServer project that relied on Identity Server 4 and replaced with CDR.Register.Infosec project.
 
 ## [1.0.0] - 2022-07-22
 ### Changed
