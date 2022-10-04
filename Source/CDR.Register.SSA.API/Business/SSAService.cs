@@ -19,7 +19,7 @@ namespace CDR.Register.SSA.API.Business
         private readonly ILogger<SSAService> _logger;
         private readonly IMapper _mapper;
         private readonly ISoftwareStatementAssertionRepository _repository;
-        private readonly ITokenizerService _tokenizer;        
+        private readonly ITokenizerService _tokenizer;
 
         public SSAService(
             ILogger<SSAService> logger,
@@ -31,13 +31,14 @@ namespace CDR.Register.SSA.API.Business
             _logger = logger;
             _mapper = mapper;
             _repository = repository;
-            _tokenizer = tokenizer;            
+            _tokenizer = tokenizer;
         }
 
         public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV1(Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             // Get the SSA to be put in a JWT
             var ssa = await GetSoftwareStatementAssertionAsyncXV1(industry, dataRecipientBrandId, softwareProductId);
+            FilterBankingScopes(ssa);
             return await _tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
@@ -65,6 +66,7 @@ namespace CDR.Register.SSA.API.Business
         {
             // Get the SSA to be put in a JWT
             var ssa = await GetSoftwareStatementAssertionAsyncXV2(industry, dataRecipientBrandId, softwareProductId);
+            FilterBankingScopes(ssa);
             return await _tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
@@ -137,6 +139,35 @@ namespace CDR.Register.SSA.API.Business
             var softwareProductGuid = Guid.Parse(softwareProductId);
             return await _repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
         }
-        
+
+        /// <summary>
+        /// Used by the v1 and v2 Get SSA API to only return banking related scopes.
+        /// </summary>
+        private static void FilterBankingScopes(SoftwareStatementAssertionModel ssa)
+        {
+            if (ssa == null || string.IsNullOrEmpty(ssa.scope))
+            {
+                return;
+            }
+
+            var scopes = ssa.scope.Split(' ');
+            var allowedScopes = new string[]
+            {
+                "openid",
+                "profile",
+                "bank:accounts.basic:read",
+                "bank:accounts.detail:read",
+                "bank:transactions:read",
+                "bank:payees:read",
+                "bank:regular_payments:read",
+                "common:customer.basic:read",
+                "common:customer.detail:read",
+                "cdr:registration",
+            };
+
+            // Filter the provided list of scopes with the allowed scopes.
+            ssa.scope = String.Join(' ', scopes.Where(s => allowedScopes.Contains(s)));
+        }
+
     }
 }

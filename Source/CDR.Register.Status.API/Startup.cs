@@ -2,6 +2,7 @@ using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
+using CDR.Register.API.Logger;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,11 +48,19 @@ namespace CDR.Register.Status.API
             services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
 
             services.AddScoped<LogActionEntryAttribute>();
+
+            if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
+            {
+                Log.Logger.Information("Adding request response logging middleware");
+                services.AddRequestResponseLogging();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));

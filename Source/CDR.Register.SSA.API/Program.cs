@@ -31,6 +31,8 @@ namespace CDR.Register.SSA.API
                 .Enrich.WithThreadName()
                 .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
                 .CreateLogger();
+            
+            Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Debug(msg));
 
             try
             {

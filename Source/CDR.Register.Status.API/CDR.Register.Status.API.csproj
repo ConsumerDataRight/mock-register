@@ -4,9 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<UserSecretsId>2f05af62-1878-47d5-925d-31c0db13b55c</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<Version>1.0.1</Version>
-		<FileVersion>1.0.1</FileVersion>
-		<AssemblyVersion>1.0.1</AssemblyVersion>
+		<Version>1.1.0</Version>
+		<FileVersion>1.1.0</FileVersion>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -31,6 +31,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\CDR.Register.API.Infrastructure\CDR.Register.API.Infrastructure.csproj" />
+		<ProjectReference Include="..\CDR.Register.API.Logger\CDR.Register.API.Logger.csproj" />
 		<ProjectReference Include="..\CDR.Register.Repository\CDR.Register.Repository.csproj" />
 	</ItemGroup>
 

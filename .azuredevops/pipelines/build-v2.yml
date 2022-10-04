@@ -120,13 +120,28 @@ steps:
   condition: always()
   artifact: Mock-Register - Unit tests
 
+# Login to ACR
+- task: Docker@2
+  displayName: Login to ACR
+  condition: always()
+  inputs:
+    command: login
+    containerRegistry: <<yourContainerRegistryName>>
+
+# Run trx formatter to output .MD and .CSV
+- script: |
+    docker run \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
+      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
+  displayName: 'Run trx-formatter'  
+  condition: always()   
+
 # Publish mock-register integration tests results
 - publish: Source/_temp/mock-register-integration-tests/testresults
   displayName: Publish MockRegister Integration tests
   condition: always()
   artifact: Mock-Register - Integration tests 
-
-# TODO - MJS - Run formatter over TRX to produce formatted report suitable for attaching to Devops US & publish as artifact
 
 - task: UseDotNet@2
   displayName: 'Use .NET 6 sdk'
@@ -174,36 +189,36 @@ steps:
     #buildConfiguration: # Optional
     #publishRunAttachments: true # Optional  
 
-- task: Docker@2
-  displayName: Login to ACR
-  inputs:
-    command: login
-    containerRegistry: acrcdrsandboxdev
+# - task: Docker@2
+#   displayName: Login to ACR
+#   inputs:
+#     command: login
+#     containerRegistry: <<yourContainerRegistryName>>
 
 - task: Docker@2
   displayName: 'Re-Tag Mock Register container image with :branch-name'
   inputs:
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)'
+    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
 
 - task: Docker@2
   displayName: 'Re-Tag Register API image with :latest (for develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    containerRegistry: acrcdrsandboxdev
+    containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing acrcdrsandboxdev.azurecr.io/mock-register:latest'
+    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :branch-name tag to ACR'
   inputs:
-    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:$(Build.SourceBranchName)' 
+    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)' 
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :latest tag to ACR (develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    script: 'docker push acrcdrsandboxdev.azurecr.io/mock-register:latest' 
+    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:latest' 

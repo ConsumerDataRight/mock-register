@@ -68,6 +68,8 @@ services:
     image: consumerdataright/mock-data-recipient
     ports: 
       - "9001:9001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
