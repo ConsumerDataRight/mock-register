@@ -110,7 +110,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
             return request;
         }
-       
+
         [Fact]
         public async Task AC01_AC06_TokenRequest_Valid_ShouldRespondWith_200OK_AccessToken()
         {
@@ -196,7 +196,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 }
             }
         }
-        
+
         [Theory]
         [InlineData(null)]  // omit granttype
         [InlineData("")]    // blank granttype
@@ -224,11 +224,13 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error response
-                var expectedContent = @"{""error"":""unsupported_grant_type""}";
+                var expectedContent = String.IsNullOrEmpty(grantType) ?
+                    @"{""error"":""unsupported_grant_type"",""error_description"":""grant_type not provided""}" :
+                    @"{""error"":""unsupported_grant_type"",""error_description"":""grant_type must be client_credentials""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }
-        
+
 
         [Theory]
         [InlineData(null)] // omit clientid
@@ -258,7 +260,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = @"{""error"":""invalid_client""}";
+                var expectedContent = String.IsNullOrEmpty(clientid) ?
+                    @"{""error"":""invalid_client"",""error_description"":""client_id not provided""}" :
+                    @"{""error"":""invalid_client"",""error_description"":""invalid client_id""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }
@@ -290,7 +294,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = @"{""error"":""invalid_client""}";
+                var expectedContent = String.IsNullOrEmpty(clientAssertionType) ?
+                    @"{""error"":""invalid_client"",""error_description"":""client_assertion_type not provided""}" :
+                    @"{""error"":""invalid_client"",""error_description"":""client_assertion_type must be urn:ietf:params:oauth:client-assertion-type:jwt-bearer""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }
@@ -320,7 +326,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = @"{""error"":""invalid_client""}";
+                var expectedContent = String.IsNullOrEmpty(clientAssertion) ?
+                    @"{""error"":""invalid_client"",""error_description"":""client_assertion not provided""}" :
+                    @"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }
@@ -350,7 +358,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = @"{""error"":""invalid_client""}";
+                var expectedContent = @"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }
         }

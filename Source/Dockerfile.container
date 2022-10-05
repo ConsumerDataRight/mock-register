@@ -41,11 +41,13 @@ WORKDIR /app/CDR.Register.API.Gateway.TLS
 RUN dotnet publish -c Container -o /app/publish/gateway-tls
 
 COPY supervisord.conf /app/publish/supervisord.conf
+COPY waitfileexists.sh /app/publish/waitfileexists.sh
 
 FROM base AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish/supervisord.conf .
+COPY --from=publish /app/publish/waitfileexists.sh .
 COPY --from=publish /app/publish/discovery ./discovery
 COPY --from=publish /app/publish/admin ./admin
 COPY --from=publish /app/publish/status ./status

@@ -121,7 +121,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
             // Expected AccessToken
             const int ACCESSTOKEN_EXPIRESIN = 300;
-            const string ACCESSTOKEN_TOKENTYPE = "Bearer";            
+            const string ACCESSTOKEN_TOKENTYPE = "Bearer";
 
             // Arrange 
             var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
@@ -179,7 +179,7 @@ namespace CDR.Register.IntegrationTests.Gateway
                 accessTokenResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error response
-                var expectedContent = @"{ ""error"": ""invalid_client"" }";
+                var expectedContent = @"{ ""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
                 await Assert_HasContent_Json(expectedContent, accessTokenResponse.Content);
             }
         }

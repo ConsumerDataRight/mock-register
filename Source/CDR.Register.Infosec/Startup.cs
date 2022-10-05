@@ -1,5 +1,6 @@
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
+using CDR.Register.API.Logger;
 using CDR.Register.Domain.Repositories;
 using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Services;
@@ -41,6 +42,12 @@ namespace CDR.Register.Infosec
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IRegisterInfosecRepository, RegisterInfosecRepository>();
+
+            if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
+            {
+                Log.Logger.Information("Adding request response logging middleware");
+                services.AddRequestResponseLogging();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +59,7 @@ namespace CDR.Register.Infosec
             });
 
             app.UseSerilogRequestLogging();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseHttpsRedirection();
 

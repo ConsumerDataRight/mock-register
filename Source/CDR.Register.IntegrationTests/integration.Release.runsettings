@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- File name extension must be .runsettings -->
 <RunSettings>
-	<EnvironmentVariables>
-		<!-- List of environment variables we want to set as element and its value-->
-		<ASPNETCORE_ENVIRONMENT>Release</ASPNETCORE_ENVIRONMENT>
-	</EnvironmentVariables>
+    <RunConfiguration>
+        <EnvironmentVariables>
+            <!-- List of environment variables we want to set as element and its value-->
+            <ASPNETCORE_ENVIRONMENT>Release</ASPNETCORE_ENVIRONMENT>
+        </EnvironmentVariables>
+    </RunConfiguration>
 </RunSettings>

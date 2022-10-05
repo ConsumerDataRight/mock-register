@@ -37,8 +37,23 @@ namespace CDR.Register.IntegrationTests
     [Collection("IntegrationTests")]
     [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
     [DisplayTestMethodName]
-    abstract public class BaseTest : IClassFixture<TestFixture> 
+    abstract public class BaseTest0
     {
+    }
+
+    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
+    // [Collection("IntegrationTests")]
+    // [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
+    // [DisplayTestMethodName]
+    // abstract public class BaseTest : IClassFixture<TestFixture>
+    abstract public class BaseTest : BaseTest0, IClassFixture<TestFixture>
+    {
+        const string REGISTER_RW = "DefaultConnection";
+
+        static public string CONNECTIONSTRING_REGISTER_RW =>
+            ConnectionStringCheck.Check(Configuration.GetConnectionString(REGISTER_RW)
+                ?? throw new Exception($"Configuration setting for '{REGISTER_RW}' not found"));
+
         static private IConfigurationRoot? configuration;
         static public IConfigurationRoot Configuration
         {
@@ -65,7 +80,7 @@ namespace CDR.Register.IntegrationTests
 
         // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)
         public static string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
-        
+
         // URLs
         static public string TLS_BaseURL => Configuration["TLS_BaseURL"]
             ?? throw new Exception($"{nameof(TLS_BaseURL)} - configuration setting not found");
