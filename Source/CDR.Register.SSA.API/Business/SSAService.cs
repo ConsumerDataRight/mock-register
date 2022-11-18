@@ -163,6 +163,8 @@ namespace CDR.Register.SSA.API.Business
                 "common:customer.basic:read",
                 "common:customer.detail:read",
                 "cdr:registration",
+                "introspect_tokens",
+                "revoke_tokens",
             };
 
             // Filter the provided list of scopes with the allowed scopes.
