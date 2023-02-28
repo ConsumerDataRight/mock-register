@@ -1,5 +1,19 @@
 {
   "Routes": [
+    // Health check
+    {
+        "DownstreamPathTemplate": "/health",
+        "DownstreamScheme": "https",
+        "DownstreamHostAndPorts": [
+            {
+                "Host": "localhost",
+                "Port": 7006
+            }
+        ],
+        "UpstreamPathTemplate": "/health",
+        "UpstreamHttpMethod": [ "GET" ],
+        "DangerousAcceptAnyServerCertificateValidator": true
+    },    
 
     // GetDataRecipients
     {

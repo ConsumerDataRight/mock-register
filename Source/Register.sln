@@ -12,14 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 		Dockerfile.container = Dockerfile.container
-		Dockerfile.for-testing = Dockerfile.for-testing
 		Dockerfile.integration-tests = Dockerfile.integration-tests
 		Dockerfile.unit-tests = Dockerfile.unit-tests
 		..\README.md = ..\README.md
 		run-integration-tests.ps1 = run-integration-tests.ps1
 		run-unit-tests.ps1 = run-unit-tests.ps1
 		supervisord.conf = supervisord.conf
-		waitfileexists.sh = waitfileexists.sh
+		wait-until-admin-healthy-then-start.sh = wait-until-admin-healthy-then-start.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "010 Repository", "010 Repository", "{6130BA29-CE67-48FC-8380-98B2FE85786D}"

@@ -21,6 +21,7 @@ The mTLS certificates that can be used for Mock Solutions are listed below:
 |-------------|-----------|----------|
 | Mock CA - Certificate Authority | mtls\ca.pfx | #M0ckCDRCA# |
 | Mock Register - Server Certificate | mtls\register.pfx | #M0ckRegister# |
+| Mock Register - Client Certificate | mtls\register-client.pfx | #M0ckRegister# |
 | Mock Data Holder (Banking) - Server Certificate | mtls\server.pfx | #M0ckDataHolder# |
 | Mock Data Holder (Energy) - Server Certificate | mtls\server-energy.pfx | #M0ckDataHolder# |
 | Mock Data Recipient - Client Certificate | mtls\client.pfx | #M0ckDataRecipient# |
@@ -36,6 +37,12 @@ The `openssl` commands to generate the Mock CDR Certificate Authority can be fou
 The Mock Register is issued a server certificate by the Mock CDR CA for mTLS communication.
 
 The `openssl` commands to generate the server certificate by the Mock CDR Certificate Authority can be found in: `mtls\register.cmd`.
+
+### Mock Register - Client Certificate
+
+The Mock Register is issued a client certificate by the Mock CDR CA for mTLS communication.
+
+The `openssl` commands to generate the server certificate by the Mock CDR Certificate Authority can be found in: `mtls\register-client.cmd`.
 
 ### Mock Data Holder - Server Certificate
 

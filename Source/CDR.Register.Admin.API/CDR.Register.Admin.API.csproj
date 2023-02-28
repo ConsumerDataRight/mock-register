@@ -2,14 +2,15 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.1.0</Version>
-		<FileVersion>1.1.0</FileVersion>
-		<AssemblyVersion>1.1.0</AssemblyVersion>
+		<Version>1.1.1</Version>
+		<FileVersion>1.1.1</FileVersion>
+		<AssemblyVersion>1.1.1</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <None Remove="Certificates\client.key" />
 	  <None Remove="Certificates\client.pem" />
+	  <None Remove="Certificates\ssa.pfx" />
 	  <None Remove="Certificates\tls-mock-register.pfx" />
 	</ItemGroup>
 
@@ -20,6 +21,9 @@
 	  <Content Include="Certificates\client.pem">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	  <Content Include="Certificates\ssa.pfx">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="Certificates\tls-mock-register.pfx">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
@@ -27,12 +31,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="10.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
 		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-		<PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.1" />
 	</ItemGroup>

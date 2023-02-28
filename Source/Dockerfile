@@ -43,22 +43,13 @@ RUN dotnet publish -c Release -o /app/publish/gateway-tls
 
 COPY supervisord.conf /app/publish/supervisord.conf
 
-COPY waitfileexists.sh /app/publish/waitfileexists.sh
+COPY wait-until-admin-healthy-then-start.sh /app/publish/wait-until-admin-healthy-then-start.sh
 
 FROM base AS final
 WORKDIR /app
 
-#COPY --chown=appuser:appgroup --from=publish /app/publish/supervisord.conf .
-#COPY --chown=appuser:appgroup --from=publish /app/publish/discovery ./discovery
-#COPY --chown=appuser:appgroup --from=publish /app/publish/admin ./admin
-#COPY --chown=appuser:appgroup --from=publish /app/publish/status ./status
-#COPY --chown=appuser:appgroup --from=publish /app/publish/infosec ./infosec
-#COPY --chown=appuser:appgroup --from=publish /app/publish/gateway-mtls ./gateway-mtls
-#COPY --chown=appuser:appgroup --from=publish /app/publish/gateway-tls ./gateway-tls
-#COPY --chown=appuser:appgroup --from=publish /app/publish/ssa ./ssa
-
 COPY --from=publish /app/publish/supervisord.conf .
-COPY --from=publish /app/publish/waitfileexists.sh .
+COPY --from=publish /app/publish/wait-until-admin-healthy-then-start.sh .
 COPY --from=publish /app/publish/discovery ./discovery
 COPY --from=publish /app/publish/admin ./admin
 COPY --from=publish /app/publish/status ./status
@@ -71,15 +62,19 @@ RUN apt-get update && apt-get install -y supervisor
 
 RUN apt-get update && apt-get install -y sudo
 
+# Install wget for use in health checks
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt
 
 RUN sudo update-ca-certificates
 
 RUN addgroup --group appgroup --gid 2000 \
-&& adduser \
+&& adduser \    
     --uid 1000 \
     --gid 2000 \
-    "appuser"
+    "appuser" 
+
 RUN chown -R appuser:appgroup /app
 RUN chown -R appuser:appgroup /usr/bin
 RUN chown -R appuser:appgroup /usr/local
