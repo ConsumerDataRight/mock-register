@@ -47,7 +47,7 @@ jobs:
     # Build mock-register image
     - name: Build the mock-register image
       run: |
-        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile.for-testing --tag mock-register:latest
+        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile --tag mock-register:latest
 
     # Build mock-register-unit-tests image
     - name: Build the mock-register-unit-tests image
