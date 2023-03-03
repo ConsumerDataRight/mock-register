@@ -4,21 +4,22 @@ version: '3.8'
 
 services:
   mock-register:
-    container_name: mock-register-for-testing
-    image: mock-register-for-testing
+    container_name: mock-register
+    image: mock-register
     build:
       context: .
-      dockerfile: Dockerfile.for-testing
+      dockerfile: Dockerfile
     ports: 
       - "7000:7000"
       - "7001:7001"
       - "7006:7006"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
-    volumes:
-      - "./_temp/mock-register/tmp:/tmp"      
+    # FIXME - MJS - commented out volumes below as volume is mounted as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops container from starting because of different user
+    # volumes:
+    #   - "./_temp/mock-register/tmp:/tmp"      
     healthcheck:
-      test: test -f /app/admin/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
       timeout: 5s
       interval: 5s
       retries: 50
@@ -47,12 +48,11 @@ services:
     image: 'mcr.microsoft.com/mssql/server:2019-latest'
     ports: 
       - "1433:1433"
-      # - "9933:1433"
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Pa{}w0rd2019
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Pa{}w0rd2019" -Q "SELECT 1" || exit 1 
-      timeout: 10s
-      interval: 10s
-      retries: 10    
+      timeout: 5s
+      interval: 5s
+      retries: 20    

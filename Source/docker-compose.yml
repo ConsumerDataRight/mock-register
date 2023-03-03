@@ -16,7 +16,7 @@ services:
       - JwksUri=https://localhost:7000/idp/.well-known/openid-configuration/jwks
       - TokenUri=https://localhost:7001/idp/connect/token
     healthcheck:
-      test: test -f /app/admin/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
       timeout: 5s
       interval: 5s
       retries: 50      

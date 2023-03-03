@@ -1,11 +1,9 @@
 ﻿using CDR.Register.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -107,6 +105,36 @@ namespace CDR.Register.Admin.API.Controllers
                 var tokenHandler = new JsonWebTokenHandler();
                 return new OkObjectResult(tokenHandler.CreateToken(descriptor));
             }
+        }
+
+        /// <summary>
+        /// This controller action produces a self signed JWT for the mock register.
+        /// </summary>
+        /// <returns>Self Signed JWT</returns>
+        [HttpGet]
+        [Route("RegisterSelfSignedJwt")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public IActionResult RegisterSelfSignedJwt(
+            [FromQuery] string aud)
+        {
+            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path"), _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);            
+            var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
+
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Issuer = "cdr-register",
+                Subject = new ClaimsIdentity(new List<Claim> { new Claim("sub", "cdr-register") }),
+                Audience = aud,
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = signingCredentials,
+                NotBefore = null,
+                IssuedAt = DateTime.UtcNow,
+                Claims = new Dictionary<string, object>()
+            };
+            descriptor.Claims.Add("jti", Guid.NewGuid().ToString());
+
+            var tokenHandler = new JsonWebTokenHandler();
+            return new OkObjectResult(tokenHandler.CreateToken(descriptor));
         }
 
         private static string GenerateKid(RSA rsa)

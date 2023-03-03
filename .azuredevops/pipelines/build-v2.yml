@@ -40,15 +40,15 @@ steps:
     repository: mock-register-integration-tests
     tags: latest
 
-# Build mock-register-for-testing
-- task: Docker@2
-  displayName: Build mock-register-for-testing image
-  inputs:
-    command: build 
-    Dockerfile: ./Source/Dockerfile.for-testing
-    buildContext: ./Source
-    repository: mock-register-for-testing
-    tags: latest
+# # Build mock-register-for-testing
+# - task: Docker@2
+#   displayName: Build mock-register-for-testing image
+#   inputs:
+#     command: build 
+#     Dockerfile: ./Source/Dockerfile.for-testing
+#     buildContext: ./Source
+#     repository: mock-register-for-testing
+#     tags: latest
 
 # List docker images
 - task: Docker@2
@@ -108,11 +108,12 @@ steps:
     path: $(build.artifactstagingdirectory)
     artifact: Container Images
 
-# Publish mock-register logs
-- publish: Source/_temp/mock-register/tmp
-  displayName: Publish MockRegister logs
-  condition: always()
-  artifact: Mock-Register - Logs
+# FIXME - MJS - See dockercompose, volume no longer mapped as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops register from starting because of different user
+# # Publish mock-register logs
+# - publish: Source/_temp/mock-register/tmp
+#   displayName: Publish MockRegister logs
+#   condition: always()
+#   artifact: Mock-Register - Logs
 
 # Publish mock-register unit tests results
 - publish: Source/_temp/mock-register-unit-tests/testresults
@@ -181,19 +182,6 @@ steps:
   inputs:
     testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
     testResultsFiles: '**/results.trx' 
-    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
-    #mergeTestResults: false # Optional
-    #failTaskOnFailedTests: false # Optional
-    #testRunTitle: # Optional
-    #buildPlatform: # Optional
-    #buildConfiguration: # Optional
-    #publishRunAttachments: true # Optional  
-
-# - task: Docker@2
-#   displayName: Login to ACR
-#   inputs:
-#     command: login
-#     containerRegistry: <<yourContainerRegistryName>>
 
 - task: Docker@2
   displayName: 'Re-Tag Mock Register container image with :branch-name'
@@ -201,7 +189,8 @@ steps:
     containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
+    # arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
+    arguments: 'mock-register <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
 
 - task: Docker@2
   displayName: 'Re-Tag Register API image with :latest (for develop branch only)'
@@ -210,7 +199,8 @@ steps:
     containerRegistry: <<yourContainerRegistryName>>
     repository: 'mock-register'
     command: tag
-    arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
+    # arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
+    arguments: 'mock-register <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :branch-name tag to ACR'

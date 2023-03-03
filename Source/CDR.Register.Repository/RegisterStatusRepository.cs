@@ -70,7 +70,6 @@ namespace CDR.Register.Repository
                 .Include(p => p.LegalEntity)
                 .Where(p => p.ParticipationTypeId == ParticipationTypes.Dh)
                 .Where(p => industry == Industry.ALL || p.IndustryId == industry)
-                .Where(p => p.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active)
                 .Where(p => p.StatusId == ParticipationStatusType.Active)
                 .Select(p => new DataHolderStatus() { LegalEntityId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
                 .OrderBy(p => p.LegalEntityId)

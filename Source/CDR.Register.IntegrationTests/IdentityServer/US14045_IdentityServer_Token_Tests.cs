@@ -225,7 +225,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
                 // Assert - Check error response
                 var expectedContent = String.IsNullOrEmpty(grantType) ?
-                    @"{""error"":""unsupported_grant_type"",""error_description"":""grant_type not provided""}" :
+                    @"{""error"":""invalid_client"",""error_description"":""grant_type not provided""}" :
                     @"{""error"":""unsupported_grant_type"",""error_description"":""grant_type must be client_credentials""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
             }

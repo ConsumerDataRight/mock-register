@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CDR.Register.Repository.Entities;
 using DomainEntities = CDR.Register.Domain.Entities;
+using System.Linq;
+using CDR.Register.Repository.Entities.erations;
 
 namespace CDR.Register.Repository.Infrastructure
 {
@@ -15,18 +17,18 @@ namespace CDR.Register.Repository.Infrastructure
 
             CreateMap<LegalEntity, DomainEntities.DataHolderLegalEntityV2>()
                 .ForMember(dest => dest.OrganisationType, source => source.MapFrom(source => source.OrganisationType.OrganisationTypeCode))
-                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntityStatusId.ToString().ToUpper()))
-                .ReverseMap();
+				.ForMember(dest => dest.Status, source => source.MapFrom(source => source.Participations.FirstOrDefault().Status.ParticipationStatusCode.ToUpper()))
+				.ReverseMap();
 
             CreateMap<LegalEntity, DomainEntities.DataRecipientLegalEntity>()
-                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntityStatusId))
-                .ForMember(dest => dest.IndustryCode, source => source.MapFrom(source => source.AnzsicDivision))
+                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Participations.FirstOrDefault().StatusId))
+				.ForMember(dest => dest.IndustryCode, source => source.MapFrom(source => source.AnzsicDivision))
                 .ReverseMap();
 
             CreateMap<LegalEntity, DomainEntities.DataRecipientLegalEntityV2>()
                 .ForMember(dest => dest.OrganisationType, source => source.MapFrom(source => source.OrganisationType.OrganisationTypeCode))
-                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntityStatus.LegalEntityStatusId.ToString().ToUpper()))
-                .ReverseMap();
+                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Participations.FirstOrDefault().Status.ParticipationStatusCode.ToUpper()))
+				.ReverseMap();
 
             CreateMap<Participation, DomainEntities.DataHolder>()
                 .ForMember(dest => dest.DataHolderId, source => source.MapFrom(source => source.ParticipationId))

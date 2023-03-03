@@ -43,9 +43,6 @@ namespace CDR.Register.Repository.Entities
         public OrganisationTypes? OrganisationTypeId { get; set; }
         public OrganisationType OrganisationType { get; set; }
 
-        public LegalEntityStatusType? LegalEntityStatusId { get; set; }
-        public LegalEntityStatus LegalEntityStatus { get; set; }
-
         [MaxLength(25)]
         public string AccreditationNumber { get; set; }
 
