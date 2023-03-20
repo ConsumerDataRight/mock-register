@@ -1,5 +1,6 @@
 ﻿using CDR.Register.Domain.Entities;
 using CDR.Register.Infosec.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,13 +13,16 @@ namespace CDR.Register.Infosec.Services
     {
         private readonly ILogger<TokenService> _logger; 
         private readonly IConfiguration _configuration;
+        private readonly IDistributedCache _cache;
 
         public TokenService(
             ILogger<TokenService> logger,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IDistributedCache cache)
         {
             _logger = logger; 
             _configuration = configuration;
+            _cache = cache;
         }
 
         public async Task<(bool isValid, string? message)> ValidateClientAssertion(SoftwareProductInfosec client, string clientAssertion)
@@ -38,28 +42,34 @@ namespace CDR.Register.Infosec.Services
                 RequireSignedTokens = true,
                 RequireExpirationTime = true
             };
+            JwtSecurityToken? validatedSecurityToken = null;
 
             try
             {
                 var handler = new JwtSecurityTokenHandler();
                 handler.ValidateToken(clientAssertion, tokenValidationParameters, out var token);
 
-                var jwtToken = (JwtSecurityToken)token;
-
-                if (string.IsNullOrEmpty(jwtToken.Id))
+                validatedSecurityToken = (JwtSecurityToken)token;
+                if (string.IsNullOrEmpty(validatedSecurityToken.Id))
                 {
                     return (false, "Invalid client_assertion - 'jti' is required");
                 }
-                
-                if (!client.Id.Equals(jwtToken.Subject, StringComparison.OrdinalIgnoreCase)
-                 || !client.Id.Equals(jwtToken.Issuer, StringComparison.OrdinalIgnoreCase))
+
+                if (!client.Id.Equals(validatedSecurityToken.Subject, StringComparison.OrdinalIgnoreCase)
+                 || !client.Id.Equals(validatedSecurityToken.Issuer, StringComparison.OrdinalIgnoreCase))
                 {
                     return (false, "Invalid client_assertion - 'sub' and 'iss' must be set to the client_id");
                 }
 
-                if (!jwtToken.Subject.Equals(jwtToken.Issuer, StringComparison.OrdinalIgnoreCase))
+                if (!validatedSecurityToken.Subject.Equals(validatedSecurityToken.Issuer, StringComparison.OrdinalIgnoreCase))
                 {
                     return (false, "Invalid client_assertion - 'sub' and 'iss' must have the same value");
+                }
+
+                // Has this jti already been used?
+                if (IsBlacklisted(validatedSecurityToken.Issuer, validatedSecurityToken.Id))
+                {
+                    return (false, "Invalid client_assertion - 'jti' has already been used");
                 }
             }
             catch (Exception ex)
@@ -67,6 +77,9 @@ namespace CDR.Register.Infosec.Services
                 _logger.LogError(ex, "Invalid client_assertion - token validation error");
                 return (false, "Invalid client_assertion - token validation error");
             }
+
+            // Add the jti into the blacklist so that the same jti cannot be re-used until at least after it has expired.
+            Blacklist(validatedSecurityToken.Issuer, validatedSecurityToken.Id, validatedSecurityToken.ValidTo.AddMinutes(5));
 
             return (true, null);
         }
@@ -154,6 +167,23 @@ namespace CDR.Register.Infosec.Services
             }
 
             return keys.Keys;
+        }
+
+        public bool IsBlacklisted(string clientId, string id)
+        {
+            return !string.IsNullOrEmpty(_cache.GetString($"{clientId}::{id}"));
+        }
+
+        public void Blacklist(string clientId, string id, DateTime expiresOn)
+        {
+            try
+            {
+                _cache.SetString($"{clientId}::{id}", id, new DistributedCacheEntryOptions() { AbsoluteExpiration = new DateTimeOffset(expiresOn) });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception while adding security token to cache");
+            }
         }
     }
 }

@@ -74,7 +74,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     brand.Participation.ParticipationTypeId == ParticipationTypes.Dh &&
                     (industry == null || (industry != null && brand.Participation.Industry.IndustryTypeCode == industry))
                 )
-                .Where(brand => brand.Participation.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active) // DF: only active data holders should be returned.
                 .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
                 .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
@@ -115,7 +114,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         arbn = brand.Participation.LegalEntity.Arbn,
                         anzsicDivision = brand.Participation.LegalEntity.AnzsicDivision,
                         organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode,
-                        status = brand.Participation.LegalEntity.LegalEntityStatus.LegalEntityStatusCode.ToUpper() //DF: status should be uppercase.
+                        status = brand.Participation.Status.ParticipationStatusCode.ToUpper() //DF: status should be uppercase. //TODO:C could fail tests
                     },
                     status = brand.BrandStatus.BrandStatusCode,
                     endpointDetail = new

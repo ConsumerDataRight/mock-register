@@ -41,7 +41,7 @@ namespace CDR.Register.Infosec.Controllers
 
         [HttpGet(Name = "GetJWKS")]
         [Route("openid-configuration/jwks")]
-        public API.Infrastructure.Models.JsonWebKeySet GetJwks()
+        public API.Infrastructure.Models.JsonWebKeySet? GetJwks()
         {
             var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path"), _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var cert64 = Convert.ToBase64String(cert.RawData);

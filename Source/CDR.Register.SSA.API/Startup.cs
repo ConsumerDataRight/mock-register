@@ -32,6 +32,11 @@ namespace CDR.Register.SSA.API
 
             services.AddControllers();
 
+            services.AddMvc().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            });
+
             services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);

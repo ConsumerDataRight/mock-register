@@ -32,12 +32,12 @@ namespace CDR.Register.Repository.Infrastructure
                 new ParticipationType { ParticipationTypeId = ParticipationTypes.Dr, ParticipationTypeCode = "DR" });
 
             modelBuilder.Entity<ParticipationStatus>().HasData(
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Active, ParticipationStatusCode = "ACTIVE" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Removed, ParticipationStatusCode = "REMOVED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED" },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE" });
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Active, ParticipationStatusCode = "ACTIVE", ParticipationTypeId = null },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Removed, ParticipationStatusCode = "REMOVED", ParticipationTypeId = ParticipationTypes.Dh },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED", ParticipationTypeId = ParticipationTypes.Dr},
+				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED", ParticipationTypeId = ParticipationTypes.Dr },
+				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED", ParticipationTypeId = ParticipationTypes.Dr },
+				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE", ParticipationTypeId = null });
 
             modelBuilder.Entity<BrandStatus>().HasData(
                 new BrandStatus { BrandStatusId = BrandStatusType.Active, BrandStatusCode = "ACTIVE" },

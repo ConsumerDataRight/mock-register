@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2023-03-20
+### Added
+- The 'jti' claim in the client assertion sent to the token endpoint is now checked for re-use.  An error is raised if the jti value is re-used
+- Register client certificate
+
+### Changed
+- Some error codes that were not aligned with the CDR Register are now aligned
+- Database structure to move legal entity status to participation status
+
 ## [1.1.0] - 2022-10-05
 ### Added
 - Logging middleware to create a centralised list of all API requests and responses

@@ -68,7 +68,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .Include(brand => brand.Participation.Industry)
                 .Where(brand => brand.Participation.ParticipationTypeId == ParticipationTypes.Dh)
                 .Where(brand => brand.Participation.IndustryId == Industry.BANKING) // Only want banking brands
-                .Where(brand => brand.Participation.LegalEntity.LegalEntityStatusId == LegalEntityStatusType.Active) // DF: only active data holders should be returned.
                 .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
                 .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
                 .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
