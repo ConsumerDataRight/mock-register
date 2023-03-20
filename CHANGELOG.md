@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.1] - 2023-02-16
+## [1.1.1] - 2023-03-20
 ### Added
 - The 'jti' claim in the client assertion sent to the token endpoint is now checked for re-use.  An error is raised if the jti value is re-used
 - Register client certificate
