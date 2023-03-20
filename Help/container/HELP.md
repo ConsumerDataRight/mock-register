@@ -1,6 +1,6 @@
 # Use the pre-built image
 
-The Mock Register image is available on [Docker Hub](https://hub.docker.com/r/consumerdataright/mock-data-holder-energy).
+The Mock Register image is available on [Docker Hub](https://hub.docker.com/r/consumerdataright/mock-register).
 
 There are a number of ways that this image can be used.
 
