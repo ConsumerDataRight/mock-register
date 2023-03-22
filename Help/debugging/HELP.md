@@ -1,73 +1,64 @@
-<h2>To get started, clone the source code</h2>
-<div style="margin-left:18px;">
-1. Create a folder called CDR<br />
-2. Navigate to this folder<br />
-3. Clone the repo as a subfolder of this folder using the following command;<br />
-<div style="margin-left:18px;">
-git clone https://github.com/ConsumerDataRight/mock-register.git<br />
-</div>
-4. Install the required certificates. See certificate details <a href="../../CertificateManagement/README.md" title="Certificate Management" alt="Certificate Management - CertificateManagement/README.md"> here</a>.<br />
-5. Start the projects in the solution, can be done in multiple ways, examples below are from .Net command line and using MS Visual Studio<br />
-</div>
+# Getting Started
+To get started, clone the source code from the GitHub repositories by following the steps below:
 
-<h2>.Net command line</h2>
-<div style="margin-left:18px;">
-<p>1. Download and install the free <a href="https://docs.microsoft.com/en-us/windows/terminal/get-started" title="Download the free Windows Terminal here" alt="Download the free MS Windows Terminal here">MS Windows Terminal</a>
-<br />
-2. Use the <a href="../../Source/Start-Register.bat" title="Use the Start-Register .Net CLI batch file here" alt="Use the Start-Register .Net CLI batch file here">Start-Register</a> batch file to build and run the required projects to start the Mock Register,
-<br />
-this will create the LocalDB instance by default and seed the database with the supplied sample data.
-</p>
+1. Create a folder called CDR.
+2. Navigate to this folder.
+3. Clone the repo as a subfolder of this folder using the following command:
+```
+git clone https://github.com/ConsumerDataRight/mock-register.git
+```
+4. Install the required certificates. See certificate details [here](../../CertificateManagement/README.md "Certificate Management").  
+5. Start the projects in the solution. This can be done in multiple ways. This guide explains how to do this using .Net command line and using MS Visual Studio.
 
-[<img src="./images/DotNet-CLI-Running.png" height='300' width='600' alt="Start projects from .Net CLI"/>](./images/DotNet-CLI-Running.png)
 
-<p>LocalDB is installed as part of MS Visual Studio if using MS VSCode then adding the MS SQL extension includes the LocalDB Instance.</p>
-<p>You can connect to the database from MS Visual Studio using the SQL Explorer, or from MS SQL Server Management Studio (SSMS) using
-	the following settings; <br />
-	Server type: Database Engine <br />
-	Server name: (LocalDB)\MSSQLLocalDB <br />
-	Authentication: Windows Authentication<br />
-</p>
-</div>
+## Run solution using .Net command line
 
-<h2>MS Visual Studio</h2>
-<div style="margin-left:18px;">
-<p>To launch the application using MS Visual Studio, multiple projects must be selected in the solution properties.</p>
+1. Download and install the free [MS Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/get-started "Download the free Windows Terminal here").  
+2. Use the [Start-Register](../../Source/Start-Register.bat "Use the Start-Register .Net CLI batch file here") batch file to build and run the required projects to start the Mock Register.
 
-[<img src="./images/MS-Visual-Studio-Solution-properties.png" height='300' width='600' alt="Solution properties"/>](./images/MS-Visual-Studio-Solution-properties.png)
+[<img src="./images/DotNet-CLI-Running.png" width='625' alt="Start projects from .Net CLI"/>](./images/DotNet-CLI-Running.png)
 
-<p>1. Navigate to the solution properties.</p>
+This will create the LocalDB instance by default and seed the database with the supplied sample data.
 
-[<img src="./images/MS-Visual-Studio-Select-multiple-projects.png" height='300' width='360' alt="Projects selected to be started"/>](./images/MS-Visual-Studio-Select-multiple-projects.png)
+LocalDB is installed as part of MS Visual Studio. If using MS VSCode, the MS SQL extension will need to be installed.
 
-<p>2. From there select the projects to start.</p>
+You can connect to the database from MS Visual Studio using the SQL Explorer, or from MS SQL Server Management Studio (SSMS) using the following settings:
+```
+Server type: Database Engine  
+Server name: (LocalDB)\\MSSQLLocalDB  
+Authentication: Windows Authentication  
+```
+## Run solution using MS Visual Studio
 
-[<img src="./images/MS-Visual-Studio-Start.png" height='300' width='600' alt="Start the projects"/>](./images/MS-Visual-Studio-Start.png)
+### Start the Mock Register
+To launch the Mock Register solution using MS Visual Studio, the following projects need to be started:
+```
+CDR.Register.API.Gateway.mTLS
+CDR.Register.API.Gateway.TLS
+CDR.Register.Infosec
+CDR.Register.Discovery.API
+CDR.Register.SSA.API
+CDR.Register.Status.API
+CDR.Register.Admin.API
+```
+The following steps outline describe how to launch the Mock Register solution using MS Visual Studio:
 
-<p>3. Then start the projects.</p>
+1. Navigate to the solution properties and select a "Start" action for the required projects.
 
-[<img src="./images/MS-Visual-Studio-Running.png" height='300' width='600' alt="Projects running"/>](./images/MS-Visual-Studio-Running.png)
+[<img src="./images/MS-Visual-Studio-Select-multiple-projects.png" width='625' alt="Projects selected to be started"/>](./images/MS-Visual-Studio-Select-multiple-projects.png)
 
-Output windows will be launched for each of the projects set to start.  
-These will show the logging messages as sent to the console in each of the running projects.
-<br />
+2. Click "Start" to start the Mock Register solution.
 
-<p><h3>Debugging the running projects using MS Visual Studio can be performed as follows;</h3>
-<br />
+[<img src="./images/MS-Visual-Studio-Start.png" width='625' alt="Start the projects"/>](./images/MS-Visual-Studio-Start.png)
 
-[<img src="./images/Debug-using-MS-Visual-Studio-pt1.png" height='300' width='600' alt="Place breakpoint(s) in the projects"/>](./images/Debug-using-MS-Visual-Studio-pt1.png)
+Output windows will be launched for each of the projects set to start.
+These will show the logging messages as sent to the console in each of the running projects. E.g.
 
-<p>1. Select the project you want to debug.
-	<br />
-	Stop either the MS Windows Terminal or the Output Window for the selected project to debug above.
-</p>
+[<img src="./images/MS-Visual-Studio-Running.png" width='625' alt="Projects running"/>](./images/MS-Visual-Studio-Running.png)
 
-[<img src="./images/Debug-using-MS-Visual-Studio-pt2.png" height='300' width='600' alt="Start a new debug instance"/>](./images/Debug-using-MS-Visual-Studio-pt2.png)
 
-<p>2. Start a new debug instance for the selected project to be debugged.</p>
+### Debugging using MS Visual Studio
 
-[<img src="./images/Debug-using-MS-Visual-Studio-pt3.png" height='300' width='600' alt="Newly started output window"/>](./images/Debug-using-MS-Visual-Studio-pt3.png)
+To run the Mock Register in debug mode, simply follow the steps outlined above and click on the "Start" button as shown in the image below:
 
-<p>A new output window for the debug project will be started.</p>
-</p>
-</div>
+[<img src="./images/MS-Visual-Studio-Start-Debug.png" width='625' alt="Debug Mock Register"/>](./images/MS-Visual-Studio-Start-Debug.png)

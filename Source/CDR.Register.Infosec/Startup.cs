@@ -6,6 +6,7 @@ using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Services;
 using CDR.Register.Repository;
 using CDR.Register.Repository.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Converters;
 using Serilog;
@@ -36,7 +37,7 @@ namespace CDR.Register.Infosec
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
-            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Register_DB")));
+            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString(Constants.ConnectionStringNames.Register)));
             services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
             services.AddScoped<LogActionEntryAttribute>();
             services.AddScoped<IClientService, ClientService>();
@@ -47,6 +48,26 @@ namespace CDR.Register.Infosec
             {
                 Log.Logger.Information("Adding request response logging middleware");
                 services.AddRequestResponseLogging();
+            }
+
+            // if the distributed cache connection string has been set then use it, otherwise fall back to in-memory caching.
+            if (UseDistributedCache())
+            {
+                services.AddStackExchangeRedisCache(options => {
+                    options.Configuration = Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
+                    options.InstanceName = "register-cache-";
+                });
+
+                services.AddDataProtection()
+                    .SetApplicationName("reg-infosec")
+                    .PersistKeysToStackExchangeRedis(
+                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache)),
+                        "register-cache-dp-keys");
+            }
+            else
+            {
+                // Use in memory cache.
+                services.AddDistributedMemoryCache();
             }
         }
 
@@ -72,6 +93,12 @@ namespace CDR.Register.Infosec
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private bool UseDistributedCache()
+        {
+            var cacheConnectionString = Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
+            return !string.IsNullOrEmpty(cacheConnectionString);
         }
     }
 }

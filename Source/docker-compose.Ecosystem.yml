@@ -9,14 +9,16 @@ services:
       - "7001:7001"
       - "7006:7006"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "mock-data-holder:host-gateway"
+      - "mock-data-holder-energy:host-gateway"
+      - "mock-data-recipient:host-gateway"      
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
-      test: test -f /app/admin/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50      
     depends_on:
       mssql:
         condition: service_healthy
@@ -29,15 +31,17 @@ services:
       - "8001:8001"
       - "8002:8002"
       - "8005:8005"
+      - "3000:3000"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "mock-data-recipient:host-gateway"
+      - "mock-register:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
-      test: test -f /app/admin/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:8001/health || exit 1      
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50      
     depends_on:
       mssql:
         condition: service_healthy
@@ -50,15 +54,17 @@ services:
       - "8101:8101"
       - "8102:8102"
       - "8105:8105"
+      - "3100:3100"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "mock-data-recipient:host-gateway"
+      - "mock-register:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
-      test: test -f /app/admin/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:8101/health || exit 1      
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50      
     depends_on:
       mssql:
         condition: service_healthy
@@ -69,14 +75,16 @@ services:
     ports: 
       - "9001:9001"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "mock-data-holder:host-gateway"
+      - "mock-data-holder-energy:host-gateway"
+      - "mock-register:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
-      test: test -f /app/web/_healthcheck_ready || exit 1
+      test: wget --no-check-certificate --no-verbose --spider https://localhost:9001/health || exit 1            
       timeout: 5s
       interval: 5s
-      retries: 20      
+      retries: 50      
     depends_on:
       mssql:
         condition: service_healthy

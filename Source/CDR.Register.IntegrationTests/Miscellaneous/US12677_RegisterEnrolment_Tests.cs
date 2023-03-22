@@ -140,6 +140,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             ClearField(jToken, "BrandId");
             ClearField(jToken, "SoftwareProductId");
             ClearField(jToken, "SoftwareProductCertificateId");
+
+            ClearField(jToken, "LegalEntityStatusId");
         }
 
         static JToken Cleanup(JToken jToken)

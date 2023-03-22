@@ -22,26 +22,27 @@ docker pull consumerdataright/mock-register:main
 docker pull consumerdataright/mock-register:0.5.0
 ```
 
-## Run the Mock Register
+## Run a multi-container Mock CDR Ecosystem
 
-The Mock Register relies on SQL Server for data persistence so the container has a dependency on the SQL Server container image provided by Microsoft.
+Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), [Mock Data Holder](https://github.com/ConsumerDataRight/mock-data-holder), [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.Ecosystem.yml` file.
 
-In order to run the Mock Register and related SQL Server instance, use the provided `docker-compose.yml` file.
+The Mock CDR Ecosystem relies on SQL Server for data persistence so the container has a dependency on the SQL Server container image provided by Microsoft.
+
+In order to run the Mock CDR Ecosystem and related SQL Server instance, use the provided `docker-compose.Ecosystem.yml` file.
 
 ```
-# Navigate to the Source directory where the docker-compose.yml file is located.
-cd .\Source
+# Navigate to the Source directory where the docker-compose.Ecosystem.yml file is located.
+cd .\Source\DockerCompose
 
-# Run the Mock Register and SQL Server containers.
-docker-compose up -d
+# Run the Mock CDR Ecosystem and SQL Server containers.
+docker-compose -f docker-compose.Ecosystem.yml up -d
 
 # When finished, stop the containers.
 docker-compose down
 ```
-
 ### Note: EULA for SQL Server
-The `docker-compose.yml` file utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.
-Set the `ACCEPT_EULA` environment variable to `Y` within the `docker-compose.yml` if you accept the EULA.
+The `docker-compose.Ecosystem.yml` file utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to continue.
+Set the `ACCEPT_EULA` environment variable to `Y` within the `docker-compose.Ecosystem.yml` if you accept the EULA.
 See the [Microsoft SQL Server Image](https://hub.docker.com/_/microsoft-mssql-server) on Docker Hub for more information.
 
 Example of accepting the `ACCEPT_EULA` environment variable of the SQL Server container.
@@ -55,32 +56,6 @@ Example of accepting the `ACCEPT_EULA` environment variable of the SQL Server co
       - ACCEPT_EULA=Y
 ```
 
-### Note: Mock Register host name
-By default, the Mock Register will run using a host name of `mock-register`.  
-
-When running locally, to resolve the `mock-register` host name, an entry can be added to the `hosts` file of the local machine.
-```
-127.0.0.1   mock-register
-```
-
-## Run a multi-container Mock CDR Ecosystem
-
-Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), [Mock Data Holder](https://github.com/ConsumerDataRight/mock-data-holder), [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.Ecosystem.yml` file.
-
-```
-# Navigate to the Source directory where the docker-compose.Ecosystem.yml file is located.
-cd .\Source
-
-# Run the Mock and SQL Server containers.
-docker-compose -f docker-compose.Ecosystem.yml up -d
-
-# When finished, stop the containers.
-docker-compose -f docker-compose.Ecosystem.yml down
-```
-
-### Note: EULA for SQL Server
-Like the `docker-compose.yml` file, the `docker-compose.Ecosystem.yml` file also requires acceptance of the EULA for the SQL Server image.
-
 ### Note: Mock host names
 
 Each Mock solution has a default host name, as per below:
@@ -92,49 +67,45 @@ Each Mock solution has a default host name, as per below:
 | Mock Data Holder Energy | mock-data-holder-energy |
 | Mock Data Recipient     | mock-data-recipient     |
 
-If running locally, each of these host names can be registered in the local machine's `host` file:
+To resolve these host names, each of these host names can be registered in the local machine's `hosts` file (located in C:\Windows\System32\drivers\etc\).
 
 ```
 127.0.0.1   mock-register
 127.0.0.1   mock-data-holder
 127.0.0.1   mock-data-holder-energy
 127.0.0.1   mock-data-recipient
+127.0.0.1   mssql
 ```
 
 ### Switching out a container in the multi-container Mock CDR Ecosystem with your own solution
 
 You can switch out one of the mock solutions running in the multi-container Mock CDR Ecosystem with a mock solution running in MS Visual Studio or with your own solution.
 
-Within the `docker-compose.Ecosystem.yml` file, comment out the solution that you do not want to be started by the docker compose file. Next, change all ASPNETCORE_ENVIRONMENT settings to use the Container setting.
+Within the `docker-compose.Ecosystem.yml` file, comment out the solution that you do not want to be started. E.g. The Mock Data Recipient:
 
+[<img src="./images/mdr-switch-out-compose-comment.png" width='625' alt="Compose file with MDR commented out."/>](./images/mdr-switch-out-compose-comment.png)
+
+Start the Mock CDR Ecosystem using the docker compose file.
 ```
-ASPNETCORE_ENVIRONMENT=Container
-```
-Start the Mock Solutions using the docker compose file.
-```
-# Run the Mock and SQL Server containers.
+# Run the Mock CDR Ecosystem containers.
 docker-compose -f docker-compose.Ecosystem.yml up -d
 ```
 
 In this example we will be switching out our Mock Data Recipient. 
 Clone the [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) repository from GitHub and open the solution in MS Visual Studio.  
-Changing the `ASPNETCORE_ENVIRONMENT` setting to use the `Container` settings will allow the Mock Data Recipient to connect to the mock solutions running in the multi-container Mock CDR Ecosystem. 
 
-We are using the database connection string Server=host.docker.internal and the endpoints shown below to connect to the running containers.
+Build and run the Mock Data Recipient in MS Visual Studio. Our switched out Mock Data Recipient solution will now be running. This will result in the Mock Data Recipient running in MS Visual Studio, connected to the Mock Register and the Mock Data Holders running in docker.
 
-[<img src="./images/mdr-switch-out-settings.png" height='300' width='625' alt="Mock Data Recipient switched out settings"/>](./images/mdr-switch-out-settings.png)
-
-Build and run the Mock Data Recipient in MS Visual Studio. Our switched out Mock Data Recipient solution will now be running. This will result in the Mock Data Recipient running in MS Visual Studio, connected to the Mock Register and the Mock Data Holder running in docker.
-
-[<img src="./images/mdr-switch-out-running.png" height='300' width='625' alt="The Mock Data Recipient solution"/>](./images/mdr-switch-out-running.png)
+[<img src="./images/mdr-switch-out-running.png" width='625' alt="The Mock Data Recipient solution"/>](./images/mdr-switch-out-running.png)
 
 For more details on how to run a mock solution in MS Visual Studio see [help guide](../debugging/HELP.md).
+
 
 ## Changing the host names of the mock solutions
 
 The host names used in the mock solutions can be changed by overriding environment variables in each container.  
 
-For example, making the following changes to the `docker-compose.yml` file will set the host name for the Mock Register to `localhost`:
+For example, making the following changes to the `docker-compose.Ecosystem.yml` file will set the host name for the Mock Register to `localhost`:
 
 ```
   mock-register:
@@ -145,7 +116,9 @@ For example, making the following changes to the `docker-compose.yml` file will 
       - "7001:7001"
       - "7006:7006"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "mock-data-holder:host-gateway"
+      - "mock-data-holder-energy:host-gateway"
+      - "mock-data-recipient:host-gateway"      
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - IssuerUri=https://localhost:7000/idp
@@ -169,13 +142,10 @@ The environment variables for each mock solution that require setting in order t
 | Mock Register           | IdentityServerUrl       | https://localhost:7000/idp |
 | Mock Register           | IdentityServerIssuer    | https://localhost:7000/idp |
 | Mock Data Holder        | Domain | mock-data-holder:8000 |
-| Mock Data Holder        | IssuerUri | https://mock-data-holder:8001 |
-| Mock Data Holder        | IdentityServerIssuerUri | https://mock-data-holder:8001 |
-| Mock Data Holder        | IdentityServerUrl | https://mock-data-holder:8001 |
-| Mock Data Holder        | JwksUri | https://mock-data-holder:8001/.well-known/openid-configuration/jwks |
-| Mock Data Holder        | AuthorizeUri | https://mock-data-holder:8001/connect/authorize |
-| Mock Data Holder        | TokenUri | https://mock-data-holder:8002/connect/token |
-| Mock Data Holder        | IntrospectionUri | https://mock-data-holder:8002/connect/introspect |
+| Mock Data Holder        | CdrAuthServer__Issuer | https://mock-data-holder:8001 |
+| Mock Data Holder        | CdrAuthServer__BaseUri | https://mock-data-holder:8001 |
+| Mock Data Holder        | CdrAuthServer__SecureBaseUri | https://mock-data-holder:8001 |
+| Mock Data Holder        | CdrAuthServer__Issuer | https://mock-data-holder:8001 |
 | Mock Data Holder        | AccessTokenIntrospectionEndpoint | https://mock-data-holder:8001/connect/introspect-internal |
 | Mock Data Holder        | UserinfoUri | https://mock-data-holder:8002/connect/userinfo |
 | Mock Data Holder        | RegisterUri | https://mock-data-holder:8002/connect/register |
@@ -188,13 +158,10 @@ The environment variables for each mock solution that require setting in order t
 | Mock Data Holder        | Register__GetDataRecipientStatusEndpoint | https://mock-register:7000/cdr-register/v1/banking/data-recipients/status |
 | Mock Data Holder        | Register__GetSoftwareProductsStatusEndpoint | https://mock-register:7000/cdr-register/v1/banking/data-recipients/brands/software-products/status |
 | Mock Data Holder Energy | Domain | mock-data-holder-energy:8100 |
-| Mock Data Holder Energy | IssuerUri | https://mock-data-holder-energy:8101 |
-| Mock Data Holder Energy | IdentityServerIssuerUri | https://mock-data-holder-energy:8101 |
-| Mock Data Holder Energy | IdentityServerUrl | https://mock-data-holder-energy:8101 |
-| Mock Data Holder Energy | JwksUri | https://mock-data-holder-energy:8101/.well-known/openid-configuration/jwks |
-| Mock Data Holder Energy | AuthorizeUri | https://mock-data-holder-energy:8101/connect/authorize |
-| Mock Data Holder Energy | TokenUri | https://mock-data-holder-energy:8102/connect/token |
-| Mock Data Holder Energy | IntrospectionUri | https://mock-data-holder-energy:8102/connect/introspect |
+| Mock Data Holder Energy | CdrAuthServer__Issuer | https://mock-data-holder-energy:8101 |
+| Mock Data Holder Energy | CdrAuthServer__BaseUri | https://mock-data-holder-energy:8101 |
+| Mock Data Holder Energy | CdrAuthServer__SecureBaseUri | https://mock-data-holder-energy:8101 |
+| Mock Data Holder Energy | CdrAuthServer__Issuer | https://mock-data-holder-energy:8101 |
 | Mock Data Holder Energy | AccessTokenIntrospectionEndpoint | https://mock-data-holder-energy:8101/connect/introspect-internal |
 | Mock Data Holder Energy | UserinfoUri | https://mock-data-holder-energy:8102/connect/userinfo |
 | Mock Data Holder Energy | RegisterUri | https://mock-data-holder-energy:8102/connect/register |
