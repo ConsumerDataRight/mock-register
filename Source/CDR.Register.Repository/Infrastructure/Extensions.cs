@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DomainEntities = CDR.Register.Domain.Entities;
+using System.Collections.Generic;
+using CDR.Register.Domain.ValueObjects;
 
 namespace CDR.Register.Repository.Infrastructure
 {
@@ -34,10 +37,10 @@ namespace CDR.Register.Repository.Infrastructure
             modelBuilder.Entity<ParticipationStatus>().HasData(
                 new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Active, ParticipationStatusCode = "ACTIVE", ParticipationTypeId = null },
                 new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Removed, ParticipationStatusCode = "REMOVED", ParticipationTypeId = ParticipationTypes.Dh },
-                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED", ParticipationTypeId = ParticipationTypes.Dr},
-				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED", ParticipationTypeId = ParticipationTypes.Dr },
-				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED", ParticipationTypeId = ParticipationTypes.Dr },
-				new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE", ParticipationTypeId = null });
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Suspended, ParticipationStatusCode = "SUSPENDED", ParticipationTypeId = ParticipationTypes.Dr },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Revoked, ParticipationStatusCode = "REVOKED", ParticipationTypeId = ParticipationTypes.Dr },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Surrendered, ParticipationStatusCode = "SURRENDERED", ParticipationTypeId = ParticipationTypes.Dr },
+                new ParticipationStatus { ParticipationStatusId = ParticipationStatusType.Inactive, ParticipationStatusCode = "INACTIVE", ParticipationTypeId = null });
 
             modelBuilder.Entity<BrandStatus>().HasData(
                 new BrandStatus { BrandStatusId = BrandStatusType.Active, BrandStatusCode = "ACTIVE" },
@@ -173,6 +176,162 @@ namespace CDR.Register.Repository.Infrastructure
                 }
                 return false;
             }
+        }
+
+        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientLegalEntity(this DomainEntities.DataRecipient dataRecipient,
+                                                                                      LegalEntity legalEntity, RegisterDatabaseContext registerDatabaseContext,
+                                                                                      IRepositoryMapper repositoryMapper, ILogger<RegisterAdminRepository> logger)
+        {
+            BusinessRuleError error = null;
+
+            foreach (var b in dataRecipient.DataRecipientBrands)
+            {
+                var dbBrand = await registerDatabaseContext.Brands.AsNoTracking().SingleOrDefaultAsync(x => x.BrandId == b.BrandId);
+                var brand = repositoryMapper.Map(b);
+
+                //create new brand as it is a new one
+                if (null == dbBrand)
+                {
+                    logger.LogInformation($"New Brand of id:{b.BrandId} name:{b.BrandName} getting added to the repository.");
+                    await registerDatabaseContext.Brands.AddAsync(brand);
+                }
+
+                //handle participation
+                if ((error = await brand.AddOrUpdateDataRecipientParticipation(legalEntity, dataRecipient, registerDatabaseContext, logger)) != null)
+                {
+                    logger.LogError($"Update participation encountered error of {@error}");
+                    return error;
+                }
+
+                //update the brand as it is an existing one.
+                if (dbBrand != null)
+                {
+                    logger.LogInformation($"Updating Brand of id:{b.BrandId} name:{b.BrandName}");
+                    registerDatabaseContext.Brands.Update(brand);
+                }
+
+                //handle software products
+                if ((error = await brand.UpsertRecipientBrandSoftwareProducts(registerDatabaseContext, repositoryMapper, b.SoftwareProducts, logger)) != null)
+                {
+                    logger.LogError($"Update SoftwareProduct encountered error of {@error}");
+                    return error;
+                }
+            }
+
+            return error;
+        }
+
+        public static async Task<BusinessRuleError> UpsertRecipientBrandSoftwareProducts(this Brand brand, RegisterDatabaseContext registerDbContext,
+            IRepositoryMapper repositoryMapper, ICollection<DomainEntities.SoftwareProduct> softwareProducts, ILogger<RegisterAdminRepository> logger)
+        {
+
+            brand.SoftwareProducts ??= new List<SoftwareProduct>();
+
+            foreach (var s in softwareProducts)
+            {
+                var existingSoftwareProduct = await registerDbContext.SoftwareProducts.AsNoTracking().SingleOrDefaultAsync(sp => sp.SoftwareProductId == s.SoftwareProductId);
+
+                var softwareProduct = repositoryMapper.Map(s);
+
+                if (existingSoftwareProduct != null)
+                {
+                    //check if we getting assigned to new brand.
+                    if (existingSoftwareProduct.BrandId != brand.BrandId)
+                    {
+                        return new BusinessRuleError("Invalid Field", "urn:au-cds:error:cds-all:Field/Invalid",
+                            $"Value '{existingSoftwareProduct.SoftwareProductId}' in SoftwareProductId is already associated with a different brand.");
+                    }
+
+                    softwareProduct.BrandId = brand.BrandId;
+                    registerDbContext.SoftwareProducts.Update(softwareProduct);
+                }
+
+                if (null == existingSoftwareProduct)
+                {
+                    softwareProduct.BrandId = brand.BrandId;
+                    logger.LogInformation($"Adding new SoftwareProduct of id:{softwareProduct.SoftwareProductId} for name:{softwareProduct.SoftwareProductName}");
+                    await registerDbContext.SoftwareProducts.AddAsync(softwareProduct);
+                }
+
+                await softwareProduct.UpsertSoftwareProductCertificates(registerDbContext, repositoryMapper, s.Certificates, logger);
+            }
+
+            return null;
+        }
+
+        public static async Task UpsertSoftwareProductCertificates(this SoftwareProduct softwareProduct, RegisterDatabaseContext registerDbContext,
+            IRepositoryMapper repositoryMapper, ICollection<DomainEntities.SoftwareProductCertificateInfosec> certificates, ILogger<RegisterAdminRepository> logger)
+        {
+            softwareProduct.Certificates ??= new List<Entities.SoftwareProductCertificate>();
+
+            foreach (var c in certificates)
+            {
+                var existingCertificate = await registerDbContext.SoftwareProductCertificates.SingleOrDefaultAsync(cert => 
+                                                    cert.Thumbprint == c.Thumbprint && 
+                                                    cert.SoftwareProductId == softwareProduct.SoftwareProductId && 
+                                                    cert.CommonName == c.CommonName);                
+
+                if (existingCertificate != null)
+                {
+                    existingCertificate.Thumbprint = c.Thumbprint;
+                    existingCertificate.CommonName = c.CommonName;
+                    registerDbContext.SoftwareProductCertificates.Update(existingCertificate);
+                }
+
+                if (null == existingCertificate)
+                {
+                    var certificate = repositoryMapper.Map(c);
+                    certificate.SoftwareProductId = softwareProduct.SoftwareProductId;
+                    await registerDbContext.SoftwareProductCertificates.AddAsync(certificate);
+                    await registerDbContext.SaveChangesAsync();
+                    logger.LogInformation($"Adding new SoftwareProductCertificate of id:{certificate.SoftwareProductCertificateId} for SoftwareProductId:{certificate.SoftwareProductId}");
+                }                
+            }
+        }
+
+        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientParticipation(this Brand brand, LegalEntity legalEntity, 
+            DomainEntities.DataRecipient dataRecipient, RegisterDatabaseContext registerDatabaseContext, ILogger<RegisterAdminRepository> logger)
+        {
+            var existingParticipant = await registerDatabaseContext.Participations.
+                Include(x => x.LegalEntity).
+                SingleOrDefaultAsync(p => (p.LegalEntityId == legalEntity.LegalEntityId || p.Brands.Any(b => b.BrandId == brand.BrandId) && p.ParticipationTypeId == ParticipationTypes.Dr));
+
+            var participationStatus = (ParticipationStatusType)Enum.Parse(typeof(Entities.ParticipationStatusType), dataRecipient.LegalEntity.Status, true);
+
+            if (existingParticipant != null)
+            {
+                //check if there is a change in the participation between brand and legal entity
+                if (existingParticipant.LegalEntityId != legalEntity.LegalEntityId)
+                {
+                    return new BusinessRuleError("Invalid Field","urn:au-cds:error:cds-all:Field/Invalid", $"dataRecipientBrandId '{brand.BrandId}' is already associated with a different legal entity.");
+                }
+
+                brand.ParticipationId = existingParticipant.ParticipationId;
+                existingParticipant.StatusId = participationStatus;
+            }
+
+            //create the Participation if required.
+            if (existingParticipant == null)
+            {
+                var participant = new Participation
+                {
+                    LegalEntityId = legalEntity.LegalEntityId,
+                    ParticipationTypeId = ParticipationTypes.Dr,
+                    StatusId = participationStatus
+                };
+
+                legalEntity.Participations ??= new List<Participation>();
+                legalEntity.Participations.Add(participant);
+
+                //assigning new participation to the brand.
+                brand.ParticipationId = participant.ParticipationId;
+
+                await registerDatabaseContext.Participations.AddAsync(participant);
+                await registerDatabaseContext.SaveChangesAsync();
+                logger.LogInformation($"Adding new Participation of id:{participant.ParticipationId} getting added to the repository.");
+            }            
+
+            return null;
         }
     }
 }

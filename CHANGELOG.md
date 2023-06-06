@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [1.2.0] - 2023-06-07
+### Added
+- Added new API admin/metadata/data-recipients to add or update a Data Recipient into the Register.
+- Added new API admin/metadata/data-holders to add or update a Data Holder into the Register.
+- Added dynamic base path to allow changes to external facing URLs.
+
+### Changed
+- Retired end of life APIs.
+
 ## [1.1.1] - 2023-03-20
 ### Added
 - The 'jti' claim in the client assertion sent to the token endpoint is now checked for re-use.  An error is raised if the jti value is re-used

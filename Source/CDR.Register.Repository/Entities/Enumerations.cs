@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CDR.Register.Repository.Entities.erations
+﻿namespace CDR.Register.Repository.Entities.Enumerations
 {
     public enum Industry
     {
@@ -66,7 +60,7 @@ namespace CDR.Register.Repository.Entities.erations
 
     public enum RegisterUType
     {
-        Unknown = 0,
+        Unknown = 0,        
         SignedJwt = 1
     }
 

@@ -21,6 +21,7 @@ namespace CDR.Register.Domain.Entities
         public string Scope { get; set; }
         public string Status { get; set; }
         public bool IsActive { get; set; }
+        public ICollection<SoftwareProductCertificateInfosec> Certificates { get; set; }
         public DataRecipientBrand DataRecipientBrand { get; set; }
     }
 }

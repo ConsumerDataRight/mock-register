@@ -12,15 +12,16 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
 {
     public partial class ApiVersionSelectorTests
     {
+       
         [Fact]
-        public void SelectVersion_NoXvHeader_ShouldReturn1()
+        public void SelectVersion_DataHolderStatus_NoXvHeader_ShouldReturn1()
         {
             // Arrange.
             var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
             var versionSelector = new ApiVersionSelector(options);
             var expectedVersion = new ApiVersion(1, 0);
             var mockHttpRequest = Substitute.For<HttpRequest>();
-            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/brands"));
+            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/status"));
 
             // Act.
             var actualVersion = versionSelector.SelectVersion(mockHttpRequest, null); // apiVersionModel);
@@ -32,7 +33,47 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
         }
 
         [Fact]
-        public void SelectVersion_EmptyXvHeader_ShouldReturn1()
+        public void SelectVersion_DataHolderStatus_EmptyXvHeader_ShouldReturn1()
+        {
+            // Arrange.
+            var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
+            var versionSelector = new ApiVersionSelector(options);
+            var expectedVersion = new ApiVersion(1, 0);
+
+            var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
+            mockHttpHeaders.Add("x-v", new StringValues(""));
+
+            var mockHttpRequest = Substitute.For<HttpRequest>();
+            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/status"));
+            mockHttpRequest.Headers.Returns(mockHttpHeaders);
+
+            // Act.
+            var actualVersion = versionSelector.SelectVersion(mockHttpRequest, null); // apiVersionModel);
+
+            // Assert.
+            Assert.NotNull(actualVersion);
+            Assert.Equal(expectedVersion.MajorVersion, actualVersion.MajorVersion);
+            Assert.Equal(expectedVersion.MinorVersion, actualVersion.MinorVersion);
+        }
+
+        [Fact]
+        public void SelectVersion_NoXvHeader_ShouldThrow400MissingHeader()
+        {
+            // Arrange.
+            var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
+            var versionSelector = new ApiVersionSelector(options);
+            var expectedVersion = new ApiVersion(1, 0);
+            var mockHttpRequest = Substitute.For<HttpRequest>();
+            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/brands"));
+
+            // Act.
+            Assert.Throws<MissingRequiredHeaderException>(() => versionSelector.SelectVersion(mockHttpRequest, null));
+
+            // Assert.
+        }
+
+        [Fact]
+        public void SelectVersion_EmptyXvHeader_ShouldThrow400MissingHeader()
         {
             // Arrange.
             var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
@@ -47,12 +88,30 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
             mockHttpRequest.Headers.Returns(mockHttpHeaders);
 
             // Act.
-            var actualVersion = versionSelector.SelectVersion(mockHttpRequest, null); // apiVersionModel);
+            Assert.Throws<InvalidVersionException>(() => versionSelector.SelectVersion(mockHttpRequest, null));
 
             // Assert.
-            Assert.NotNull(actualVersion);
-            Assert.Equal(expectedVersion.MajorVersion, actualVersion.MajorVersion);
-            Assert.Equal(expectedVersion.MinorVersion, actualVersion.MinorVersion);
+        }
+
+        [Fact]
+        public void SelectVersion_NullXvHeader_ShouldThrow400MissingHeader()
+        {
+            // Arrange.
+            var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
+            var versionSelector = new ApiVersionSelector(options);
+            var expectedVersion = new ApiVersion(1, 0);
+
+            var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
+            mockHttpHeaders.Add("x-v", new StringValues());
+
+            var mockHttpRequest = Substitute.For<HttpRequest>();
+            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/brands"));
+            mockHttpRequest.Headers.Returns(mockHttpHeaders);
+
+            // Act.
+            Assert.Throws<InvalidVersionException>(() => versionSelector.SelectVersion(mockHttpRequest, null));
+
+            // Assert.
         }
 
         [Fact]
@@ -261,10 +320,10 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
             // Arrange.
             var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
             var versionSelector = new ApiVersionSelector(options);
-            var expectedVersion = new ApiVersion(2, 0);
+            var expectedVersion = new ApiVersion(3, 0);
             var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
-            mockHttpHeaders.Add("x-v", new StringValues("2"));
-            mockHttpHeaders.Add("x-min-v", new StringValues("3"));
+            mockHttpHeaders.Add("x-v", new StringValues("3"));
+            mockHttpHeaders.Add("x-min-v", new StringValues("4"));
 
             var mockHttpRequest = Substitute.For<HttpRequest>();
             mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-recipients"));
@@ -296,6 +355,27 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
 
             // Act.
             Assert.Throws<UnsupportedVersionException>(() => versionSelector.SelectVersion(mockHttpRequest, null));
+
+            // Assert.
+        }
+
+        [Fact]
+        public void SelectVersion_ValidXvInvalidXminV_ShouldThrowIinvalidVersion()
+        {
+            // Arrange.
+            var options = new ApiVersioningOptions() { DefaultApiVersion = new ApiVersion(1, 0) };
+            var versionSelector = new ApiVersionSelector(options);
+            var expectedVersion = new ApiVersion(2, 0);
+            var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
+            mockHttpHeaders.Add("x-v", new StringValues("3"));
+            mockHttpHeaders.Add("x-min-v", new StringValues("foo"));
+
+            var mockHttpRequest = Substitute.For<HttpRequest>();
+            mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-recipients"));
+            mockHttpRequest.Headers.Returns(mockHttpHeaders);
+
+            // Act.
+            Assert.Throws<InvalidVersionException>(() => versionSelector.SelectVersion(mockHttpRequest, null));
 
             // Assert.
         }

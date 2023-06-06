@@ -3,18 +3,22 @@ version: '3.8'
 services:
   mock-register:
     container_name: mock-register
-    image: consumerdataright/mock-register
+    image: mock-register
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports: 
       - "7000:7000"
       - "7001:7001"
+      - "7002:7002"
+      - "7003:7003"
+      - "7004:7004"
+      - "7005:7005"
       - "7006:7006"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
-      - IssuerUri=https://localhost:7000/idp
-      - JwksUri=https://localhost:7000/idp/.well-known/openid-configuration/jwks
-      - TokenUri=https://localhost:7001/idp/connect/token
     healthcheck:
       test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
       timeout: 5s

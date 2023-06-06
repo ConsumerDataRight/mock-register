@@ -116,10 +116,7 @@ namespace CDR.Register.SSA.API.Business.Models
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string scope { get; set; }
-    }
 
-    public class SoftwareStatementAssertionModelV2 : SoftwareStatementAssertionModel
-    {
         /// <summary>
         /// URL string that references a sector uri for the client. If present, the server SHOULD display this image to the end-user during approval
         /// </summary>
@@ -134,9 +131,5 @@ namespace CDR.Register.SSA.API.Business.Models
         /// Human-readable string legal entity name of the Accredited Data Recipient to be presented to the end user during authorization.
         /// </summary>
         public string legal_entity_name { get; set; }
-    }
-
-    public class SoftwareStatementAssertionModelV3 : SoftwareStatementAssertionModelV2
-    {
     }
 }

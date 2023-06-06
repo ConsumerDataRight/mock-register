@@ -13,7 +13,7 @@ using Newtonsoft.Json.Converters;
 namespace CDR.Register.Discovery.API
 {
     public static class Extensions
-    {
+    {        
         public static IServiceCollection AddRegisterDiscovery(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IRegisterDiscoveryRepository, RegisterDiscoveryRepository>();
@@ -21,7 +21,7 @@ namespace CDR.Register.Discovery.API
             services.AddScoped<IDataRecipientStatusCheckService, DataRecipientStatusCheckService>();
 
             services.AddMediatR(typeof(Startup));
-
+            
             // Add Authentication and Authorization
             services.AddAuthenticationAuthorization(configuration);
 

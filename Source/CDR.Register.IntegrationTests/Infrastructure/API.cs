@@ -13,6 +13,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
     /// </summary>
     public class API
     {
+        private const string CERTIFICATE_THUMBPRINT_HEADER_NAME = "X-SSLClientCertThumbprint";
+        private const string CERTIFICATE_CN_HEADER_NAME = "X-SSLClientCertCN";
         /// <summary>
         /// Filename of certificate to use. 
         /// If null then no certificate will be attached to the request.
@@ -60,6 +62,9 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// </summary>
         public string? IfNoneMatch { get; set; }
 
+        public string? CertificateThumbprint { get; set; } = null;
+        public string? CertificateCn { get; set; } = null;
+
         /// <summary>
         /// Send a request to the API.
         /// </summary>
@@ -95,6 +100,12 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                 if (IfNoneMatch != null)
                 {
                     request.Headers.Add("If-None-Match", $"\"{IfNoneMatch}\"");
+                }
+
+                if (CertificateThumbprint != null && CertificateCn != null)
+                {
+                    request.Headers.Add(CERTIFICATE_THUMBPRINT_HEADER_NAME, CertificateThumbprint);
+                    request.Headers.Add(CERTIFICATE_CN_HEADER_NAME, CertificateCn);
                 }
 
                 return request;

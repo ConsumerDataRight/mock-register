@@ -1,14 +1,42 @@
 # Build pipeline v2 (Containerised)
-
 trigger:
   - develop
   - main    
-  - releases/*
+  - releases/*  
   
 pool:
   vmImage: ubuntu-latest
 
 steps:
+- task: PowerShell@2
+  displayName: Update Obligation date
+  inputs:
+    targetType: 'inline'
+    script: |      
+      $RegisterObligationDate = "$(ObligationDate)"
+      if (-not [string]::IsNullOrWhiteSpace( $RegisterObligationDate )) {
+        Write-Host "##vso[task.setvariable variable=ObligationDateTag]$RegisterObligationDate"
+      }
+      else {
+        Write-Host "##vso[task.setvariable variable=ObligationDateTag]23-2"        
+      }
+
+# Set release version variables for release tags
+- task: PowerShell@2
+  name: 'splitBranchName'
+  displayName: 'Split Branch Name'  
+  inputs:
+    targetType: 'inline'
+    script: |
+      $branchParts = "$(Build.SourceBranchName)" -split '\.'
+      # Write-Host "Branch Name: $branchParts"
+      $majorVersion = $branchParts[0]
+      $minorVersion = $branchParts[1]
+      #$patchVersion = $branchParts[2]
+      # Write-Host "Major Name: $majorVersion"
+      Write-Host "##vso[task.setvariable variable=majorVersion]$majorVersion"
+      Write-Host "##vso[task.setvariable variable=minorVersion]$minorVersion"      
+      Write-Host "##vso[task.setvariable variable=majorMinorVersion]$majorVersion.$minorVersion"
 
 # Build mock-register
 - task: Docker@2
@@ -73,13 +101,33 @@ steps:
     action: Run a Docker Compose command
     dockerComposeFile: Source/docker-compose.UnitTests.yml     
     dockerComposeCommand: down
+    
+# Login to ACR
+- task: Docker@2
+  displayName: Login to ACR
+  condition: always()
+  inputs:
+    command: login
+    containerRegistry: $(AcrBaseUrl)
 
+# Login to Shared ACR
+- task: Docker@2
+  displayName: Login to Shared ACR
+  inputs:
+    command: login    
+    containerRegistry: $(SpSharedAcr)
+
+#****************************************************************************************************************
 # Run integration tests
+#****************************************************************************************************************
 - task: DockerCompose@0
   displayName: Integration Tests - Up
+  condition: always()
   inputs:
     action: Run a Docker Compose command
     dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
+    dockerComposeFileArgs: |
+      TEST_FILTER=Category!=CTSONLY
     dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
 
 # Remove integration tests
@@ -90,6 +138,91 @@ steps:
     action: Run a Docker Compose command
     dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
     dockerComposeCommand: down
+    
+# Run trx formatter to output .MD and .CSV
+- script: |
+    docker run \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
+      $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
+  displayName: 'Run trx-formatter'  
+  condition: always()   
+
+# Publish mock-register integration tests results
+- publish: Source/_temp/mock-register-integration-tests/testresults
+  displayName: Publish MockRegister Integration tests
+  condition: always()
+  artifact: Mock-Register - Integration tests 
+  
+- task: PublishTestResults@2
+  displayName: 'Surface Integration Test TRX results to devops'
+  condition: succeededOrFailed()
+  inputs:
+    testRunTitle: "integration-tests" # Optional
+    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: '**/results.trx' 
+    publishRunAttachments: true # Optional
+#****************************************************************************************************************    
+# Run integration tests For CTS Only tests
+#****************************************************************************************************************
+- task: DockerCompose@0
+  displayName: Integration Tests Tests For CTS Only - Up
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.IntegrationTests.yml      
+    dockerComposeFileArgs: |
+      TEST_FILTER=Category=CTSONLY
+      CtsSettings__AzureAd__TokenEndpointUrl=$(CtsSettings__AzureAd__TokenEndpointUrl)
+      CtsSettings__AzureAd__ClientId=$(CtsSettings__AzureAd__ClientId)
+      CtsSettings__AzureAd__ClientSecret=$(CtsSettings__AzureAd__ClientSecret)
+      CtsSettings__AzureAd__Scope=$(CtsSettings__AzureAd__Scope)
+      CtsSettings__AzureAd__GrantType=$(CtsSettings__AzureAd__GrantType)
+      CtsSettings__AzureAd__UnauthorisedClientId=$(CtsSettings__AzureAd__UnauthorisedClientId)
+      CtsSettings__AzureAd__UnauthorisedClientSecret=$(CtsSettings__AzureAd__UnauthorisedClientSecret)
+      Authorization__Issuer=$(Authorization__Issuer)
+      Authorization__ClientId=$(Authorization__ClientId)
+      Authorization__Scope=$(Authorization__Scope)
+      BasePathExpression=$(BasePathExpression)
+      PublicHostName=$(CtsHostUrl)
+      SecureHostName=$(CtsHostUrl)
+      Certificate__CertThumbprintNameHttpHeaderName=X-SSLClientCertThumbprint
+      Certificate__CertCommonNameHttpHeaderName=X-SSLClientCertCN
+    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+
+# Remove integration tests For CTS Only tests
+- task: DockerCompose@0
+  displayName: Integration Tests For CTS Only - Down
+  condition: always()
+  inputs:
+    action: Run a Docker Compose command
+    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
+    dockerComposeCommand: down
+    
+# Run trx formatter to output .MD and .CSV
+- script: |
+    docker run \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
+      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
+      $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR-CTS" --outputprefix "MR-CTS" -o out/
+  displayName: 'Run trx-formatter'  
+  condition: always()   
+
+# Publish mock-register integration tests results
+- publish: Source/_temp/mock-register-integration-tests/testresults
+  displayName: Publish MockRegister CTS Integration tests
+  condition: always()
+  artifact: Mock-Register - CTS Integration tests 
+  
+- task: PublishTestResults@2
+  displayName: 'Surface Integration CTS Test TRX results to devops'
+  condition: succeededOrFailed()
+  inputs:
+    testRunTitle: "integration-tests-CTS-Only" # Optional
+    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: '**/results.trx' 
+    publishRunAttachments: true # Optional
+#****************************************************************************************************************
 
 # Save docker image to TAR so it can be published
 - task: Docker@2
@@ -121,29 +254,6 @@ steps:
   condition: always()
   artifact: Mock-Register - Unit tests
 
-# Login to ACR
-- task: Docker@2
-  displayName: Login to ACR
-  condition: always()
-  inputs:
-    command: login
-    containerRegistry: <<yourContainerRegistryName>>
-
-# Run trx formatter to output .MD and .CSV
-- script: |
-    docker run \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
-      <<yourContainerRegistryName>>.azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
-  displayName: 'Run trx-formatter'  
-  condition: always()   
-
-# Publish mock-register integration tests results
-- publish: Source/_temp/mock-register-integration-tests/testresults
-  displayName: Publish MockRegister Integration tests
-  condition: always()
-  artifact: Mock-Register - Integration tests 
-
 - task: UseDotNet@2
   displayName: 'Use .NET 6 sdk'
   condition: always()
@@ -174,41 +284,205 @@ steps:
 - publish: Source/CDR.Register.Repository/efbundle
   displayName: Publish EF Migration bundle
   condition: always()
-  artifact: Database Migration Scripts
-  
-- task: PublishTestResults@2
-  displayName: 'Surface Integration Test TRX results to devops'
-  condition: succeededOrFailed()
-  inputs:
-    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-    testResultsFiles: '**/results.trx' 
+  artifact: Database Migration Scripts 
 
 - task: Docker@2
   displayName: 'Re-Tag Mock Register container image with :branch-name'
   inputs:
-    containerRegistry: <<yourContainerRegistryName>>
+    containerRegistry: $(AcrBaseUrl)
     repository: 'mock-register'
     command: tag
-    # arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
-    arguments: 'mock-register <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)'
+    # arguments: 'mock-register-for-testing $(AcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)'
+    arguments: 'mock-register $(AcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)'
 
 - task: Docker@2
   displayName: 'Re-Tag Register API image with :latest (for develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    containerRegistry: <<yourContainerRegistryName>>
+    containerRegistry: $(AcrBaseUrl)
     repository: 'mock-register'
     command: tag
-    # arguments: 'mock-register-for-testing <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
-    arguments: 'mock-register <<yourContainerRegistryName>>.azurecr.io/mock-register:latest'
+    # arguments: 'mock-register-for-testing $(AcrBaseUrl).azurecr.io/mock-register:latest'
+    arguments: 'mock-register $(AcrBaseUrl).azurecr.io/mock-register:latest'
 
+# Shared SP ACR 
+# Pipeline variables are required : SharedAcrBaseUrl and SpSharedAcr
+
+# develop branch tags
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with develop-latest (for develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))  
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:develop-latest'
+
+# develop-latest-obligation-date tag
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with develop-latest-{obligation-date} (for develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag        
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:develop-latest-$(ObligationDateTag)'
+    
+# develop branch> build number tag only
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with build number (for develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.BuildId)'
+
+# main branch tags
+# Pipeline variables are required : SharedAcrBaseUrl
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with main-latest (for main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:main-latest'
+
+# main-latest-obligation-date tag
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with main-latest-{obligation-date} (for main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:main-latest-$(ObligationDateTag)'
+
+# Build number tag
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with build number (for main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.BuildId)'
+
+# Re tag for full version for releases branch
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with full version for releases branch'  
+  # Cannot use releases/* wildcard 
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)'
+
+# Re tag release full version and obligation date
+- task: Docker@2
+  displayName: 'Re-Tag Register API image with releases-{obligation-date} for releases branch'    
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)-$(ObligationDateTag)'
+
+#  Re tag Major and Mnior Tags using above variables
+- task: Docker@2
+  displayName: 'Re-Tag Register image with major and minor tags for releases branch'    
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag    
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:"$(majorMinorVersion)"'
+
+#  Re tag Major release Tag using above variables
+- task: Docker@2  
+  displayName: 'Re-Tag Register image with major tag for releases branch'    
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    containerRegistry: $(SpSharedAcr)
+    repository: 'mock-register'
+    command: tag
+    arguments: 'mock-register $(SharedAcrBaseUrl).azurecr.io/mock-register:"$(majorVersion)"'
+
+# Pushing develop branch tags changes to the ACR
 - task: CmdLine@2
   displayName: 'Push Register container image with :branch-name tag to ACR'
   inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:$(Build.SourceBranchName)' 
+    script: 'docker push $(AcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)' 
 
 - task: CmdLine@2
   displayName: 'Push Register container image with :latest tag to ACR (develop branch only)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   inputs:
-    script: 'docker push <<yourContainerRegistryName>>.azurecr.io/mock-register:latest' 
+    script: 'docker push $(AcrBaseUrl).azurecr.io/mock-register:latest' 
+
+- task: CmdLine@2
+  displayName: 'Push Register container image with :develop-latest tag to ACR (develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:develop-latest' 
+
+- task: CmdLine@2
+  displayName: 'Push Register container image with :develop-latest-obligation-date tag to ACR (develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:    
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:develop-latest-$(ObligationDateTag)'
+    
+- task: CmdLine@2
+  displayName: 'Push Register container image with :build id tag to ACR (develop branch only)'  
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.BuildId)'
+
+# Pushing main branch tags changes to the ACR
+- task: CmdLine@2
+  displayName: 'Push Register container image with :main-latest tag to ACR (main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:main-latest'
+
+- task: CmdLine@2
+  displayName: 'Push Register container image with :main-latest-obligation-date tag to ACR (main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:main-latest-$(ObligationDateTag)'
+    
+- task: CmdLine@2
+  displayName: 'Push Register container image with :build id tag to ACR (main branch only)'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.BuildId)'
+        
+# Push  release full version Tag
+- task: CmdLine@2
+  displayName: 'Push Register container image with releases tags to ACR (releases branch only)'  
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)'
+
+# Push  release full version Tag and obligation date
+- task: CmdLine@2  
+  displayName: 'Push Register container image with releases tags to ACR (releases branch only)'  
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:$(Build.SourceBranchName)-$(ObligationDateTag)'
+
+# Push Major and Minor release Tags using above variables
+- task: CmdLine@2  
+  displayName: 'Push Register container image with releases tags to ACR (releases branch only)'
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:    
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:"$(majorMinorVersion)"'
+  
+# Push Major release Tag using above variables
+- task: CmdLine@2  
+  displayName: 'Push Register container image with releases tags to ACR (releases branch only)'
+  condition: eq(startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/'), 'True')
+  inputs:
+    script: 'docker push $(SharedAcrBaseUrl).azurecr.io/mock-register:"$(majorVersion)"'

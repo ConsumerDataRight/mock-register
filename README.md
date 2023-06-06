@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](https://raw.githubusercontent.com/ConsumerDataRight/mock-register/main/cdr-logo.png) 
 
-[![Consumer Data Standards v1.22.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.22.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.22.0/#introduction)
+[![Consumer Data Standards v1.24.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.24.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.24.0/#introduction)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-register)](./LICENSE)
@@ -12,7 +12,7 @@ This project includes source code, documentation and instructions for the Consum
 The ACCC operates the CDR Register within the CDR ecosystem.  This repository contains a mock implementation of the CDR Register and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Register - Alignment
-The Mock Register aligns to [v1.22.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.22.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.22.0/#introduction).
+The Mock Register aligns to [v1.24.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.24.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.24.0/#introduction).
 
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:
@@ -58,6 +58,7 @@ Once the Mock Register is running, you can use the provided [Mock Register Postm
 Consult the [Certificate Management](https://github.com/ConsumerDataRight/mock-register/blob/main/CertificateManagement/README.md) documentation for more information about how certificates are used for the Mock Register.
 
 ## Loading your own data
+### Load your own data into the Mock Register  
 
 When the Mock Register first starts it will load data from the included `seed-data.json` file that is included in the `CDR.Register.Admin.API` project.  This file includes dummy metadata for data holders and data recipients.  When calls are made to the Mock Register endpoints the dummy metadata is returned.
 
@@ -95,6 +96,8 @@ There are a couple of ways to load your own data into the Mock Register:
 
 The Mock Register includes an Admin API that allows metadata to be downloaded and uploaded from the repository.  
 
+### Reload all test data via Admin API
+
 To retrieve the current metadata held within the repository make the following request to the Admin API:
 
 ```
@@ -115,7 +118,72 @@ POST https://localhost:7006/admin/metadata
 }
 ```
 
-**Note:** there is currently no authentication/authorisation applied to the Admin API endpoints as these are seen to be under the control of the container owner.  This can be added if there is community feedback to that effect or if a pull request is submitted.
+**Note:** there is currently **no authentication/authorisation applied to this Admin API endpoint** as these are seen to be under the control of the container owner. This can be added if there is community feedback to that effect or if a pull request is submitted.
+
+### Create or Update Data Holder records via the Admin API
+This API endpoint will allow you to create or update an existing data holder record. To create or update data holder metadata within the repository, make the following request to the Admin API data holders endpoint:
+
+  
+
+```
+
+POST https://localhost:7006/admin/metadata/data-holders
+
+```
+
+  
+
+The response will be a **200 OK** if the creation or update of the data holder record was successful. 
+```
+HTTP/1.1 200 OK
+{}
+```  
+### Create or Update Data Recipient records via the Admin API
+This API endpoint will allow you to create or update an existing data recipient record. To create or update data recipient metadata within the repository, make the following request to the Admin API data recipients endpoint:
+
+  
+
+```
+
+POST https://localhost:7006/admin/metadata/data-recipients
+
+```
+
+  
+
+The response will be a **200 OK** if the creation or update of the data recipient record was successful. 
+```
+HTTP/1.1 200 OK
+{}
+```  
+
+**Note:** The `/admin/metadata/data-recipients` and `/admin/metadata/data-holders` APIs **will have the option of running in an authenticated mode and an unauthenticated mode**. Running in an authenticated mode is required when the Mock Register is hosted in a secure environment and access to the `/admin/metadata/data-recipients` and `/admin/metadata/data-holders` APIs needs to be controlled. Running in an unauthenticated mode will be useful for local development tasks and for external users who have downloaded the Mock Register from GitHub or Docker Hub.
+
+New configuration values have been added to the Mock Register, to switch authentication on or off for the `/admin/metadata/data-recipients` and `/admin/metadata/data-holders` APIs.
+
+`"oidc": {`  
+`"issuer": "",`  
+`"scope": ""`  
+`}`
+
+If the **Mock Register can find an issuer in the** `oidc.issuer` **config setting** at start-up, then **Authentication will be applied** to the `/admin/metadata/data-recipients` and `/admin/metadata/data-holders` APIs.
+
+If the **Mock Register cannot find an issuer in the** `oidc.issuer` **config setting** at start-up, then **Authentication will not be applied** to the `/admin/metadata/data-recipients` and `/admin/metadata/data-holders` APIs.
+
+
+### Use the docker compose file to run a multi-container mock CDR Ecosystem
+
+  
+
+The [docker compose file](Source/DockerCompose/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
+
+  
+
+**Note:** the [docker compose file](Source/DockerCompose/docker-compose.yml) utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to use the [docker compose file](Source/DockerCompose/docker-compose.yml). See the Microsoft SQL Server Image on Docker Hub for more information.
+
+  
+
+To get help on launching and debugging the solutions as containers and switching out your solution(s), see the [help guide](./Help/container/HELP.md).
 
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:

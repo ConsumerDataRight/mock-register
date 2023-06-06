@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "54946f45-89ee-4740-9fe8-28fac95daea5",
+		"_postman_id": "cf100180-4947-4912-99ca-a7f7fb3bca67",
 		"name": "CDR Mock Register",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -184,7 +184,7 @@
 				"header": [
 					{
 						"key": "x-v",
-						"value": "1",
+						"value": "3",
 						"type": "text"
 					},
 					{
@@ -287,7 +287,7 @@
 				"header": [
 					{
 						"key": "x-v",
-						"value": "1",
+						"value": "2",
 						"type": "text"
 					},
 					{
@@ -499,7 +499,7 @@
 				"header": [
 					{
 						"key": "x-v",
-						"value": "1",
+						"value": "2",
 						"type": "text"
 					},
 					{
@@ -780,7 +780,7 @@
 				"header": [
 					{
 						"key": "x-v",
-						"value": "2",
+						"value": "3",
 						"type": "default"
 					}
 				],
@@ -889,6 +889,93 @@
 			"response": []
 		},
 		{
+			"name": "Admin API - Add or Update Data Recipient",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_api_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "Bearer ",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"legalEntityId\": \"f9bde9a1-9fef-4bd9-b7ef-877369e076e3\",\r\n  \"legalEntityName\": \"Mock Energy Company\",\r\n  \"accreditationNumber\": \"ADRENE000001\",\r\n  \"accreditationLevel\": \"UNRESTRICTED\",\r\n  \"logoUri\": \"https://mocksoftware/img/Companylogo.png\",\r\n  \"registrationNumber\": null,\r\n  \"registrationDate\": null,\r\n  \"registeredCountry\": null,\r\n  \"abn\": \"34241177887\",\r\n  \"acn\": \"241177887\",\r\n  \"arbn\": \"342411088\",\r\n  \"anzsicDivision\": null,\r\n  \"organisationType\": \"COMPANY\",\r\n  \"status\": \"ACTIVE\",\r\n  \"dataRecipientBrands\": [\r\n    {\r\n      \"dataRecipientBrandId\": \"d50b74cf-e992-42fd-86d4-582ac9d72dbc\",\r\n      \"brandName\": \"Mock Energy Tool\",\r\n      \"logoUri\": \"https://mocksoftware/img/brandlogo.png\",\r\n      \"status\": \"ACTIVE\",\r\n      \"softwareProducts\": [\r\n        {\r\n          \"softwareProductId\": \"4754cf30-6cc2-4a9a-a9e1-4fb8f6d42121\",\r\n          \"softwareProductName\": \"MyEnergyHelper\",\r\n          \"softwareProductDescription\": \"A product to help you manage your energy costs\",\r\n          \"logoUri\": \"https://mocksoftware/myenergyapp/img/logo.png\",\r\n          \"sectorIdentifierUri\": null,\r\n          \"clientUri\": \"https://mocksoftware/myenergyapp\",\r\n          \"tosUri\": \"https://mocksoftware/myenergyapp/terms\",\r\n          \"policyUri\": \"https://mocksoftware/myenergyapp/policy\",\r\n          \"recipientBaseUri\": \"https://mock-data-recipient:9001\",\r\n          \"revocationUri\": \"revocation\",\r\n          \"redirectUris\": [\r\n            \"consent/callback\",\r\n            \"consent/callback2\"\r\n          ],\r\n          \"jwksUri\": \"jwks\",\r\n          \"scope\": \"openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read common:customer.basic:read common:customer.detail:read cdr:registration cdr-register:bank:read cdr-register:read\",\r\n          \"status\": \"ACTIVE\",\r\n          \"certificates\": [\r\n            {\r\n              \"commonName\": \"MockDataRecipient\",\r\n              \"thumbprint\": \"715cdd04ff7332ccda74cdf9fbed16beba5dd744\"\r\n            }\r\n          ]\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7006/admin/metadata/data-recipients",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7006",
+					"path": [
+						"admin",
+						"metadata",
+						"data-recipients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin API - Add or Update Data Holder",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_api_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"dataHolderBrandId\": \"bb03be60-5c46-422e-a27e-aefa0015078d\",\r\n  \"brandName\": \"Luna\",\r\n  \"industries\": [\r\n    \"banking\"\r\n  ],\r\n  \"logoUri\": \"https://lunabrand/img/logo.png\",\r\n  \"status\": \"ACTIVE\",\r\n  \"endpointDetail\": {\r\n    \"version\": \"v1\",\r\n    \"publicBaseUri\": \"https://publicapi.lunabank\",\r\n    \"resourceBaseUri\": \"https://rb-api.lunabank\",\r\n    \"infosecBaseUri\": \"https://isb-api.lunabank\",\r\n    \"extensionBaseUri\": \"https://eb-api.lunabank\",\r\n    \"websiteUri\": \"https://ws-api.lunabank\"\r\n  },\r\n  \"authDetails\": {\r\n    \"registerUType\": \"SIGNED-JWT\",\r\n    \"jwksEndpoint\": \"https://idp.lunabank/jwks\"\r\n  },\r\n  \"legalEntity\": {\r\n    \"legalEntityId\": \"667407fc-dc7e-4be5-8795-5189240bcbca\",\r\n    \"legalEntityName\": \"Luna Bank\",\r\n    \"logoUri\": \"https://lunabank/img/logo.png\",\r\n    \"registrationNumber\": \"20032023\",\r\n    \"registrationDate\": \"2023-05-22\",\r\n    \"registeredCountry\": \"AU\",\r\n    \"abn\": \"12345678901\",\r\n    \"acn\": \"345678901\",\r\n    \"arbn\": \"345678901\",\r\n    \"anzsicDivision\": \"123\",\r\n    \"organisationType\": \"OTHER\",\r\n    \"status\": \"ACTIVE\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7006/admin/metadata/data-holders",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7006",
+					"path": [
+						"admin",
+						"metadata",
+						"data-holders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Admin API - Get Mock DR JWKS (Loopback)",
 			"request": {
 				"method": "GET",
@@ -929,6 +1016,70 @@
 							"key": "iss",
 							"value": "6F7A1B8E-8799-48A8-9011-E3920391F713"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin API - Get Access Token from Azure AD",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Body matches string\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+							"});\r",
+							"\r",
+							"var body = JSON.parse(responseBody);\r",
+							"pm.globals.set(\"admin_api_access_token\", body.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "default"
+						},
+						{
+							"key": "scope",
+							"value": "api://api-cts-mock-register-dev-api/.default",
+							"type": "default"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "default"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.microsoftonline.com/{{tenantid}}/oauth2/v2.0/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"microsoftonline",
+						"com"
+					],
+					"path": [
+						"{{tenantid}}",
+						"oauth2",
+						"v2.0",
+						"token"
 					]
 				}
 			},

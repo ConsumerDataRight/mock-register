@@ -22,4 +22,4 @@ RUN sudo update-ca-certificates
 WORKDIR /src/CDR.Register.IntegrationTests
 RUN dotnet build --configuration Release
 
-ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--no-build", "--logger", "trx;verbosity=detailed;LogFileName=results.trx", "-r", "/testresults"]
+ENTRYPOINT dotnet test --configuration Release --no-build --filter ${TEST_FILTER} --logger "trx;verbosity=detailed;LogFileName=results.trx;" -r /testresults

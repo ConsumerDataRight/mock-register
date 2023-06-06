@@ -1,3 +1,4 @@
+using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
@@ -7,7 +8,6 @@ using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,11 +23,13 @@ namespace CDR.Register.Discovery.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }        
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             services.AddRegisterDiscovery(Configuration)
                     .AddRegisterDiscoverySwagger();
 
@@ -41,8 +43,8 @@ namespace CDR.Register.Discovery.API
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ErrorResponses = new ErrorResponseVersion();
                 options.ApiVersionSelector = new ApiVersionSelector(options);
+                options.ErrorResponses = new ErrorResponseVersion();
             });
 
             // This is to manage the EF database context through the web API DI.
@@ -69,6 +71,8 @@ namespace CDR.Register.Discovery.API
             {
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
+
+            app.UseBasePathOrExpression(Configuration);
 
             app.UseSerilogRequestLogging();
 

@@ -13,7 +13,7 @@ namespace CDR.Register.Repository.Entities
 
         [Key]
         public Guid BrandId { get; set; }
-        [MaxLength(100), Required]
+        [MaxLength(200), Required]
         public string BrandName { get; set; }
         [MaxLength(1000), Required]
         public string LogoUri { get; set; }

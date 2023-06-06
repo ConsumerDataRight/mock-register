@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using static CDR.Register.API.Infrastructure.Constants;
 
 namespace CDR.Register.API.Infrastructure.Middleware
 {
@@ -36,10 +38,20 @@ namespace CDR.Register.API.Infrastructure.Middleware
                     handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVInvalidVersion(), jsonSerializerSettings);
                 }
 
-                if (ex is UnsupportedVersionException exception)
+                if (ex is UnsupportedVersionException)
                 {
                     statusCode = (int)HttpStatusCode.NotAcceptable;
-                    handledError = Newtonsoft.Json.JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVUnsupportedVersion(exception.Message), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVUnsupportedVersion(), jsonSerializerSettings);
+                }
+
+                if (ex is MissingRequiredHeaderException)
+                {
+                    var missingRequiredHeaderException = ex as MissingRequiredHeaderException;
+                    if (missingRequiredHeaderException.HeaderName == Headers.X_V)
+                    {
+                        statusCode = (int)HttpStatusCode.BadRequest;
+                        handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVMissingRequiredHeader(), jsonSerializerSettings);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(handledError))

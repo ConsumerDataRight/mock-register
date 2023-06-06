@@ -13,7 +13,7 @@ namespace CDR.Register.Infosec.Services
             _infosecRepository = infosecRepository;
         }
 
-        public async Task<SoftwareProductInfosec?> GetClientAsync(string clientId)
+        public async Task<SoftwareProductInfosec> GetClientAsync(string clientId)
         {
             if (!Guid.TryParse(clientId, out Guid softwareProductId))
             {

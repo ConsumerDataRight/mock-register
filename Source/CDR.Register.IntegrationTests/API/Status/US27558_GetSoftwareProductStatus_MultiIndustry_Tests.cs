@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 #nullable enable
 
@@ -19,6 +20,7 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>   
     public class US27558_GetSoftwareProductStatus_MultiIndustry_Tests : BaseTest
     {
+        public US27558_GetSoftwareProductStatus_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
         private static string GetExpectedSoftwareProductStatus(string url)
         {
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
@@ -76,52 +78,20 @@ namespace CDR.Register.IntegrationTests.API.Status
             }
         }
 
-        //[Theory]
-        //[InlineData(null)] // DF: this will no longer throw an error.
-        //public async Task AC02_Get_WithMissingXV_ShouldRespondWith_400BadRequest(string? XV)
-        //{
-        //    // Act
-        //    var response = await new Infrastructure.API
-        //    {
-        //        HttpMethod = HttpMethod.Get,
-        //        URL = $"{TLS_BaseURL}/cdr-register/v1/data-recipients/brands/software-products/status",
-        //        XV = XV
-        //    }.SendAsync();
-
-        //    // Assert
-        //    using (new AssertionScope())
-        //    {
-        //        // Assert - Check status code
-        //        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        //        // Assert - Check content type
-        //        Assert_HasContentType_ApplicationJson(response.Content);
-
-        //        // Assert - Check error response
-        //        var expectedContent = @"
-        //        {
-        //        ""errors"": [
-        //            {
-        //            ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
-        //            ""title"": ""Missing Required Header"",
-        //            ""detail"": """",
-        //            ""meta"": {}
-        //            }
-        //        ]
-        //        }";
-        //        await Assert_HasContent_Json(expectedContent, response.Content);
-        //    }
-        //}
-
+        [Trait("Category", "CTSONLY")]
         [Theory]
-        [InlineData("foo")]
-        public async Task AC07_Get_WithInvalidXV_ShouldRespondWith_400BadRequest(string? XV)
+        [InlineData("2", "2")]
+        public async Task AC01_CTS_URL_Get_WithXV_ShouldRespondWith_200OK_SoftwareProducts(string? XV, string expectedXV)
         {
+            // Arrange 
+            var url = $"{GenerateDynamicCtsUrl(STATUS_DOWNSTREAM_BASE_URL)}/cdr-register/v1/all/data-recipients/brands/software-products/status";
+            var expectedSoftwareProductsStatus = GetExpectedSoftwareProductStatus(url);
+
             // Act
             var response = await new Infrastructure.API
             {
                 HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/software-products/status",
+                URL = url,
                 XV = XV
             }.SendAsync();
 
@@ -129,62 +99,16 @@ namespace CDR.Register.IntegrationTests.API.Status
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 // Assert - Check content type
                 Assert_HasContentType_ApplicationJson(response.Content);
 
-                // Assert - Check error response
-                var expectedContent = @"
-                {
-                ""errors"": [
-                    {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
-                    ""title"": ""Invalid Version"",
-                    ""detail"": """",
-                    ""meta"": {}
-                    }
-                ]
-                }";
-                await Assert_HasContent_Json(expectedContent, response.Content);
-            }
-        }
+                // Assert - Check XV
+                Assert_HasHeader(expectedXV, response.Headers, "x-v");
 
-        [Theory]
-        [InlineData("3")]
-        [InlineData("99")]
-        public async Task AC03_Get_UnsupportedXV_ShouldRespondWith_406NotAcceptable(string XV)
-        {
-            // Act
-            var response = await new Infrastructure.API
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/software-products/status",
-                XV = XV
-            }.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
-
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
-
-                // Assert - Check error response
-                var expectedContent = @"
-                {
-                ""errors"": [
-                    {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
-                    ""title"": ""Unsupported Version"",
-                    ""detail"": ""minimum version: 1, maximum version: 2"",
-                    ""meta"": {}
-                    }
-                ]
-                }";
-                await Assert_HasContent_Json(expectedContent, response.Content);
+                // Assert - Check json
+                await Assert_HasContent_Json(expectedSoftwareProductsStatus, response.Content);
             }
         }
 
@@ -259,123 +183,25 @@ namespace CDR.Register.IntegrationTests.API.Status
         }
 
         [Theory]
-        [InlineData("99", "2")]
-        public async Task ACXX_Get_WithMinXV_ShouldRespondWith_200OK(string xv, string minXv)
+        [InlineData("2",    "3",    "2",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v2 - x-min-v is ignored when > x-v
+        [InlineData("2",    "1",    "2",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v2 - x-v is supported and higher than x-min-v 
+        [InlineData("2",    "2",    "2",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v2 - x-v is supported equal to x-min-v 
+        [InlineData("3",    "2",    "2",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z       
+        [InlineData("3",    "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is supported but x-min-v is invalid (not a positive integer) 
+        [InlineData("4",    "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is not supported and x-min-v is invalid (not a positive integer) 
+        [InlineData("3",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is not supported and x-min-v invalid
+        [InlineData("3",    "3",    "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. Both x-v and x-min-v exceed supported version of 2
+        [InlineData("1",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is an obsolete version        
+        [InlineData("foo",  null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("0",    null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("foo",  "2",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
+        [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
+        [InlineData("3",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 2
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]      //Invalid. x-v header is missing      
+
+        public async Task ACXX_VersionHeaderValidation(string xv, string minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
-            // Act
-            var response = await new Infrastructure.API
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/software-products/status",
-                XV = xv,
-                XMinV = minXv
-            }.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
-
-                // Assert - Check error response
-                Assert_HasHeader("2", response.Headers, "x-v");
-            }
-        }
-
-        [Theory]
-        [InlineData("2", "2")]
-        [InlineData("2", "3")]
-        public async Task ACXX_Get_WithMinXVGreaterThanOrEqualToXV_ShouldBeIgnored_200OK(string xv, string minXv)
-        {
-            // Act
-            var response = await new Infrastructure.API
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/software-products/status",
-                XV = xv,
-                XMinV = minXv
-            }.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
-
-                // Assert - Check error response
-                Assert_HasHeader("2", response.Headers, "x-v");
-            }
-        }
-
-        [Theory]
-        [InlineData(null, "2")]
-        [InlineData(null, "3")]
-        public async Task ACXX_Get_WithMinXVAndNoXV_ShouldBeIgnored_200OK(string xv, string minXv)
-        {
-            // Act
-            var response = await new Infrastructure.API
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/software-products/status",
-                XV = xv,
-                XMinV = minXv
-            }.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
-
-                // Assert - Check error response
-                Assert_HasHeader("1", response.Headers, "x-v");
-            }
-        }
-
-        [Theory]
-        [InlineData("99", "foo")]
-        [InlineData("99", "0")]
-        [InlineData("99", "-1")]
-        public async Task ACXX_Get_WithInvalidMinXV_ShouldReturnInvalidVersionError_400BadRequest(string xv, string minXv)
-        {
-            // Act
-            var response = await new Infrastructure.API
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/software-products/status",
-                XV = xv,
-                XMinV = minXv
-            }.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-                // Assert - Check content type
-                Assert_HasContentType_ApplicationJson(response.Content);
-
-                // Assert - Check error response
-                await Assert_HasContent_Json(EXPECTEDCONTENT_INVALIDXV, response.Content);
-            }
-        }
-
-        [Theory]
-        [InlineData("99", "10")]
-        public async Task ACXX_Get_WithUnsupportedMinXV_ShouldReturnUnsupportedVersionError_406NotAccepted(string xv, string minXv)
-        {
-            // Arrange
-            var expectedContent = EXPECTEDCONTENT_UNSUPPORTEDXV.Replace("#{minVersion}", "1").Replace("#{maxVersion}", "2");
 
             // Act
             var response = await new Infrastructure.API
@@ -390,13 +216,22 @@ namespace CDR.Register.IntegrationTests.API.Status
             using (new AssertionScope())
             {
                 // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
+                response.StatusCode.Should().Be(expectedHttpStatusCode);
 
                 // Assert - Check content type
                 Assert_HasContentType_ApplicationJson(response.Content);
 
-                // Assert - Check error response
-                await Assert_HasContent_Json(expectedContent, response.Content);
+                if (isExpectedToBeSupported)
+                {
+                    // Assert - Check x-v returned header
+                    Assert_HasHeader(expectedXv, response.Headers, "x-v");
+                }
+                else
+                {
+                    // Assert - Check error response
+                    await Assert_HasContent_Json(expecetdError, response.Content);
+                }
+
             }
         }
     }

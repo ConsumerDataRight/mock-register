@@ -34,70 +34,14 @@ namespace CDR.Register.SSA.API.Business
             _tokenizer = tokenizer;
         }
 
-        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV1(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        public async Task<string> GetSoftwareStatementAssertionJWTAsync(Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             // Get the SSA to be put in a JWT
-            var ssa = await GetSoftwareStatementAssertionAsyncXV1(industry, dataRecipientBrandId, softwareProductId);
-            FilterBankingScopes(ssa);
+            var ssa = await GetSoftwareStatementAssertionAsync(industry, dataRecipientBrandId, softwareProductId);
             return await _tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
-        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsyncXV1(Industry industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
-            var ssa = _mapper.Map(softwareProductEntity);
-            if (ssa == null)
-            {
-                return null;
-            }
-
-            using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionAsync"))
-            {
-                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
-            }
-
-            // Validate the SSA
-            Validate(ssa);
-
-            return ssa;
-        }
-
-        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV2(Industry industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            // Get the SSA to be put in a JWT
-            var ssa = await GetSoftwareStatementAssertionAsyncXV2(industry, dataRecipientBrandId, softwareProductId);
-            FilterBankingScopes(ssa);
-            return await _tokenizer.GenerateJwtTokenAsync(ssa);
-        }
-
-        public async Task<SoftwareStatementAssertionModelV2> GetSoftwareStatementAssertionAsyncXV2(Industry industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
-            var ssa = _mapper.MapV2(softwareProductEntity);
-            if (ssa == null)
-            {
-                return null;
-            }
-
-            using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionAsync"))
-            {
-                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
-            }
-
-            // Validate the SSA
-            Validate(ssa);
-
-            return ssa;
-        }
-
-        public async Task<string> GetSoftwareStatementAssertionJWTAsyncXV3(Industry industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            // Get the SSA to be put in a JWT
-            var ssa = await GetSoftwareStatementAssertionAsyncXV3(industry, dataRecipientBrandId, softwareProductId);
-            return await _tokenizer.GenerateJwtTokenAsync(ssa);
-        }
-
-        public async Task<SoftwareStatementAssertionModelV3> GetSoftwareStatementAssertionAsyncXV3(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
             var ssa = _mapper.MapV3(softwareProductEntity);
@@ -139,35 +83,5 @@ namespace CDR.Register.SSA.API.Business
             var softwareProductGuid = Guid.Parse(softwareProductId);
             return await _repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
         }
-
-        /// <summary>
-        /// Used by the v1 and v2 Get SSA API to only return banking related scopes.
-        /// </summary>
-        private static void FilterBankingScopes(SoftwareStatementAssertionModel ssa)
-        {
-            if (ssa == null || string.IsNullOrEmpty(ssa.scope))
-            {
-                return;
-            }
-
-            var scopes = ssa.scope.Split(' ');
-            var allowedScopes = new string[]
-            {
-                "openid",
-                "profile",
-                "bank:accounts.basic:read",
-                "bank:accounts.detail:read",
-                "bank:transactions:read",
-                "bank:payees:read",
-                "bank:regular_payments:read",
-                "common:customer.basic:read",
-                "common:customer.detail:read",
-                "cdr:registration",
-            };
-
-            // Filter the provided list of scopes with the allowed scopes.
-            ssa.scope = String.Join(' ', scopes.Where(s => allowedScopes.Contains(s)));
-        }
-
     }
 }

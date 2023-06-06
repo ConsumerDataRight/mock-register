@@ -3,7 +3,7 @@
 
     // Get Token
     {
-      "DownstreamPathTemplate": "/connect/token",
+      "DownstreamPathTemplate": "/idp/connect/token",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {

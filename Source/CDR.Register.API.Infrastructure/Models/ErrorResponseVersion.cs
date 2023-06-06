@@ -16,6 +16,12 @@ namespace CDR.Register.API.Infrastructure.Models
                     {
                         StatusCode = (int)HttpStatusCode.NotAcceptable
                     };
+
+                case "MissingRequiredHeader":
+                    return new ObjectResult(new ResponseErrorList().InvalidXVMissingRequiredHeader())
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest
+                    };
             }
 
             return base.CreateResponse(context);

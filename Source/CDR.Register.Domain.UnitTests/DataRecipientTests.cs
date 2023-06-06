@@ -15,6 +15,7 @@ namespace CDR.Register.Domain.UnitTests
             new object[] { Array.Empty<DataRecipientBrand>() },
             new object[] { null }
         };
+
         [Theory]
         [MemberData(nameof(GetEmptyDataRecipientBrands))]
         public void LastUpdated_NoBrands_ShouldReturnNull(DataRecipientBrand[] brands)

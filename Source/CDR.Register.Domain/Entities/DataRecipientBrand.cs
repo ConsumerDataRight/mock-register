@@ -5,6 +5,6 @@ namespace CDR.Register.Domain.Entities
     public class DataRecipientBrand : Brand
     {
         public DataRecipient DataRecipient { get; set; }
-        public IList<SoftwareProduct> SoftwareProducts { get; set; }
+        public ICollection<SoftwareProduct> SoftwareProducts { get; set; }
     }
 }

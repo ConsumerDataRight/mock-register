@@ -1,3 +1,4 @@
+﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Logger;
@@ -43,6 +44,7 @@ namespace CDR.Register.Infosec
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IRegisterInfosecRepository, RegisterInfosecRepository>();
+            services.AddHttpContextAccessor();
 
             if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
             {
@@ -79,16 +81,18 @@ namespace CDR.Register.Infosec
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
 
+            app.UseBasePathOrExpression(Configuration);
+
             app.UseSerilogRequestLogging();
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            
             app.UseAuthentication();
             app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
