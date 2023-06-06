@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Configuration;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Exceptions;
@@ -108,8 +109,11 @@ namespace CDR.Register.API.Gateway.mTLS
                     // The thumbprint and common name from the client certificate are extracted and added as headers for the downstream services.
                     if (clientCert != null)
                     {
-                        httpContext.Request.Headers.Add("X-TlsClientCertThumbprint", clientCert.Thumbprint);
-                        httpContext.Request.Headers.Add("X-TlsClientCertCN", clientCert.GetNameInfo(X509NameType.SimpleName, false));
+                        var certThumbprintNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
+                        var certCommonNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
+
+                        httpContext.Request.Headers.Add(certThumbprintNameHttpHeaderName, clientCert.Thumbprint);
+                        httpContext.Request.Headers.Add(certCommonNameHttpHeaderName, clientCert.GetNameInfo(X509NameType.SimpleName, false));
                     }
 
                     // Send through the original host name to the backend service.

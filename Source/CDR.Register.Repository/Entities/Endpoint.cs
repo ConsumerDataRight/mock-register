@@ -11,13 +11,13 @@ namespace CDR.Register.Repository.Entities
         public Guid BrandId { get; set; }
         [MaxLength(25), Required]
         public string Version { get; set; }
-        [MaxLength(500), Required]
+        [MaxLength(1000), Required]
         public string PublicBaseUri { get; set; }
-        [MaxLength(500), Required]
+        [MaxLength(1000), Required]
         public string ResourceBaseUri { get; set; }
-        [MaxLength(500), Required]
+        [MaxLength(1000), Required]
         public string InfosecBaseUri { get; set; }
-        [MaxLength(500)]
+        [MaxLength(1000)]
         public string ExtensionBaseUri { get; set; }
         [MaxLength(1000), Required]
         public string WebsiteUri { get; set; }

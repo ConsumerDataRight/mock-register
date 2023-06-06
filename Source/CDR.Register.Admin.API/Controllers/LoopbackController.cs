@@ -1,9 +1,11 @@
 ﻿using CDR.Register.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Serilog.Context;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -14,6 +16,7 @@ namespace CDR.Register.Admin.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [ApiVersionNeutral]
     public class LoopbackController : Controller
     {
 
@@ -76,6 +79,11 @@ namespace CDR.Register.Admin.API.Controllers
                 softwareProductId = iss.ToString();
             }
 
+            if (Request.Query.TryGetValue("aud", out var aud))
+            {
+                audience = aud.ToString();                
+            }
+
             using (var rsa = RSA.Create())
             {
                 rsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
@@ -117,7 +125,8 @@ namespace CDR.Register.Admin.API.Controllers
         public IActionResult RegisterSelfSignedJwt(
             [FromQuery] string aud)
         {
-            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path"), _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);            
+            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path"), _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert64 = Convert.ToBase64String(cert.RawData);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
             var descriptor = new SecurityTokenDescriptor

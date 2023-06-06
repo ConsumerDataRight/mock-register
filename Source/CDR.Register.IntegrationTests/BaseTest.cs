@@ -1,18 +1,27 @@
-﻿using CDR.Register.IntegrationTests.Extensions;
+﻿using CDR.Register.IntegrationTests.API.Update;
+using CDR.Register.IntegrationTests.Extensions;
 using FluentAssertions;
+using FluentAssertions.Execution;
+using FluentAssertions.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Exceptions;
+using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 #nullable enable
@@ -25,12 +34,10 @@ namespace CDR.Register.IntegrationTests
 
         public override void Before(MethodInfo methodUnderTest)
         {
+            Log.Information($"********** Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name} **********");
             Console.WriteLine($"Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name}");
         }
 
-        // public override void After(MethodInfo methodUnderTest)
-        // {
-        // }
     }
 
     // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
@@ -41,13 +48,23 @@ namespace CDR.Register.IntegrationTests
     {
     }
 
-    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
-    // [Collection("IntegrationTests")]
-    // [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
-    // [DisplayTestMethodName]
-    // abstract public class BaseTest : IClassFixture<TestFixture>
     abstract public class BaseTest : BaseTest0, IClassFixture<TestFixture>
     {
+
+        public BaseTest(ITestOutputHelper output)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                .Enrich.WithExceptionDetails()
+                .WriteTo.Logger(l =>
+                {
+                    l.WriteTo.File("AutomationLog.txt");
+                })
+                .WriteTo.TestOutput(output)
+                .CreateLogger();
+        }
+
+
         const string REGISTER_RW = "DefaultConnection";
 
         static public string CONNECTIONSTRING_REGISTER_RW =>
@@ -65,6 +82,7 @@ namespace CDR.Register.IntegrationTests
                         .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json")
                         .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+                        .AddEnvironmentVariables()
                         .Build();
                 }
 
@@ -77,6 +95,8 @@ namespace CDR.Register.IntegrationTests
         protected const string CERTIFICATE_PASSWORD = "#M0ckDataRecipient#";
         protected const string ADDITIONAL_CERTIFICATE_FILENAME = "Certificates/client-additional.pfx";
         protected const string ADDITIONAL_CERTIFICATE_PASSWORD = CERTIFICATE_PASSWORD;
+        protected const string DEFAULT_CERTIFICATE_THUMBPRINT = "715cdd04ff7332ccda74cdf9fbed16beba5dd744";
+        protected const string DEFAULT_CERTIFICATE_COMMON_NAME = "MockDataRecipient";
 
         // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)
         public static string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
@@ -88,30 +108,56 @@ namespace CDR.Register.IntegrationTests
             ?? throw new Exception($"{nameof(MTLS_BaseURL)} - configuration setting not found");
         static public string ADMIN_BaseURL => Configuration["Admin_BaseURL"]
             ?? throw new Exception($"{nameof(ADMIN_BaseURL)} - configuration setting not found");
-
         static public string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
         static public string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
 
-        protected const string EXPECTEDCONTENT_INVALIDXV = @"
-            {
-                ""errors"": [
-                    {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
-                    ""title"": ""Invalid Version"",
-                    ""detail"": """",
-                    ""meta"": {}
-                    }
-                ]
-            }";
+        // START CTS Settings
+        static public string AZURE_AD_TOKEN_ENDPOINT_URL => Configuration["CtsSettings:AzureAd:TokenEndpointUrl"] ?? throw new Exception($"{nameof(AZURE_AD_TOKEN_ENDPOINT_URL)} - configuration setting not found");
+        static public string AZURE_AD_CLIENT_ID => Configuration["CtsSettings:AzureAd:ClientId"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_ID)} - configuration setting not found");
+        static public string AZURE_AD_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:ClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_SECRET)} - configuration setting not found");
+        static public string AZURE_AD_UNAUTHORISED_CLIENT_ID => Configuration["CtsSettings:AzureAd:UnauthorisedClientId"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_ID)} - configuration setting not found");
+        static public string AZURE_AD_UNAUTHORISED_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:UnauthorisedClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_SECRET)} - configuration setting not found");
+        static public string AZURE_AD_SCOPE => Configuration["CtsSettings:AzureAd:Scope"] ?? throw new Exception($"{nameof(AZURE_AD_SCOPE)} - configuration setting not found");
+        static public string AZURE_AD_GRANT_TYPE => Configuration["CtsSettings:AzureAd:GrantType"] ?? throw new Exception($"{nameof(AZURE_AD_GRANT_TYPE)} - configuration setting not found");
+        public const string EXPIRED_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiI3YzVmZmE2Yy1jN2ZhLTRlNDktODMyZi1lZWQ0MzBmODE1MjUiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYWZiYmE3ZDAtNjc2Zi00MGI3LTkwYmQtOGY0NjM4MDM0YjgyL3YyLjAiLCJpYXQiOjE2ODM3ODIyMTgsIm5iZiI6MTY4Mzc4MjIxOCwiZXhwIjoxNjgzNzg2MTE4LCJhaW8iOiJFMlpnWUdnS2VoSXp6ODFpMWFYazA2NG5jcU15ZU90dUNhOUs4NTB6dGNiYjhvR1g5UVVBIiwiYXpwIjoiMzA5MjJhZWUtMDc5OS00NzkxLWFkNDUtMjI2NTUwZjg2OGJlIiwiYXpwYWNyIjoiMSIsIm9pZCI6ImY0ZGZmMGU2LTQxYjMtNDFlNy1iNWFiLWQ0MzNjZTg4MTY5NiIsInJoIjoiMC5BVUVBMEtlN3IyOW50MENRdlk5R09BTkxnbXo2WDN6NngwbE9neV91MURENEZTVkJBQUEuIiwicm9sZXMiOlsiQXBpLkFkbWluLlBhcnRpY2lwYW50TWV0YURhdGEuV3JpdGUiLCJBcGkuQWRtaW4uUGFydGljaXBhbnRNZXRhRGF0YS5SZWFkIl0sInN1YiI6ImY0ZGZmMGU2LTQxYjMtNDFlNy1iNWFiLWQ0MzNjZTg4MTY5NiIsInRpZCI6ImFmYmJhN2QwLTY3NmYtNDBiNy05MGJkLThmNDYzODAzNGI4MiIsInV0aSI6IlB6SEF3aTlXY2t5dXRkbGRSSkVTQUEiLCJ2ZXIiOiIyLjAifQ.VjMh6-FRMLWAIkYloADH--fTgUVfNgN2XYx3yeJUew1JiCRpiABj4JYkieBxkQ4vrWfj79F3O1ggf2SEOy49nym037CdA3TfW83kpw7MOVHH38-VG-LR_sobAMsS40N4dwNrvsfRQxjQha8gcnskPvtYAWYOII2vfMFxrxAeChwsDGd6A-b5-vo26GyQjebZLcfhMAgu79HFKgIrQRg9MYQ5ZI2wISi2T_d43RYyluXHBtVyCRIfEmUy3aTyJBo6ZHW5omhbUgDp9otwUmwFkv4xrmdrz5ADgqaMelEVllyJrUD9de_wvAh9V5q5Bu6bJhufQoKWXgO-dKIx6baJOA";
 
+        static public string SSA_DOWNSTREAM_BASE_URL => Configuration["SSA_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(SSA_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        static public string DISCOVERY_DOWNSTREAM_BASE_URL => Configuration["Discovery_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(DISCOVERY_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        static public string STATUS_DOWNSTREAM_BASE_URL => Configuration["Status_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(STATUS_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        static public string IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL => Configuration["IdentityProvider_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        //END CTS Settings
 
-        protected const string EXPECTEDCONTENT_UNSUPPORTEDXV = @"
+        protected const string EXPECTED_UNSUPPORTED_ERROR = @"
             {
                 ""errors"": [
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
-                    ""detail"": ""minimum version: #{minVersion}, maximum version: #{maxVersion}"",
+                    ""detail"": ""Version Requested is lower than the minimum version or greater than maximum version"",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
+        protected const string EXPECTED_INVALID_VERSION_ERROR = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
+                    ""title"": ""Invalid Version"",
+                    ""detail"": ""Version header must be a positive integer between 1 and 1000"",
+                    ""meta"": {}
+                    }
+                ]
+            }";
+
+        protected const string EXPECTED_MSSING_X_V_ERROR = @"
+            {
+                ""errors"": [
+                    {
+                    ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
+                    ""title"": ""Missing Required Header"",
+                    ""detail"": ""An API version X-V Header is required but was not specified"",
                     ""meta"": {}
                     }
                 ]
@@ -125,6 +171,7 @@ namespace CDR.Register.IntegrationTests
         public static async Task Assert_HasContent_Json(string expectedJson, HttpContent content)
         {
             var actualJson = await content.ReadAsStringAsync();
+            Log.Information($"Verifying Acutal Json:\n{actualJson}\n against expected:\n{expectedJson}");
             Assert_Json(expectedJson, actualJson);
         }
 
@@ -135,16 +182,11 @@ namespace CDR.Register.IntegrationTests
         /// <param name="actualJson">The actual json</param>       
         public static void Assert_Json(string expectedJson, string actualJson)
         {
-            // Remove formatting from expectedJson
-            var expectedObject = JsonConvert.DeserializeObject<object>(expectedJson);
-            expectedJson = JsonConvert.SerializeObject(expectedObject, new JsonSerializerSettings { Formatting = Formatting.None });
-
-            // Remove formatting from actualJson
-            var actualObject = JsonConvert.DeserializeObject<object>(actualJson);
-            actualJson = JsonConvert.SerializeObject(actualObject, new JsonSerializerSettings { Formatting = Formatting.None });
-
-            // Compare
-            actualJson.Should().Be(expectedJson);
+            Log.Information($"Verifying Acutal Json:\n{actualJson}\n against expected:\n{expectedJson}");
+            //Use Fluentassertions.Json to compare. Whitespace and order is ignored.
+            JToken expected = JToken.Parse(expectedJson);
+            JToken actual = JToken.Parse(actualJson);
+            actual.Should().BeEquivalentTo(expected);
         }
 
         /// <summary>
@@ -197,6 +239,11 @@ namespace CDR.Register.IntegrationTests
             {
                 claims.FirstOrDefault(claim => claim.Type == claimType && claim.Value == claimValue).Should().NotBeNull($"Expected {claimType}={claimValue}");
             }
+        }
+
+        protected string GetJsonFromModel<T>(T model)
+        {
+            return JsonConvert.SerializeObject(model, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
         /// <summary>
@@ -325,6 +372,161 @@ namespace CDR.Register.IntegrationTests
             {
                 throw new Exception("Status not updated");
             };
+        }
+        protected static void VerifyParticipationRecord(string legalEntiryId, string expectedParticipationType, string expectedIndustryType, string expectedStatus)
+        {
+            using SqlConnection registerConnection = new SqlConnection(BaseTest.CONNECTIONSTRING_REGISTER_RW);
+
+            bool singleRow;
+            try
+            {
+                registerConnection.Open();
+
+                string sqlCommand = @$"
+                    SELECT 
+                        p.ParticipationId,
+                        pt.ParticipationTypeCode,
+                        i.IndustryTypeCode,
+                        ps.ParticipationStatusCode 
+                    FROM 
+                        Participation p 
+	                    FULL JOIN ParticipationType pt ON p.ParticipationTypeId = pt.ParticipationTypeId
+	                    FULL JOIN IndustryType i ON p.IndustryId = i.IndustryTypeId
+				        FULL JOIN ParticipationStatus ps ON p.StatusId = ps.ParticipationStatusId
+                    WHERE 
+                        p.LegalEntityId = '{legalEntiryId}'
+                        AND pt.ParticipationTypeCode = '{expectedParticipationType}' ";
+
+                if (expectedIndustryType == null)
+                {
+                    sqlCommand += "AND i.IndustryTypeCode IS NULL";
+                }
+                else
+                {
+                    sqlCommand += $"AND i.IndustryTypeCode = '{expectedIndustryType}'";
+                }
+
+                using SqlCommand selectCommand = new SqlCommand(sqlCommand, registerConnection);
+
+                using SqlDataReader sqlDataReader = selectCommand.ExecuteReader();
+
+                singleRow = sqlDataReader.Read();
+
+                using (new AssertionScope())
+                {
+                    sqlDataReader.GetGuid(sqlDataReader.GetOrdinal("ParticipationId")).Should().NotBeEmpty();
+                    sqlDataReader.GetString(sqlDataReader.GetOrdinal("ParticipationTypeCode")).Should().Be(expectedParticipationType);
+                    sqlDataReader.GetString(sqlDataReader.GetOrdinal("ParticipationStatusCode")).Should().Be(expectedStatus);
+                    singleRow.Should().BeTrue(because: "Only one participation record is expceted");
+
+                    if (expectedIndustryType != null)
+                    {
+                        if (!sqlDataReader.IsDBNull(sqlDataReader.GetOrdinal("IndustryTypeCode")))
+                        {
+                            sqlDataReader.GetString(sqlDataReader.GetOrdinal("IndustryTypeCode")).Should().Be(expectedIndustryType);
+                        }
+                        else
+                        {
+                            throw new Exception($"Expected Industry Type of {expectedIndustryType} but found null");
+                        }
+                    }
+                    else
+                    {
+                        sqlDataReader.IsDBNull(sqlDataReader.GetOrdinal("IndustryTypeCode")).Should().BeTrue();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error Getting Participation Record for Legal Entity: {legalEntiryId}", e);
+            }
+        }
+
+        protected async Task VerifyBadRequest(ExpectedErrors expectedErrors, HttpResponseMessage httpResponseFromRegister)
+        {
+            Log.Information($"Expected error response: \n{GetJsonFromModel(expectedErrors)}");
+            
+            using (new AssertionScope())
+            {
+                //Check status code
+                httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+                string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
+
+                Assert_Json(GetJsonFromModel(expectedErrors), actualErrors);
+            }
+        }
+
+        protected async Task VerifyUnauthorisedRequest(HttpResponseMessage httpResponseFromRegister)
+        {
+            var expectedErrorJson = "{\"error\":\"invalid_token\"}";
+            Log.Information($"Expected error response: \n{expectedErrorJson}");
+
+            using (new AssertionScope())
+            {
+                //Check status code
+                httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+
+                string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
+
+                Assert_Json(expectedErrorJson, actualErrors);
+
+            }
+        }
+
+        protected string ConvertJsonPathToPascalCase(string jsonPath)
+        {
+            string[] allParts = jsonPath.Split(".");
+
+            for (int i = 0; i < allParts.Length; i++)
+            {
+                allParts[i] = char.ToUpper(allParts[i][0]) + allParts[i].Substring(1);
+            }
+
+            return string.Join(".", allParts);
+        }
+
+        protected T? RemoveModelElementBasedOnJsonPath<T>(T model, string path)
+        {
+            JToken mainJoken = JObject.FromObject(model ?? throw new NullException("Model cannot be null."));
+
+            //If an array element, remove element.
+            if (path.Last() == ']')
+            {
+                JToken token = mainJoken.SelectToken(path, true) ?? throw new NullException("mainJoken cannot be null.");
+                token.Remove();
+                mainJoken.RemoveEmptyArrays();
+            }
+            else
+            {
+                mainJoken.RemovePath(path);
+            }
+
+            return mainJoken.ToObject<T>();
+
+        }
+
+        protected T? ReplaceModelValueBasedOnJsonPath<T>(T model, string path, string newValue)
+        {
+            JToken mainJoken = JObject.FromObject(model ?? throw new NullException("Model cannot be null."));
+
+            JToken tokenToUpdate = mainJoken.SelectToken(path) ?? throw new NullException($"tokenToUpdate is null. Ensure json path '{path}' exists."); ;
+
+            tokenToUpdate.Replace(newValue);
+
+            return mainJoken.ToObject<T>();
+
+        }
+        public static string GenerateDynamicCtsUrl(string baseUrl, string? conformanceId = null)
+        {
+            if (conformanceId == null)
+            {
+                return $"{baseUrl}/cts/{Guid.NewGuid()}/register";
+            }
+            else
+            {
+                return $"{baseUrl}/cts/{conformanceId}/register";
+            }
         }
     }
 }

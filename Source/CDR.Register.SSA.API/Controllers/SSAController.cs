@@ -3,10 +3,12 @@ using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Services;
-using CDR.Register.Repository.Infrastructure;
 using CDR.Register.SSA.API.Business;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CDR.Register.SSA.API.Controllers
@@ -18,51 +20,18 @@ namespace CDR.Register.SSA.API.Controllers
         private readonly ISSAService _ssaService;
         private readonly ICertificateService _certificateService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
+        private readonly IConfiguration _configuration;
 
         public SSAController(
             ISSAService ssaService,
             ICertificateService certificateService,
-            IDataRecipientStatusCheckService statusCheckService)
+            IDataRecipientStatusCheckService statusCheckService,
+            IConfiguration configuration)
         {
             _ssaService = ssaService;
             _certificateService = certificateService;
             _statusCheckService = statusCheckService;
-        }
-
-        [Obsolete("This API version has been superseded")]
-        [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
-        [HttpGet]
-        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [ReturnXV("1")]
-        [ApiVersion("1")]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertionXV1(string industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            var result = await CheckSoftwareProduct(softwareProductId);
-            if (result != null)
-                return result;
-
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV1(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
-        }
-
-        [Obsolete("This API version has been superseded")]
-        [PolicyAuthorize(AuthorisationPolicy.GetSSA)]
-        [HttpGet]
-        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
-        [ReturnXV("2")]
-        [ApiVersion("2")]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetSoftwareStatementAssertionXV2(string industry, string dataRecipientBrandId, string softwareProductId)
-        {
-            var result = await CheckSoftwareProduct(softwareProductId);
-            if (result != null)
-                return result;
-
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV2(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
+            _configuration = configuration;
         }
 
         [PolicyAuthorize(AuthorisationPolicy.GetSSAMultiIndustry)]
@@ -74,11 +43,22 @@ namespace CDR.Register.SSA.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertionXV3(string industry, string dataRecipientBrandId, string softwareProductId)
         {
+            // CTS conformance ID validations
+            var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
+            if (!string.IsNullOrEmpty(basePathExpression))
+            {                
+                var validIssuer = HttpContext.ValidateIssuer();
+                if (!validIssuer)
+                {                    
+                    return Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
+                }
+            }
+
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
                 return result;
 
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsyncXV3(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
+            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsync(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
             return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
         }
 

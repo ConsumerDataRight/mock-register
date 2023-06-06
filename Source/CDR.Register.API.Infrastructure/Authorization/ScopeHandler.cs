@@ -24,17 +24,17 @@ namespace CDR.Register.API.Infrastructure.Authorization
             }
 
             // If user does not have the scope claim, get out of here
-            if (!context.User.HasClaim(c => c.Type == "scope" && c.Issuer == requirement.Issuer))
+            if (!context.User.HasClaim(c => c.Type == "scope"))
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. Access token is missing 'scope' claim for issuer '{issuer}'.", requirement.Issuer);
+                    _logger.LogError("Unauthorized request. Access token is missing 'scope' claim.");
                 }
                 return Task.CompletedTask;
             }
 
             // Return the user claim scope
-            var userClaimScopes = context.User.FindFirst(c => c.Type == "scope" && c.Issuer == requirement.Issuer).Value.Split(' ');
+            var userClaimScopes = context.User.FindFirst(c => c.Type == "scope").Value.Split(' ');
 
             // Succeed if the scope array contains the required scope
             // The space character is used to seperate the scopes as this is in line with CDS specifications.

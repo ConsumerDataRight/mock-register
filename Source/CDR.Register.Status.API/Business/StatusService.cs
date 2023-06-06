@@ -19,28 +19,16 @@ namespace CDR.Register.Status.API.Business
             _mapper = mapper;
         }
 
-        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsyncXV1(Industry industry)
+        public async Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsync(Industry industry)
         {
             var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync(industry);
             return _mapper.Map<ResponseRegisterDataRecipientStatusList>(entity);
         }
 
-        public async Task<ResponseRegisterDataRecipientStatusListV2> GetDataRecipientStatusesAsyncXV2(Industry industry)
-        {
-            var entity = await _registerStatusRepository.GetDataRecipientStatusesAsync(industry);
-            return _mapper.Map<ResponseRegisterDataRecipientStatusListV2>(entity);
-        }
-
-        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsyncXV1(Industry industry)
+        public async Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsync(Industry industry)
         {
             var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync(industry);
             return _mapper.Map<ResponseRegisterSoftwareProductStatusList>(entity);
-        }
-
-        public async Task<ResponseRegisterSoftwareProductStatusListV2> GetSoftwareProductStatusesAsyncXV2(Industry industry)
-        {
-            var entity = await _registerStatusRepository.GetSoftwareProductStatusesAsync(industry);
-            return _mapper.Map<ResponseRegisterSoftwareProductStatusListV2>(entity);
         }
 
         public async Task<ResponseRegisterDataHolderStatusList> GetDataHolderStatusesAsyncXV1(Industry industry)

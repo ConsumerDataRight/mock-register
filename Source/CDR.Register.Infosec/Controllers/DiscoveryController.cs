@@ -1,3 +1,4 @@
+using CDR.Register.API.Infrastructure;
 using CDR.Register.Infosec.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
@@ -7,14 +8,14 @@ using System.Security.Cryptography.X509Certificates;
 namespace CDR.Register.Infosec.Controllers
 {
     [ApiController]
-    [Route(".well-known")]
+    [Route("idp/.well-known")]
     public class DiscoveryController : ControllerBase
-    {        
+    {
         private readonly IConfiguration _configuration;
 
-        public DiscoveryController(            
+        public DiscoveryController(
             IConfiguration configuration)
-        {            
+        {
             _configuration = configuration;
         }
 
@@ -22,11 +23,14 @@ namespace CDR.Register.Infosec.Controllers
         [Route("openid-configuration")]
         public DiscoveryDocument Get()
         {
+            var baseUrl = _configuration.GetInfosecBaseUrl(HttpContext);
+            var secureBaseUrl = _configuration.GetInfosecBaseUrl(HttpContext, true);
+
             return new DiscoveryDocument()
             {
-                Issuer = _configuration.GetValue<string>(Constants.ConfigurationKeys.Issuer),
-                JwksUri = _configuration.GetValue<string>(Constants.ConfigurationKeys.JwksUri),
-                TokenEndpoint = _configuration.GetValue<string>(Constants.ConfigurationKeys.TokenEndpoint),
+                Issuer = $"{baseUrl}",
+                JwksUri = $"{baseUrl}/.well-known/openid-configuration/jwks",
+                TokenEndpoint = $"{secureBaseUrl}/connect/token",
                 ClaimsSupported = new string[] { "sub" },
                 GrantTypesSupported = new string[] { "client_credentials" },
                 IdTokenSigningAlgValuesSupported = new string[] { "PS256" },

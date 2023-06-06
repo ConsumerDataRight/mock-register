@@ -11,6 +11,7 @@ using CDR.Register.IntegrationTests.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Gateway
 {
@@ -19,6 +20,7 @@ namespace CDR.Register.IntegrationTests.Gateway
     /// </summary>       
     public class US12841_Gateway_MTLS_Tests : BaseTest
     {
+        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
         // Client certificates
         const string INVALID_CERTIFICATE_FILENAME = "Certificates/client-invalid.pfx";
 
@@ -228,8 +230,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             // DataHolderBrands
             string URL = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands";
 
-            // const string XV = "2";   
-            const string XV = "1"; // # US30975/US12841 - api only supportS x-v=1
+            const string XV = "2";
 
             // Arrange
             var client = GetClient(certificateFilename, certificatePassword);
@@ -389,7 +390,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             string expectedContent = null)
         {
             string URL = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
-            const string XV = "2";
+            const string XV = "3";
 
             // Arrange
             var client = GetClient(certificateFilename, certificatePassword);

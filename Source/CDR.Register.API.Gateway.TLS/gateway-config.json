@@ -2,19 +2,46 @@
   "Routes": [
     // Health check
     {
-        "DownstreamPathTemplate": "/health",
-        "DownstreamScheme": "https",
-        "DownstreamHostAndPorts": [
-            {
-                "Host": "localhost",
-                "Port": 7006
-            }
-        ],
-        "UpstreamPathTemplate": "/health",
-        "UpstreamHttpMethod": [ "GET" ],
-        "DangerousAcceptAnyServerCertificateValidator": true
-    },    
-
+      "DownstreamPathTemplate": "/health",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7006
+        }
+      ],
+      "UpstreamPathTemplate": "/health",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+    // Update Data Holders 
+    {
+      "DownstreamPathTemplate": "/admin/metadata/data-holders",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7006
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/metadata/data-holders",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+    // Update Data Recipients 
+    {
+      "DownstreamPathTemplate": "/admin/metadata/data-recipients",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7006
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/metadata/data-recipients",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
     // GetDataRecipients
     {
       "DownstreamPathTemplate": "/cdr-register/v1/{industry}/data-recipients",
@@ -92,7 +119,7 @@
 
     // OIDC Configuration
     {
-      "DownstreamPathTemplate": "/.well-known/openid-configuration",
+      "DownstreamPathTemplate": "/idp/.well-known/openid-configuration",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -107,7 +134,7 @@
 
     // OIDC JWKS
     {
-      "DownstreamPathTemplate": "/.well-known/openid-configuration/jwks",
+      "DownstreamPathTemplate": "/idp/.well-known/openid-configuration/jwks",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {

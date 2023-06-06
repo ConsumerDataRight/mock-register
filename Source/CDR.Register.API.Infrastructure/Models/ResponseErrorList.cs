@@ -47,13 +47,13 @@ namespace CDR.Register.API.Infrastructure.Models
         }
 
         // Return Unsupported Version
-        public ResponseErrorList InvalidXVUnsupportedVersion(string detail = null)
+        public ResponseErrorList InvalidXVUnsupportedVersion()
         {
             Errors.Add(new Error()
             {
                 Code = "urn:au-cds:error:cds-all:Header/UnsupportedVersion",
                 Title = "Unsupported Version",
-                Detail = detail,
+                Detail = "Version Requested is lower than the minimum version or greater than maximum version",
                 Meta = new object()
             });
 
@@ -67,7 +67,7 @@ namespace CDR.Register.API.Infrastructure.Models
             {
                 Code = "urn:au-cds:error:cds-all:Header/InvalidVersion",
                 Title = "Invalid Version",
-                Detail = "",
+                Detail = "Version header must be a positive integer between 1 and 1000",
                 Meta = new object()
             });
 
@@ -81,7 +81,7 @@ namespace CDR.Register.API.Infrastructure.Models
             {
                 Code = "urn:au-cds:error:cds-all:Header/Missing",
                 Title = "Missing Required Header",
-                Detail = "",
+                Detail = "An API version X-V Header is required but was not specified",
                 Meta = new object()
             });
 

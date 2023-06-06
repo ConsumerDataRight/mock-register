@@ -24,26 +24,13 @@ namespace CDR.Register.Repository
             this._mapper = mapper;
         }
 
-        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsyncXV1(Industry industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             (List<Entities.Brand> allBrands, int totalRecords) = await ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
 
             return new Page<DataHolderBrand[]>()
             {
                 Data = _mapper.Map<DataHolderBrand[]>(allBrands),
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalRecords = totalRecords
-            };
-        }
-
-        public async Task<Page<DataHolderBrandV2[]>> GetDataHolderBrandsAsyncXV2(Industry industry, DateTime? updatedSince, int page, int pageSize)
-        {
-            (List<Entities.Brand> allBrands, int totalRecords) = await ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
-
-            return new Page<DataHolderBrandV2[]>()
-            {
-                Data = _mapper.Map<DataHolderBrandV2[]>(allBrands),
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalRecords = totalRecords
@@ -85,16 +72,13 @@ namespace CDR.Register.Repository
             return (allBrands, totalRecords);
         }
 
-        public async Task<DataRecipient[]> GetDataRecipientsAsyncXV1(Industry industry)
+        public async Task<DataRecipient[]> GetDataRecipientsAsync(Industry industry)
         {
-            // UNKNOWN industry type is parsed to NOT use industry filtering.
             List<Participation> allParticipants = await ProcessGetDataRecipients(industry);
 
             // Additionally sort participants.brands, participants.brands.softwareproducts by id
             allParticipants.ForEach(p =>
             {
-                p.Industry = new IndustryType() { IndustryTypeId = industry, IndustryTypeCode = industry.ToString().ToLower() };
-                p.IndustryId = industry;
                 p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
                 p.Brands.ToList().ForEach(b =>
                 {
@@ -103,41 +87,6 @@ namespace CDR.Register.Repository
             });
 
             return _mapper.Map<DataRecipient[]>(allParticipants);
-        }
-
-        public async Task<DataRecipientV2[]> GetDataRecipientsAsyncXV2(Industry industry)
-        {
-            // UNKNOWN industry type is parsed to NOT use industry filtering.
-            List<Participation> allParticipants = await ProcessGetDataRecipients(industry);
-
-            // Additionally sort participants.brands, participants.brands.softwareproducts by id
-            allParticipants.ForEach(p =>
-            {
-                p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
-                p.Brands.ToList().ForEach(b =>
-                {
-                    b.SoftwareProducts = b.SoftwareProducts.OrderBy(sp => sp.SoftwareProductId).ToList();
-                });
-            });
-
-            return _mapper.Map<DataRecipientV2[]>(allParticipants);
-        }
-
-        public async Task<DataRecipientV3[]> GetDataRecipientsAsyncXV3(Industry industry)
-        {
-            List<Participation> allParticipants = await ProcessGetDataRecipients(industry);
-
-            // Additionally sort participants.brands, participants.brands.softwareproducts by id
-            allParticipants.ForEach(p =>
-            {
-                p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
-                p.Brands.ToList().ForEach(b =>
-                {
-                    b.SoftwareProducts = b.SoftwareProducts.OrderBy(sp => sp.SoftwareProductId).ToList();
-                });
-            });
-
-            return _mapper.Map<DataRecipientV3[]>(allParticipants);
         }
 
         /// <remarks>

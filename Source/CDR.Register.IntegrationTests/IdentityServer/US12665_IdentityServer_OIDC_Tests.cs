@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.IdentityServer
 {
@@ -12,10 +14,10 @@ namespace CDR.Register.IntegrationTests.IdentityServer
     /// </summary>   
     public class US12665_IdentityServer_OIDC_Tests : BaseTest
     {
+        public US12665_IdentityServer_OIDC_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_OIDC()
         {
-            // Arrange
 
             // Act
             var response = await new Infrastructure.API
@@ -27,6 +29,30 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }.SendAsync();
 
             // Assert
+            await AssertOidcConfiguration(response, TLS_BaseURL, MTLS_BaseURL);
+
+        }
+
+        [Trait("Category", "CTSONLY")]
+        [Fact]
+        public async Task AC02_Get_ShouldRespondWith_200OK_OIDC()
+        {
+            // Arrange
+            string ctsBaseUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL)}";
+            // Act
+            var response = await new Infrastructure.API
+            {
+                HttpMethod = HttpMethod.Get,
+                URL = $"{ctsBaseUrl}/idp/.well-known/openid-configuration",
+            }.SendAsync();
+
+            // Assert
+            await AssertOidcConfiguration(response, ctsBaseUrl, ctsBaseUrl);
+
+        }
+
+        private async Task AssertOidcConfiguration(HttpResponseMessage response, string baseUrl, string tokenBaseUrl)
+        {
             using (new AssertionScope())
             {
                 // Assert - Check status code
@@ -38,9 +64,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 // Assert - Check json
                 string expected = $@"
                     {{
-                    ""issuer"": ""{TLS_BaseURL}/idp"",
-                    ""jwks_uri"": ""{TLS_BaseURL}/idp/.well-known/openid-configuration/jwks"",
-                    ""token_endpoint"": ""{MTLS_BaseURL}/idp/connect/token"",
+                    ""issuer"": ""{baseUrl}/idp"",
+                    ""jwks_uri"": ""{baseUrl}/idp/.well-known/openid-configuration/jwks"",
+                    ""token_endpoint"": ""{tokenBaseUrl}/idp/connect/token"",
                     ""claims_supported"": [""sub""],
                     ""id_token_signing_alg_values_supported"": [""PS256""],
                     ""subject_types_supported"": [""public""],

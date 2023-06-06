@@ -13,6 +13,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
+using Xunit.Abstractions;
 using AccessToken = CDR.Register.IntegrationTests.Models.AccessToken;
 
 #nullable enable
@@ -24,6 +25,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
     /// </summary>   
     public class US14045_IdentityServer_Token_Tests : BaseTest
     {
+        public US14045_IdentityServer_Token_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
         protected const string CLIENTASSERTION_ISSUER = "86ecb655-9eba-409c-9be3-59e7adf7080d";
 
         protected static string CLIENTASSERTION_AUDIENCE => MTLS_BaseURL + "/idp/connect/token";
