@@ -57,13 +57,13 @@ namespace CDR.Register.API.Infrastructure
             {                                
                 // PathBase : /cts/{id}/register
                 var issuer = context.User.Claims.FirstOrDefault(x => x.Type == "iss")?.Value;
-                if (string.IsNullOrEmpty(issuer) & string.IsNullOrEmpty(context.Request.PathBase))
+                if (string.IsNullOrEmpty(issuer) && string.IsNullOrEmpty(context.Request.PathBase))
                 {
                     return false;
                 }
 
                 // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only                
-                return issuer.Contains(context.Request.PathBase);
+                return issuer?.Contains(context.Request.PathBase) ?? false;
             }
             
             return false;            
