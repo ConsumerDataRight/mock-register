@@ -10,16 +10,22 @@ services:
       context: .
       dockerfile: Dockerfile
     ports: 
-      - "7000:7000"
-      - "7001:7001"
-      - "7006:7006"
+      - "7000-7006:7000-7006"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
+      - PublicHostName
+      - SecureHostName
+      - BasePathExpression
+      - Authorization__Issuer
+      - Authorization__ClientId
+      - Authorization__Scope
+      - Certificate__CertThumbprintNameHttpHeaderName
+      - Certificate__CertCommonNameHttpHeaderName
     # FIXME - MJS - commented out volumes below as volume is mounted as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops container from starting because of different user
     # volumes:
     #   - "./_temp/mock-register/tmp:/tmp"      
     healthcheck:
-      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
+      test: ((wget --no-check-certificate --no-verbose --spider https://localhost:7006/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:7002/idp/.well-known/openid-configuration)) || exit 1
       timeout: 5s
       interval: 5s
       retries: 50
@@ -35,6 +41,15 @@ services:
       dockerfile: Dockerfile.integration-tests
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
+      # Default TEST_FILTER to not run CTS Only tests
+      - TEST_FILTER=${TEST_FILTER:-"Category!=CTSONLY"}
+      - CtsSettings__AzureAd__TokenEndpointUrl
+      - CtsSettings__AzureAd__ClientId
+      - CtsSettings__AzureAd__ClientSecret
+      - CtsSettings__AzureAd__Scope
+      - CtsSettings__AzureAd__GrantType
+      - CtsSettings__AzureAd__UnauthorisedClientId
+      - CtsSettings__AzureAd__UnauthorisedClientSecret
     volumes:
       - "./_temp/mock-register-integration-tests/testresults:/testresults"
     depends_on:

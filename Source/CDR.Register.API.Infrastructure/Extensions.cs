@@ -1,26 +1,105 @@
-﻿using CDR.Register.API.Infrastructure.Authorization;
+﻿using AutoMapper.Configuration;
+using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace CDR.Register.API.Infrastructure
 {
     public static class Extensions
     {
+        public static string GetInfosecBaseUrl(this IConfiguration configuration, HttpContext context, bool isSecure = false)
+        {
+            var basePath = string.Empty;
+            if (context.Request != null && context.Request.PathBase.HasValue)
+            {
+                basePath = context.Request.PathBase.ToString();
+            }
+
+            var hostName = isSecure
+                ? configuration.GetValue<string>(Constants.ConfigurationKeys.SecureHostName)
+                : configuration.GetValue<string>(Constants.ConfigurationKeys.PublicHostName);
+
+            return $"{hostName}{basePath}/idp";
+        }
+
+        /// <summary>
+        /// CTS conformance ids must be validated
+        /// </summary>        
+        /// <param name="context"></param>
+        /// <returns></returns>        
+        public static bool ValidateIssuer(this HttpContext context)
+        {            
+            if (context.Request != null && context.Request.PathBase.HasValue)
+            {                                
+                // PathBase : /cts/{id}/register
+                var issuer = context.User.Claims.FirstOrDefault(x => x.Type == "iss")?.Value;
+                if (string.IsNullOrEmpty(issuer) && string.IsNullOrEmpty(context.Request.PathBase))
+                {
+                    return false;
+                }
+
+                // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only                
+                return issuer?.Contains(context.Request.PathBase) ?? false;
+            }
+            
+            return false;            
+        }
+
+        public static void UseBasePathOrExpression(this IApplicationBuilder app, IConfiguration configuration)
+        {
+            var basePath = configuration.GetValue<string>(Constants.ConfigurationKeys.BasePath);
+            if (!string.IsNullOrEmpty(basePath))
+            {
+                app.UsePathBase(basePath);
+            }
+
+            // @"^\/cts\/[a-zA-Z0-9\-]{1,36}\/register\/(.*)$";
+            // A dynamic base path can be set by the Mock Register:BasePathExpression app setting.
+            // This allows a regular expression to be set and matched rather than a static base path.
+            var basePathExpression = configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
+            if (!string.IsNullOrEmpty(basePathExpression))
+            {
+                app.Use((context, next) =>
+                {
+                    var matches = Regex.Matches(context.Request.Path, basePathExpression, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(500));
+                    if (matches.Any())
+                    {
+
+                        var path = matches[0].Groups[0].Value;
+                        var remainder = matches[0].Groups[1].Value;
+                        context.Request.Path = $"/{remainder}";
+                        context.Request.PathBase = path.Replace(remainder, "").TrimEnd('/');
+                    }
+
+                    return next(context);
+                });
+            }
+        }
+
         public static IWebHostBuilder UseRegister(this IWebHostBuilder webBuilder, IConfiguration configuration)
         {
             webBuilder.UseKestrel((context, serverOptions) =>
@@ -40,13 +119,13 @@ namespace CDR.Register.API.Infrastructure
 
             return webBuilder;
         }
-
+        
         public static void AddAuthenticationAuthorization(this IServiceCollection services, IConfiguration configuration)
-        {
-            var identityServerUrl = configuration.GetValue<string>("IdentityServerUrl");
-            var identityServerIssuer = configuration.GetValue<string>("IdentityServerIssuer");
-
-            services.AddHttpContextAccessor();
+        {            
+            var metadataAddress = configuration.GetValue<string>(Constants.ConfigurationKeys.OidcMetadataAddress);
+            var jwks = Task.Run(() => LoadJwks($"{metadataAddress}/jwks")).Result;
+            // Default 2 mins*
+            var clockSkew = configuration.GetValue<int>(Constants.ConfigurationKeys.ClockSkewSeconds, 120);
 
             services.AddAuthentication(options =>
             {
@@ -55,39 +134,53 @@ namespace CDR.Register.API.Infrastructure
             })
             .AddJwtBearer("Bearer", options =>
             {
-                options.Authority = identityServerUrl;
-                options.RequireHttpsMetadata = true;
-                options.Audience = "cdr-register";
+                options.Configuration = new OpenIdConnectConfiguration()
+                {
+                    JwksUri = $"{metadataAddress}/jwks",
+                    JsonWebKeySet = jwks
+                };
+
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidateAudience = true,
+                    ValidAudience = "cdr-register",
+                    ValidateIssuer = false,
+                    RequireSignedTokens = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromSeconds(clockSkew),
+                    IssuerSigningKeys = options.Configuration.JsonWebKeySet.Keys
+                };
 
                 // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
                 options.BackchannelHttpHandler = new HttpClientHandler
                 {
                     ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                 };
-            });
 
+            });
+            
             // Authorization
             services.AddMvcCore().AddAuthorization(options =>
             {
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApi.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
 
                 options.AddPolicy(AuthorisationPolicy.GetSSA.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.BankRead));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
                 options.AddPolicy(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
                 options.AddPolicy(AuthorisationPolicy.GetSSAMultiIndustry.ToString(), policy =>
                 {
-                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read, identityServerIssuer));
+                    policy.Requirements.Add(new ScopeRequirement(CdsRegistrationScopes.Read));
                     policy.Requirements.Add(new MtlsRequirement());
                 });
             });
@@ -119,18 +212,31 @@ namespace CDR.Register.API.Infrastructure
             });
         }
 
+        static async Task<Microsoft.IdentityModel.Tokens.JsonWebKeySet> LoadJwks(string jwksUri)
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (a, b, c, d) => true
+            };
+            var httpClient = new HttpClient(handler);
+            var httpResponse = await httpClient.GetAsync(jwksUri);
+
+            var contentAsString = await httpResponse.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Microsoft.IdentityModel.Tokens.JsonWebKeySet>(contentAsString);
+        }
+
         public static string GetHostName(this string url)
         {
             return url.Replace("https://", "").Replace("http://", "").Split('/')[0];
         }
 
         public static LinksPaginated GetPaginated(
-            this ControllerBase controller, 
-            string routeName, 
-            DateTime? updatedSince, 
-            int? currentPage, 
+            this ControllerBase controller,
+            string routeName,
+            DateTime? updatedSince,
+            int? currentPage,
             int totalPages,
-            int? pageSize, 
+            int? pageSize,
             string hostName = null)
         {
             var currentUrl = controller.Request.GetDisplayUrl();
@@ -146,12 +252,7 @@ namespace CDR.Register.API.Infrastructure
                     hostName = forwardedHosts.First();
                     links.Self = ReplaceUriHost(currentUrl, hostName);
                 }
-            }
-            else
-            {
-                var currentHostName = currentUrl.GetHostName();
-                links.Self = new Uri(currentUrl.Replace(currentHostName, hostName));
-            }
+            }            
 
             hostName = links.Self.ToString().GetHostName();
 
@@ -195,11 +296,6 @@ namespace CDR.Register.API.Infrastructure
                     hostName = forwardedHosts.First();
                     links.Self = ReplaceUriHost(currentUrl, hostName);
                 }
-            }
-            else
-            {
-                var currentHostName = currentUrl.GetHostName();
-                links.Self = new Uri(currentUrl.Replace(currentHostName, hostName));
             }
 
             return links;
@@ -287,9 +383,11 @@ namespace CDR.Register.API.Infrastructure
             return value.Split(delimiter);
         }
 
-        public static string GetClientCertificateThumbprint(this HttpContext context)
+        public static string GetClientCertificateThumbprint(this HttpContext context, IConfiguration configuration)
         {
-            if (context.Request.Headers.TryGetValue(Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT, out StringValues headerThumbprints))
+            var certThumbprintNameHttpHeaderName = configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
+
+            if (context.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints))
             {
                 return headerThumbprints.First();
             }
@@ -297,14 +395,79 @@ namespace CDR.Register.API.Infrastructure
             return "";
         }
 
-        public static string GetClientCertificateCommonName(this HttpContext context)
+        public static string GetClientCertificateCommonName(this HttpContext context, ILogger logger, IConfiguration configuration)
         {
-            if (context.Request.Headers.TryGetValue(Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME, out StringValues headerCommonNames))
+            string headerCommonName;
+            var certCommonNameHttpHeaderName = configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
+
+            if (context.Request.Headers.TryGetValue(certCommonNameHttpHeaderName, out StringValues headerCommonNames))
             {
-                return headerCommonNames.First();
+                headerCommonName = headerCommonNames.First();
+            }
+            else
+            {
+                return string.Empty;
             }
 
-            return "";
+            var commonName = headerCommonName;
+
+            if (commonName.IsDistinguishedName())
+            {
+                commonName = commonName.GetCommonNameFromDistinguishedName();
+            }
+
+            commonName = commonName.Trim('"');
+
+            logger.LogInformation($"Received commonName of {headerCommonName} in header and parsed commonName as {commonName}");
+            return commonName;
+        }
+
+        public static bool IsDistinguishedName(this string value)
+        {
+            try
+            {
+                X500DistinguishedName dn = new(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static string GetCommonName(this string input)
+        {
+            var commonName = input;
+
+            if (commonName.IsDistinguishedName() )
+            {
+                commonName = commonName.GetCommonNameFromDistinguishedName();
+            }
+
+            return commonName.Trim('"');
+        }
+
+        public static string GetCommonNameFromDistinguishedName(this string distinguishedName)
+        {
+            try
+            {
+                X500DistinguishedName dn = new X500DistinguishedName(distinguishedName);
+                var cnAttribute = dn.Decode(X500DistinguishedNameFlags.UseNewLines)
+                    .Split('\n')
+                    .FirstOrDefault(attr => attr.Trim().StartsWith("CN="));
+
+                if (cnAttribute != null)
+                {
+                    return cnAttribute.Trim().Substring(3);
+                }
+
+                return string.Empty; // Common Name not found
+            }
+            catch
+            {
+                return string.Empty;
+            }
+            
         }
     }
 }

@@ -1,3 +1,4 @@
+using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
@@ -7,7 +8,6 @@ using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +28,7 @@ namespace CDR.Register.Status.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddRegisterStatus(Configuration)
                     .AddRegisterStatusSwagger();
 
@@ -65,6 +66,8 @@ namespace CDR.Register.Status.API
             {
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
+
+            app.UseBasePathOrExpression(Configuration);
 
             app.UseSerilogRequestLogging();
 

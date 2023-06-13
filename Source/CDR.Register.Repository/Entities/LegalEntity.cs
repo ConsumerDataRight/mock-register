@@ -14,13 +14,13 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public Guid LegalEntityId { get; set; }
 
-        [MaxLength(100), Required]
+        [MaxLength(200), Required]
         public string LegalEntityName { get; set; }
 
         [MaxLength(1000), Required]
         public string LogoUri { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string RegistrationNumber { get; set; }
 
         public DateTime? RegistrationDate { get; set; }
@@ -43,7 +43,7 @@ namespace CDR.Register.Repository.Entities
         public OrganisationTypes? OrganisationTypeId { get; set; }
         public OrganisationType OrganisationType { get; set; }
 
-        [MaxLength(25)]
+        [MaxLength(100)]
         public string AccreditationNumber { get; set; }
 
         public AccreditationLevelType? AccreditationLevelId { get; set; }

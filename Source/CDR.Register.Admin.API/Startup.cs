@@ -1,5 +1,6 @@
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.Repository.Infrastructure;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,15 @@ using Newtonsoft.Json;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using CDR.Register.Admin.API.Business.Validators;
+using CDR.Register.Repository;
+using CDR.Register.Admin.API.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc;
+using CDR.Register.Admin.API.Business.Model;
+using CDR.Register.Admin.API.Business;
 
 namespace CDR.Register.Admin.API
 {
@@ -40,11 +50,55 @@ namespace CDR.Register.Admin.API
 
             services.AddControllers();
 
+            services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = false;
+                options.ApiVersionReader = new HeaderApiVersionReader(Register.API.Infrastructure.Constants.Headers.X_V);
+                options.ReportApiVersions = true;
+                options.ErrorResponses = new ErrorResponseVersion();
+            });
+
+            services.AddValidatorsFromAssemblyContaining<BrandValidator>();
+            
+            var issuer = Configuration.GetValue<string>(Constants.Authorization.Issuer);
+            if (!string.IsNullOrEmpty(issuer))
+            {
+                // ***Injecting Jwt bearer token middleware for CTS Authentication***
+                var clientId = Configuration.GetValue<string>(Constants.Authorization.ClientId);
+
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                        .AddJwtBearer(options =>
+                        {
+                            // Sets the authority to Azure AD.                                                         
+                            options.Authority = issuer;
+                            options.TokenValidationParameters = new TokenValidationParameters()
+                            {
+                                RequireSignedTokens = true,
+
+                                // Validates the issuer to be Azure AD.
+                                ValidateIssuer = true,                                
+                                ValidIssuer = issuer,
+
+                                // Validates that the intended audience for the access token is the API app.
+                                ValidateAudience = true,                                
+                                // the application id of the API App Registration.
+                                ValidAudience = clientId, 
+
+                                ValidateLifetime = true,
+                            };
+                        });
+            }
+
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
             services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Register_DBO")));
 
             services.AddScoped<LogActionEntryAttribute>();
+            services.AddScoped<IRegisterAdminRepository, RegisterAdminRepository>();
+            services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
+            services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
+            services.AddTransient<SoftwareScopeResolver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +121,12 @@ namespace CDR.Register.Admin.API
 
             app.UseRouting();
 
+            var issuer = Configuration.GetValue<string>(Constants.Authorization.Issuer);
+            if (!string.IsNullOrEmpty(issuer))
+            {
+                app.UseAuthentication();
+            }
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

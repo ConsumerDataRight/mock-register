@@ -9,6 +9,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Newtonsoft.Json.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Miscellaneous
 {
@@ -17,6 +18,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
     /// </summary>   
     public class US12677_RegisterEnrolment_Tests : BaseTest
     {
+        public US12677_RegisterEnrolment_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
         /// <summary>
         /// Get the repository as json
         /// </summary>

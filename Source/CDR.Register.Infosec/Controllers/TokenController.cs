@@ -3,10 +3,11 @@ using CDR.Register.Domain.Entities;
 using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.AccessControl;
 
 namespace CDR.Register.Infosec.Controllers
 {
-    [Route("connect")]
+    [Route("idp/connect")]
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
@@ -39,7 +40,7 @@ namespace CDR.Register.Infosec.Controllers
             var expiry = _configuration.GetValue<int>("AccessTokenExpiryInSeconds", 300);
             var defaultScope = _configuration.GetValue<string>("DefaultScope", $"{Constants.Scopes.RegisterRead} {Constants.Scopes.RegisterBankRead}");
             var scope = clientAssertion.scope ?? defaultScope;
-            var cnf = this.HttpContext.GetClientCertificateThumbprint();
+            var cnf = this.HttpContext.GetClientCertificateThumbprint(_configuration);
 
             return Ok(new AccessTokenResponse()
             {
@@ -138,26 +139,27 @@ namespace CDR.Register.Infosec.Controllers
             return (true, null, null, client);
         }
 
+        
         private bool IsValidCertificate(
             SoftwareProductInfosec client)
         {
             // Get the certificate thumbprint and common name from the headers.
-            var thumbprint = this.HttpContext.GetClientCertificateThumbprint();
-            var commonName = this.HttpContext.GetClientCertificateCommonName();
+            var thumbprint = this.HttpContext.GetClientCertificateThumbprint(_configuration);
+            var httpHeaderCommonName = this.HttpContext.GetClientCertificateCommonName(_logger, _configuration);
 
-            if (string.IsNullOrEmpty(thumbprint) || string.IsNullOrEmpty(commonName))
+            if (string.IsNullOrEmpty(thumbprint) || string.IsNullOrEmpty(httpHeaderCommonName))
             {
-                _logger.LogError("Thumbprint {thumbprint} and/or common name {commonName} not found.", thumbprint, commonName);
+                _logger.LogError("Thumbprint {thumbprint} and/or common name {commonName} not found.", thumbprint, httpHeaderCommonName);
                 return false;
             }
 
             // Find a matching cert for the software product client.
-            var matchingCert = client.X509Certificates
-                .FirstOrDefault(c =>
-                    c.CommonName.Equals(commonName, StringComparison.OrdinalIgnoreCase)
-                 && c.Thumbprint.Equals(thumbprint, StringComparison.OrdinalIgnoreCase));
+            var certs = client.X509Certificates.ToList();
 
-            _logger.LogError("Matching cert = {matchingCert}", matchingCert != null);
+            var matchingCert = certs.FirstOrDefault(c => c.CommonName.GetCommonName().Equals(httpHeaderCommonName, StringComparison.OrdinalIgnoreCase) &&
+                                                         c.Thumbprint.Equals(thumbprint, StringComparison.OrdinalIgnoreCase));
+
+            _logger.LogInformation("Matching cert = {matchingCert}", matchingCert != null);
 
             return matchingCert != null;
         }

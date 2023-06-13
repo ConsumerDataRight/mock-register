@@ -4,10 +4,11 @@ using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Services;
 using CDR.Register.Discovery.API.Business;
-using CDR.Register.Repository.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CDR.Register.Discovery.API.Controllers
@@ -21,10 +22,7 @@ namespace CDR.Register.Discovery.API.Controllers
         private readonly IConfiguration _configuration;
 
         // Route names.
-        private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV1 = "GetDataHolderBrandsXV1";
         private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV2 = "GetDataHolderBrandsXV2";
-        private const string ROUTE_GET_DATA_RECIPIENTS_XV1 = "GetDataRecipientsXV1";
-        private const string ROUTE_GET_DATA_RECIPIENTS_XV2 = "GetDataRecipientsXV2";
         private const string ROUTE_GET_DATA_RECIPIENTS_XV3 = "GetDataRecipientsXV3";
 
         public DiscoveryController(
@@ -35,44 +33,6 @@ namespace CDR.Register.Discovery.API.Controllers
             _discoveryService = discoveryService;
             _configuration = configuration;
             _statusCheckService = statusCheckService;
-        }
-
-        [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApi)]
-        [HttpGet("v1/{industry}/data-holders/brands", Name = ROUTE_GET_DATA_HOLDER_BRANDS_XV1)]
-        [ReturnXV("1")]
-        [ApiVersion("1")]
-        [ETag]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetDataHolderBrandsXV1(
-            string industry,
-            [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
-            [FromQuery(Name = "page"), CheckPage] string page,
-            [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
-        {
-            // Check if the data recipient is active
-            var result = await CheckSoftwareProduct();
-            if (result != null)
-            {
-                return result;
-            }
-
-            // Set the default values for the incoming parameters
-            DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince);
-            int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
-            int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await _discoveryService.GetDataHolderBrandsAsyncXV1(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
-
-            // Check if the given page number is out of range
-            if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
-            {
-                return new BadRequestObjectResult(new ResponseErrorList(ResponseErrorList.PageOutOfRange()));
-            }
-
-            // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV1, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, _configuration.GetValue<string>("SecureHostName"));
-
-            return Ok(response);
         }
 
         [PolicyAuthorize(AuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
@@ -88,6 +48,18 @@ namespace CDR.Register.Discovery.API.Controllers
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
         {
+
+            // CTS conformance ID validations
+            var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
+            if (!string.IsNullOrEmpty(basePathExpression))
+            {
+                var validIssuer = HttpContext.ValidateIssuer();
+                if (!validIssuer)
+                {
+                    return Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
+                }
+            }
+
             // Check if the data recipient is active
             var result = await CheckSoftwareProduct();
             if (result != null)
@@ -99,7 +71,7 @@ namespace CDR.Register.Discovery.API.Controllers
             DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await _discoveryService.GetDataHolderBrandsAsyncXV2(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
+            var response = await _discoveryService.GetDataHolderBrandsAsync(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
 
             // Check if the given page number is out of range
             if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
@@ -108,32 +80,10 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, _configuration.GetValue<string>("SecureHostName"));
+            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, 
+                updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, "");
 
             return Ok(response);
-        }
-
-        [Obsolete("This API version has been superseded")]
-        [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV1)]
-        [ReturnXV("1")]
-        [ApiVersion("1")]
-        [ETag]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetDataRecipientsXV1(string industry)
-        {
-            return Ok(await _discoveryService.GetDataRecipientsAsyncXV1(industry.ToIndustry()));
-        }
-
-        [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV2)]
-        [ReturnXV("2")]
-        [ApiVersion("2")]
-        [ETag]
-        [CheckIndustry(Industry.BANKING)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetDataRecipientsXV2(string industry)
-        {
-            return Ok(await _discoveryService.GetDataRecipientsAsyncXV2(industry.ToIndustry()));
         }
 
         [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV3)]
@@ -144,8 +94,8 @@ namespace CDR.Register.Discovery.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipientsXV3(string industry)
         {
-            var response = await _discoveryService.GetDataRecipientsAsyncXV3(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration.GetValue<string>("PublicHostName"));
+            var response = await _discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
+            response.Links = this.GetSelf("");
             return Ok(response);
         }
 

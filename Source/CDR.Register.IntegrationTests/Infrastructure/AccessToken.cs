@@ -20,6 +20,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         private const string CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
         private const string CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
         private const string ISSUER = CLIENT_ID;
+        private const string CERTIFICATE_THUMBPRINT_HEADER_NAME = "X-SSLClientCertThumbprint";
+        private const string CERTIFICATE_CN_HEADER_NAME = "X-SSLClientCertCN";
 
         /// <summary>
         /// Filename of certificate to use. 
@@ -39,14 +41,17 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         public string GrantType { get; set; } = GRANT_TYPE;
         public string ClientId { get; set; } = CLIENT_ID;
         public string ClientAssertionType { get; set; } = CLIENT_ASSERTION_TYPE;
+        public string TokenEndPoint { get; set; } = BaseTest.IDENTITYSERVER_URL;
+        public string? CertificateThumbprint { get; set; } = null;
+        public string? CertificateCn { get; set; } = null;
 
         /// <summary>
         /// Get HttpRequestMessage for access token request
         /// </summary>
-        private static HttpRequestMessage CreateAccessTokenRequest(
+        private HttpRequestMessage CreateAccessTokenRequest(
            string? certificateFilename, string? certificatePassword,
            string issuer, string audience,
-           string scope, string grant_type, string client_id, string client_assertion_type)
+           string scope, string grant_type, string client_id, string client_assertion_type, string? certificateThumprint, string? certificateCn)
         {
             static string BuildContent(string scope, string grant_type, string client_id, string client_assertion_type, string client_assertion)
             {
@@ -83,7 +88,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword);
             var client_assertion = tokenizer.Generate(issuer, audience);
 
-            var request = new HttpRequestMessage(HttpMethod.Post, IDENTITYSERVER_URL)
+            var request = new HttpRequestMessage(HttpMethod.Post, TokenEndPoint)
             {
                 Content = new StringContent(
                     BuildContent(scope, grant_type, client_id, client_assertion_type, client_assertion),
@@ -93,20 +98,43 @@ namespace CDR.Register.IntegrationTests.Infrastructure
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
+            if (certificateThumprint != null && certificateCn != null)
+            {
+                request.Headers.Add(CERTIFICATE_THUMBPRINT_HEADER_NAME, certificateThumprint);
+                request.Headers.Add(CERTIFICATE_CN_HEADER_NAME, certificateCn);
+            }
+
             return request;
         }
 
         /// <summary>
         /// Get an access token from Identity Server
         /// </summary>
-        public async Task<string?> GetAsync()
+        public async Task<string?> GetAsync(bool addCertificateToRequest = true)
+        {
+         
+            HttpResponseMessage response = await SendAccessTokenRequest(addCertificateToRequest);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception($"{nameof(AccessToken)}.{nameof(GetAsync)} - Error getting access token");
+            }
+
+            // Deserialize the access token from the response
+            var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await response.Content.ReadAsStringAsync());
+
+            // And return the access token
+            return accessToken?.access_token;
+        }
+
+        public async Task<HttpResponseMessage> SendAccessTokenRequest(bool addCertificateToRequest = true)
         {
             // Create ClientHandler 
             var _clientHandler = new HttpClientHandler();
             _clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             // Attach client certificate to handler
-            if (CertificateFilename != null)
+            if (CertificateFilename != null && addCertificateToRequest)
             {
                 var clientCertificate = new X509Certificate2(CertificateFilename, CertificatePassword, X509KeyStorageFlags.Exportable);
                 _clientHandler.ClientCertificates.Add(clientCertificate);
@@ -119,21 +147,10 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             var request = CreateAccessTokenRequest(
                 CertificateFilename, CertificatePassword,
                 Issuer, Audience,
-                Scope, GrantType, ClientId, ClientAssertionType);
+                Scope, GrantType, ClientId, ClientAssertionType, CertificateThumbprint, CertificateCn);
 
             // Request the access token
-            var response = await client.SendAsync(request);
-
-            if (response.StatusCode != HttpStatusCode.OK) 
-            {
-                throw new Exception($"{nameof(AccessToken)}.{nameof(GetAsync)} - Error getting access token");
-            }
-
-            // Deserialize the access token from the response
-            var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await response.Content.ReadAsStringAsync());
-
-            // And return the access token
-            return accessToken?.access_token;
+            return await client.SendAsync(request);
         }
     }
 }

@@ -16,16 +16,16 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public Guid SoftwareProductId { get; set; }
 
-        [MaxLength(100), Required]
+        [MaxLength(200), Required]
         public string SoftwareProductName { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(4000)]
         public string SoftwareProductDescription { get; set; }
 
         [MaxLength(1000), Required]
         public string LogoUri { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(2048)]
         public string SectorIdentifierUri { get; set; }
 
         [MaxLength(1000), Required]

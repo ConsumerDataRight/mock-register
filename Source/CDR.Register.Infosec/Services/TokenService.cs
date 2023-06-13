@@ -1,4 +1,5 @@
-﻿using CDR.Register.Domain.Entities;
+﻿using CDR.Register.API.Infrastructure;
+using CDR.Register.Domain.Entities;
 using CDR.Register.Infosec.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
@@ -14,34 +15,24 @@ namespace CDR.Register.Infosec.Services
         private readonly ILogger<TokenService> _logger; 
         private readonly IConfiguration _configuration;
         private readonly IDistributedCache _cache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TokenService(
             ILogger<TokenService> logger,
             IConfiguration configuration,
-            IDistributedCache cache)
+            IDistributedCache cache,
+            IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger; 
             _configuration = configuration;
             _cache = cache;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<(bool isValid, string? message)> ValidateClientAssertion(SoftwareProductInfosec client, string clientAssertion)
         {
             // Validate the client assertion token.
-            var validAudience = _configuration.GetValue<string>(Constants.ConfigurationKeys.TokenEndpoint);
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                IssuerSigningKeys = (await GetClientKeys(client)),
-                ValidateIssuerSigningKey = true,
-
-                ValidateIssuer = false,
-
-                ValidAudience = validAudience,
-                ValidateAudience = true,
-
-                RequireSignedTokens = true,
-                RequireExpirationTime = true
-            };
+            var tokenValidationParameters = await BuildTokenValidationParameters(client);
             JwtSecurityToken? validatedSecurityToken = null;
 
             try
@@ -84,6 +75,74 @@ namespace CDR.Register.Infosec.Services
             return (true, null);
         }
 
+        private async Task<TokenValidationParameters> BuildTokenValidationParameters(
+            SoftwareProductInfosec client,
+            int clockSkew = 120)
+        {
+            var validAudiences = BuildValidAudiences();
+
+            return new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                IssuerSigningKeys = (await GetClientKeys(client)),
+                ValidateIssuerSigningKey = true,
+
+                ValidAudiences = validAudiences,
+                ValidateAudience = true,
+                AudienceValidator = (IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+                {
+                    bool isValid = false;
+
+                    foreach (var audience in audiences)
+                    {
+                        if (validationParameters.ValidAudiences.Contains(audience, StringComparer.OrdinalIgnoreCase))
+                        {
+                            isValid = true;
+                            break;
+                        }
+
+                        foreach (var validAudience in validationParameters.ValidAudiences)
+                        {
+                            if (audience.StartsWith(validAudience))
+                            {
+                                isValid = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!isValid)
+                    {
+                        string errorMessage = $"IDX10214: Audience validation failed. Audiences: '{string.Join(',', audiences)}'. Did not match: '{string.Join(',', validationParameters.ValidAudiences)}'.";
+                        throw new SecurityTokenInvalidAudienceException(errorMessage)
+                        {
+                            InvalidAudience = string.Join(',', audiences)
+                        };
+                    }
+
+                    return isValid;
+                },
+
+                RequireSignedTokens = true,
+                RequireExpirationTime = true,
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(clockSkew),
+            };
+        }
+
+        private List<string> BuildValidAudiences()
+        {
+            var baseUri = _configuration.GetInfosecBaseUrl(_httpContextAccessor.HttpContext);
+            var secureBaseUri = _configuration.GetInfosecBaseUrl(_httpContextAccessor.HttpContext, true);
+
+            return new List<string>()
+            {
+                baseUri,
+                $"{secureBaseUri}/connect/token"
+            };
+        }
+
         public async Task<string> CreateAccessToken(
             SoftwareProductInfosec client, 
             int expiryInSeconds,
@@ -92,7 +151,7 @@ namespace CDR.Register.Infosec.Services
         {
             var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path"), _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
-            var issuer = _configuration.GetValue<string>(Constants.ConfigurationKeys.Issuer);
+            var issuer = _configuration.GetInfosecBaseUrl(_httpContextAccessor.HttpContext);
 
             var claims = new List<Claim>();
             claims.Add(new Claim("client_id", client.Id));

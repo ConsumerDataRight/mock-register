@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Serilog.Context;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,11 +15,13 @@ namespace CDR.Register.API.Infrastructure.Authorization
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<MtlsHandler> _logger;
+        private readonly IConfiguration _configuration;
 
-        public MtlsHandler(IHttpContextAccessor httpContextAccessor, ILogger<MtlsHandler> logger)
+        public MtlsHandler(IHttpContextAccessor httpContextAccessor, ILogger<MtlsHandler> logger, IConfiguration config)
         {
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
+            _configuration=config;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MtlsRequirement requirement)
@@ -33,7 +37,9 @@ namespace CDR.Register.API.Infrastructure.Authorization
             //  as the one expected by the cnf:x5t#S256 claim in the access token 
             //
             string requestHeaderClientCertThumprint = null;
-            if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-TlsClientCertThumbprint", out StringValues headerThumbprints))
+
+            var certThumbprintNameHttpHeaderName = _configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
+            if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints))
             {
                 requestHeaderClientCertThumprint = headerThumbprints.First();
             }

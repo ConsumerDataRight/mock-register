@@ -1,17 +1,20 @@
+using CDR.Register.Domain.Entities;
+using CDR.Register.IntegrationTests.Extensions;
+using CDR.Register.Repository.Infrastructure;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using CDR.Register.IntegrationTests.Extensions;
-using CDR.Register.Repository.Infrastructure;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Xunit;
-using Microsoft.Extensions.Configuration;
+using Xunit.Abstractions;
+using static System.Net.WebRequestMethods;
 
 #nullable enable
 
@@ -22,6 +25,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
     /// </summary>   
     public class US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests : BaseTest
     {
+        public US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+
         // Participation/Brand/SoftwareProduct Ids
         private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
@@ -160,81 +165,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 AccessToken = accessToken
             }.SendAsync();
 
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    // Get the SSA JWKS from the Register.
-                    var ssaJwks = await GetSsaJwks();
-
-                    // Assert - Check content type
-                    // Assert_HasContentType_ApplicationJson(response.Content);
-
-                    // Assert - Check XV
-                    Assert_HasHeader(XV.ToString(), response.Headers, "x-v");
-
-                    // Assert - SSA
-                    var SSA = new JwtSecurityTokenHandler().ReadJwtToken(await response.Content.ReadAsStringAsync());
-
-                    // Assert - SSA Header
-                    SSA.Header.Alg.Should().Be("PS256");
-                    SSA.Header.Kid.Should().Be(ssaJwks.Keys.First().Kid);
-                    SSA.Header.Typ.Should().Be("JWT");
-
-                    // Assert - SSA Claims
-                    SSA.AssertClaim("iss", "cdr-register");
-
-                    SSA.AssertClaim("iat", null);
-                    SSA.AssertClaim("exp", null);
-                    long iat = Convert.ToInt64(SSA.Claim("iat").Value);
-                    long exp = Convert.ToInt64(SSA.Claim("exp").Value);
-                    exp.Should().Be(iat + 600); // Check expiry is 10 minutes (ie 600 seconds)
-
-                    SSA.AssertClaim("jti", null);
-                    SSA.AssertClaim("org_id", softwareProduct.Brand.BrandId.ToString());
-                    SSA.AssertClaim("org_name", softwareProduct.Brand.BrandName);
-                    SSA.AssertClaim("client_name", softwareProduct.SoftwareProductName);
-                    SSA.AssertClaim("client_description", softwareProduct.SoftwareProductDescription);
-                    SSA.AssertClaim("client_uri", softwareProduct.ClientUri);
-                    SSA.AssertClaimIsArray("redirect_uris", softwareProduct.RedirectUris.Split(" "));
-                    SSA.AssertClaim("logo_uri", softwareProduct.LogoUri);
-                    SSA.AssertClaim("tos_uri", softwareProduct.TosUri, true);
-                    SSA.AssertClaim("policy_uri", softwareProduct.PolicyUri, true);
-                    SSA.AssertClaim("jwks_uri", softwareProduct.JwksUri);
-                    SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
-                    SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
-                    SSA.AssertClaim("software_roles", "data-recipient-software-product");
-                    SSA.AssertClaim("scope", softwareProduct.Scope);
-
-                    if (XV >= 2)
-                    {
-                        SSA.AssertClaim("recipient_base_uri", softwareProduct.RecipientBaseUri);
-                    }
-
-                    // Assert - Validate SSA Signature
-                    var validationParameters = new TokenValidationParameters()
-                    {
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.FromMinutes(2),
-
-                        RequireSignedTokens = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = ssaJwks.Keys.First(),
-
-                        ValidateIssuer = true,
-                        ValidIssuer = "cdr-register",
-
-                        ValidateAudience = false,
-                    };
-
-                    // Validate token (throws exception if token fails to validate)
-                    new JwtSecurityTokenHandler().ValidateToken(SSA.RawData, validationParameters, out var validatedToken);
-                }
-            }
+            await AssertSsa(response, softwareProduct, XV);
+        
         }
 
         [Theory]
@@ -269,119 +201,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 AccessToken = accessToken
             }.SendAsync();
 
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
+            await AssertSsa(response, softwareProduct, 3);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    // Get the SSA JWKS from the Register.
-                    var ssaJwks = await GetSsaJwks();
-
-                    // Assert - Check XV
-                    Assert_HasHeader("3", response.Headers, "x-v");
-
-                    // Assert - SSA
-                    var SSA = new JwtSecurityTokenHandler().ReadJwtToken(await response.Content.ReadAsStringAsync());
-
-                    // Assert - SSA Header
-                    SSA.Header.Alg.Should().Be("PS256");
-                    SSA.Header.Kid.Should().Be(ssaJwks.Keys.First().Kid);
-                    SSA.Header.Typ.Should().Be("JWT");
-
-                    // Assert - SSA Claims
-                    SSA.AssertClaim("iss", "cdr-register");
-
-                    SSA.AssertClaim("iat", null);
-                    SSA.AssertClaim("exp", null);
-                    long iat = Convert.ToInt64(SSA.Claim("iat").Value);
-                    long exp = Convert.ToInt64(SSA.Claim("exp").Value);
-                    exp.Should().Be(iat + 600); // Check expiry is 10 minutes (ie 600 seconds)
-
-                    SSA.AssertClaim("jti", null);
-                    SSA.AssertClaim("org_id", softwareProduct.Brand.BrandId.ToString());
-                    SSA.AssertClaim("org_name", softwareProduct.Brand.BrandName);
-                    SSA.AssertClaim("client_name", softwareProduct.SoftwareProductName);
-                    SSA.AssertClaim("client_description", softwareProduct.SoftwareProductDescription);
-                    SSA.AssertClaim("client_uri", softwareProduct.ClientUri);
-                    SSA.AssertClaimIsArray("redirect_uris", softwareProduct.RedirectUris.Split(" "));                    
-                    SSA.AssertClaim("logo_uri", softwareProduct.LogoUri);
-                    SSA.AssertClaim("tos_uri", softwareProduct.TosUri, true);
-                    SSA.AssertClaim("policy_uri", softwareProduct.PolicyUri, true);
-                    SSA.AssertClaim("jwks_uri", softwareProduct.JwksUri);
-                    SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
-                    SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
-                    SSA.AssertClaim("software_roles", "data-recipient-software-product");
-                    SSA.AssertClaim("scope", softwareProduct.Scope);
-                    SSA.AssertClaim("sector_identifier_uri", softwareProduct.SectorIdentifierUri, true);
-
-                    // Assert - Validate SSA Signature
-                    var validationParameters = new TokenValidationParameters()
-                    {
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.FromMinutes(2),
-
-                        RequireSignedTokens = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = ssaJwks.Keys.First(),
-
-                        ValidateIssuer = true,
-                        ValidIssuer = "cdr-register",
-
-                        ValidateAudience = false,
-                    };
-
-                    // Validate token (throws exception if token fails to validate)
-                    new JwtSecurityTokenHandler().ValidateToken(SSA.RawData, validationParameters, out var validatedToken);
-                }
-            }
-        }
-
-        //[Theory]
-        //[InlineData(null)] // DF: this will no longer error.
-        //public async Task AC02_GetSSA_WithMissingXV_ShouldRespondWith_400BadRequest(string? XV)
-        //{
-        //    await Test_GetSSA(
-        //        CERTIFICATE_FILENAME,
-        //        CERTIFICATE_PASSWORD,
-        //        HttpStatusCode.BadRequest,
-        //        x_v: XV,
-        //        expectedContent: @"
-        //        {
-        //            ""errors"": [
-        //                    {
-        //                    ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
-        //                    ""title"": ""Missing Required Header"",
-        //                    ""detail"": """",
-        //                    ""meta"": {}
-        //                    }
-        //                ]
-        //        }");
-        //}
-
-        [Theory]
-        //[InlineData("")] // DF: will no longer error
-        [InlineData("foo")]
-        public async Task ACX02_GetSSA_WithInvalidXV_ShouldRespondWith_400BadRequest(string? XV)
-        {
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.BadRequest,
-                x_v: XV,
-                expectedContent: @"
-                {
-                    ""errors"": [
-                            {
-                            ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
-                            ""title"": ""Invalid Version"",
-                            ""detail"": """",
-                            ""meta"": {}
-                            }
-                        ]
-                }");
         }
 
         const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
@@ -508,29 +329,6 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("4")]
-        [InlineData("99")]
-        public async Task AC10_GetSSA_UnsupportedXV_ShouldRespondWith_406NotAcceptable(string XV)
-        {
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.NotAcceptable,
-                x_v: XV,
-                expectedContent: @"
-                    {
-                        ""errors"": [
-                                {
-                                ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
-                                ""title"": ""Unsupported Version"",
-                                ""detail"": ""minimum version: 1, maximum version: 3"",
-                                ""meta"": {}
-                                }
-                            ]
-                    }");
-        }
-
-        [Theory]
         [InlineData("3", "foo")]
         public async Task AC11_GetSSA_InvalidSoftwareProductId_ShouldRespondWith_404NotFound(string XV, string softwareProductId)
         {
@@ -561,7 +359,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CERTIFICATE_FILENAME,
                 CERTIFICATE_PASSWORD,
                 HttpStatusCode.NotFound,
-                x_v: "2",
+                x_v: "3",
                 softwareProductId: softwareProductId);
         }
 
@@ -584,89 +382,191 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var jwksClient = new HttpClient(clientHandler);
             var jwksResponse = await jwksClient.GetAsync($"{TLS_BaseURL}/cdr-register/v1/jwks");
             return new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
-        }
+        }        
 
         [Theory]
-        [InlineData("99", "3")]
-        public async Task ACXX_Get_WithMinXV_ShouldRespondWith_200OK(string xv, string minXv)
-        {
-            // Act
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.OK,
-                x_v: xv,
-                x_min_v: minXv,
-                expectedXV: "3"
-            );
-        }
+        [InlineData("3",    "4",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-min-v is ignored when > x-v
+        [InlineData("3",    "2",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is supported and higher than x-min-v 
+        [InlineData("3",    "3",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is supported equal to x-min-v 
+        [InlineData("4",    "3",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is NOT supported and x-min-v is supported        
+        [InlineData("3",    "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is supported but x-min-v is invalid (not a positive integer) 
+        [InlineData("4",    "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is not supported and x-min-v is invalid (not a positive integer) 
+        [InlineData("4",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is not supported and x-min-v invalid
+        [InlineData("4",    "4",    "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. Both x-v and x-min-v exceed supported version of 3
+        [InlineData("1",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is an obsolete version
+        [InlineData("2",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is an obsolete version        
+        [InlineData("foo",  null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("0",    null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("foo",  "3",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
+        [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
+        [InlineData("4",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 3
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]      //Invalid. x-v header is missing
 
-        [Theory]
-        [InlineData("2", "2")]
-        [InlineData("2", "3")]
-        public async Task ACXX_Get_WithMinXVGreaterThanOrEqualToXV_ShouldBeIgnored_200OK(string xv, string minXv)
+        public async Task ACX01_VersionHeaderValidation(string xv, string xminv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
-            // Act
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.OK,
-                x_v: xv,
-                x_min_v: minXv,
-                industry: "banking"
-            );
-        }
-
-        [Theory]
-        [InlineData(null, "2")]
-        [InlineData(null, "3")]
-        public async Task ACXX_Get_WithMinXVAndNoXV_ShouldBeIgnored_200OK(string xv, string minXv)
-        {
-            // Act
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.OK,
-                x_v: xv,
-                x_min_v: minXv,
-                expectedXV: "1",
-                industry: "banking"
-            );
-        }
-
-        [Theory]
-        [InlineData("99", "foo")]
-        [InlineData("99", "0")]
-        [InlineData("99", "-1")]
-        public async Task ACXX_Get_WithInvalidMinXV_ShouldReturnInvalidVersionError_400BadRequest(string xv, string minXv)
-        {
-            // Act
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.BadRequest,
-                x_v: xv,
-                x_min_v: minXv,
-                expectedContent: EXPECTEDCONTENT_INVALIDXV
-            );
-        }
-
-        [Theory]
-        [InlineData("99", "10")]
-        public async Task ACXX_Get_WithUnsupportedMinXV_ShouldReturnUnsupportedVersionError_406NotAccepted(string xv, string minXv)
-        {
+          
             // Arrange
-            var expectedContent = EXPECTEDCONTENT_UNSUPPORTEDXV.Replace("#{minVersion}", "1").Replace("#{maxVersion}", "3");
+            string URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.API
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = URL,
+                AccessToken = accessToken,
+                XV = xv,
+                XMinV = xminv
+            };
+
 
             // Act
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.NotAcceptable,
-                x_v: xv,
-                x_min_v: minXv,
-                expectedContent: expectedContent
-            );
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(expectedHttpStatusCode);
+
+                if (isExpectedToBeSupported)
+                {
+                    // Assert - Check x-v returned header
+                    Assert_HasHeader(expectedXv, response.Headers, "x-v");
+                }
+                else
+                {
+                    // Assert - Check error response
+                    await Assert_HasContent_Json(expecetdError, response.Content);
+
+                }
+            }
+        
+        }
+        [Trait("Category", "CTSONLY")]
+        [Theory]
+        [InlineData(3)]
+        public async Task AC01_CTS_URL_GetSSA_WithXV1_ShouldRespondWith_200OK_V3ofSSA(int XV)
+        {
+            string conformanceId = Guid.NewGuid().ToString();
+            // conformanceId = "5186c407-0114-480a-86a3-7ef072d221bc";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string ssasEndpoint = $"{GenerateDynamicCtsUrl(SSA_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+
+            // Arrange - Get SoftwareProduct
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
+            Repository.Entities.SoftwareProduct softwareProduct = dbContext.SoftwareProducts.AsNoTracking()
+                                .Include(sp => sp.Brand)
+                                .Where(sp => sp.SoftwareProductId == new Guid(SOFTWAREPRODUCTID))
+                                .Single();
+
+            // Arrange - Get access token
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                Scope = "cdr-register:read",
+                Audience = tokenEndpoint,
+                TokenEndPoint = tokenEndpoint,
+                CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+            }.GetAsync(addCertificateToRequest: false);
+
+            // Act - Send request to SSA API
+            var response = await new Infrastructure.API
+            {
+                HttpMethod = HttpMethod.Get,
+                URL = ssasEndpoint,
+                XV = XV.ToString(),
+                AccessToken = accessToken,
+                CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+            }.SendAsync();
+
+            await AssertSsa(response, softwareProduct, XV);
+        }
+
+        private static async Task AssertSsa(HttpResponseMessage response, Repository.Entities.SoftwareProduct softwareProduct, int XV)
+        {
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    // Get the SSA JWKS from the Register.
+                    var ssaJwks = await GetSsaJwks();
+
+                    // Assert - Check XV
+                    Assert_HasHeader(XV.ToString(), response.Headers, "x-v");
+
+                    // Assert - SSA
+                    var SSA = new JwtSecurityTokenHandler().ReadJwtToken(await response.Content.ReadAsStringAsync());
+
+                    // Assert - SSA Header
+                    SSA.Header.Alg.Should().Be("PS256");
+                    SSA.Header.Kid.Should().Be(ssaJwks.Keys.First().Kid);
+                    SSA.Header.Typ.Should().Be("JWT");
+
+                    // Assert - SSA Claims
+                    SSA.AssertClaim("iss", "cdr-register");
+
+                    SSA.AssertClaim("iat", null);
+                    SSA.AssertClaim("exp", null);
+                    long iat = Convert.ToInt64(SSA.Claim("iat").Value);
+                    long exp = Convert.ToInt64(SSA.Claim("exp").Value);
+                    exp.Should().Be(iat + 600); // Check expiry is 10 minutes (ie 600 seconds)
+
+                    SSA.AssertClaim("jti", null);
+                    SSA.AssertClaim("org_id", softwareProduct.Brand.BrandId.ToString());
+                    SSA.AssertClaim("org_name", softwareProduct.Brand.BrandName);
+                    SSA.AssertClaim("client_name", softwareProduct.SoftwareProductName);
+                    SSA.AssertClaim("client_description", softwareProduct.SoftwareProductDescription);
+                    SSA.AssertClaim("client_uri", softwareProduct.ClientUri);
+                    SSA.AssertClaimIsArray("redirect_uris", softwareProduct.RedirectUris.Split(" "));
+                    SSA.AssertClaim("logo_uri", softwareProduct.LogoUri);
+                    SSA.AssertClaim("tos_uri", softwareProduct.TosUri, true);
+                    SSA.AssertClaim("policy_uri", softwareProduct.PolicyUri, true);
+                    SSA.AssertClaim("jwks_uri", softwareProduct.JwksUri);
+                    SSA.AssertClaim("revocation_uri", softwareProduct.RevocationUri);
+                    SSA.AssertClaim("software_id", softwareProduct.SoftwareProductId.ToString());
+                    SSA.AssertClaim("software_roles", "data-recipient-software-product");
+                    SSA.AssertClaim("scope", softwareProduct.Scope);
+
+                    if (XV >= 2)
+                    {
+                        SSA.AssertClaim("recipient_base_uri", softwareProduct.RecipientBaseUri);
+                    }
+
+                    // Assert - Validate SSA Signature
+                    var validationParameters = new TokenValidationParameters()
+                    {
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(2),
+
+                        RequireSignedTokens = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = ssaJwks.Keys.First(),
+
+                        ValidateIssuer = true,
+                        ValidIssuer = "cdr-register",
+
+                        ValidateAudience = false,
+                    };
+
+                    // Validate token (throws exception if token fails to validate)
+                    new JwtSecurityTokenHandler().ValidateToken(SSA.RawData, validationParameters, out var validatedToken);
+                }
+            }
         }
     }
 }
