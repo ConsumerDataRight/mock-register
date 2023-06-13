@@ -175,11 +175,11 @@ If the **Mock Register cannot find an issuer in the** `oidc.issuer` **config set
 
   
 
-The [docker compose file](https://github.com/ConsumerDataRight/mock-register/blob/main/Source/DockerCompose/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
+The [docker compose file](https://github.com/ConsumerDataRight/mock-register/blob/main/Source/docker-compose.yml) can be used to run multiple containers from the Mock CDR Ecosystem.
 
   
 
-**Note:** the [docker compose file](https://github.com/ConsumerDataRight/mock-register/blob/main/Source/DockerCompose/docker-compose.yml) utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to use the [docker compose file](Source/DockerCompose/docker-compose.yml). See the Microsoft SQL Server Image on Docker Hub for more information.
+**Note:** the [docker compose file](https://github.com/ConsumerDataRight/mock-register/blob/main/Source/docker-compose.yml) utilises the Microsoft SQL Server Image from Docker Hub. The Microsoft EULA for the Microsoft SQL Server Image must be accepted to use the [docker compose file](https://github.com/ConsumerDataRight/mock-register/blob/main/Source/docker-compose.yml). See the Microsoft SQL Server Image on Docker Hub for more information.
 
   
 
