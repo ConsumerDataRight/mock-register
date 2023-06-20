@@ -95,7 +95,7 @@ namespace CDR.Register.IntegrationTests
         protected const string CERTIFICATE_PASSWORD = "#M0ckDataRecipient#";
         protected const string ADDITIONAL_CERTIFICATE_FILENAME = "Certificates/client-additional.pfx";
         protected const string ADDITIONAL_CERTIFICATE_PASSWORD = CERTIFICATE_PASSWORD;
-        protected const string DEFAULT_CERTIFICATE_THUMBPRINT = "715cdd04ff7332ccda74cdf9fbed16beba5dd744";
+        protected const string DEFAULT_CERTIFICATE_THUMBPRINT = "f0e5146a51f16e236844cf0353d791f11865e405";
         protected const string DEFAULT_CERTIFICATE_COMMON_NAME = "MockDataRecipient";
 
         // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)

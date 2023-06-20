@@ -193,7 +193,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                         var jwt = (JwtSecurityToken)validatedToken;
                         var cnf = jwt.Claims.First(c => c.Type.Equals("cnf", StringComparison.OrdinalIgnoreCase));
                         cnf.Value.Should().Contain("x5t#S256");
-                        cnf.Value.Should().Contain("715CDD04FF7332CCDA74CDF9FBED16BEBA5DD744");
+                        cnf.Value.Should().Contain("F0E5146A51F16E236844CF0353D791F11865E405");
                     }
                 }
             }

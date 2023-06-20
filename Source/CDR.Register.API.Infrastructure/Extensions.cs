@@ -88,11 +88,10 @@ namespace CDR.Register.API.Infrastructure
                     var matches = Regex.Matches(context.Request.Path, basePathExpression, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(500));
                     if (matches.Any())
                     {
-
                         var path = matches[0].Groups[0].Value;
                         var remainder = matches[0].Groups[1].Value;
                         context.Request.Path = $"/{remainder}";
-                        context.Request.PathBase = path.Replace(remainder, "").TrimEnd('/');
+                        context.Request.PathBase = $"{context.Request.PathBase}{path.Replace(remainder, "").TrimEnd('/')}";
                     }
 
                     return next(context);

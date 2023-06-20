@@ -180,10 +180,12 @@ steps:
       CtsSettings__AzureAd__GrantType=$(CtsSettings__AzureAd__GrantType)
       CtsSettings__AzureAd__UnauthorisedClientId=$(CtsSettings__AzureAd__UnauthorisedClientId)
       CtsSettings__AzureAd__UnauthorisedClientSecret=$(CtsSettings__AzureAd__UnauthorisedClientSecret)
+      IdentityProvider_Downstream_BaseUrl=$(IdentityProvider_Downstream_BaseUrl)
       Authorization__Issuer=$(Authorization__Issuer)
       Authorization__ClientId=$(Authorization__ClientId)
       Authorization__Scope=$(Authorization__Scope)
       BasePathExpression=$(BasePathExpression)
+      BasePath=$(BasePath)
       PublicHostName=$(CtsHostUrl)
       SecureHostName=$(CtsHostUrl)
       Certificate__CertThumbprintNameHttpHeaderName=X-SSLClientCertThumbprint
