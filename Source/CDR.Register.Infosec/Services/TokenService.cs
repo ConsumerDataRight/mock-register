@@ -16,63 +16,100 @@ namespace CDR.Register.Infosec.Services
         private readonly IConfiguration _configuration;
         private readonly IDistributedCache _cache;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClientService _clientService;
 
         public TokenService(
             ILogger<TokenService> logger,
             IConfiguration configuration,
             IDistributedCache cache,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IClientService clientService)
         {
-            _logger = logger; 
+            _logger = logger;
             _configuration = configuration;
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;
+            _clientService = clientService;
         }
 
-        public async Task<(bool isValid, string? message)> ValidateClientAssertion(SoftwareProductInfosec client, string clientAssertion)
-        {
-            // Validate the client assertion token.
-            var tokenValidationParameters = await BuildTokenValidationParameters(client);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject </param> 
+        /// <returns></returns>
+        public async Task<(bool isValid, string? message, SoftwareProductInfosec? client)> ValidateClientAssertion(string client_id, string clientAssertion)
+        {            
             JwtSecurityToken? validatedSecurityToken = null;
-
+            SoftwareProductInfosec? client = null;
             try
-            {
+            {                
                 var handler = new JwtSecurityTokenHandler();
+
+                // Validate the client assertion token.                        
+                var invalidToken = handler.ReadJwtToken(clientAssertion);
+                var clientId = invalidToken.Issuer;
+                if (string.IsNullOrEmpty(clientId))
+                {
+                    return (false, "client_id is required", null);
+                }
+
+                // client_id (form param) when provided and must match client assertion issuer and subject
+                if (!string.IsNullOrEmpty(client_id) && 
+                     (!client_id.Equals(invalidToken.Issuer, StringComparison.OrdinalIgnoreCase) || 
+                      !client_id.Equals(invalidToken.Subject, StringComparison.OrdinalIgnoreCase)
+                     ))
+                {
+                    return (false, "Invalid client_assertion - 'sub' and 'iss' must be set to the client_id", null);
+                }
+
+                client = await _clientService.GetClientAsync(clientId);                
+                if (client == null)
+                {
+                    return (false, "invalid client_id", null);
+                }
+
+                var tokenValidationParameters = await BuildTokenValidationParameters(client);
+
                 handler.ValidateToken(clientAssertion, tokenValidationParameters, out var token);
 
                 validatedSecurityToken = (JwtSecurityToken)token;
                 if (string.IsNullOrEmpty(validatedSecurityToken.Id))
                 {
-                    return (false, "Invalid client_assertion - 'jti' is required");
+                    return (false, "Invalid client_assertion - 'jti' is required", null);
                 }
 
-                if (!client.Id.Equals(validatedSecurityToken.Subject, StringComparison.OrdinalIgnoreCase)
-                 || !client.Id.Equals(validatedSecurityToken.Issuer, StringComparison.OrdinalIgnoreCase))
+                if (validatedSecurityToken.Header.Alg != SecurityAlgorithms.RsaSsaPssSha256 && validatedSecurityToken.Header.Alg != SecurityAlgorithms.EcdsaSha256)
                 {
-                    return (false, "Invalid client_assertion - 'sub' and 'iss' must be set to the client_id");
+                    return (false, "Invalid client_assertion - Client assertion token signature algorithm must be PS256 or ES256", null);
                 }
-
+                
                 if (!validatedSecurityToken.Subject.Equals(validatedSecurityToken.Issuer, StringComparison.OrdinalIgnoreCase))
                 {
-                    return (false, "Invalid client_assertion - 'sub' and 'iss' must have the same value");
+                    return (false, "Invalid client_assertion - 'sub' and 'iss' must have the same value", null);
+                }
+
+                if (!client.Id.Equals(validatedSecurityToken.Subject, StringComparison.OrdinalIgnoreCase) ||
+                     !client.Id.Equals(validatedSecurityToken.Issuer, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (false, "Invalid client_assertion - 'sub' and 'iss' must be set to the client_id", null);
                 }
 
                 // Has this jti already been used?
                 if (IsBlacklisted(validatedSecurityToken.Issuer, validatedSecurityToken.Id))
                 {
-                    return (false, "Invalid client_assertion - 'jti' has already been used");
+                    return (false, "Invalid client_assertion - 'jti' in the client assertion token must be unique", null);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Invalid client_assertion - token validation error");
-                return (false, "Invalid client_assertion - token validation error");
+                return (false, "Invalid client_assertion - token validation error", null);
             }
 
             // Add the jti into the blacklist so that the same jti cannot be re-used until at least after it has expired.
             Blacklist(validatedSecurityToken.Issuer, validatedSecurityToken.Id, validatedSecurityToken.ValidTo.AddMinutes(5));
 
-            return (true, null);
+            return (true, null, client);
         }
 
         private async Task<TokenValidationParameters> BuildTokenValidationParameters(
