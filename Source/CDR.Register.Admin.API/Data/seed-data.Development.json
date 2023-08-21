@@ -80,7 +80,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRENE000001",
+      "AccreditationNumber": "ADR000001",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -182,7 +182,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK000099",
+      "AccreditationNumber": "ADR000099",
       "AccreditationLevelId": null,
       "Participations": [
         {
@@ -1422,7 +1422,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK001001",
+      "AccreditationNumber": "ADR001001",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1544,7 +1544,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK000006",
+      "AccreditationNumber": "ADR000006",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1600,7 +1600,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK000007",
+      "AccreditationNumber": "ADR000007",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1656,7 +1656,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK000008",
+      "AccreditationNumber": "ADR000008",
       "AccreditationLevelId": 0,
       "Participations": [
         {
@@ -1712,7 +1712,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK001009",
+      "AccreditationNumber": "ADR001009",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1768,7 +1768,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK001002",
+      "AccreditationNumber": "ADR001002",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1846,7 +1846,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK001004",
+      "AccreditationNumber": "ADR001004",
       "AccreditationLevelId": 1,
       "Participations": [
         {
@@ -1924,7 +1924,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRBNK000005",
+      "AccreditationNumber": "ADR000005",
       "AccreditationLevelId": 0,
       "Participations": [
         {
@@ -1980,7 +1980,7 @@
       "AnzsicDivision": null,
       "OrganisationTypeId": null,
       "LegalEntityStatusId": 1,
-      "AccreditationNumber": "ADRENE000002",
+      "AccreditationNumber": "ADR000002",
       "AccreditationLevelId": 1,
       "Participations": [
         {

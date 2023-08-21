@@ -5,8 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 namespace CDR.Register.Infosec.Interfaces
 {
     public interface ITokenService
-    {
-        Task<(bool isValid, string? message)> ValidateClientAssertion(SoftwareProductInfosec client, string clientAssertion);
+    {        
+        Task<(bool isValid, string? message, SoftwareProductInfosec? client)> ValidateClientAssertion(string client_id, string clientAssertion);
 
         Task<string> CreateAccessToken(
             SoftwareProductInfosec client,
