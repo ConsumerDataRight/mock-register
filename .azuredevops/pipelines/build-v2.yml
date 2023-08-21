@@ -18,7 +18,7 @@ steps:
         Write-Host "##vso[task.setvariable variable=ObligationDateTag]$RegisterObligationDate"
       }
       else {
-        Write-Host "##vso[task.setvariable variable=ObligationDateTag]23-2"        
+        Write-Host "##vso[task.setvariable variable=ObligationDateTag]23-5"
       }
 
 # Set release version variables for release tags

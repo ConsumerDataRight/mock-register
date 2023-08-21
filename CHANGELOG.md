@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-08-22
+### Changed
+- Client_id is now optional in the access token request.
+- Removed client certificate thumbprint check from the access token request.
+- Accreditation Number format has been updated in seed data.
+
 ## [1.2.1] - 2023-06-20
 
 ### Changed

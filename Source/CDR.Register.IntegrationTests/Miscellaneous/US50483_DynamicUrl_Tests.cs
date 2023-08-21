@@ -78,7 +78,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         [Trait("Category", "CTSONLY")]
         [Theory]
         [InlineData("Invalid Certificate Common Name", DEFAULT_CERTIFICATE_THUMBPRINT, "foo")]
-        [InlineData("Invalid Certificate Thumbprint", "foo", DEFAULT_CERTIFICATE_COMMON_NAME)]
+        [InlineData("Missing Certificate Thumbprint", "", DEFAULT_CERTIFICATE_COMMON_NAME)]
         public async Task AC02_Get_Access_Token_Invalid_Certificate_Header_For_Access_Token(string testDescription, string certificateThumbPrint, string certificateCommonName)
         {
 

@@ -35,11 +35,11 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// </summary>
         public string? CertificatePassword { get; set; }
 
-        public string Issuer { get; set; } = ISSUER;
+        public string? Issuer { get; set; } = ISSUER;
         public string Audience { get; set; } = AUDIENCE;
         public string Scope { get; set; } = SCOPE;
         public string GrantType { get; set; } = GRANT_TYPE;
-        public string ClientId { get; set; } = CLIENT_ID;
+        public string? ClientId { get; set; } = CLIENT_ID;
         public string ClientAssertionType { get; set; } = CLIENT_ASSERTION_TYPE;
         public string TokenEndPoint { get; set; } = BaseTest.IDENTITYSERVER_URL;
         public string? CertificateThumbprint { get; set; } = null;
@@ -85,8 +85,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                 return kvp.Value;
             }
 
-            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword);
-            var client_assertion = tokenizer.Generate(issuer, audience);
+            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword, Guid.NewGuid().ToString());
+            var client_assertion = tokenizer.Generate(issuer, audience, issuer);
 
             var request = new HttpRequestMessage(HttpMethod.Post, TokenEndPoint)
             {

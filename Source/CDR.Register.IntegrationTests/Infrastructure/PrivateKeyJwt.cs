@@ -17,6 +17,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
     {
 
         public string PrivateKeyBase64 { get; private set; }
+        private readonly string JtiClaim;
 
         /// <summary>
         /// Default constructor.
@@ -45,12 +46,14 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// </summary>
         /// <param name="certFilePath">The path to the certificate.</param>
         /// <param name="pwd">The password of the certificate.</param>
-        public PrivateKeyJwt(string certFilePath, string pwd)
+        /// <param name="jtiClaim">The jti claim to use for the JWT. Usually a unique GUID.</param>
+        public PrivateKeyJwt(string certFilePath, string pwd, string jtiClaim)
         {
             var cert = new X509Certificate2(certFilePath, pwd, X509KeyStorageFlags.Exportable);
             var rsa = cert.GetRSAPrivateKey();
             var pvtKeyBytes = rsa.ExportPkcs8PrivateKey();
             this.PrivateKeyBase64 = Convert.ToBase64String(pvtKeyBytes);
+            JtiClaim = jtiClaim;
         }
 
         /// <summary>
@@ -79,8 +82,9 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// </summary>
         /// <param name="issuer">The issuer of the JWT, usually set to the softwareProductId</param>
         /// <param name="audience">The audience of the JWT, usually set to the target token endpoint</param>
+        /// <param name="subject">The subject of the JWT, usually set to the softwareProductId</param>
         /// <returns>A base64 encoded JWT</returns>
-        public string Generate(string issuer, string audience)
+        public string Generate(string issuer, string audience, string subject, string signingAlgorithm = SecurityAlgorithms.RsaSsaPssSha256)
         {
             if (string.IsNullOrEmpty(PrivateKeyBase64))
             {
@@ -117,13 +121,18 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                     Issuer = issuer,
                     Audience = audience,
                     Expires = DateTime.UtcNow.AddMinutes(10),
-                    Subject = new ClaimsIdentity(new List<Claim> { new Claim("sub", issuer) }),
-                    SigningCredentials = new SigningCredentials(privateSecurityKey, SecurityAlgorithms.RsaSsaPssSha256),
+                    Subject = new ClaimsIdentity(new List<Claim> { new Claim("sub", subject) }),
+                    //SigningCredentials = new SigningCredentials(privateSecurityKey, SecurityAlgorithms.RsaSsaPssSha256),
+                    SigningCredentials = new SigningCredentials(privateSecurityKey, signingAlgorithm),
                     NotBefore = null,
                     IssuedAt = null,
                     Claims = new Dictionary<string, object>()
                 };
-                descriptor.Claims.Add("jti", Guid.NewGuid().ToString());
+
+                if (!string.IsNullOrEmpty(JtiClaim))
+                {
+                    descriptor.Claims.Add("jti", JtiClaim);
+                }
 
                 var tokenHandler = new JsonWebTokenHandler();
                 return tokenHandler.CreateToken(descriptor);

@@ -91,7 +91,7 @@ namespace CDR.Register.API.Infrastructure
                         var path = matches[0].Groups[0].Value;
                         var remainder = matches[0].Groups[1].Value;
                         context.Request.Path = $"/{remainder}";
-                        context.Request.PathBase = $"{context.Request.PathBase}{path.Replace(remainder, "").TrimEnd('/')}";
+                        context.Request.PathBase = path.Replace(remainder, "").TrimEnd('/');
                     }
 
                     return next(context);

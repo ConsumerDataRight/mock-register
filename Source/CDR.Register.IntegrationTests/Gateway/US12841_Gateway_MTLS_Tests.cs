@@ -95,8 +95,8 @@ namespace CDR.Register.IntegrationTests.Gateway
                 return kvp.Value;
             }
 
-            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword);
-            var client_assertion = tokenizer.Generate(ISSUER, AUDIENCE);
+            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword, Guid.NewGuid().ToString());
+            var client_assertion = tokenizer.Generate(ISSUER, AUDIENCE, ISSUER);
 
             var request = new HttpRequestMessage(HttpMethod.Post, IDENTITYSERVER_URL)
             {
