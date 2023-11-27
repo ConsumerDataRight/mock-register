@@ -19,7 +19,7 @@ namespace CDR.Register.Domain.Entities
             get
             {
                 return this.Brands != null && this.Brands.Any()
-                    ? this.Brands.OrderByDescending(brand => brand.LastUpdated).First().LastUpdated.ToUniversalTime()
+                    ? DateTime.SpecifyKind(this.Brands.OrderByDescending(brand => brand.LastUpdated).First().LastUpdated, DateTimeKind.Utc)
                     : null;
             }
         }

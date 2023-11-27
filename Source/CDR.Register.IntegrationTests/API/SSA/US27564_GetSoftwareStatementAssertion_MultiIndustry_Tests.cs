@@ -473,7 +473,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME

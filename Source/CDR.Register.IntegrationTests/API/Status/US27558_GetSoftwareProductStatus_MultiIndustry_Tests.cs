@@ -85,7 +85,7 @@ namespace CDR.Register.IntegrationTests.API.Status
         {
             // Arrange 
             var url = $"{GenerateDynamicCtsUrl(STATUS_DOWNSTREAM_BASE_URL)}/cdr-register/v1/all/data-recipients/brands/software-products/status";
-            var expectedSoftwareProductsStatus = GetExpectedSoftwareProductStatus(url);
+            var expectedSoftwareProductsStatus = GetExpectedSoftwareProductStatus(ReplacePublicHostName(url, STATUS_DOWNSTREAM_BASE_URL));
 
             // Act
             var response = await new Infrastructure.API

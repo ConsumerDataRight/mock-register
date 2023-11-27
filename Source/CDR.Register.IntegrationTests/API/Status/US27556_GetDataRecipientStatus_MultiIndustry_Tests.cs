@@ -5,6 +5,7 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -88,7 +89,19 @@ namespace CDR.Register.IntegrationTests.API.Status
         {
             // Arrange 
             var url = $"{GenerateDynamicCtsUrl(STATUS_DOWNSTREAM_BASE_URL)}/cdr-register/v1/all/data-recipients/status";
-            var expectedDataRecipientStatus = GetExpectedDataRecipientsStatus(url);
+
+            string publicHostName = Configuration["PublicHostName"] ?? "";
+            string expectedUrl = ReplacePublicHostName(url, STATUS_DOWNSTREAM_BASE_URL);
+
+            if (String.IsNullOrEmpty(publicHostName))
+            {
+                expectedUrl = url;
+            }
+            else
+            {
+                expectedUrl = url.Replace(STATUS_DOWNSTREAM_BASE_URL, publicHostName);
+            }
+            var expectedDataRecipientStatus = GetExpectedDataRecipientsStatus(expectedUrl);
 
             // Act
             var response = await new Infrastructure.API

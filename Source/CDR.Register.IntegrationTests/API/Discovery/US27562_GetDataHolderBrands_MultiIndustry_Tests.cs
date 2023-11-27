@@ -265,8 +265,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             string conformanceId = Guid.NewGuid().ToString();
             string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             var getDataholderBrandsUrl = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/{industry}/data-holders/brands";
-            
-            var expectedResponse = GetExpectedResponse(getDataholderBrandsUrl, getDataholderBrandsUrl, null, null, null, industry);
+            string expectedDataholderBrandsUrl = ReplaceSecureHostName(getDataholderBrandsUrl, DISCOVERY_DOWNSTREAM_BASE_URL);
+
+            var expectedResponse = GetExpectedResponse(expectedDataholderBrandsUrl, expectedDataholderBrandsUrl, null, null, null, industry);
 
             // Arrange - Get access token
             var accessToken = await new AccessToken
@@ -274,7 +275,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME

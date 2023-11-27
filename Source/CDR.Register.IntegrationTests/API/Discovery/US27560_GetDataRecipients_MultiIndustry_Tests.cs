@@ -132,7 +132,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         {
             // Arrange 
             var url = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL)}/cdr-register/v1/{industry}/data-recipients";
-            var expectedDataRecipients = GetExpectedDataRecipients(url);
+            var expectedDataRecipients = GetExpectedDataRecipients(ReplacePublicHostName(url, DISCOVERY_DOWNSTREAM_BASE_URL));
 
             // Act
             var response = await new Infrastructure.API

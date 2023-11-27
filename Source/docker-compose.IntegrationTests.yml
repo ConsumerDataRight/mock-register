@@ -52,6 +52,8 @@ services:
       - CtsSettings__AzureAd__UnauthorisedClientId
       - CtsSettings__AzureAd__UnauthorisedClientSecret
       - IdentityProvider_Downstream_BaseUrl
+      - PublicHostName
+      - SecureHostName
     volumes:
       - "./_temp/mock-register-integration-tests/testresults:/testresults"
     depends_on:

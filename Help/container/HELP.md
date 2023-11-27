@@ -24,7 +24,7 @@ docker pull consumerdataright/mock-register:0.5.0
 
 ## Run a multi-container Mock CDR Ecosystem
 
-Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), [Mock Data Holder](https://github.com/ConsumerDataRight/mock-data-holder), [Mock Data Holder Energy](https://github.com/ConsumerDataRight/mock-data-holder-energy) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.Ecosystem.yml` file.
+Multiple containers can be run concurrently to simulate a CDR ecosystem.  The [Mock Register](https://github.com/ConsumerDataRight/mock-register), the [Banking and Energy Mock Data Holders](https://github.com/ConsumerDataRight/mock-data-holder) and [Mock Data Recipient](https://github.com/ConsumerDataRight/mock-data-recipient) containers can be run by using the `docker-compose.Ecosystem.yml` file.
 
 The Mock CDR Ecosystem relies on SQL Server for data persistence so the container has a dependency on the SQL Server container image provided by Microsoft.
 
