@@ -34,18 +34,16 @@ namespace CDR.Register.Admin.API.Business.Validators
 
             //field lengths
             RuleFor(x => x.LegalEntityName).MaximumLength(200).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState( le =>  $"Value '{le.LegalEntityName}' is not allowed for LegalEntityName");
-            RuleFor(x => x.AccreditationNumber).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AccreditationNumber}' is not allowed for AccreditationNumber"); ;
-            RuleFor(x => x.AccreditationLevel).MaximumLength(13).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AccreditationLevel}' is not allowed for AccreditationLevel"); ;
-            RuleFor(x => x.LogoUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.LogoUri}' is not allowed for LogoUri"); ;
-            RuleFor(x => x.RegistrationNumber).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.RegistrationNumber}' is not allowed for RegistrationNumber"); ;
-            RuleFor(x => x.RegisteredCountry).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.RegisteredCountry}' is not allowed for RegisteredCountry"); ;
-            RuleFor(x => x.Abn).MaximumLength(11).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Abn}' is not allowed for Abn"); ;
-            RuleFor(x => x.Acn).MaximumLength(9).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Acn}' is not allowed for Acn"); ;
-            RuleFor(x => x.Arbn).MaximumLength(9).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Arbn}' is not allowed for Arbn"); ;
-            RuleFor(x => x.AnzsicDivision).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AnzsicDivision}' is not allowed for AnzsicDivision"); ;
+            RuleFor(x => x.AccreditationNumber).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AccreditationNumber}' is not allowed for AccreditationNumber");
+            RuleFor(x => x.AccreditationLevel).MaximumLength(13).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AccreditationLevel}' is not allowed for AccreditationLevel");
+            RuleFor(x => x.LogoUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.LogoUri}' is not allowed for LogoUri");
+            RuleFor(x => x.RegistrationNumber).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.RegistrationNumber}' is not allowed for RegistrationNumber");
+            RuleFor(x => x.RegisteredCountry).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.RegisteredCountry}' is not allowed for RegisteredCountry");
+            RuleFor(x => x.Abn).MaximumLength(11).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Abn}' is not allowed for Abn");
+            RuleFor(x => x.Acn).MaximumLength(9).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Acn}' is not allowed for Acn");
+            RuleFor(x => x.Arbn).MaximumLength(9).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.Arbn}' is not allowed for Arbn");
+            RuleFor(x => x.AnzsicDivision).MaximumLength(100).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(le => $"Value '{le.AnzsicDivision}' is not allowed for AnzsicDivision");
             
-
-
             RuleForEach(x => x.DataRecipientBrands).SetValidator(new BrandValidator());
 
             RuleFor(x => x.DataRecipientBrands).Must(HaveUniqueIds).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(GetDuplicateId);

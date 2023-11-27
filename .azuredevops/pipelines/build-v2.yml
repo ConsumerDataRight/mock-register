@@ -186,8 +186,8 @@ steps:
       Authorization__Scope=$(Authorization__Scope)
       BasePathExpression=$(BasePathExpression)
       BasePath=$(BasePath)
-      PublicHostName=$(CtsHostUrl)
-      SecureHostName=$(CtsHostUrl)
+      PublicHostName=$(CtsPublicHostNameUrl)
+      SecureHostName=$(CtsSecureHostNameUrl)
       Certificate__CertThumbprintNameHttpHeaderName=X-SSLClientCertThumbprint
       Certificate__CertCommonNameHttpHeaderName=X-SSLClientCertCN
     dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
@@ -268,7 +268,7 @@ steps:
   displayName: 'Install dotnet-ef'
   condition: always()
   inputs:
-    script: 'dotnet tool install --global dotnet-ef'
+    script: 'dotnet tool install --version 7.0.13 --global dotnet-ef'
     
 - task: CmdLine@2
   displayName: 'Check dotnet-ef version'

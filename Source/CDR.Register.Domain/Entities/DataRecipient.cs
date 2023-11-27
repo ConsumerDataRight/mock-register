@@ -17,7 +17,7 @@ namespace CDR.Register.Domain.Entities
             get
             {
                 return this.DataRecipientBrands != null && this.DataRecipientBrands.Any()
-                    ? this.DataRecipientBrands.OrderByDescending(brand => brand.LastUpdated).First().LastUpdated
+                    ? DateTime.SpecifyKind(this.DataRecipientBrands.OrderByDescending(brand => brand.LastUpdated).First().LastUpdated, DateTimeKind.Utc)                     
                     : null;
             }
         }

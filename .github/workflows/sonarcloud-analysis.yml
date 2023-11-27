@@ -31,17 +31,18 @@ jobs:
     runs-on: windows-latest
     
     steps:
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
         with:
-          java-version: 1.11
-      - uses: actions/checkout@v2
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
+      - uses: actions/checkout@v3
         if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache SonarCloud packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
         with:
           path: ~\sonar\cache
@@ -49,7 +50,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache SonarCloud scanner
         id: cache-sonar-scanner
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
         with:
           path: .\.sonar\scanner

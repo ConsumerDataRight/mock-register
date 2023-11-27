@@ -528,5 +528,34 @@ namespace CDR.Register.IntegrationTests
                 return $"{baseUrl}/cts/{conformanceId}/register";
             }
         }
+
+        protected static string ReplaceSecureHostName(string url, string hostNamedToReplace)
+        {
+            string secureHostname = Configuration["SecureHostName"] ?? "";
+
+            if (String.IsNullOrEmpty(secureHostname))
+            {
+                return url;
+            }
+            else
+            {
+                return url.Replace(hostNamedToReplace, secureHostname);
+            }
+        }
+
+        protected static string ReplacePublicHostName(string url, string hostNamedToReplace)
+        {
+            string publicHostname = Configuration["PublicHostName"] ?? "";
+
+            if (String.IsNullOrEmpty(publicHostname))
+            {
+                return url;
+            }
+            else
+            {
+                return url.Replace(hostNamedToReplace, publicHostname);
+            }
+        }
+
     }
 }

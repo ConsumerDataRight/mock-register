@@ -4,7 +4,7 @@ distinguished_name  = req_distinguished_name
 prompt 			    = no
 req_extensions      = req_ext
 [ req_distinguished_name ]
-commonName          = register.mock
+commonName          = mock-data-holder
 countryName         = AU
 stateOrProvinceName = ACT
 localityName        = Canberra
@@ -17,4 +17,5 @@ extendedKeyUsage    = critical, serverAuth
 subjectAltName      = @alt_names
 [alt_names]
 DNS.1               = localhost
-DNS.2               = register.mock
+DNS.2               = mock-data-holder
+DNS.3               = mock-data-holder-energy

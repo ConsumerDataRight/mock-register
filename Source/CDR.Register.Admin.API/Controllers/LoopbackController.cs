@@ -125,8 +125,7 @@ namespace CDR.Register.Admin.API.Controllers
         public IActionResult RegisterSelfSignedJwt(
             [FromQuery] string aud)
         {
-            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path"), _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
-            var cert64 = Convert.ToBase64String(cert.RawData);
+            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path"), _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);            
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
             var descriptor = new SecurityTokenDescriptor

@@ -80,8 +80,8 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, 
-                updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, "");
+            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, _configuration,
+                updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, "", true);
 
             return Ok(response);
         }
@@ -95,7 +95,7 @@ namespace CDR.Register.Discovery.API.Controllers
         public async Task<IActionResult> GetDataRecipientsXV3(string industry)
         {
             var response = await _discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
-            response.Links = this.GetSelf("");
+            response.Links = this.GetSelf(_configuration, HttpContext, "");
             return Ok(response);
         }
 

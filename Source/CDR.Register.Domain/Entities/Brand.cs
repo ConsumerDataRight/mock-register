@@ -10,6 +10,6 @@ namespace CDR.Register.Domain.Entities
         public string LogoUri { get; set; }
         public string BrandStatus { get; set; }
         public bool IsActive { get; set; }
-        public DateTime LastUpdated { get => lastUpdated.ToUniversalTime(); set => lastUpdated = value; }
+        public DateTime LastUpdated { get => DateTime.SpecifyKind(lastUpdated, DateTimeKind.Utc); set => lastUpdated = value; }
     }
 }
