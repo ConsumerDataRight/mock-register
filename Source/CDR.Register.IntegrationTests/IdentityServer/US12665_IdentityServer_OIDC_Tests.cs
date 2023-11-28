@@ -47,11 +47,11 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }.SendAsync();
 
             // Assert
-            await AssertOidcConfiguration(response, ctsBaseUrl, ctsBaseUrl);
+            await AssertOidcConfiguration(response, ReplacePublicHostName(ctsBaseUrl, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL), ReplaceSecureHostName(ctsBaseUrl, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL));
 
         }
 
-        private async Task AssertOidcConfiguration(HttpResponseMessage response, string baseUrl, string tokenBaseUrl)
+        private async Task AssertOidcConfiguration(HttpResponseMessage response, string publicBaseUrl, string secureBaseUrl)
         {
             using (new AssertionScope())
             {
@@ -64,9 +64,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 // Assert - Check json
                 string expected = $@"
                     {{
-                    ""issuer"": ""{baseUrl}/idp"",
-                    ""jwks_uri"": ""{baseUrl}/idp/.well-known/openid-configuration/jwks"",
-                    ""token_endpoint"": ""{tokenBaseUrl}/idp/connect/token"",
+                    ""issuer"": ""{publicBaseUrl}/idp"",
+                    ""jwks_uri"": ""{publicBaseUrl}/idp/.well-known/openid-configuration/jwks"",
+                    ""token_endpoint"": ""{secureBaseUrl}/idp/connect/token"",
                     ""claims_supported"": [""sub""],
                     ""id_token_signing_alg_values_supported"": [""PS256""],
                     ""subject_types_supported"": [""public""],

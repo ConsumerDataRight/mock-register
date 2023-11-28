@@ -78,3 +78,12 @@ jobs:
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
+
+    - name: Docker Hub Description
+      if: ${{ github.repository_owner == 'ConsumerDataRight' && github.ref_name == 'main' }}
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: ${{ env.DOCKER_IMAGE }}
+        enable-url-completion: true

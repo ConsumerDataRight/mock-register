@@ -33,7 +33,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatusXV2(string industry)
         {
             var response = await _statusService.GetDataRecipientStatusesAsync(industry.ToIndustry());
-            response.Links = this.GetSelf("");
+            response.Links = this.GetSelf(_configuration, HttpContext, "");
             return Ok(response);
         }
 
@@ -47,7 +47,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatusXV2(string industry)
         {
             var response = await _statusService.GetSoftwareProductStatusesAsync(industry.ToIndustry());
-            response.Links = this.GetSelf("");
+            response.Links = this.GetSelf(_configuration, HttpContext, "");
             return Ok(response);
         }
 
@@ -61,7 +61,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataHolderStatusXV1(string industry)
         {
             var response = await _statusService.GetDataHolderStatusesAsyncXV1(industry.ToIndustry());
-            response.Links = this.GetSelf("");
+            response.Links = this.GetSelf(_configuration, HttpContext, "");
             return Ok(response);
         }
 

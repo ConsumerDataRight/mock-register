@@ -48,7 +48,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -94,7 +94,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
                 CertificateCn = certificateCommonName
@@ -126,7 +126,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -155,7 +155,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -224,7 +224,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = tokenEndpoint,
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
                 CertificateCn = certificateCommonName
@@ -278,6 +278,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 throw new Exception($"Common name was not updated for Software Product: {softwareProductId}");
             };
         }
+
+      
 
     }
 }

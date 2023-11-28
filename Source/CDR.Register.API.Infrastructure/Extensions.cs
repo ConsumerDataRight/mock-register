@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration;
-using CDR.Register.API.Infrastructure.Authorization;
+﻿using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +17,6 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
@@ -52,9 +50,9 @@ namespace CDR.Register.API.Infrastructure
         /// <param name="context"></param>
         /// <returns></returns>        
         public static bool ValidateIssuer(this HttpContext context)
-        {            
+        {
             if (context.Request != null && context.Request.PathBase.HasValue)
-            {                                
+            {
                 // PathBase : /cts/{id}/register
                 var issuer = context.User.Claims.FirstOrDefault(x => x.Type == "iss")?.Value;
                 if (string.IsNullOrEmpty(issuer) && string.IsNullOrEmpty(context.Request.PathBase))
@@ -65,8 +63,8 @@ namespace CDR.Register.API.Infrastructure
                 // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only                
                 return issuer?.Contains(context.Request.PathBase) ?? false;
             }
-            
-            return false;            
+
+            return false;
         }
 
         public static void UseBasePathOrExpression(this IApplicationBuilder app, IConfiguration configuration)
@@ -76,8 +74,7 @@ namespace CDR.Register.API.Infrastructure
             {
                 app.UsePathBase(basePath);
             }
-
-            // @"^\/cts\/[a-zA-Z0-9\-]{1,36}\/register\/(.*)$";
+            
             // A dynamic base path can be set by the Mock Register:BasePathExpression app setting.
             // This allows a regular expression to be set and matched rather than a static base path.
             var basePathExpression = configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
@@ -118,9 +115,9 @@ namespace CDR.Register.API.Infrastructure
 
             return webBuilder;
         }
-        
+
         public static void AddAuthenticationAuthorization(this IServiceCollection services, IConfiguration configuration)
-        {            
+        {
             var metadataAddress = configuration.GetValue<string>(Constants.ConfigurationKeys.OidcMetadataAddress);
             var jwks = Task.Run(() => LoadJwks($"{metadataAddress}/jwks")).Result;
             // Default 2 mins*
@@ -157,7 +154,7 @@ namespace CDR.Register.API.Infrastructure
                 };
 
             });
-            
+
             // Authorization
             services.AddMvcCore().AddAuthorization(options =>
             {
@@ -232,11 +229,13 @@ namespace CDR.Register.API.Infrastructure
         public static LinksPaginated GetPaginated(
             this ControllerBase controller,
             string routeName,
+            IConfiguration configuration,
             DateTime? updatedSince,
             int? currentPage,
             int totalPages,
             int? pageSize,
-            string hostName = null)
+            string hostName = null,
+            bool isSecure = false)
         {
             var currentUrl = controller.Request.GetDisplayUrl();
             var links = new LinksPaginated
@@ -244,15 +243,7 @@ namespace CDR.Register.API.Infrastructure
                 Self = new Uri(currentUrl)
             };
 
-            if (string.IsNullOrEmpty(hostName))
-            {
-                if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
-                {
-                    hostName = forwardedHosts.First();
-                    links.Self = ReplaceUriHost(currentUrl, hostName);
-                }
-            }            
-
+            links.Self = ReplaceUriHost(currentUrl, controller.GetHostNameAsUri(configuration, hostName, isSecure));
             hostName = links.Self.ToString().GetHostName();
 
             if (totalPages > 0)
@@ -280,24 +271,40 @@ namespace CDR.Register.API.Infrastructure
             return links;
         }
 
-        public static Links GetSelf(this ControllerBase controller, string hostName = null)
+        public static Links GetSelf(this ControllerBase controller, IConfiguration configuration, HttpContext context, string hostName = null)
         {
             var currentUrl = controller.Request.GetDisplayUrl();
             var links = new Links
             {
                 Self = new Uri(currentUrl)
             };
+            links.Self = ReplaceUriHost(currentUrl, controller.GetHostNameAsUri(configuration, hostName));
+            return links;
+        }
 
-            if (string.IsNullOrEmpty(hostName))
+        public static string GetHostNameAsUri(this ControllerBase controller, IConfiguration configuration, string hostName, bool isSecure = false)
+        {
+            var hostNameToUse = isSecure
+                ? configuration.GetValue<string>(Constants.ConfigurationKeys.SecureHostName)
+                : configuration.GetValue<string>(Constants.ConfigurationKeys.PublicHostName);
+
+            if (string.IsNullOrEmpty(hostNameToUse))
             {
                 if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
                 {
-                    hostName = forwardedHosts.First();
-                    links.Self = ReplaceUriHost(currentUrl, hostName);
+                    hostNameToUse = forwardedHosts[0];                                        
+                }
+                else
+                {
+                    hostNameToUse = hostName;
+                }
+
+                if (!hostNameToUse.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    hostNameToUse = "https://" +  hostNameToUse;
                 }
             }
-
-            return links;
+            return hostNameToUse;
         }
 
         public static Uri GetPageUri(
@@ -346,21 +353,17 @@ namespace CDR.Register.API.Infrastructure
 
         private static Uri ReplaceUriHost(string url, string newHost = null)
         {
-            var uriBuilder = new UriBuilder(url);
+            Uri originalUri = new(url);
+            Uri replaceUri = new(newHost);
 
-            // Replace the host with the forwarded host
-            if (!string.IsNullOrEmpty(newHost))
+            // Update the Uri components
+            UriBuilder modifiedUriBuilder = new(originalUri)
             {
-                var segments = newHost.Split(':');
-                uriBuilder.Host = segments[0];
+                Host = replaceUri.Host,
+                Port = replaceUri.IsDefaultPort ? -1 : replaceUri.Port,
+            };
 
-                if (segments.Length > 1)
-                {
-                    uriBuilder.Port = int.Parse(segments[1]);
-                }
-            }
-
-            return uriBuilder.Uri;
+            return modifiedUriBuilder.Uri;
         }
 
         public static Industry ToIndustry(this string industry)
@@ -438,7 +441,7 @@ namespace CDR.Register.API.Infrastructure
         {
             var commonName = input;
 
-            if (commonName.IsDistinguishedName() )
+            if (commonName.IsDistinguishedName())
             {
                 commonName = commonName.GetCommonNameFromDistinguishedName();
             }
@@ -466,7 +469,7 @@ namespace CDR.Register.API.Infrastructure
             {
                 return string.Empty;
             }
-            
+
         }
     }
 }

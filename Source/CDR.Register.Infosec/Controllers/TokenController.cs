@@ -11,8 +11,7 @@ namespace CDR.Register.Infosec.Controllers
     public class TokenController : ControllerBase
     {
         private readonly ILogger<TokenController> _logger;
-        private readonly IConfiguration _configuration;
-        private readonly IClientService _clientService;
+        private readonly IConfiguration _configuration;        
         private readonly ITokenService _tokenService;
 
         public TokenController(
@@ -22,8 +21,7 @@ namespace CDR.Register.Infosec.Controllers
             ITokenService tokenService)
         {
             _logger = logger;
-            _configuration = configuration;
-            _clientService = clientService;
+            _configuration = configuration;            
             _tokenService = tokenService;
         }
 

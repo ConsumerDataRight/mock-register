@@ -20,7 +20,7 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.RedirectUris).Must(x => x!= null && x.Length>0).WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
             RuleFor(x => x.JwksUri).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
             RuleFor(x => x.Status).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
-            RuleFor(x => x.Certificates).Must(x => x!= null && x.Count>0).WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing); ;
+            RuleFor(x => x.Certificates).Must(x => x!= null && x.Count>0).WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
 
             //lengths
             RuleFor(x => x.SoftwareProductName).MaximumLength(200).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid).WithState(x => $"Value '{x.SoftwareProductName}' is not allowed for SoftwareProductName");

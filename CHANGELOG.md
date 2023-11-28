@@ -1,10 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.3.2] - 2023-11-29
+### Changed
+- Refactored code and fixed code smells
+- Removed Mock Data Holder Energy mTLS server certificate as Mock Data Holder Banking and Mock Data Holder Energy mTLS server certificates are now combined.
+
+### Fixed
+- Certificate DN for Register and Data Holder are updated - [Issue 60](https://github.com/ConsumerDataRight/mock-register/issues/60)
+
+## [1.3.1] - 2023-10-30
+### Changed
+- Selflinks to use public host name / secure host name if configured.
 
 ## [1.3.0] - 2023-08-22
 ### Changed

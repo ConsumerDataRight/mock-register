@@ -4,9 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<UserSecretsId>2f05af62-1878-47d5-925d-31c0db13b55c</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<Version>1.3.0</Version>
-		<FileVersion>1.3.0</FileVersion>
-		<AssemblyVersion>1.3.0</AssemblyVersion>
+		<Version>1.3.2</Version>
+		<FileVersion>1.3.2</FileVersion>
+		<AssemblyVersion>1.3.2</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
