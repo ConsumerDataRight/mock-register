@@ -188,7 +188,7 @@ To get help on launching and debugging the solutions as containers and switching
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
 
-[<img src="./mock-register-architecture.png?raw=true" height='600' width='850' alt="Mock Register - Architecture"/>](./mock-register-architecture.png?raw=true)
+![Mock Register - Architecture](./mock-register-architecture.png?raw=true)
 
 ## Mock Register - Components
 The Mock Register contains the following components:
