@@ -1,9 +1,12 @@
-﻿using CDR.Register.IntegrationTests.API.Update;
+﻿using CDR.Register.Domain.Models;
+using CDR.Register.IntegrationTests.API.Update;
 using CDR.Register.IntegrationTests.Extensions;
+using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Json;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -51,7 +54,7 @@ namespace CDR.Register.IntegrationTests
     abstract public class BaseTest : BaseTest0, IClassFixture<TestFixture>
     {
 
-        public BaseTest(ITestOutputHelper output)
+        public BaseTest(ITestOutputHelper output, TestFixture testFixture)
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
@@ -62,6 +65,9 @@ namespace CDR.Register.IntegrationTests
                 })
                 .WriteTo.TestOutput(output)
                 .CreateLogger();
+
+            JsonConvert.DefaultSettings = () => new CdrJsonSerializerSettings();
+            TestFixture=testFixture;
         }
 
 
@@ -99,7 +105,7 @@ namespace CDR.Register.IntegrationTests
         protected const string DEFAULT_CERTIFICATE_COMMON_NAME = "MockDataRecipient";
 
         // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)
-        public static string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
+        public static readonly string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
 
         // URLs
         static public string TLS_BaseURL => Configuration["TLS_BaseURL"]
@@ -108,8 +114,8 @@ namespace CDR.Register.IntegrationTests
             ?? throw new Exception($"{nameof(MTLS_BaseURL)} - configuration setting not found");
         static public string ADMIN_BaseURL => Configuration["Admin_BaseURL"]
             ?? throw new Exception($"{nameof(ADMIN_BaseURL)} - configuration setting not found");
-        static public string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
-        static public string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
+        static public readonly string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
+        static public readonly string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
 
         // START CTS Settings
         static public string AZURE_AD_TOKEN_ENDPOINT_URL => Configuration["CtsSettings:AzureAd:TokenEndpointUrl"] ?? throw new Exception($"{nameof(AZURE_AD_TOKEN_ENDPOINT_URL)} - configuration setting not found");
@@ -124,7 +130,10 @@ namespace CDR.Register.IntegrationTests
         static public string SSA_DOWNSTREAM_BASE_URL => Configuration["SSA_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(SSA_DOWNSTREAM_BASE_URL)} - configuration setting not found");
         static public string DISCOVERY_DOWNSTREAM_BASE_URL => Configuration["Discovery_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(DISCOVERY_DOWNSTREAM_BASE_URL)} - configuration setting not found");
         static public string STATUS_DOWNSTREAM_BASE_URL => Configuration["Status_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(STATUS_DOWNSTREAM_BASE_URL)} - configuration setting not found");
-        static public string IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL => Configuration["IdentityProvider_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        static public string IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL => Configuration["IdentityProvider_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+
+        public TestFixture TestFixture { get; }
+
         //END CTS Settings
 
         protected const string EXPECTED_UNSUPPORTED_ERROR = @"
@@ -133,8 +142,7 @@ namespace CDR.Register.IntegrationTests
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
                     ""title"": ""Unsupported Version"",
-                    ""detail"": ""Version Requested is lower than the minimum version or greater than maximum version"",
-                    ""meta"": {}
+                    ""detail"": ""Requested version is lower than the minimum version or greater than maximum version."",
                     }
                 ]
             }";
@@ -145,20 +153,18 @@ namespace CDR.Register.IntegrationTests
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
                     ""title"": ""Invalid Version"",
-                    ""detail"": ""Version header must be a positive integer between 1 and 1000"",
-                    ""meta"": {}
+                    ""detail"": ""Version is not a positive Integer.""
                     }
                 ]
             }";
 
-        protected const string EXPECTED_MSSING_X_V_ERROR = @"
+        protected const string EXPECTED_MISSING_X_V_ERROR = @"
             {
                 ""errors"": [
                     {
                     ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
                     ""title"": ""Missing Required Header"",
-                    ""detail"": ""An API version X-V Header is required but was not specified"",
-                    ""meta"": {}
+                    ""detail"": ""An API version x-v header is required, but was not specified."",
                     }
                 ]
             }";
@@ -171,7 +177,7 @@ namespace CDR.Register.IntegrationTests
         public static async Task Assert_HasContent_Json(string expectedJson, HttpContent content)
         {
             var actualJson = await content.ReadAsStringAsync();
-            Log.Information($"Verifying Acutal Json:\n{actualJson}\n against expected:\n{expectedJson}");
+            Log.Information($"Verifying Actual Json:\n{actualJson}\n against expected:\n{expectedJson}");
             Assert_Json(expectedJson, actualJson);
         }
 
@@ -182,7 +188,7 @@ namespace CDR.Register.IntegrationTests
         /// <param name="actualJson">The actual json</param>       
         public static void Assert_Json(string expectedJson, string actualJson)
         {
-            Log.Information($"Verifying Acutal Json:\n{actualJson}\n against expected:\n{expectedJson}");
+            Log.Information($"Verifying Actual Json:\n{actualJson}\n against expected:\n{expectedJson}");
             //Use Fluentassertions.Json to compare. Whitespace and order is ignored.
             JToken expected = JToken.Parse(expectedJson);
             JToken actual = JToken.Parse(actualJson);
@@ -241,9 +247,9 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        protected string GetJsonFromModel<T>(T model)
+        protected static string GetJsonFromModel<T>(T model)
         {
-            return JsonConvert.SerializeObject(model, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return JsonConvert.SerializeObject(model);
         }
 
         /// <summary>
@@ -442,10 +448,48 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        protected async Task VerifyBadRequest(ExpectedErrors expectedErrors, HttpResponseMessage httpResponseFromRegister)
+        protected static void VerifyBrandLastUpdatedDateRecord(string legalEntiryId)
         {
-            Log.Information($"Expected error response: \n{GetJsonFromModel(expectedErrors)}");
-            
+            var brands = GetActualBrandsFromDatabase(legalEntiryId);
+
+            // Iterate through all brands and check the LastUpdate date on the Brand record.
+            // A 120 second tolerance has been added due to time differences between assertion and the time the record was updated/added.
+            foreach (var b in brands)
+            {
+                Log.Information($"Verifying LastUpdate Brand with Id: '{b.BrandId}' is within 120 seconds from '{DateTime.UtcNow}'");
+                b.LastUpdated.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(120), because: $"Brand with Id: '{b.BrandId}' was just updated/added.");
+            }
+
+        }
+
+        protected static ICollection<Repository.Entities.Brand> GetActualBrandsFromDatabase(string legalEntityId)
+        {
+
+            var legalEntityIdGuid = Guid.Parse(legalEntityId);
+
+            try
+            {
+                using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
+
+                var brands =
+                    dbContext.Participations.AsNoTracking()
+                        .Include(participation => participation.LegalEntity)
+                        .Include(participation => participation.Brands)
+                        .Where(participation => participation.LegalEntityId == legalEntityIdGuid)
+                        .SelectMany(participation => participation.Brands)
+                        .ToArray();
+                return brands;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting brands - {ex.Message}");
+            }
+        }
+
+        protected static async Task VerifyBadRequest(ExpectedErrors expectedErrors, HttpResponseMessage httpResponseFromRegister)
+        {
+            Log.Information("Expected error response: \n{JsonModel}", GetJsonFromModel(expectedErrors));
+
             using (new AssertionScope())
             {
                 //Check status code
@@ -457,10 +501,25 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        protected async Task VerifyUnauthorisedRequest(HttpResponseMessage httpResponseFromRegister)
+        protected static async Task VerifyNotAcceptableRequest(ExpectedErrors expectedErrors, HttpResponseMessage httpResponseFromRegister)
+        {
+            Log.Information("Expected error response: \n{JsonModel}", GetJsonFromModel(expectedErrors));
+
+            using (new AssertionScope())
+            {
+                //Check status code
+                httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
+
+                string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
+
+                Assert_Json(GetJsonFromModel(expectedErrors), actualErrors);
+            }
+        }
+
+        protected static async Task VerifyUnauthorisedRequest(HttpResponseMessage httpResponseFromRegister)
         {
             var expectedErrorJson = "{\"error\":\"invalid_token\"}";
-            Log.Information($"Expected error response: \n{expectedErrorJson}");
+            Log.Information("Expected error response: \n{ExpectedErrorJson}", expectedErrorJson);
 
             using (new AssertionScope())
             {
@@ -474,7 +533,7 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        protected string ConvertJsonPathToPascalCase(string jsonPath)
+        protected static string ConvertJsonPathToPascalCase(string jsonPath)
         {
             string[] allParts = jsonPath.Split(".");
 
@@ -486,14 +545,14 @@ namespace CDR.Register.IntegrationTests
             return string.Join(".", allParts);
         }
 
-        protected T? RemoveModelElementBasedOnJsonPath<T>(T model, string path)
+        protected static T? RemoveModelElementBasedOnJsonPath<T>(T model, string path)
         {
-            JToken mainJoken = JObject.FromObject(model ?? throw new NullException("Model cannot be null."));
+            JToken mainJoken = JObject.FromObject(model ?? throw new ArgumentNullException(nameof(model)));
 
             //If an array element, remove element.
             if (path.Last() == ']')
             {
-                JToken token = mainJoken.SelectToken(path, true) ?? throw new NullException("mainJoken cannot be null.");
+                JToken token = mainJoken.SelectToken(path, true) ?? throw new Exception("mainJoken cannot be null.");
                 token.Remove();
                 mainJoken.RemoveEmptyArrays();
             }
@@ -506,11 +565,11 @@ namespace CDR.Register.IntegrationTests
 
         }
 
-        protected T? ReplaceModelValueBasedOnJsonPath<T>(T model, string path, string newValue)
+        protected static T? ReplaceModelValueBasedOnJsonPath<T>(T model, string path, string newValue)
         {
-            JToken mainJoken = JObject.FromObject(model ?? throw new NullException("Model cannot be null."));
+            JToken mainJoken = JObject.FromObject(model ?? throw new ArgumentNullException(nameof(model)));
 
-            JToken tokenToUpdate = mainJoken.SelectToken(path) ?? throw new NullException($"tokenToUpdate is null. Ensure json path '{path}' exists."); ;
+            JToken tokenToUpdate = mainJoken.SelectToken(path) ?? throw new Exception($"tokenToUpdate is null. Ensure json path '{path}' exists."); ;
 
             tokenToUpdate.Replace(newValue);
 

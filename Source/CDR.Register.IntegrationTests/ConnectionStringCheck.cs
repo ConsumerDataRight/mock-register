@@ -16,7 +16,7 @@ namespace CDR.Register.IntegrationTests
             PRODUCTION_SERVER
         };
 
-        static public string Check(string connectionString)
+        static public string? Check(string? connectionString)
         {
             if (!String.IsNullOrEmpty(connectionString))
             {
@@ -67,7 +67,7 @@ namespace CDR.Register.IntegrationTests
         [InlineData("sql-cdrsandbox-test.database.windows.net")]
         [InlineData("localhost")]
         [InlineData("mssql")]
-        public void WhenNotOnBlackList_ShouldNotThrowException(string connectionString)
+        public void WhenNotOnBlackList_ShouldNotThrowException(string? connectionString)
         {
             using (new AssertionScope())
             {

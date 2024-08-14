@@ -14,7 +14,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
     /// </summary>   
     public class US12665_IdentityServer_OIDC_Tests : BaseTest
     {
-        public US12665_IdentityServer_OIDC_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US12665_IdentityServer_OIDC_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_OIDC()
         {
@@ -38,7 +38,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         public async Task AC02_Get_ShouldRespondWith_200OK_OIDC()
         {
             // Arrange
-            string ctsBaseUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL)}";
+            string ctsBaseUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}";
             // Act
             var response = await new Infrastructure.API
             {
@@ -47,11 +47,11 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }.SendAsync();
 
             // Assert
-            await AssertOidcConfiguration(response, ReplacePublicHostName(ctsBaseUrl, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL), ReplaceSecureHostName(ctsBaseUrl, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL));
+            await AssertOidcConfiguration(response, ReplacePublicHostName(ctsBaseUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL), ReplaceSecureHostName(ctsBaseUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL));
 
         }
 
-        private async Task AssertOidcConfiguration(HttpResponseMessage response, string publicBaseUrl, string secureBaseUrl)
+        private static async Task AssertOidcConfiguration(HttpResponseMessage response, string publicBaseUrl, string secureBaseUrl)
         {
             using (new AssertionScope())
             {
@@ -70,7 +70,8 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     ""claims_supported"": [""sub""],
                     ""id_token_signing_alg_values_supported"": [""PS256""],
                     ""subject_types_supported"": [""public""],
-                    ""scopes_supported"": [""cdr-register:bank:read"",""cdr-register:read""],
+                    ""scopes_supported"": [""cdr-register:read""],
+                    ""code_challenge_methods_supported"": [""plain"",""S256""],
                     ""response_types_supported"": [""token""],
                     ""grant_types_supported"": [""client_credentials""],
                     ""token_endpoint_auth_methods_supported"": [""private_key_jwt""],

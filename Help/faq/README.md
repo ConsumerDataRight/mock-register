@@ -16,8 +16,8 @@ See [here](../../CertificateManagement/README.md) for instructions on replacing 
 See [here](HowToUpdateRegisterHostname.md) for instructions on replacing the default hostname used in the Mock Register.
 
 
-## How To: Use Postman to query the Mock Register
-See [here](../../Postman/README.md) for postman details.
+## How To: Invoke Mock Register APIs
+See [here](../notebooks/HELP.md) for instructions on using Polyglot Notebook the Mock Register.
 
 
 ## How To: Load your own data into the Mock Register

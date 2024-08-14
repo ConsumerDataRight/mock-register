@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CDR.Register.IntegrationTests.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,7 +21,7 @@ namespace CDR.Register.IntegrationTests.Gateway
     /// </summary>       
     public class US12841_Gateway_MTLS_Tests : BaseTest
     {
-        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
         // Client certificates
         const string INVALID_CERTIFICATE_FILENAME = "Certificates/client-invalid.pfx";
 
@@ -30,7 +31,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
         // Client assertion
         private static readonly string AUDIENCE = IDENTITYSERVER_URL;
-        private const string SCOPE = "cdr-register:bank:read cdr-register:read";
+        private const string SCOPE = "cdr-register:read";
 
         // Token request
         private const string GRANT_TYPE = "client_credentials";
@@ -123,7 +124,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
             // Expected AccessToken
             const int ACCESSTOKEN_EXPIRESIN = 300;
-            const string ACCESSTOKEN_TOKENTYPE = "Bearer";
+            const string ACCESSTOKEN_TOKENTYPE = JwtBearerDefaults.AuthenticationScheme;
 
             // Arrange 
             var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
@@ -151,7 +152,6 @@ namespace CDR.Register.IntegrationTests.Gateway
                 accessToken.token_type.Should().Be(ACCESSTOKEN_TOKENTYPE);
 
                 // Assert - Check scope
-                accessToken.scope.Should().Contain("cdr-register:bank:read");
                 accessToken.scope.Should().Contain("cdr-register:read");
 
                 // Assert - Check the JWT access_token
@@ -244,7 +244,7 @@ namespace CDR.Register.IntegrationTests.Gateway
                 var accessTokenRequest = GetAccessTokenRequest(certificateFilename, certificatePassword);
                 var accessTokenResponse = await client.SendAsync(accessTokenRequest);
                 var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.access_token);
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.access_token);
             }
 
             beforeRequest?.Invoke();
@@ -311,7 +311,6 @@ namespace CDR.Register.IntegrationTests.Gateway
                         ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
                         ""title"": ""ADR Status Is Not Active"",
                         ""detail"": """",
-                        ""meta"": {}
                         }
                     ]
                 }";
@@ -405,7 +404,7 @@ namespace CDR.Register.IntegrationTests.Gateway
                 var accessTokenResponse = await client.SendAsync(accessTokenRequest);
                 var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.access_token);
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.access_token);
             }
 
             beforeRequest?.Invoke();

@@ -163,7 +163,7 @@ namespace CDR.Register.IntegrationTests.TemporalTables
 
     public class US29068_TemporalTables : BaseTest0
     {
-        private async Task<string> GetTableJson(SqlConnection connection, string tableName, DateTime? pointInTimeUTC = null)
+        private static async Task<string> GetTableJson(SqlConnection connection, string tableName, DateTime? pointInTimeUTC = null)
         {
             string orderby = tableName.ToUpper() switch
             {
@@ -191,7 +191,7 @@ namespace CDR.Register.IntegrationTests.TemporalTables
             await Test(new string[] { tableName }, mutate);
         }
 
-        private async Task Test(string[] tableNames, Mutate mutate)
+        private static async Task Test(string[] tableNames, Mutate mutate)
         {
             // Arrange
             await DatabaseSeeder.Execute();
@@ -361,7 +361,7 @@ namespace CDR.Register.IntegrationTests.TemporalTables
         public async Task ACX03_AfterDeletingRecords_PointInTimeQueryShouldReturnDeletedRecords()
         {
             await Test(
-                new string[] { "LegalEntity", "Participation", "Brand", "AuthDetail", "Endpoint", "SoftwareProduct", "SoftwareProductCertificate" },
+                ["LegalEntity", "Participation", "Brand", "AuthDetail", "Endpoint", "SoftwareProduct", "SoftwareProductCertificate"],
                 async (connection) =>
                 {
                     await connection.ExecuteAsync("delete SoftwareProductCertificate");

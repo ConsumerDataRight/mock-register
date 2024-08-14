@@ -10,10 +10,10 @@ namespace CDR.Register.Infosec.Models
 
         public string? client_assertion_type { get; set; }
 
-        [JsonProperty("client_assertion")]
+        [JsonProperty(nameof(client_assertion))]
         public string? client_assertion { get; set; }
 
-        [JsonProperty("scope")]
+        [JsonProperty(nameof(scope))]
         public string? scope { get; set; }
     }
 }

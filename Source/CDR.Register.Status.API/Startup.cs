@@ -5,14 +5,16 @@ using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.API.Logger;
 using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Status.API.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using static CDR.Register.API.Infrastructure.Constants;
+using CDR.Register.Domain.Extensions;
 
 namespace CDR.Register.Status.API
 {
@@ -29,18 +31,27 @@ namespace CDR.Register.Status.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddRegisterStatus(Configuration)
-                    .AddRegisterStatusSwagger();
+            services.AddRegisterStatus(Configuration);
 
             services.AddControllers();
 
             services.AddApiVersioning(options =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ErrorResponses = new ErrorResponseVersion();
-                options.ApiVersionSelector = new ApiVersionSelector(options);
+                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); //uses default options atm
+                options.ErrorResponses = new ApiVersionErrorResponse();
             });
+
+            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            if (enableSwagger)
+            {
+                services.AddCdrSwaggerGen(opt =>
+                {
+                    opt.SwaggerTitle = "Consumer Data Right (CDR) Participant Tooling - Mock Register - Status API";
+                    opt.IncludeAuthentication = false;
+                });
+            }
+
+            services.AddMvc().AddCdrNewtonsoftJson();
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
@@ -71,14 +82,18 @@ namespace CDR.Register.Status.API
 
             app.UseSerilogRequestLogging();
 
-            app.UseRegisterStatusSwagger();
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            if (enableSwagger)
+            {
+                app.UseCdrSwagger();
+            }
 
             app.UseEndpoints(endpoints =>
             {

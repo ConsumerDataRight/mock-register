@@ -71,8 +71,6 @@ namespace CDR.Register.SSA.API.UnitTests
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            //Read token for Ggtting the user details
-            var parsedJwt = tokenHandler.ReadToken(ssaToken) as JwtSecurityToken;
 
             //Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
@@ -96,9 +94,9 @@ namespace CDR.Register.SSA.API.UnitTests
             var principal = tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
 
             //Assert
-            Assert.True(validatedToken != null);
-            Assert.True(validatedToken.Issuer == "cdr-register");
-            Assert.True(principal.Claims.Count() == 17);
+            Assert.NotNull(validatedToken);
+            Assert.Equal("cdr-register", validatedToken.Issuer);
+            Assert.Equal(17, principal.Claims.Count());
         }
 
         [Fact]
@@ -138,9 +136,7 @@ namespace CDR.Register.SSA.API.UnitTests
             ssaToken = ssaToken.Replace('a', 'b');
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            //Read token for Ggtting the user details
-            var parsedJwt = tokenHandler.ReadToken(ssaToken) as JwtSecurityToken;
-
+            
             //Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
 
@@ -168,7 +164,7 @@ namespace CDR.Register.SSA.API.UnitTests
             {
                 var errorMessage = ex.Message.Replace("\n", "");
                 //Assert
-                Assert.True(errorMessage == "IDX10511: Signature validation failed. Keys tried: 'System.Text.StringBuilder'. kid: 'System.String'. Exceptions caught: 'System.Text.StringBuilder'.token: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.");
+                Assert.StartsWith("IDX10511: Signature validation failed.", errorMessage);
             }
 
         }
@@ -207,8 +203,6 @@ namespace CDR.Register.SSA.API.UnitTests
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            //Read token for Ggtting the user details
-            var parsedJwt = tokenHandler.ReadToken(ssaToken) as JwtSecurityToken;
 
             //Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["InvalidSigningCertificatePublic:Path"]);
@@ -237,7 +231,7 @@ namespace CDR.Register.SSA.API.UnitTests
             {
                 var errorMessage = ex.Message.Replace("\n", "");
                 //Assert
-                Assert.True(errorMessage == "IDX10501: Signature validation failed. Unable to match key: kid: 'System.String'.Exceptions caught: 'System.Text.StringBuilder'. token: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.");
+                Assert.StartsWith("IDX10503: Signature validation failed.", errorMessage);
             }
 
         }
@@ -305,9 +299,9 @@ namespace CDR.Register.SSA.API.UnitTests
             var principal = tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
 
             // Assert
-            Assert.True(validatedToken != null);
-            Assert.True(validatedToken.Issuer == "cdr-register");
-            Assert.True(principal.Claims.Count() == 17);
+            Assert.NotNull(validatedToken);
+            Assert.Equal("cdr-register", validatedToken.Issuer);
+            Assert.Equal(17, principal.Claims.Count());
         }
     }
 }

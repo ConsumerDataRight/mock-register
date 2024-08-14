@@ -25,7 +25,7 @@ namespace CDR.Register.Domain.Entities
         }
     }
 
-    public enum IndustryEnum
+    public enum Industry
     {
         All = 0,
         Banking,
@@ -33,7 +33,7 @@ namespace CDR.Register.Domain.Entities
         Telco
     }
 
-    public enum DhParticipationStatusEnum
+    public enum DhParticipationStatus
     {
         Unknown = 0,
         Active = 1,

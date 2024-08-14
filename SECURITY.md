@@ -11,11 +11,8 @@ Visit our [Responsible disclosure of security vulnerabilities policy](https://ww
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.3.x   | :white_check_mark: |
-| 1.2.x   | :x: |
-| 1.1.x   | :x: |
-| 1.0.x   | :x: |
-
+| 2.1.x   | :white_check_mark: |
+| 1.x.x   | :x: |
 
 ## Reporting a Vulnerability
 Visit our [Responsible disclosure of security vulnerabilities policy](https://www.cdr.gov.au/resources/responsible-disclosure-security-vulnerabilities-policy) for steps required for reporting a vulnerability.

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Domain.Models;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
 

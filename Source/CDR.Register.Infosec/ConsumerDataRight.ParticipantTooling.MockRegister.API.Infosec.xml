@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CDR.Register.Infosec</name>
+    </assembly>
+    <members>
+        <member name="M:CDR.Register.Infosec.Services.TokenService.ValidateClientAssertion(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject </param> 
+            <param name="clientAssertion">clientAssertion </param> 
+            <returns></returns>
+        </member>
+    </members>
+</doc>

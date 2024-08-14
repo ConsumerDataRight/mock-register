@@ -17,11 +17,11 @@ namespace CDR.Register.API.Infrastructure.Filters
 
 		public override void OnActionExecuting(ActionExecutingContext context)
 		{
-			var controller = context.RouteData.Values["controller"].ToString();
-			var action = context.RouteData.Values["action"].ToString();
+			var controller = context.RouteData.Values["controller"]?.ToString();
+			var action = context.RouteData.Values["action"]?.ToString();
 			using (LogContext.PushProperty("MethodName", action))
 			{
-				_logger.LogInformation("Request received to {controller}.{action}", controller, action);
+				_logger.LogInformation("Request received to {Controller}.{Action}", controller, action);
 			}
 
 			base.OnActionExecuting(context);

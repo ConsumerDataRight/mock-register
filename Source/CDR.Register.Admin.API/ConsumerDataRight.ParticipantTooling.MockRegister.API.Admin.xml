@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CDR.Register.Admin.API</name>
+    </assembly>
+    <members>
+        <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.MockDataRecipientJwks">
+            <summary>
+            This controller action provides an implementation of a JWKS for a Mock Data Recipient.
+            </summary>
+            <returns>JWKS</returns>
+        </member>
+        <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.MockDataRecipientClientAssertion">
+            <summary>
+            This controller action produces a client assertion for a mock data recipient.
+            </summary>
+            <returns>Client assertion string</returns>
+            <remarks>
+            This client assertion can then be used in a private key jwt request.
+            </remarks>
+        </member>
+        <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.RegisterSelfSignedJwt(System.String)">
+            <summary>
+            This controller action produces a self signed JWT for the mock register.
+            </summary>
+            <returns>Self Signed JWT</returns>
+        </member>
+        <member name="M:CDR.Register.Admin.API.Startup.RunMigrations">
+            <summary>
+            Determine if EF Migrations should run.
+            </summary>
+        </member>
+    </members>
+</doc>

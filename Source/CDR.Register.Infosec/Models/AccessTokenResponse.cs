@@ -2,7 +2,7 @@
 
 namespace CDR.Register.Infosec.Models
 {
-    public class AccessTokenResponse : ResponseBase
+    public class AccessTokenResponse : IResponseBase
     {
         [JsonProperty("access_token")]
         public string? AccessToken { get; set; }

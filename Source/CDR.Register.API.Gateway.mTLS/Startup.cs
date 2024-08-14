@@ -112,12 +112,12 @@ namespace CDR.Register.API.Gateway.mTLS
                         var certThumbprintNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
                         var certCommonNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
 
-                        httpContext.Request.Headers.Add(certThumbprintNameHttpHeaderName, clientCert.Thumbprint);
-                        httpContext.Request.Headers.Add(certCommonNameHttpHeaderName, clientCert.GetNameInfo(X509NameType.SimpleName, false));
+                        httpContext.Request.Headers.Append(certThumbprintNameHttpHeaderName, clientCert.Thumbprint);
+                        httpContext.Request.Headers.Append(certCommonNameHttpHeaderName, clientCert.GetNameInfo(X509NameType.SimpleName, false));
                     }
 
                     // Send through the original host name to the backend service.
-                    httpContext.Request.Headers.Add("X-Forwarded-Host", httpContext.Request.Host.ToString());
+                    httpContext.Request.Headers.Append("X-Forwarded-Host", httpContext.Request.Host.ToString());
 
                     await next.Invoke();
                 }

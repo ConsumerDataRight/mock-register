@@ -81,7 +81,8 @@ namespace CDR.Register.Repository.Infrastructure
             CreateMap<SoftwareProduct, DomainEntities.SoftwareProduct>()
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.SoftwareProductStatusCode))
                 .ForMember(dest => dest.IsActive, source => source.MapFrom(source => source.Status.SoftwareProductStatusId == SoftwareProductStatusType.Active))
-                .ForMember(dest => dest.RedirectUri, source => source.MapFrom(s => s.RedirectUris))
+                .ForMember(dest => dest.RedirectUri, source => source.MapFrom(src => src.RedirectUris))
+                .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) //Ignore this as it is a computed property with no setter
                 .ForMember(dest => dest.DataRecipientBrand, source => source.MapFrom(s => s.Brand));
 
             CreateMap<DomainEntities.SoftwareProduct, SoftwareProduct>()

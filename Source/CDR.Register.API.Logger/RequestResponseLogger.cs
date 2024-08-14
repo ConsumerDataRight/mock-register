@@ -1,9 +1,9 @@
 ﻿namespace CDR.Register.API.Logger
 {
-    using System.Diagnostics;
     using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Core;
+    using Serilog.Settings.Configuration;
 
     public class RequestResponseLogger : IRequestResponseLogger, IDisposable
     {
@@ -14,7 +14,7 @@
         public RequestResponseLogger(IConfiguration configuration)
         {
             _logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration, sectionName: "SerilogRequestResponseLogger")
+                .ReadFrom.Configuration(configuration, new ConfigurationReaderOptions { SectionName = "SerilogRequestResponseLogger" })
                 .Enrich.WithProperty("RequestMethod", "")
                 .Enrich.WithProperty("RequestBody", "")
                 .Enrich.WithProperty("RequestHeaders", "")

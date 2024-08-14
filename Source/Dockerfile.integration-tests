@@ -1,17 +1,22 @@
 # Dockerfile for running integration tests
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release
+
+# Copy the build props 
+COPY ./Directory.Build.props ./Directory.Build.props
 
 # Copy source
 COPY ./CDR.Register.API.Gateway.mTLS/Certificates/ca.crt ./CDR.Register.API.Gateway.mTLS/Certificates/ca.crt
 COPY ./CDR.Register.Admin.API/. ./CDR.Register.Admin.API
 COPY ./CDR.Register.Repository/. ./CDR.Register.Repository
 COPY ./CDR.Register.Domain/. ./CDR.Register.Domain
+COPY ./CDR.Register.API.Infrastructure/. ./CDR.Register.API.Infrastructure
 COPY ./CDR.Register.IntegrationTests/. ./CDR.Register.IntegrationTests
+
 
 # Install ca certificate
 RUN apt-get update && apt-get install -y sudo
@@ -22,4 +27,4 @@ RUN sudo update-ca-certificates
 WORKDIR /src/CDR.Register.IntegrationTests
 RUN dotnet build --configuration Release
 
-ENTRYPOINT dotnet test --configuration Release --no-build --filter ${TEST_FILTER} --logger "trx;verbosity=detailed;LogFileName=results.trx;" -r /testresults
+ENTRYPOINT dotnet test --configuration Release --no-build --filter ${TEST_FILTER} --logger "trx;verbosity=detailed;LogFileName=results.trx;" --results-directory /testresults

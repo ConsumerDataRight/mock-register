@@ -18,7 +18,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopeRequirement requirement)
         {
             // Check that authentication was successful before doing anything else
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 return Task.CompletedTask;
             }
@@ -34,13 +34,13 @@ namespace CDR.Register.API.Infrastructure.Authorization
             }
 
             // Return the user claim scope
-            var userClaimScopes = context.User.FindFirst(c => c.Type == "scope").Value.Split(' ');
+            var userClaimScopes = context.User.FindFirst(c => c.Type == "scope")?.Value.Split(' ');
 
             // Succeed if the scope array contains the required scope
             // The space character is used to seperate the scopes as this is in line with CDS specifications.
             string[] requiredScopes = requirement.Scope.Split(' ');
 
-            if (userClaimScopes.Intersect(requiredScopes).Any())
+            if (userClaimScopes!=null && userClaimScopes.Intersect(requiredScopes).Any())
             {
                 context.Succeed(requirement);
             }

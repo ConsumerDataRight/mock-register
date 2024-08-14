@@ -6,7 +6,6 @@ using CDR.Register.Repository.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -75,18 +74,22 @@ namespace CDR.Register.Repository
                 return null;
             }
 
-            var brand = new DataHolderBrand();
-            brand.LogoUri = dataHolderBrandEntity.LogoUri;
-            brand.BrandId = dataHolderBrandEntity.BrandId;
-            brand.BrandName = dataHolderBrandEntity?.BrandName;
-            brand.BrandStatus = dataHolderBrandEntity?.BrandStatusId.ToString();
+            var brand = new DataHolderBrand
+            {
+                LogoUri = dataHolderBrandEntity.LogoUri,
+                BrandId = dataHolderBrandEntity.BrandId,
+                BrandName = dataHolderBrandEntity.BrandName,
+                BrandStatus = dataHolderBrandEntity.BrandStatusId.ToString()
+            };
             if (dataHolderBrandEntity.Participation.ParticipationTypeId == ParticipationTypes.Dh)
             {
-                brand.DataHolder = new DataHolder();
-                brand.DataHolder.DataHolderId = dataHolderBrandEntity.ParticipationId;
-                brand.DataHolder.Industry = dataHolderBrandEntity.Participation?.IndustryId.ToString();
-                brand.DataHolder.Status = dataHolderBrandEntity.Participation.StatusId.ToString();
-                brand.DataHolder.LegalEntity = _mapper.Map<DataHolderLegalEntity>(dataHolderBrandEntity.Participation.LegalEntity);
+                brand.DataHolder = new DataHolder
+                {
+                    DataHolderId = dataHolderBrandEntity.ParticipationId,
+                    Industry = dataHolderBrandEntity.Participation?.IndustryId.ToString(),
+                    Status = dataHolderBrandEntity.Participation.StatusId.ToString(),
+                    LegalEntity = _mapper.Map<DataHolderLegalEntity>(dataHolderBrandEntity.Participation.LegalEntity)
+                };
             }
 
             return brand;
@@ -125,7 +128,7 @@ namespace CDR.Register.Repository
             if (existingDataRecipient == null && existingLegalEntity == null)
             {
                 await _registerDatabaseContext.LegalEntities.AddAsync(legalEntity);
-                _logger.LogInformation($"New LegalEntity of id:{legalEntity.LegalEntityId} name:{legalEntity.LegalEntityName} getting added to the repository.");
+                _logger.LogInformation("New LegalEntity of id:{LegalEntityId} name:{LegalEntityName} getting added to the repository.", legalEntity.LegalEntityId, legalEntity.LegalEntityName);
             }
 
             var error = await dataRecipient.AddOrUpdateDataRecipientLegalEntity(legalEntity, _registerDatabaseContext, _reporsitoryMapper, _logger);
@@ -145,11 +148,10 @@ namespace CDR.Register.Repository
                 return false;
             }
 
-            (var savedLegalEntity, var savedParticipation) = await SaveDataHolderLegalEntity(dataHolderBrand.DataHolder);
+            (_ , var savedParticipation) = await SaveDataHolderLegalEntity(dataHolderBrand.DataHolder);
 
             // Save DH Brand
             var dhBrandToSave = _mapper.Map<Entities.Brand>(dataHolderBrand);
-            dhBrandToSave.LastUpdated = DateTime.UtcNow;
             var existingBrand = _registerDatabaseContext.Brands
                 .Include(b => b.Participation)
                 .Include(b => b.AuthDetails)
@@ -157,11 +159,13 @@ namespace CDR.Register.Repository
                 .Where(brand => brand.BrandId == dataHolderBrand.BrandId).FirstOrDefault();
             if (existingBrand == null)
             {
+                dhBrandToSave.LastUpdated = DateTime.UtcNow;
                 savedParticipation.Brands.Add(dhBrandToSave);
             }
             else
             {
                 dhBrandToSave = _mapper.Map(dataHolderBrand, existingBrand);
+                dhBrandToSave.LastUpdated = DateTime.UtcNow;
             }
 
             // Add Endpoints data

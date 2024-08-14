@@ -18,7 +18,7 @@ namespace CDR.Register.Repository
             this._registerDatabaseContext = registerDatabaseContext;
         }
 
-        public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Industry industry)
+        public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Infrastructure.Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
@@ -28,7 +28,7 @@ namespace CDR.Register.Repository
                 .ToArrayAsync();
         }
 
-        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Industry industry)
+        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Infrastructure.Industry industry)
         {
             var allParticipants = await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Industry)
@@ -62,14 +62,14 @@ namespace CDR.Register.Repository
                 .ToArray();
         }
 
-        public async Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Industry industry)
+        public async Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Infrastructure.Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
                 .Include(p => p.Industry)
                 .Include(p => p.LegalEntity)
                 .Where(p => p.ParticipationTypeId == ParticipationTypes.Dh)
-                .Where(p => industry == Industry.ALL || p.IndustryId == industry)
+                .Where(p => industry == Infrastructure.Industry.ALL || p.IndustryId == industry)
                 .Where(p => p.StatusId == ParticipationStatusType.Active)
                 .Select(p => new DataHolderStatus() { LegalEntityId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
                 .OrderBy(p => p.LegalEntityId)

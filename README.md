@@ -1,6 +1,6 @@
 ![Consumer Data Right Logo](./cdr-logo.png?raw=true) 
 
-[![Consumer Data Standards v1.27.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.27.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.27.0/#introduction)
+[![Consumer Data Standards v1.31.0](https://img.shields.io/badge/Consumer%20Data%20Standards-v1.31.0-blue.svg)](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction)
 [![made-with-dotnet](https://img.shields.io/badge/Made%20with-.NET-1f425Ff.svg)](https://dotnet.microsoft.com/)
 [![made-with-csharp](https://img.shields.io/badge/Made%20with-C%23-1f425Ff.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![MIT License](https://img.shields.io/github/license/ConsumerDataRight/mock-register)](./LICENSE)
@@ -12,7 +12,7 @@ This project includes source code, documentation and instructions for the Consum
 The ACCC operates the CDR Register within the CDR ecosystem.  This repository contains a mock implementation of the CDR Register and is offered to help the community in the development and testing of their CDR solutions.
 
 ## Mock Register - Alignment
-The Mock Register aligns to [v1.27.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.27.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.27.0/#introduction).
+The Mock Register aligns to [v1.31.0](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction) of the [Consumer Data Standards](https://consumerdatastandardsaustralia.github.io/standards-archives/standards-1.31.0/#introduction).
 
 ## Getting Started
 There are a number of ways that the artefacts within this project can be used:
@@ -51,7 +51,7 @@ To get help on launching the Mock CDR Ecosystem, see the [help guide](./Help/con
 
 ## Try it out
 
-Once the Mock Register is running, you can use the provided [Mock Register Postman API collection](./Postman/README.md) to try it out.
+Once the Mock Register is running, you can use the provided [Mock Register Polyglot Notebook](./Help/notebooks/HELP.md) to try it out.
 
 ## Certificate Management
 
@@ -188,7 +188,7 @@ To get help on launching and debugging the solutions as containers and switching
 ## Mock Register - Architecture
 The following diagram outlines the high level architecture of the Mock Register:
 
-[<img src="./mock-register-architecture.png?raw=true" height='600' width='850' alt="Mock Register - Architecture"/>](./mock-register-architecture.png?raw=true)
+![Mock Register - Architecture](./mock-register-architecture.png?raw=true)
 
 ## Mock Register - Components
 The Mock Register contains the following components:
@@ -202,7 +202,7 @@ The Mock Register contains the following components:
   - Performs certificate validation
 - Identity Provider
   - Hosted at `https://localhost:7002`
-  - Register identity provider implementation utilising `.Net 6`
+  - Register identity provider implementation utilising `.Net 8`
   - Accessed via the TLS and mTLS Gateways, depending on the target endpoint.
 - Discovery API
   - Hosted at `https://localhost:7003`
@@ -227,14 +227,17 @@ The Mock Register contains the following components:
 ## Technology Stack
 
 The following technologies have been used to build the Mock Register:
-- The source code has been written in `C#` using the `.Net 6` framework.
-- The Identity Provider is implemented using `.Net 6`.
+- The source code has been written in `C#` using the `.Net 8` framework.
+- The Identity Provider is implemented using `.Net 8`.
 - The TLS and mTLS Gateways have been implemented using `Ocelot`.
 - The Repository utilises a `SQL` instance.
 
 # Testing
 
-A collection of API requests has been made available in [Postman](https://www.postman.com/) in order to test the Mock Register and view the expected interactions.  See the Mock Register [Postman](./Postman/README.md) documentation for more information.
+A [Polyglot notebook](https://code.visualstudio.com/docs/languages/polyglot) has been created for the Mock Register's APIs as a tool for demonstrating how these APIs are used.  
+See the [Mock Register Polyglot Notebook](./Help/notebooks/HELP.md) documentation for more information.
+
+Automated integrated tests have been created as part of this solution. See the [Test Automation Execution Guide](./Help/testing/HELP.md) documentation for more information.
 
 # Frequently Asked Questions
 See the [Frequently Asked Questions](./Help/faq/README.md) page for answers to some common questions and links to help files.
