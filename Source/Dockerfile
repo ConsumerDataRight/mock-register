@@ -7,7 +7,7 @@ EXPOSE 7006
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release 
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY . ./
