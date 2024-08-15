@@ -1,4 +1,4 @@
-﻿using CDR.Register.API.Infrastructure.Models;
+﻿using CDR.Register.Domain.Models;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -26,11 +26,9 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var industry = context.ActionArguments["industry"] as string;
-
-            if (!IsValidIndustry(industry))
+            if (context.ActionArguments["industry"] is string industry && !IsValidIndustry(industry))
             {
-                context.Result = new BadRequestObjectResult(new ResponseErrorList().InvalidIndustry());
+                context.Result = new BadRequestObjectResult(new ResponseErrorList().AddInvalidIndustry());
             }
 
             base.OnActionExecuting(context);
@@ -51,7 +49,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // Check that the incoming industry matches the industry restriction, if set.
-            if (!string.IsNullOrEmpty(_industryRestriction) && _industryRestriction != industryItem.ToString().ToUpper())
+            if (!string.IsNullOrEmpty(_industryRestriction) && !string.Equals(_industryRestriction, industryItem.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }

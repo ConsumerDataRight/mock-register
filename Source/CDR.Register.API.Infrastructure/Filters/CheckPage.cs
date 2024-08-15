@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Domain.Models;
 using Newtonsoft.Json;
 
 namespace CDR.Register.API.Infrastructure.Filters
@@ -8,7 +8,7 @@ namespace CDR.Register.API.Infrastructure.Filters
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class CheckPageAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext? validationContext)
         {
             if (value == null)
             {

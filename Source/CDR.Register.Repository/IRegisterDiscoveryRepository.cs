@@ -8,8 +8,8 @@ namespace CDR.Register.Repository.Interfaces
 {
     public interface IRegisterDiscoveryRepository
     {
-        Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize);
-        Task<DataRecipient[]> GetDataRecipientsAsync(Industry industry);
+        Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize);
+        Task<DataRecipient[]> GetDataRecipientsAsync(Infrastructure.Industry industry);
         Task<SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId);
     }
 }

@@ -4,6 +4,7 @@
 
 namespace CDR.Register.Repository.Migrations
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarAnalyzer", "S1192:Define a constant instead of using this literal 'SoftwareProduct' 6 times.", Justification = "Auto-generated migration file.")]
     public partial class V6 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

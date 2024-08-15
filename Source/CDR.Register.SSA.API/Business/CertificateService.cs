@@ -52,12 +52,12 @@ namespace CDR.Register.SSA.API.Business
                 kty = this.SecurityKey.PublicKey.KeyExchangeAlgorithm,
                 n = n,
                 e = e,
-                key_ops = new string[] { "sign", "verify" }
+                key_ops = ["sign", "verify"]
             };
 
             return new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
             {
-                keys = new CDR.Register.API.Infrastructure.Models.JsonWebKey[] { jwk }
+                keys = [jwk]
             };
         }
     }

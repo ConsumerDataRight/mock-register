@@ -1,7 +1,7 @@
 ﻿using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.API.Infrastructure;
-using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Domain.Entities;
+using CDR.Register.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace CDR.Register.Admin.API.Business.Model
     {
         public Guid DataHolderBrandId { get; set; }
         public string BrandName { get; set; } = string.Empty;
-        public string[] Industries { get; set; } = new string[] { };
+        public string[] Industries { get; set; } = [];
         public string LogoUri { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
 
@@ -38,20 +38,15 @@ namespace CDR.Register.Admin.API.Business.Model
                         detail = $"Value '{error.AttemptedValue}' is not allowed for {error.PropertyName}";
                     }
 
-                    responseErrorList.Errors.Add(new Error
-                    {
-                        Code = error.ErrorCode,
-                        Title = error.ErrorMessage,
-                        Detail = detail
-                    });
+                    responseErrorList.Errors.Add(new Error(error.ErrorCode,error.ErrorMessage,detail));
                 }
 
                 return responseErrorList;
             }
 
             // Validate against the existing data
-            var existingDataValidationErrors = ValidateWithExisiting(existingDataHolderBrand);
-            if (existingDataValidationErrors.Any())
+            var existingDataValidationErrors = ValidateWithExisting(existingDataHolderBrand);
+            if (existingDataValidationErrors.Count > 0)
             {
                 responseErrorList.Errors.AddRange(existingDataValidationErrors);
             }
@@ -59,7 +54,7 @@ namespace CDR.Register.Admin.API.Business.Model
             return responseErrorList;
         }
 
-        private IList<Error> ValidateWithExisiting(DataHolderBrand existingDataHolderBrand)
+        private List<Error> ValidateWithExisting(DataHolderBrand existingDataHolderBrand)
         {
             var errorList = new List<Error>();
             if (existingDataHolderBrand == null)
@@ -70,17 +65,17 @@ namespace CDR.Register.Admin.API.Business.Model
             // Validate all the parent IDs.
             if (existingDataHolderBrand.DataHolder == null) // This ensures it is a DH Participation
             {
-                errorList.Add(new Error(Constants.ErrorCodes.FieldInvalid, Constants.ErrorTitles.FieldInvalid, 
+                errorList.Add(new Error(Domain.Constants.ErrorCodes.Cds.InvalidField, Domain.Constants.ErrorTitles.InvalidField, 
                     $"Brand {this.DataHolderBrandId} is not a Data Holder."));
             }
             else if (existingDataHolderBrand.DataHolder?.LegalEntity.LegalEntityId != this.LegalEntity?.LegalEntityId)
             {
-                errorList.Add(new Error(Constants.ErrorCodes.FieldInvalid, Constants.ErrorTitles.FieldInvalid,
+                errorList.Add(new Error(Domain.Constants.ErrorCodes.Cds.InvalidField, Domain.Constants.ErrorTitles.InvalidField,
                     $"Brand {this.DataHolderBrandId} is already associated with a different legal entity."));
             }
             else if (!string.Equals(existingDataHolderBrand.DataHolder?.Industry, this.Industries[0], StringComparison.InvariantCultureIgnoreCase))
             {
-                errorList.Add(new Error(Constants.ErrorCodes.FieldInvalid, Constants.ErrorTitles.FieldInvalid,
+                errorList.Add(new Error(Domain.Constants.ErrorCodes.Cds.InvalidField, Domain.Constants.ErrorTitles.InvalidField,
                    $"Brand {this.DataHolderBrandId} is already associated with the same legal entity in a different industry."));
             }
             

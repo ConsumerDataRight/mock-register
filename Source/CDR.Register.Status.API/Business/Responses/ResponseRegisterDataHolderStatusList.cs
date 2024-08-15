@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Domain.Models;
 using CDR.Register.Status.API.Business.Models;
 
 namespace CDR.Register.Status.API.Business.Responses

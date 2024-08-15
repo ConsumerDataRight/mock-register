@@ -49,7 +49,7 @@ Example of accepting the `ACCEPT_EULA` environment variable of the SQL Server co
 ```
   mssql:
     container_name: sql1
-    image: 'mcr.microsoft.com/mssql/server:2019-latest'
+    image: 'mcr.microsoft.com/mssql/server:2022-latest'
     ports:
       - '1433:1433'
     environment:

@@ -25,6 +25,9 @@ namespace CDR.Register.Infosec.Models
         [JsonProperty("scopes_supported")]
         public string[]? ScopesSupported { get; set; }
 
+        [JsonProperty("code_challenge_methods_supported")]
+        public string[]? CodeChallengeMethodsSupported { get; set; }
+
         [JsonProperty("response_types_supported")]
         public string[]? ResponseTypesSupported { get; set; }
 

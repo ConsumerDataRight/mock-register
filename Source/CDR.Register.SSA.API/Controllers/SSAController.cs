@@ -1,8 +1,8 @@
 ﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
-using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Services;
+using CDR.Register.Domain.Models;
 using CDR.Register.SSA.API.Business;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +34,7 @@ namespace CDR.Register.SSA.API.Controllers
             _configuration = configuration;
         }
 
-        [PolicyAuthorize(AuthorisationPolicy.GetSSAMultiIndustry)]
+        [PolicyAuthorize(RegisterAuthorisationPolicy.GetSSAMultiIndustry)]
         [HttpGet]
         [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
         [ReturnXV("3")]
@@ -46,10 +46,10 @@ namespace CDR.Register.SSA.API.Controllers
             // CTS conformance ID validations
             var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
             if (!string.IsNullOrEmpty(basePathExpression))
-            {                
+            {
                 var validIssuer = HttpContext.ValidateIssuer();
                 if (!validIssuer)
-                {                    
+                {
                     return Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                 }
             }
@@ -90,7 +90,7 @@ namespace CDR.Register.SSA.API.Controllers
             // Get the software product id based on the access token.
             var softwareProductIdAsGuid = GetSoftwareProductIdFromAccessToken();
             if (softwareProductIdAsGuid == null)
-                return new BadRequestObjectResult(new ResponseErrorList(ResponseErrorList.UnknownError()));
+                return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
 
             // Ensure that the software product id from the access token matches the software product id in the request.
             if (!softwareProductIdAsGuid.ToString().Equals(softwareProductId, StringComparison.OrdinalIgnoreCase))

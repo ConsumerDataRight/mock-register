@@ -20,7 +20,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, DataRecipientSoftwareProductIdRequirement requirement)
         {
             // Check that authentication was successful before doing anything else
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 return Task.CompletedTask;
             }
@@ -30,7 +30,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim for issuer '{issuer}'.", requirement.Issuer);
+                    _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim for issuer '{Issuer}'.", requirement.Issuer);
                 }
                 return Task.CompletedTask;
             }
@@ -45,14 +45,14 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 return Task.CompletedTask;
             }
 
-            string requestDataRecipientProductId = _httpContextAccessor.HttpContext.Request.RouteValues["softwareProductId"]?.ToString();
+            string? requestDataRecipientProductId = _httpContextAccessor.HttpContext?.Request.RouteValues["softwareProductId"]?.ToString();
 
             // Token ClientId should match the ProductId.
             if (!accessTokenClientId.Equals(requestDataRecipientProductId, System.StringComparison.InvariantCultureIgnoreCase))
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. Access token client_id '{accessTokenClientId}' does not match request softwareProductId '{requestDataRecipientProductId}'", accessTokenClientId, requestDataRecipientProductId);
+                    _logger.LogError("Unauthorized request. Access token client_id '{AccessTokenClientId}' does not match request softwareProductId '{RequestDataRecipientProductId}'", accessTokenClientId, requestDataRecipientProductId);
                 }
                 return Task.CompletedTask;
             }

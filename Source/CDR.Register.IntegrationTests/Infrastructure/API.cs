@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -81,7 +82,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                 // Attach access token if provided
                 if (AccessToken != null)
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+                    request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, AccessToken);
                 }
 
                 // Set x-v header if provided

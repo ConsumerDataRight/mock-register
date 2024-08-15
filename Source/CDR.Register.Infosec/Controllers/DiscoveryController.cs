@@ -31,11 +31,12 @@ namespace CDR.Register.Infosec.Controllers
                 Issuer = $"{baseUrl}",
                 JwksUri = $"{baseUrl}/.well-known/openid-configuration/jwks",
                 TokenEndpoint = $"{secureBaseUrl}/connect/token",
-                ClaimsSupported = new string[] { "sub" },
-                GrantTypesSupported = new string[] { "client_credentials" },
-                IdTokenSigningAlgValuesSupported = new string[] { "PS256" },
-                ResponseTypesSupported = new string[] { "token" },
-                ScopesSupported = new string[] { "cdr-register:bank:read", "cdr-register:read" },
+                ClaimsSupported = ["sub"],
+                GrantTypesSupported = ["client_credentials"],
+                IdTokenSigningAlgValuesSupported = ["PS256"],
+                ResponseTypesSupported = ["token"],
+                ScopesSupported = new string[] { "cdr-register:read" },
+                CodeChallengeMethodsSupported = new string[] { "plain", "S256" },
                 SubjectTypesSupported = new string[] { "public" },
                 TlsClientCertificateBoundAccessTokens = true,
                 TokenEndpointAuthMethodsSupported = new string[] { "private_key_jwt" },
@@ -47,7 +48,7 @@ namespace CDR.Register.Infosec.Controllers
         [Route("openid-configuration/jwks")]
         public API.Infrastructure.Models.JsonWebKeySet? GetJwks()
         {
-            var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path"), _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? "", _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var cert64 = Convert.ToBase64String(cert.RawData);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var thumbprint = Base64Url.Encode(cert.GetCertHash());
@@ -56,13 +57,13 @@ namespace CDR.Register.Infosec.Controllers
             if (rsa != null)
             {
                 var parameters = rsa.ExportParameters(false);
-                var exponent = Base64Url.Encode(parameters.Exponent);
-                var modulus = Base64Url.Encode(parameters.Modulus);
+                var exponent = Base64Url.Encode(parameters.Exponent ?? []);
+                var modulus = Base64Url.Encode(parameters.Modulus ?? []);
 
                 var jwks = new API.Infrastructure.Models.JsonWebKeySet
                 {
-                    keys = new[]
-                    {
+                    keys =
+                    [
                         new API.Infrastructure.Models.JsonWebKey
                         {
                             kty = "RSA",
@@ -71,10 +72,10 @@ namespace CDR.Register.Infosec.Controllers
                             x5t = thumbprint,
                             e = exponent,
                             n = modulus,
-                            x5c = new[] { cert64 },
+                            x5c = [cert64],
                             alg = "PS256"
                         }
-                    }
+                    ]
                 };
                 return jwks;
             }

@@ -1,15 +1,17 @@
-﻿namespace CDR.Register.API.Infrastructure.Models
+﻿using System;
+
+namespace CDR.Register.API.Infrastructure.Models
 {
     public class JsonWebKey
     {
-        public string alg { get; set; }
-        public string e { get; set; }
-        public string[] key_ops { get; set; }
-        public string kid { get; set; }
-        public string kty { get; set; }
-        public string n { get; set; }
-        public string use { get; set; }
-        public string x5t { get; set; }
-        public string[] x5c { get; set; }
+        public string alg { get; set; } = string.Empty;
+        public string e { get; set; } = string.Empty;
+        public string[] key_ops { get; set; } = [];
+        public string kid { get; set; } = string.Empty;
+        public string kty { get; set; } = string.Empty;
+        public string n { get; set; } = string.Empty;
+        public string use { get; set; } = string.Empty;
+        public string x5t { get; set; } = string.Empty;
+        public string[] x5c { get; set; } = [];
     }
 }

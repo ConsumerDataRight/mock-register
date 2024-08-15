@@ -1,14 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using CDR.Register.API.Infrastructure.Models;
+﻿using CDR.Register.Domain.Models;
 using Newtonsoft.Json;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CDR.Register.API.Infrastructure.Filters
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class CheckPageSizeAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext? validationContext)
         {
             if (value == null)
             {

@@ -1,0 +1,1971 @@
+{
+    "legalEntities": [
+      {
+        "legalEntityId": "2f596416-53bc-42ad-bd5a-65537a2d5c42",
+        "legalEntityName": "Very Smart Energy Company",
+        "logoUri": "https://verysmarterenergy/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12345678901",
+        "acn": "123456789",
+        "arbn": null,
+        "anzsicDivision": "2640",
+        "organisationTypeId": 2,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 2,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "cfcaf0df-401b-47f2-98af-94787289eca8",
+                "brandName": "Mock Data Holder (Energy)",
+                "logoUri": "https://smarterenergy/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-12-01T10:00:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.smarterenergy/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://mock-data-holder-energy:8100",
+                  "resourceBaseUri": "https://mock-data-holder-energy:8102",
+                  "infoSecBaseUri": "https://mock-data-holder-energy:8101",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://smarterenergy/"
+                }
+              },
+              {
+                "brandId": "6859d9f9-9cf9-486d-bc85-5d43a7e116de",
+                "brandName": "Cut Price Energy -- dummy data holder -- do not use",
+                "logoUri": "https://cutpriceenergy/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-12-01T11:00:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.cutpriceenergy/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://api.cutpriceenergy:8100",
+                  "resourceBaseUri": "https://api.cutpriceenergy:8102",
+                  "infoSecBaseUri": "https://api.cutpriceenergy:8101",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://cutpriceenergy/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "f9bde9a1-9fef-4bd9-b7ef-877369e076e3",
+        "legalEntityName": "Mock Energy Company",
+        "logoUri": "https://mocksoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "34241177887",
+        "acn": "005249981",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000001",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "d50b74cf-e992-42fd-86d4-582ac9d72dbb",
+                "brandName": "Mock Energy Tool",
+                "logoUri": "https://mocksoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-12-01T09:00:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "4754cf30-6cc2-4a9a-a9e1-4fb8f6d42120",
+                    "softwareProductName": "MyEnergyHelper",
+                    "softwareProductDescription": "A product to help you manage your energy costs",
+                    "logoUri": "https://mocksoftware/myenergyapp/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://mocksoftware/myenergyapp",
+                    "tosUri": "https://mocksoftware/myenergyapp/terms",
+                    "policyUri": "https://mocksoftware/myenergyapp/policy",
+                    "recipientBaseUri": "https://mock-data-recipient:9001",
+                    "revocationUri": "https://mock-data-recipient:9001/revocation",
+                    "redirectUris": "https://mock-data-recipient:9001/consent/callback",
+                    "jwksUri": "https://mock-data-recipient:9001/jwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "0d332caa-8cd8-4ac9-8898-20641c54bc8c",
+        "legalEntityName": "Bank Legal Entity 1",
+        "logoUri": "https://bank/logo.png",
+        "registrationNumber": "12345",
+        "registrationDate": "2021-12-01T10:00:00",
+        "registeredCountry": "AUSTRALIA",
+        "abn": "11111111111",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": "6221",
+        "organisationTypeId": 2,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "804fc2fb-18a7-4235-9a49-2af393d18bc7",
+                "brandName": "Mock Data Holder (Banking)",
+                "logoUri": "https://bank1/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.bank1/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://mock-data-holder:8000",
+                  "resourceBaseUri": "https://mock-data-holder:8002",
+                  "infoSecBaseUri": "https://mock-data-holder:8001",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://bank1/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "18b75a76-5821-4c9e-b465-4709291cf0f4",
+        "legalEntityName": "Mock Software Company",
+        "logoUri": "https://mocksoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "11222333444",
+        "acn": "222333444",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000099",
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
+                "brandName": "Mock Finance Tools",
+                "logoUri": "https://mocksoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "c6327f87-687a-4369-99a4-eaacd3bb8210",
+                    "softwareProductName": "MyBudgetHelper",
+                    "softwareProductDescription": "A product to help you manage your budget",
+                    "logoUri": "https://mocksoftware/mybudgetapp/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://mocksoftware/mybudgetapp",
+                    "tosUri": "https://mocksoftware/mybudgetapp/terms",
+                    "policyUri": "https://mocksoftware/mybudgetapp/policy",
+                    "recipientBaseUri": "https://mock-data-recipient:9001",
+                    "revocationUri": "https://mock-data-recipient:9001/revocation",
+                    "redirectUris": "https://mock-data-recipient:9001/consent/callback",
+                    "jwksUri": "https://mock-data-recipient:9001/jwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "93ef5f28-7f30-43f2-8e5c-b1e3cb39ce90",
+        "legalEntityName": "New Bank",
+        "logoUri": "https://newbank/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "99888777666",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "6e9cfaf7-ecae-4de3-bbc5-ea9f366bdf55",
+                "brandName": "New Bank -- dummy data holder -- do not use",
+                "logoUri": "https://newbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.newbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.newbank",
+                  "resourceBaseUri": "https://api.newbank",
+                  "infoSecBaseUri": "https://idp.newbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://newbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "aeca53ab-2a90-4737-938d-987ce195ca14",
+        "legalEntityName": "Sun Bank",
+        "logoUri": "https://sunbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "94477558899",
+        "acn": "99000099",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": 2,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "f6dfbe5b-c57a-4ec2-bc97-66c1f7fe6c1d",
+                "brandName": "Sun -- dummy data holder -- do not use",
+                "logoUri": "https://sunbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-01T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.sunbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.sunbank",
+                  "resourceBaseUri": "https://api.sunbank",
+                  "infoSecBaseUri": "https://idp.sunbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://sunbank/"
+                }
+              },
+              {
+                "brandId": "a2cd9cd1-e3c7-493b-86d8-f9f319ca0732",
+                "brandName": "Brighter Bank -- dummy data holder -- do not use",
+                "logoUri": "https://brighterbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-01-01T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.brighterbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.brighterbank",
+                  "resourceBaseUri": "https://api.brighterbank",
+                  "infoSecBaseUri": "https://idp.brighterbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://brighterbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "ba1311fb-5cea-4c5c-b4ed-f2a98a0915e0",
+        "legalEntityName": "Hot Bank",
+        "logoUri": "https://hotbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12345678901",
+        "acn": "123456789",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "62f4a113-defe-4f99-bd9c-625277bc0e36",
+                "brandName": "mildBank -- dummy data holder -- do not use",
+                "logoUri": "https://mildbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-11T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://mildbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.mildbank",
+                  "resourceBaseUri": "https://api.mildbank",
+                  "infoSecBaseUri": "https://idp.mildbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://mildbank/"
+                }
+              },
+              {
+                "brandId": "81d3d5cc-cdb6-4253-a78b-b17155dde7fd",
+                "brandName": "extrahotBank -- dummy data holder -- do not use",
+                "logoUri": "https://extrahotbank/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-16T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://extrahotbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.extrahotbank",
+                  "resourceBaseUri": "https://api.extrahotbank",
+                  "infoSecBaseUri": "https://idp.extrahotbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://extrahotbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "725c6e62-bfa7-4719-94af-415ae64d4bcd",
+        "legalEntityName": "Ive Bank",
+        "logoUri": "https://ivebank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12312312393",
+        "acn": "099800998",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "9928cf0f-70c7-40ea-b7ad-cad190232f68",
+                "brandName": "Ive Bank -- dummy data holder -- do not use",
+                "logoUri": "https://ivebank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-03T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.ivebank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.ivebank",
+                  "resourceBaseUri": "https://api.ivebank",
+                  "infoSecBaseUri": "https://idp.ivebank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://ivebank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "2f1c327f-56b6-40c5-8e2e-b2130867329c",
+        "legalEntityName": "Eva Bank",
+        "logoUri": "https://evabank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "98765456765",
+        "acn": "22121232",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "7c97c3b5-fe64-4b35-8ae0-17fa5d4aa0a8",
+                "brandName": "Eva Bank corp -- dummy data holder -- do not use",
+                "logoUri": "https://evabankcorp/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-26T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.evabank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.evabank",
+                  "resourceBaseUri": "https://api.evabank",
+                  "infoSecBaseUri": "https://idp.evabank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://evabank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "e81ab637-b3b7-4403-82b8-a43077a569d6",
+        "legalEntityName": "Royal Bank",
+        "logoUri": "https://royalbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "94477558833",
+        "acn": "99000033",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "a5252bde-d1a6-413f-8f53-f7e2f6ab3f77",
+                "brandName": "Royal Bank -- dummy data holder -- do not use",
+                "logoUri": "https://royalbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-01T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.royalbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.royalbank",
+                  "resourceBaseUri": "https://api.royalbank",
+                  "infoSecBaseUri": "https://idp.royalbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://royalbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "e81ab636-b3b7-4403-82b8-a43077a569d6",
+        "legalEntityName": "Central Bank",
+        "logoUri": "https://centralbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12398122412",
+        "acn": "44123312",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": 2,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "c1ff7731-5843-4384-88d8-6062afde7c5b",
+                "brandName": "central bank -- dummy data holder -- do not use",
+                "logoUri": "https://centralbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-03-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.centralbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.centralbank",
+                  "resourceBaseUri": "https://api.centralbank",
+                  "infoSecBaseUri": "https://idp.centralbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://centralbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "ae4af466-54c6-4ce4-ad2d-580bc6496943",
+        "legalEntityName": "Fox Bank",
+        "logoUri": "https://foxbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "31234212475",
+        "acn": "122341213",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "2192a459-5ef5-4493-afe1-56c3d03fc1ba",
+                "brandName": "Fox Bank -- dummy data holder -- do not use",
+                "logoUri": "https://foxbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-21T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.foxbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.foxbank",
+                  "resourceBaseUri": "https://api.foxbank",
+                  "infoSecBaseUri": "https://idp.foxbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://foxbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "017fcfc8-1fd3-4ef4-8f08-b697c4c681ee",
+        "legalEntityName": "Grand Bank",
+        "logoUri": "https://grandbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "99888777666",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "8aa8e9a6-1dc7-4428-baea-d1f4533428b9",
+                "brandName": "Grand Bank -- dummy data holder -- do not use",
+                "logoUri": "https://grandbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-29T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.grandbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.grandbank",
+                  "resourceBaseUri": "https://api.grandbank",
+                  "infoSecBaseUri": "https://idp.grandbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://grandbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "7b1a7566-e113-411b-94b7-d3b9fb0da98a",
+        "legalEntityName": "Kiss Bank",
+        "logoUri": "https://kissbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12593477455",
+        "acn": "112122235",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "85168ace-9211-45e3-bb75-f85c54e66f10",
+                "brandName": "Kiss Bank -- dummy data holder -- do not use",
+                "logoUri": "https://kissbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-12T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.kissbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.kissbank",
+                  "resourceBaseUri": "https://api.kissbank",
+                  "infoSecBaseUri": "https://idp.kissbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://kissbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "667407fc-dc7e-4be5-8795-5189240bcbca",
+        "legalEntityName": "Luna Bank",
+        "logoUri": "https://lunabank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12334412233",
+        "acn": "747553322",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "bb03be60-5c46-422e-a27e-aefa0015078d",
+                "brandName": "Luna -- dummy data holder -- do not use",
+                "logoUri": "https://lunabank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-12T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.lunabank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.lunabank",
+                  "resourceBaseUri": "https://api.lunabank",
+                  "infoSecBaseUri": "https://idp.lunabank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://lunabank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "7993c227-9252-432b-9b2f-a8666e2fd2f2",
+        "legalEntityName": "Mu Bank",
+        "logoUri": "https://mubank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12352345345",
+        "acn": "112123121",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "52d23611-4493-4a21-9095-44ae9eb85841",
+                "brandName": "Mu Bank -- dummy data holder -- do not use",
+                "logoUri": "https://mubank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.mubank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.mubank",
+                  "resourceBaseUri": "https://api.mubank",
+                  "infoSecBaseUri": "https://idp.mubank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://mubank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "9c7dec6d-2e46-4b53-8430-5337c7eb93e9",
+        "legalEntityName": "Noon Bank",
+        "logoUri": "https://noonbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "11123599749",
+        "acn": "224435522",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "557f42e8-4e00-4b03-a9c9-d97796b6418b",
+                "brandName": "Noon Bank -- dummy data holder -- do not use",
+                "logoUri": "https://noonbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.noonbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.noonbank",
+                  "resourceBaseUri": "https://api.noonbank",
+                  "infoSecBaseUri": "https://idp.noonbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://noonbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "b9b45c14-3346-47f7-ad78-3416762cf1d8",
+        "legalEntityName": "Oppo Bank",
+        "logoUri": "https://oppobank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12412412426",
+        "acn": "995543336",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "a5e45351-d13c-4690-93d1-3da515e71a92",
+                "brandName": "Oppo Bank -- dummy data holder -- do not use",
+                "logoUri": "https://oppobank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.oppobank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.oppobank",
+                  "resourceBaseUri": "https://api.oppobank",
+                  "infoSecBaseUri": "https://idp.oppobank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://oppobank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "b7a18659-eb9b-4130-a0df-402c85f1f216",
+        "legalEntityName": "Pepper Bank",
+        "logoUri": "https://pepperbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "87356524315",
+        "acn": "322342343",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "97e53112-73b2-482a-b352-39d389d67916",
+                "brandName": "Pepper Bank -- dummy data holder -- do not use",
+                "logoUri": "https://pepperbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.pepperbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.pepperbank",
+                  "resourceBaseUri": "https://api.pepperbank",
+                  "infoSecBaseUri": "https://idp.pepperbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://pepperbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "fe75814c-99ee-4922-a6b0-71913e60984c",
+        "legalEntityName": "QQ Bank",
+        "logoUri": "https://qqbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "21111244638",
+        "acn": "317373231",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "895e54c5-93e0-405f-8072-0a9871bac8b5",
+                "brandName": "QQ Bank -- dummy data holder -- do not use",
+                "logoUri": "https://qqbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.qqbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.qqbank",
+                  "resourceBaseUri": "https://api.qqbank",
+                  "infoSecBaseUri": "https://idp.qqbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://qqbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "06c595f2-f0b2-4684-90e1-6905e4537304",
+        "legalEntityName": "Run Bank",
+        "logoUri": "https://runbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "99888777666",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "975375f7-2bd9-44b5-a188-43d65ca8eaae",
+                "brandName": "Run Bank -- dummy data holder -- do not use",
+                "logoUri": "https://runbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.runbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.runbank",
+                  "resourceBaseUri": "https://api.runbank",
+                  "infoSecBaseUri": "https://idp.runbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://runbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "350c4b28-132c-4248-a962-1434e00e7046",
+        "legalEntityName": "SaS Bank",
+        "logoUri": "https://sasbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "99888777666",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "b648f694-0dee-4f5e-bd2c-9837ac08fb7b",
+                "brandName": "SaS Bank -- dummy data holder -- do not use",
+                "logoUri": "https://sasbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.sasbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.sasbank",
+                  "resourceBaseUri": "https://api.sasbank",
+                  "infoSecBaseUri": "https://idp.sasbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://sasbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "a1349224-adf3-4678-ba9b-f9ec800b5dc5",
+        "legalEntityName": "TnT Bank",
+        "logoUri": "https://tntbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "13123412473",
+        "acn": "533284211",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "f8bce914-ac8d-436a-b265-19baca6d1df2",
+                "brandName": "TnT Bank -- dummy data holder -- do not use",
+                "logoUri": "https://tntbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-09T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.tntbank/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.tntbank",
+                  "resourceBaseUri": "https://api.tntbank",
+                  "infoSecBaseUri": "https://idp.tntbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://tntbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "bc9d68f2-74c4-43d5-9a9c-93e72a2e84c9",
+        "legalEntityName": "Bank Legal Entity 2",
+        "logoUri": "https://bank2/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "11111111111",
+        "acn": "888777666",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": 2,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "e748eadf-4aa4-4e2f-b3da-fb4a9d511994",
+                "brandName": "Bank Brand 2 -- dummy data holder -- do not use",
+                "logoUri": "https://bank2/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://idp.bank2/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.bank2",
+                  "resourceBaseUri": "https://api.bank2",
+                  "infoSecBaseUri": "https://idp.bank2",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://bank2/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "3d974478-afa6-4ce4-80bc-6f93e8e92e19",
+        "legalEntityName": "Smarter Bank",
+        "logoUri": "https://smarterbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12345678901",
+        "acn": "123456789",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "9f8df3e2-6866-42af-91d4-5faa3204f0b8",
+                "brandName": "Smarter Bank -- dummy data holder -- do not use",
+                "logoUri": "https://smarterbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://smarterbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.smarterbank",
+                  "resourceBaseUri": "https://api.smarterbank",
+                  "infoSecBaseUri": "https://idp.smarterbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://smarterbank/"
+                }
+              },
+              {
+                "brandId": "81d3d5cb-cdb6-4253-a78b-b17155dde7fd",
+                "brandName": "MyBank -- dummy data holder -- do not use",
+                "logoUri": "https://mybank/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://mybank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.mybank",
+                  "resourceBaseUri": "https://api.mybank",
+                  "infoSecBaseUri": "https://idp.mybank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://mybank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "924ca498-0f19-402d-ae07-2cb61088f8aa",
+        "legalEntityName": "Hall Bank",
+        "logoUri": "https://hallbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "12345678901",
+        "acn": "123456789",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "cf217aba-e00d-48d5-9c3d-03af0b91cb80",
+                "brandName": "Hall Bank -- dummy data holder -- do not use",
+                "logoUri": "https://hallardbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-19T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://hallbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.hallbank",
+                  "resourceBaseUri": "https://api.hallbank",
+                  "infoSecBaseUri": "https://idp.hallbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://hallbank/"
+                }
+              },
+              {
+                "brandId": "920f296d-5f2f-49de-876c-15a4aa1b4a79",
+                "brandName": "Hallway -- dummy data holder -- do not use",
+                "logoUri": "https://hallwaybank/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-18T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://hallwaybank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.hallwaybank",
+                  "resourceBaseUri": "https://api.hallwaybank",
+                  "infoSecBaseUri": "https://idp.hallwaybank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://hallwaybank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "04361651-f485-421a-8e3e-d01dd7ab2706",
+        "legalEntityName": "Job Bank",
+        "logoUri": "https://jobbank/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "13254365476",
+        "acn": "264284352",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": null,
+        "accreditationLevelId": null,
+        "participations": [
+          {
+            "participationTypeId": 1,
+            "industryId": 1,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "bc144967-d6f8-47a6-8590-07caf522141b",
+                "brandName": "Jobs Bank -- dummy data holder -- do not use",
+                "logoUri": "https://jobsbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://jobsbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.jobsbank",
+                  "resourceBaseUri": "https://api.jobsbank",
+                  "infoSecBaseUri": "https://idp.jobsbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://jobsbank/"
+                }
+              },
+              {
+                "brandId": "7b47ecf8-a991-4dd3-adef-b89564005e8e",
+                "brandName": "offer bank -- dummy data holder -- do not use",
+                "logoUri": "https://offerbank/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://offerbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.offerbank",
+                  "resourceBaseUri": "https://api.offerbank",
+                  "infoSecBaseUri": "https://idp.offerbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://offerbank/"
+                }
+              },
+              {
+                "brandId": "c3176245-4258-4383-b945-cd2f7c828d3c",
+                "brandName": "J bank -- dummy data holder -- do not use",
+                "logoUri": "https://jbank/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-18T11:58:00",
+                "authDetails": [
+                  {
+                    "registerUTypeId": 1,
+                    "jwksEndpoint": "https://jbank/idp/jwks"
+                  }
+                ],
+                "endpoint": {
+                  "version": 1,
+                  "publicBaseUri": "https://publicapi.jbank",
+                  "resourceBaseUri": "https://api.jbank",
+                  "infoSecBaseUri": "https://idp.jbank",
+                  "extensionBaseUri": "",
+                  "websiteUri": "https://jbank/"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "9d34ede4-2c76-4ecc-a31e-ea8392d31cc9",
+        "legalEntityName": "FintechX",
+        "logoUri": "https://fintechx/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "98765987654",
+        "acn": "987659876",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR001001",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "20c0864b-ceef-4de0-8944-eb0962f825eb",
+                "brandName": "Finance X",
+                "logoUri": "https://fintechx/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "d3c44426-e003-4604-aa45-4137e45dfbc4",
+                    "softwareProductName": "Loan Calculator X",
+                    "softwareProductDescription": "Loan affordability application",
+                    "logoUri": "https://fintechx/products/loancalculator/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://fintechx/products/loancalculator",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://fintechx/products/loancalculator",
+                    "revocationUri": "https://fintechx/products/loancalculator/revocation",
+                    "redirectUris": "https://fintechx/products/loancalculator/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  },
+                  {
+                    "softwareProductId": "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+                    "softwareProductName": "Track Xpense",
+                    "softwareProductDescription": "Application to allow you to track your expenses",
+                    "logoUri": "https://fintechx/products/trackxpense/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://fintechx/products/trackxpense",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://fintechx/products/trackxpense",
+                    "revocationUri": "https://fintechx/products/trackxpense/revoke",
+                    "redirectUris": "https://fintechx/products/trackxpense/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  },
+                  {
+                    "softwareProductId": "63bc22ac-6fd2-4e85-a979-c2fc7c4db9da",
+                    "softwareProductName": "TestProductCert",
+                    "softwareProductDescription": "Application to allow you to track your expenses",
+                    "logoUri": "https://fintechx/products/trackxpense/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://fintechx/products/trackxpense",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://fintechx/products/trackxpense",
+                    "revocationUri": "https://fintechx/products/trackxpense/revoke",
+                    "redirectUris": "https://fintechx/products/trackxpense/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  },
+                  {
+                    "softwareProductId": "86ecb655-9eba-409c-9be3-59e7adf7080d",
+                    "softwareProductName": "MockDataRecepient",
+                    "softwareProductDescription": "Mock Data Recepient",
+                    "logoUri": "https://fintechx/products/trackxpense/logo.png",
+                    "sectorIdentifierUri": "https://fintechx/products/trackxpense/sectoridentifieruri",
+                    "clientUri": "https://fintechx/products/trackxpense",
+                    "tosUri": "https://fintechx/products/trackxpense/tos",
+                    "policyUri": "https://fintechx/products/trackxpense/policy",
+                    "recipientBaseUri": "https://fintechx/products/trackxpense",
+                    "revocationUri": "https://fintechx/products/trackxpense/revoke",
+                    "redirectUris": "https://fintechx/products/trackxpense/cb https://fintechx/products/trackxpense/cb2",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "a1ca85da-7be8-4020-9c27-c9623eca582b",
+        "legalEntityName": "Xray Software Pty Ltd",
+        "logoUri": "https://xraysoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "112341234",
+        "acn": "12341243",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000006",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "fe123396-4eba-4518-aade-b245ceea78af",
+                "brandName": "XRay Financial",
+                "logoUri": "https://xraysoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "6a25c22b-0810-4f41-8e41-f48d162c517d",
+                    "softwareProductName": "Budget direct",
+                    "softwareProductDescription": "A product to help you manage your budget",
+                    "logoUri": "https://xraysoftware/budgetdirect/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://xraysoftware/budgetdirect",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://api.xrayoftware/budgetdirect",
+                    "revocationUri": "https://api.xraysoftware/budgetdirect/revoke",
+                    "redirectUris": "https://api.xraysoftware/budgetdirect/callback",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "8ff78c90-74c2-4c51-9c04-9d829476687a",
+        "legalEntityName": "WOW Software Company",
+        "logoUri": "https://wowsoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "88778877",
+        "acn": "99889988",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000007",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "8fe9791a-e4a8-4104-b1cb-e0df41189520",
+                "brandName": "WOW",
+                "logoUri": "https://wowsoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-02-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "9788e6d3-75a1-47eb-a891-dd752ced0f61",
+                    "softwareProductName": "MyBudgetHelper",
+                    "softwareProductDescription": "A product to help you manage your budget",
+                    "logoUri": "https://wowsoftware/mybudgetapp/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://wowsoftware/mybudgetapp",
+                    "tosUri": "https://wowsoftware/mybudgetapp/terms",
+                    "policyUri": "https://wowsoftware/mybudgetapp/policy",
+                    "recipientBaseUri": "https://api.wowsoftware/mybudgetapp",
+                    "revocationUri": "https://api.wowsoftware/mybudgetapp/revoke",
+                    "redirectUris": "https://api.wowsoftware/mybudgetapp/callback https://api.mocksoftware/mybudgetapp/return",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "4a29856c-2634-4fea-bf9b-74c99c337e2f",
+        "legalEntityName": "olm Software Company",
+        "logoUri": "https://olmsoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "88778877",
+        "acn": "99889988",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000008",
+        "accreditationLevelId": 0,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "a7171ba3-fd05-456f-a859-be4e1cbcc17d",
+                "brandName": "OLM Software",
+                "logoUri": "https://olmsoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "05d7dfd7-1d8f-4abf-b987-cf56c9115e8d",
+                    "softwareProductName": "Budgeter",
+                    "softwareProductDescription": "A product to help you manage your budget",
+                    "logoUri": "https://olmsoftware/mybudgetapp/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://olmsoftware/mybudgetapp",
+                    "tosUri": "https://olmsoftware/mybudgetapp/terms",
+                    "policyUri": "https://olmsoftware/mybudgetapp/policy",
+                    "recipientBaseUri": "https://api.olmsoftware/mybudgetapp",
+                    "revocationUri": "https://api.olmsoftware/mybudgetapp/revoke",
+                    "redirectUris": "https://api.olmsoftware/mybudgetapp/redirect",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "f138d974-0d12-4150-ad0f-c77af745c60b",
+        "legalEntityName": "xlogical Software Company",
+        "logoUri": "https://xlogical/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": null,
+        "acn": null,
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR001009",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "8a3441aa-1242-493a-b466-dcbfffe5a441",
+                "brandName": "xlogical",
+                "logoUri": "https://xlogical/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "25ee528f-35ac-4a66-a67c-6166602c9322",
+                    "softwareProductName": "Loan Calculator ",
+                    "softwareProductDescription": "Loan applications",
+                    "logoUri": "https://xlogical/products/loancalculator/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://xlogical/products/loancalculator",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://xlogical/products/loancalculator",
+                    "revocationUri": "https://xlogical/products/loancalculator/revocation",
+                    "redirectUris": "https://xlogical/products/loancalculator/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "f72ab707-a619-4dc1-a90b-177d61bcf574",
+        "legalEntityName": "HotFinTech",
+        "logoUri": "https://hotfintech/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "01944123445",
+        "acn": "123412345",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR001002",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "46b33515-b4a5-4b1c-b5b4-25654d675be6",
+                "brandName": "HotFinTech",
+                "logoUri": "https://hotfintech/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-05T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "d3c44425-e003-4604-aa45-4137e45dfbc4",
+                    "softwareProductName": "Pay advance",
+                    "softwareProductDescription": "Buy first and pay later product",
+                    "logoUri": "https://hotfintech/products/payadvance/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://hotfintech/products/payadvance  ",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://hotfintech/products/payadvance",
+                    "revocationUri": "https://hotfintech/products/payadvance/revocation",
+                    "redirectUris": "https://hotfintech/products/payadvance/redirect",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  },
+                  {
+                    "softwareProductId": "9926a894-cc29-4d63-b3b4-e404066ae6f2",
+                    "softwareProductName": "Track sheet",
+                    "softwareProductDescription": "Application to allow you to track your expenses",
+                    "logoUri": "https://hotfintech/products/tracksheet/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://hotfintech/products/tracksheet/",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://hotfintech/products/tracksheet",
+                    "revocationUri": "https://hotfintech/products/tracksheet/revoke",
+                    "redirectUris": "https://hotfintech/products/tracksheet/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "c70456f3-843f-4407-a988-577c108a7816",
+        "legalEntityName": "ZeroFintech",
+        "logoUri": "https://zerofintech/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "98765987654",
+        "acn": "987659876",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR001004",
+        "accreditationLevelId": 1,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "ebbcc2f2-817e-42b8-8a28-cd45902159e0",
+                "brandName": "ZeroFintech",
+                "logoUri": "https://zerofintech/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-05T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "5d03d1a6-b83b-4176-a2f4-d0074a205695",
+                    "softwareProductName": "Mortgage",
+                    "softwareProductDescription": "calculate the mortgage value",
+                    "logoUri": "https://zerofintech/products/mortgage/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://zerofintech/products/mortgage",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://zerofintech/products/mortgage",
+                    "revocationUri": "https://zerofintech/products/mortgage/revocation",
+                    "redirectUris": "https://zerofintech/products/mortgage/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  },
+                  {
+                    "softwareProductId": "dafa09db-4433-4203-907a-bdf797c8cd21",
+                    "softwareProductName": "Reward program",
+                    "softwareProductDescription": "Application to allow you to track your expenses",
+                    "logoUri": "https://zerofintech//products/rewards/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://zerofintech/products/rewards",
+                    "tosUri": null,
+                    "policyUri": null,
+                    "recipientBaseUri": "https://zerofintech/products/rewards",
+                    "revocationUri": "https://hotfintech/products/rewards/revoke",
+                    "redirectUris": "https://zerofintech/products/rewards/cb",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "legalEntityId": "de815a93-85b3-4fe8-9513-33ad8f4359d0",
+        "legalEntityName": "yoyo Software Company",
+        "logoUri": "https://yoyosoftware/img/logo.png",
+        "registrationNumber": null,
+        "registrationDate": null,
+        "registeredCountry": null,
+        "abn": "11222333444",
+        "acn": "222333444",
+        "arbn": null,
+        "anzsicDivision": null,
+        "organisationTypeId": null,
+        "legalEntityStatusId": 1,
+        "accreditationNumber": "ADR000005",
+        "accreditationLevelId": 0,
+        "participations": [
+          {
+            "participationTypeId": 2,
+            "industryId": null,
+            "statusId": 1,
+            "brands": [
+              {
+                "brandId": "f3f0c40b-9df8-491a-af1d-81cb9ab5f021",
+                "brandName": "YoYo",
+                "logoUri": "https://yoyosoftware/img/logo.png",
+                "brandStatusId": 1,
+                "lastUpdated": "2021-04-06T11:58:00",
+                "softwareProducts": [
+                  {
+                    "softwareProductId": "6f7a1b8e-8799-48a8-9011-e3920391f713",
+                    "softwareProductName": "MyBudgetHelper",
+                    "softwareProductDescription": "A product to help you manage your budget",
+                    "logoUri": "https://yoyosoftware/mybudgetapp/img/logo.png",
+                    "sectorIdentifierUri": null,
+                    "clientUri": "https://yoyosoftware/mybudgetapp",
+                    "tosUri": "https://yoyosoftware/mybudgetapp/terms",
+                    "policyUri": "https://yoyosoftware/mybudgetapp/policy",
+                    "recipientBaseUri": "https://api.yoyosoftware/mybudgetapp",
+                    "revocationUri": "https://api.yoyosoftware/mybudgetapp/revoke",
+                    "redirectUris": "https://api.yoyosoftware/mybudgetapp/callback https://api.yoyosoftware/mybudgetapp/return",
+                    "jwksUri": "https://localhost:7006/loopback/MockDataRecipientJwks",
+                    "scope": "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                    "statusId": 1,
+                    "certificates": [
+                      {
+                        "commonName": "MockDataRecipient",
+                        "thumbprint": "f0e5146a51f16e236844cf0353d791f11865e405"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }

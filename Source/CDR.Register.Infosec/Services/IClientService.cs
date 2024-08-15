@@ -5,6 +5,6 @@ namespace CDR.Register.Infosec.Interfaces
 {
     public interface IClientService
     {
-        Task<SoftwareProductInfosec> GetClientAsync(string clientId);
+        Task<SoftwareProductInfosec?> GetClientAsync(string clientId);
     }
 }

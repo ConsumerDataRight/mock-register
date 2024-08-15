@@ -12,7 +12,7 @@ However, there are fields in the Open ID Disovery Document that are still pointi
 
 In order to change this, the following configuration items need to be updated:
 
-- Edit `CDR.Register.Admin.API\appsettings.Production.json`, and update:
+- Edit `CDR.Register.Admin.API\appsettings.Release.json`, and update:
 
 ```
 "IdentityServerTokenUri": "https://{updated-hostname}:7001/idp/connect/token",
@@ -23,7 +23,7 @@ For e.g.:
 "IdentityServerTokenUri": "https://cdr.register:7001/idp/connect/token",
 ```
 
-- Edit `CDR.Register.Discovery.API\appsettings.Production.json`, and update:
+- Edit `CDR.Register.Discovery.API\appsettings.Release.json`, and update:
 
 ```
 "IdentityServerUrl": "https://{updated-hostname}:7000/idp",
@@ -36,7 +36,7 @@ For e.g.:
 "IdentityServerIssuer": "https://cdr.register:7000/idp",
 ```
 
-- Edit `CDR.Register.IdentityServer\appsettings.Production.json`, and update:
+- Edit `CDR.Register.IdentityServer\appsettings.Release.json`, and update:
 
 ```
 "IssuerUri": "https://{updated-hostname}:7000/idp",
@@ -51,7 +51,7 @@ For e.g.:
 "TokenUri": "https://cdr.register:7001/idp/connect/token",
 ```
 
-- Edit `CDR.Register.SSA.API\appsettings.Production.json`, and update:
+- Edit `CDR.Register.SSA.API\appsettings.Release.json`, and update:
 
 ```
 "IdentityServerUrl": "https://{updated-hostname}:7000/idp",

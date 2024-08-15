@@ -67,7 +67,7 @@ namespace CDR.Register.Repository.Infrastructure
         {
             if (!File.Exists(jsonFileFullPath))
             {
-                logger.LogDebug("Seed data file '{jsonFileFullPath}' not found.", jsonFileFullPath);
+                logger.LogDebug("Seed data file '{JsonFileFullPath}' not found.", jsonFileFullPath);
                 return;
             }
 
@@ -155,9 +155,9 @@ namespace CDR.Register.Repository.Infrastructure
 
                     // Re-create all participants from the incoming JSON.
                     var allData = JsonConvert.DeserializeObject<JObject>(json);
-                    if (allData != null && allData.ContainsKey("LegalEntities"))
+                    if (allData != null && allData.ContainsKey("legalEntities"))
                     {
-                        var newLegalEntities = allData["LegalEntities"].ToObject<LegalEntity[]>();
+                        var newLegalEntities = allData["legalEntities"].ToObject<LegalEntity[]>();
                         registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
                         registerDatabaseContext.SaveChanges();
 
@@ -184,36 +184,38 @@ namespace CDR.Register.Repository.Infrastructure
         {
             BusinessRuleError error = null;
 
-            foreach (var b in dataRecipient.DataRecipientBrands)
+            foreach (var dataRecipientBrand in dataRecipient.DataRecipientBrands)
             {
-                var dbBrand = await registerDatabaseContext.Brands.AsNoTracking().SingleOrDefaultAsync(x => x.BrandId == b.BrandId);
-                var brand = repositoryMapper.Map(b);
+                var dbBrand = await registerDatabaseContext.Brands.AsNoTracking().SingleOrDefaultAsync(x => x.BrandId == dataRecipientBrand.BrandId);
+                var drBrandToSave = repositoryMapper.Map(dataRecipientBrand);
+                drBrandToSave.LastUpdated = DateTime.UtcNow;
 
                 //create new brand as it is a new one
                 if (null == dbBrand)
                 {
-                    logger.LogInformation($"New Brand of id:{b.BrandId} name:{b.BrandName} getting added to the repository.");
-                    await registerDatabaseContext.Brands.AddAsync(brand);
+                    logger.LogInformation("New Brand of id:{BrandId} name:{BrandName} getting added to the repository.", dataRecipientBrand.BrandId, dataRecipientBrand.BrandName);
+
+                    await registerDatabaseContext.Brands.AddAsync(drBrandToSave);
                 }
 
                 //handle participation
-                if ((error = await brand.AddOrUpdateDataRecipientParticipation(legalEntity, dataRecipient, registerDatabaseContext, logger)) != null)
+                if ((error = await drBrandToSave.AddOrUpdateDataRecipientParticipation(legalEntity, dataRecipient, registerDatabaseContext, logger)) != null)
                 {
-                    logger.LogError($"Update participation encountered error of {@error}");
+                    logger.LogError("Update participation encountered error of {Error}", @error);
                     return error;
                 }
 
                 //update the brand as it is an existing one.
                 if (dbBrand != null)
                 {
-                    logger.LogInformation($"Updating Brand of id:{b.BrandId} name:{b.BrandName}");
-                    registerDatabaseContext.Brands.Update(brand);
+                    logger.LogInformation("Updating Brand of id:{BrandId} name:{BrandName}", dataRecipientBrand.BrandId, dataRecipientBrand.BrandName);
+                    registerDatabaseContext.Brands.Update(drBrandToSave);
                 }
 
                 //handle software products
-                if ((error = await brand.UpsertRecipientBrandSoftwareProducts(registerDatabaseContext, repositoryMapper, b.SoftwareProducts, logger)) != null)
+                if ((error = await drBrandToSave.UpsertRecipientBrandSoftwareProducts(registerDatabaseContext, repositoryMapper, dataRecipientBrand.SoftwareProducts, logger)) != null)
                 {
-                    logger.LogError($"Update SoftwareProduct encountered error of {@error}");
+                    logger.LogError("Update SoftwareProduct encountered error of {Error}", @error);
                     return error;
                 }
             }
@@ -238,7 +240,7 @@ namespace CDR.Register.Repository.Infrastructure
                     //check if we getting assigned to new brand.
                     if (existingSoftwareProduct.BrandId != brand.BrandId)
                     {
-                        return new BusinessRuleError("Invalid Field", "urn:au-cds:error:cds-all:Field/Invalid",
+                        return new BusinessRuleError("urn:au-cds:error:cds-all:Field/Invalid", "Invalid Field",
                             $"Value '{existingSoftwareProduct.SoftwareProductId}' in SoftwareProductId is already associated with a different brand.");
                     }
 
@@ -249,7 +251,7 @@ namespace CDR.Register.Repository.Infrastructure
                 if (null == existingSoftwareProduct)
                 {
                     softwareProduct.BrandId = brand.BrandId;
-                    logger.LogInformation($"Adding new SoftwareProduct of id:{softwareProduct.SoftwareProductId} for name:{softwareProduct.SoftwareProductName}");
+                    logger.LogInformation("Adding new SoftwareProduct of id:{SoftwareProductId} for name:{SoftwareProdcutName}", softwareProduct.SoftwareProductId, softwareProduct.SoftwareProductName);
                     await registerDbContext.SoftwareProducts.AddAsync(softwareProduct);
                 }
 
@@ -262,7 +264,7 @@ namespace CDR.Register.Repository.Infrastructure
         public static async Task UpsertSoftwareProductCertificates(this SoftwareProduct softwareProduct, RegisterDatabaseContext registerDbContext,
             IRepositoryMapper repositoryMapper, ICollection<DomainEntities.SoftwareProductCertificateInfosec> certificates, ILogger<RegisterAdminRepository> logger)
         {
-            softwareProduct.Certificates ??= new List<Entities.SoftwareProductCertificate>();
+            softwareProduct.Certificates ??= [];
 
             foreach (var c in certificates)
             {
@@ -284,7 +286,7 @@ namespace CDR.Register.Repository.Infrastructure
                     certificate.SoftwareProductId = softwareProduct.SoftwareProductId;
                     await registerDbContext.SoftwareProductCertificates.AddAsync(certificate);
                     await registerDbContext.SaveChangesAsync();
-                    logger.LogInformation($"Adding new SoftwareProductCertificate of id:{certificate.SoftwareProductCertificateId} for SoftwareProductId:{certificate.SoftwareProductId}");
+                    logger.LogInformation("Adding new SoftwareProductCertificate of id:{SoftwareProductCertificateId} for SoftwareProductId:{SoftwareProductId}", certificate.SoftwareProductCertificateId, certificate.SoftwareProductId);
                 }                
             }
         }
@@ -303,7 +305,7 @@ namespace CDR.Register.Repository.Infrastructure
                 //check if there is a change in the participation between brand and legal entity
                 if (existingParticipant.LegalEntityId != legalEntity.LegalEntityId)
                 {
-                    return new BusinessRuleError("Invalid Field","urn:au-cds:error:cds-all:Field/Invalid", $"dataRecipientBrandId '{brand.BrandId}' is already associated with a different legal entity.");
+                    return new BusinessRuleError("urn:au-cds:error:cds-all:Field/Invalid", "Invalid Field", $"dataRecipientBrandId '{brand.BrandId}' is already associated with a different legal entity.");
                 }
 
                 brand.ParticipationId = existingParticipant.ParticipationId;
@@ -328,7 +330,7 @@ namespace CDR.Register.Repository.Infrastructure
 
                 await registerDatabaseContext.Participations.AddAsync(participant);
                 await registerDatabaseContext.SaveChangesAsync();
-                logger.LogInformation($"Adding new Participation of id:{participant.ParticipationId} getting added to the repository.");
+                logger.LogInformation("Adding new Participation of id:{ParticipationId} getting added to the repository.", participant.ParticipationId);
             }            
 
             return null;

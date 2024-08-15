@@ -6,6 +6,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2024-08-16
+### Changed
+- Updated NuGet packages
+
+## [2.0.0] - 2024-06-12
+### Changed
+- Replaced Postman collections with a Polyglot Notebook solution
+- Migrated from .NET 6 to .NET 8
+- Migrated docker compose from v1 to v2
+- Added SSL Server Validation capability with switched off by default
+- Added custom User-Agent header for request filtering on GetClientJwks
+
+## [1.4.0] - 2024-03-13
+### Changed
+- Updated NuGet packages to avoid vulnerabilities
+
+### Fixed
+- Location for log file in appsettings file is fixed - [Issue 65](https://github.com/ConsumerDataRight/mock-register/issues/65)
+
+## [1.3.4] - 2024-02-14
+### Fixed
+- lastUpdated field fixed to populate the correct value
+- Remove the old Scope "cdr-register:bank:read" references
+- Added property code_challenge_methods_supported in Mock Register
+
+## [1.3.3] - 2024-02-01
+### Fixed
+- Audience validations for token endpoint have been fixed
+
 ## [1.3.2] - 2023-11-29
 ### Changed
 - Refactored code and fixed code smells

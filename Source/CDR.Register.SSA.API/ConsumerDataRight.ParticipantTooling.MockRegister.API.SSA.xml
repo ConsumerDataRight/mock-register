@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CDR.Register.SSA.API</name>
+    </assembly>
+    <members>
+        <member name="T:CDR.Register.SSA.API.Business.CertificateService">
+            <summary>
+            The class extracts information from the certificate.
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.iss">
+            <summary>
+            iss (issuer) claim denoting the party attesting to the claims in the software statement
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.iat">
+            <summary>
+            iat (issued at) claim
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.exp">
+            <summary>
+            exp (expiration time) claim
+            MUST NOT be accepted for processing
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.jti">
+            <summary>
+            jti (JWT ID) claim
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.org_id">
+            <summary>
+            A unique identifier string assigned by the CDR Register that identifies CDR Participant (e.g. ADR)
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.org_name">
+            <summary>
+            Human-readable string name of the Accredited Data Recipient to be presented to the end user during authorization.
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.client_name">
+            <summary>
+            Human-readable string name of the software product to be presented to the end-user during authorization
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.client_description">
+            <summary>
+            Human-readable string name of the software product description to be presented to the end user during authorization
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.client_uri">
+            <summary>
+            URL string of a web page providing information about the ADR Software Product
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.redirect_uris">
+            <summary>
+            Array of redirection URI strings for use in redirect-based flows
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.logo_uri">
+            <summary>
+            URL string that references a logo for the client. If present, the server SHOULD display this image to the end-user during approval
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.tos_uri">
+            <summary>
+            URL string that points to a humanreadable terms of service document for the Software Product
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.policy_uri">
+            <summary>
+            URL string that points to a humanreadable policy document for the Software Product
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.jwks_uri">
+            <summary>
+            URL string referencing the client's JSON Web Key (JWK) Set [RFC7517] document, which contains the client's public keys
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.revocation_uri">
+            <summary>
+            URI string that references the location of the Software Product consent revocation endpoint as per https://consumerdatastandardsaustralia.github.io/standards/#end-points
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.recipient_base_uri">
+            <summary>
+            Base URI for the Consumer Data Standard data recipient endpoints. This should be the base to provide reference to all other Data Recipient Endpoints
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.software_id">
+            <summary>
+            String representing a unique identifier assigned by the ACCC Register and used by registration endpoints to identify the software product to be dynamically registered
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.software_roles">
+            <summary>
+            String containing a role of the software in thwe CDR Regime. Initially the only value used with be "data-recipient-software-product"
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.scope">
+            <summary>
+            String containing a space-separated list of scope values that the client can use when requesting access tokens
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.sector_identifier_uri">
+            <summary>
+            URL string that references a sector uri for the client. If present, the server SHOULD display this image to the end-user during approval
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.legal_entity_id">
+            <summary>
+            Human-readable string legal entity id of the Accredited Data Recipient to be presented to the end user during authorization.
+            </summary>
+        </member>
+        <member name="P:CDR.Register.SSA.API.Business.Models.SoftwareStatementAssertionModel.legal_entity_name">
+            <summary>
+            Human-readable string legal entity name of the Accredited Data Recipient to be presented to the end user during authorization.
+            </summary>
+        </member>
+        <member name="T:CDR.Register.SSA.API.Business.TokenizerService">
+            <summary>
+            The class generates a JWT software statement assertion token from data and a certificate.
+            </summary>
+        </member>
+        <member name="M:CDR.Register.SSA.API.Business.TokenizerService.GenerateJwtTokenAsync``1(``0)">
+            <summary>
+            Generate JWT token from software statement assertion data.
+            </summary>
+            <typeparam name="T">The software statement assertion model type.</typeparam>
+            <param name="ssa">The software statement assertion.</param>
+            <returns>The software statement assertion token as a string.</returns>
+        </member>
+        <member name="M:CDR.Register.SSA.API.Controllers.SSAController.CheckSoftwareProduct(System.String)">
+            <summary>
+            Performs status check against the softwareProductId parameter
+            </summary>
+            <param name="softwareProductId">Software Product ID</param>
+            <returns>An ActionResult if there is an error to return, otherwise null if there are no issues.</returns>
+        </member>
+    </members>
+</doc>

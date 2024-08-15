@@ -1,5 +1,6 @@
 ﻿using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
+using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -35,22 +36,22 @@ namespace CDR.Register.API.Infrastructure.Middleware
                 if (ex is InvalidVersionException)
                 {
                     statusCode = (int)HttpStatusCode.BadRequest;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVInvalidVersion(), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVInvalidVersion(), jsonSerializerSettings);
                 }
 
                 if (ex is UnsupportedVersionException)
                 {
                     statusCode = (int)HttpStatusCode.NotAcceptable;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVUnsupportedVersion(), jsonSerializerSettings);
+                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVUnsupportedVersion(), jsonSerializerSettings);
                 }
 
                 if (ex is MissingRequiredHeaderException)
                 {
                     var missingRequiredHeaderException = ex as MissingRequiredHeaderException;
-                    if (missingRequiredHeaderException.HeaderName == Headers.X_V)
+                    if (missingRequiredHeaderException?.HeaderName == Headers.X_V)
                     {
                         statusCode = (int)HttpStatusCode.BadRequest;
-                        handledError = JsonConvert.SerializeObject(new ResponseErrorList().InvalidXVMissingRequiredHeader(), jsonSerializerSettings);
+                        handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVMissingRequiredHeader(), jsonSerializerSettings);
                     }
                 }
 

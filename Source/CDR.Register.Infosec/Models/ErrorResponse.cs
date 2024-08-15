@@ -2,7 +2,7 @@
 
 namespace CDR.Register.Infosec.Models
 {
-    public class ErrorResponse : ResponseBase
+    public class ErrorResponse : IResponseBase
     {
         [JsonProperty("error")]
         public string? Error { get; set; }

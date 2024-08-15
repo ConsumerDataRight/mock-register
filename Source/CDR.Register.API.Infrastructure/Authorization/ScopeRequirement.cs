@@ -7,14 +7,9 @@ namespace CDR.Register.API.Infrastructure.Authorization
     {
         public string Scope { get; }
 
-        public ScopeRequirement(string scope)
+        public ScopeRequirement(string? scope)
         {
             Scope = scope ?? throw new ArgumentNullException(nameof(scope));
         }
-    }
-
-    public class AuthFailure
-    {
-        public string Scope { get; set; }
-    }
+    }    
 }

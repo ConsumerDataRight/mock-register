@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Net.Http.Headers;
@@ -28,9 +29,9 @@ namespace CDR.Register.API.Infrastructure.Filters
                 var etag = GenerateETag(res);
 
                 // Fetch etag from the incoming request header.
-                if (request.Headers.ContainsKey(HeaderNames.IfNoneMatch))
+                if (request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var headerValues))
                 {
-                    var incomingEtag = request.Headers[HeaderNames.IfNoneMatch].ToString().Trim('"');
+                    var incomingEtag = headerValues.ToString().Trim('"');
 
                     // If both the etags are equal, so return a 304 Not Modified response.
                     if (incomingEtag.Equals(etag))
@@ -40,7 +41,7 @@ namespace CDR.Register.API.Infrastructure.Filters
                 }
 
                 // Add ETag response header 
-                response.Headers.Add(HeaderNames.ETag, $"\"{etag}\"");
+                response.Headers.Append(HeaderNames.ETag, $"\"{etag}\"");
             }
 
             base.OnActionExecuted(context);

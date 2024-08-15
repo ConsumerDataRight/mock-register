@@ -1,17 +1,16 @@
-﻿using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using CDR.Register.Repository.Entities;
+﻿using CDR.Register.Repository.Entities;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Xunit;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Xunit;
 using Xunit.Abstractions;
 
 #nullable enable
@@ -23,7 +22,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     /// </summary>
     public class US27560_GetDataRecipients_MultiIndustry_Tests : BaseTest
     {
-        public US27560_GetDataRecipients_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US27560_GetDataRecipients_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
 
         // Get expected data recipients
         private static string GetExpectedDataRecipients(string url)
@@ -78,7 +77,9 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     meta = new object()
                 };
 
-                return JsonConvert.SerializeObject(expectedDataRecipients);
+                string result = JsonConvert.SerializeObject(expectedDataRecipients);
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -245,10 +246,10 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("foo",  "3",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
         [InlineData("4",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 3
-        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v header is an empty string
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]      //Invalid. x-v header is missing
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]     //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]     //Invalid. x-v header is missing
 
-        public async Task ACX01_VersionHeaderValidation(string xv, string minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
+        public async Task ACX01_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
 
             // Act

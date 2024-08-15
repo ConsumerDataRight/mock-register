@@ -5,13 +5,15 @@ using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.API.Logger;
 using CDR.Register.Repository.Infrastructure;
+using CDR.Register.SSA.API.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using static CDR.Register.API.Infrastructure.Constants;
+using CDR.Register.Domain.Extensions;
 
 namespace CDR.Register.SSA.API
 {
@@ -28,31 +30,35 @@ namespace CDR.Register.SSA.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            
-            services.AddRegisterSSA(Configuration)
-                    .AddRegisterSSASwagger();
+
+            services.AddRegisterSSA(Configuration);
 
             services.AddControllers();
 
-            services.AddMvc().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-            });
-
             services.AddApiVersioning(options =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ErrorResponses = new ErrorResponseVersion();
-                options.ApiVersionSelector = new ApiVersionSelector(options);
+                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); //uses default options atm
+                options.ErrorResponses = new ApiVersionErrorResponse();
             });
+
+            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            if (enableSwagger)
+            {
+                services.AddCdrSwaggerGen(opt =>
+                {
+                    opt.SwaggerTitle = "Consumer Data Right (CDR) Participant Tooling - Mock Register - SSA API";
+                    opt.IncludeAuthentication = true;
+                });
+            }
+
+            services.AddMvc().AddCdrNewtonsoftJson();
 
             services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
 
             services.AddScoped<LogActionEntryAttribute>();
 
-            if (Configuration.GetSection("SerilogRequestResponseLogger ") != null)
-            {   
+            if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
+            {
                 Log.Logger.Information("Adding request response logging middleware");
                 services.AddRequestResponseLogging();
             }
@@ -72,8 +78,6 @@ namespace CDR.Register.SSA.API
 
             app.UseSerilogRequestLogging();
 
-            app.UseRegisterSSASwagger();
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -81,6 +85,12 @@ namespace CDR.Register.SSA.API
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            if (enableSwagger)
+            {
+                app.UseCdrSwagger();
+            }
 
             app.UseEndpoints(endpoints =>
             {

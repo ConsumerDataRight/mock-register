@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using CDR.Register.API.Infrastructure.Exceptions;
@@ -10,6 +11,7 @@ using Xunit;
 
 namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
 {
+    [Trait("Category", "UnitTests")]
     public class CertificateValidatorTests
     {
         [Fact]

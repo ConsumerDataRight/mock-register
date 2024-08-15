@@ -25,7 +25,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
     /// </summary>   
     public class US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests : BaseTest
     {
-        public US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
 
         // Participation/Brand/SoftwareProduct Ids
         private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
@@ -212,7 +212,6 @@ namespace CDR.Register.IntegrationTests.API.SSA
                         ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
                         ""title"": ""ADR Status Is Not Active"",
                         ""detail"": """",
-                        ""meta"": {}
                         }
                     ]
             }";
@@ -345,7 +344,6 @@ namespace CDR.Register.IntegrationTests.API.SSA
                                 ""code"": ""urn:au-cds:error:cds-register:Field/InvalidSoftwareProduct"",
                                 ""title"": ""Invalid Software Product"",
                                 ""detail"": ""{softwareProductId}"",
-                                ""meta"": {{}}
                                 }}
                             ]
                     }}");
@@ -400,10 +398,10 @@ namespace CDR.Register.IntegrationTests.API.SSA
         [InlineData("foo",  "3",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
         [InlineData("4",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 3
-        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v header is an empty string
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]      //Invalid. x-v header is missing
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]     //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]      //Invalid. x-v header is missing
 
-        public async Task ACX01_VersionHeaderValidation(string xv, string xminv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
+        public async Task ACX01_VersionHeaderValidation(string? xv, string? xminv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
           
             // Arrange
@@ -457,7 +455,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         {
             string conformanceId = Guid.NewGuid().ToString();
             // conformanceId = "5186c407-0114-480a-86a3-7ef072d221bc";
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             string ssasEndpoint = $"{GenerateDynamicCtsUrl(SSA_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
 
             // Arrange - Get SoftwareProduct
@@ -473,7 +471,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME

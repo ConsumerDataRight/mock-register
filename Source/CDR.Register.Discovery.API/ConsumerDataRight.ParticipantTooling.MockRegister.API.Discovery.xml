@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CDR.Register.Discovery.API</name>
+    </assembly>
+    <members>
+        <member name="M:CDR.Register.Discovery.API.Controllers.DiscoveryController.CheckSoftwareProduct">
+            <summary>
+            Performs checks against the software product id from the access token.
+            </summary>
+            <returns>An ActionResult if there is an error to return, otherwise null if there are no issues.</returns>
+        </member>
+    </members>
+</doc>

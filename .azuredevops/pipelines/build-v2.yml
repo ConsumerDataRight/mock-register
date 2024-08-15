@@ -1,4 +1,11 @@
-# Build pipeline v2 (Containerised)
+schedules:
+- cron: '0 2 * * 0'
+  displayName: 'Run at 2:00 AM every Sunday (UTC)'
+  always: true
+  branches:
+    include:
+    - develop
+
 trigger:
   - develop
   - main    
@@ -68,16 +75,6 @@ steps:
     repository: mock-register-integration-tests
     tags: latest
 
-# # Build mock-register-for-testing
-# - task: Docker@2
-#   displayName: Build mock-register-for-testing image
-#   inputs:
-#     command: build 
-#     Dockerfile: ./Source/Dockerfile.for-testing
-#     buildContext: ./Source
-#     repository: mock-register-for-testing
-#     tags: latest
-
 # List docker images
 - task: Docker@2
   displayName: List Docker images
@@ -86,21 +83,16 @@ steps:
     command: images
 
 # Run unit tests
-- task: DockerCompose@0
-  displayName: Unit Tests - Up
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.UnitTests.yml     
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-unit-tests
+- script: |
+      docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.UnitTests.yml up --abort-on-container-exit --exit-code-from mock-register-unit-tests
+  displayName: 'Unit Tests - Up'  
+  condition: always()
 
 # Remove unit tests
-- task: DockerCompose@0
-  displayName: Unit Tests - Down
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.UnitTests.yml     
-    dockerComposeCommand: down
+- script: |
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.UnitTests.yml down 
+  displayName: 'Unit Tests - Down' 
+  condition: always() 
     
 # Login to ACR
 - task: Docker@2
@@ -120,24 +112,16 @@ steps:
 #****************************************************************************************************************
 # Run integration tests
 #****************************************************************************************************************
-- task: DockerCompose@0
-  displayName: Integration Tests - Up
+- script: |
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml  up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+  displayName: 'Integration Tests - Up'  
   condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
-    dockerComposeFileArgs: |
-      TEST_FILTER=Category!=CTSONLY
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
 
 # Remove integration tests
-- task: DockerCompose@0
-  displayName: Integration Tests - Down
+- script: |
+        docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml down 
+  displayName: 'Integration Tests - Down' 
   condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
-    dockerComposeCommand: down
     
 # Run trx formatter to output .MD and .CSV
 - script: |
@@ -146,7 +130,9 @@ steps:
       -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
       $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
   displayName: 'Run trx-formatter'  
-  condition: always()   
+  condition: always()
+  env:
+    TEST_FILTER: "Category!=CTSONLY"    
 
 # Publish mock-register integration tests results
 - publish: Source/_temp/mock-register-integration-tests/testresults
@@ -162,45 +148,34 @@ steps:
     testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
     testResultsFiles: '**/results.trx' 
     publishRunAttachments: true # Optional
+
 #****************************************************************************************************************    
 # Run integration tests For CTS Only tests
 #****************************************************************************************************************
-- task: DockerCompose@0
-  displayName: Integration Tests Tests For CTS Only - Up
+- script: |
+        docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+  displayName: 'Integration Tests Tests For CTS Only - Up'  
   condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.IntegrationTests.yml      
-    dockerComposeFileArgs: |
-      TEST_FILTER=Category=CTSONLY
-      CtsSettings__AzureAd__TokenEndpointUrl=$(CtsSettings__AzureAd__TokenEndpointUrl)
-      CtsSettings__AzureAd__ClientId=$(CtsSettings__AzureAd__ClientId)
-      CtsSettings__AzureAd__ClientSecret=$(CtsSettings__AzureAd__ClientSecret)
-      CtsSettings__AzureAd__Scope=$(CtsSettings__AzureAd__Scope)
-      CtsSettings__AzureAd__GrantType=$(CtsSettings__AzureAd__GrantType)
-      CtsSettings__AzureAd__UnauthorisedClientId=$(CtsSettings__AzureAd__UnauthorisedClientId)
-      CtsSettings__AzureAd__UnauthorisedClientSecret=$(CtsSettings__AzureAd__UnauthorisedClientSecret)
-      IdentityProvider_Downstream_BaseUrl=$(IdentityProvider_Downstream_BaseUrl)
-      Authorization__Issuer=$(Authorization__Issuer)
-      Authorization__ClientId=$(Authorization__ClientId)
-      Authorization__Scope=$(Authorization__Scope)
-      BasePathExpression=$(BasePathExpression)
-      BasePath=$(BasePath)
-      PublicHostName=$(CtsPublicHostNameUrl)
-      SecureHostName=$(CtsSecureHostNameUrl)
-      Certificate__CertThumbprintNameHttpHeaderName=X-SSLClientCertThumbprint
-      Certificate__CertCommonNameHttpHeaderName=X-SSLClientCertCN
-    dockerComposeCommand: up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+  env:
+    TEST_FILTER: "Category=CTSONLY"    
+    CtsSettings__AzureAd__TokenEndpointUrl: '$(CtsSettings__AzureAd__TokenEndpointUrl)'
+    CtsSettings__AzureAd__ClientId: '$(CtsSettings__AzureAd__ClientId)'
+    CtsSettings__AzureAd__ClientSecret: '$(CtsSettings__AzureAd__ClientSecret)'
+    CtsSettings__AzureAd__Scope: '$(CtsSettings__AzureAd__Scope)'
+    CtsSettings__AzureAd__GrantType: '$(CtsSettings__AzureAd__GrantType)'
+    CtsSettings__AzureAd__UnauthorisedClientId: '$(CtsSettings__AzureAd__UnauthorisedClientId)'
+    CtsSettings__AzureAd__UnauthorisedClientSecret: '$(CtsSettings__AzureAd__UnauthorisedClientSecret)'
+    IdentityProvider_Downstream_BaseUrl: '$(IdentityProvider_Downstream_BaseUrl)'
+    Authorization__Issuer: '$(Authorization__Issuer)'
+    Authorization__ClientId: '$(Authorization__ClientId)'
+    Authorization__Scope: '$(Authorization__Scope)'
+    BasePathExpression: '$(BasePathExpression)'
+    BasePath: '$(BasePath)'
+    PublicHostName: '$(CtsPublicHostNameUrl)'
+    SecureHostName: '$(CtsSecureHostNameUrl)'
+    Certificate__CertThumbprintNameHttpHeaderName: 'X-SSLClientCertThumbprint'
+    Certificate__CertCommonNameHttpHeaderName: 'X-SSLClientCertCN'
 
-# Remove integration tests For CTS Only tests
-- task: DockerCompose@0
-  displayName: Integration Tests For CTS Only - Down
-  condition: always()
-  inputs:
-    action: Run a Docker Compose command
-    dockerComposeFile: Source/docker-compose.IntegrationTests.yml     
-    dockerComposeCommand: down
-    
 # Run trx formatter to output .MD and .CSV
 - script: |
     docker run \
@@ -209,6 +184,12 @@ steps:
       $(AcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR-CTS" --outputprefix "MR-CTS" -o out/
   displayName: 'Run trx-formatter'  
   condition: always()   
+
+# Remove integration tests For CTS Only tests
+- script: |
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml down 
+  displayName: 'Integration Tests For CTS Only - Down' 
+  condition: always()
 
 # Publish mock-register integration tests results
 - publish: Source/_temp/mock-register-integration-tests/testresults
@@ -257,18 +238,18 @@ steps:
   artifact: Mock-Register - Unit tests
 
 - task: UseDotNet@2
-  displayName: 'Use .NET 6 sdk'
+  displayName: 'Use .NET 8 sdk'
   condition: always()
   inputs:
     packageType: sdk
-    version: '6.0.x'
+    version: '8.0.x'
     performMultiLevelLookup: true
 
 - task: CmdLine@2
   displayName: 'Install dotnet-ef'
   condition: always()
   inputs:
-    script: 'dotnet tool install --version 7.0.13 --global dotnet-ef'
+    script: 'dotnet tool install --version 8.0.3 --global dotnet-ef'
     
 - task: CmdLine@2
   displayName: 'Check dotnet-ef version'
