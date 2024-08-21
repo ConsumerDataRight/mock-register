@@ -3,6 +3,7 @@ using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Logger;
 using CDR.Register.Domain.Repositories;
+using CDR.Register.Infosec.Extensions;
 using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Services;
 using CDR.Register.Repository;
@@ -25,26 +26,19 @@ namespace CDR.Register.Infosec
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
+            services.AddRegisterInfosec(Configuration);
+
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(options =>
                 {
                     options.InvalidModelStateResponseFactory = ModelStateErrorMiddleware.ExecuteResult;
                 })
-                .AddNewtonsoftJson(options => 
+                .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter()); 
                 });
-
-            // This is to manage the EF database context through the web API DI.
-            // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
-            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString(Constants.ConnectionStringNames.Register)));
-            services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
-            services.AddScoped<LogActionEntryAttribute>();
-            services.AddScoped<IClientService, ClientService>();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IRegisterInfosecRepository, RegisterInfosecRepository>();
-            services.AddHttpContextAccessor();
 
             if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
             {
@@ -55,7 +49,8 @@ namespace CDR.Register.Infosec
             // if the distributed cache connection string has been set then use it, otherwise fall back to in-memory caching.
             if (UseDistributedCache())
             {
-                services.AddStackExchangeRedisCache(options => {
+                services.AddStackExchangeRedisCache(options =>
+                {
                     options.Configuration = Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
                     options.InstanceName = "register-cache-";
                 });
@@ -63,7 +58,7 @@ namespace CDR.Register.Infosec
                 services.AddDataProtection()
                     .SetApplicationName("reg-infosec")
                     .PersistKeysToStackExchangeRedis(
-                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache)),
+                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache) ?? ""),
                         "register-cache-dp-keys");
             }
             else
@@ -89,10 +84,10 @@ namespace CDR.Register.Infosec
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

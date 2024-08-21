@@ -1,6 +1,6 @@
 ﻿namespace CDR.Register.Infosec.Models
 {
-    public abstract class ResponseBase
+    public interface IResponseBase
     {
     }
 }

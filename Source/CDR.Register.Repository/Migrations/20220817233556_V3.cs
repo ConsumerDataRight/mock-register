@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDR.Register.Repository.Migrations
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarAnalyzer", "S1192:Define a constant instead of using this literal 'SoftwareProductCertificate' 6 times.", Justification = "Auto-generated migration file.")]
     public partial class V3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

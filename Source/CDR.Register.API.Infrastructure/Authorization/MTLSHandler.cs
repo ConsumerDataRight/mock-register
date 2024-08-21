@@ -27,7 +27,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MtlsRequirement requirement)
         {
             // Check that authentication was successful before doing anything else
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 return Task.CompletedTask;
             }
@@ -36,12 +36,12 @@ namespace CDR.Register.API.Infrastructure.Authorization
             //  Check that the thumbprint of the client cert used for TLS MA is the same
             //  as the one expected by the cnf:x5t#S256 claim in the access token 
             //
-            string requestHeaderClientCertThumprint = null;
+            string? requestHeaderClientCertThumprint = null;
 
             var certThumbprintNameHttpHeaderName = _configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
-            if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints))
+            if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints) == true)
             {
-                requestHeaderClientCertThumprint = headerThumbprints.First();
+                requestHeaderClientCertThumprint = headerThumbprints[0];
             }
 
             if (string.IsNullOrWhiteSpace(requestHeaderClientCertThumprint))
@@ -53,7 +53,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 return Task.CompletedTask;
             }
 
-            string accessTokenClientCertThumbprint = null;
+            string? accessTokenClientCertThumbprint = null;
             var cnfJson = context.User.FindFirst("cnf")?.Value;
             if (!string.IsNullOrWhiteSpace(cnfJson))
             {
@@ -74,7 +74,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{requestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{accessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
+                    _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{RequestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{AccessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
                 }
                 return Task.CompletedTask;
             }

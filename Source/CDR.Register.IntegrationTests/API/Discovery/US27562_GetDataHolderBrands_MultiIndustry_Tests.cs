@@ -1,4 +1,6 @@
-﻿using CDR.Register.IntegrationTests.Infrastructure;
+﻿using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.IntegrationTests.Infrastructure;
+using CDR.Register.IntegrationTests.Models;
 using CDR.Register.Repository.Entities;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
@@ -6,6 +8,8 @@ using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
 using System.Net;
@@ -23,7 +27,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     /// </summary>
     public class US27562_GetDataHolderBrands_MultiIndustry_Tests : BaseTest
     {
-        public US27562_GetDataHolderBrands_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US27562_GetDataHolderBrands_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
         // Participation/Brand/SoftwareProduct Ids
         private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
@@ -101,7 +105,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 {
                     dataHolderBrandId = brand.BrandId,
                     brandName = brand.BrandName,
-                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode.ToLower() }, //DF: industry should be lowercase.
+                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode.ToLower() },
                     logoUri = brand.LogoUri,
                     legalEntity = new
                     {
@@ -116,7 +120,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         arbn = brand.Participation.LegalEntity.Arbn,
                         anzsicDivision = brand.Participation.LegalEntity.AnzsicDivision,
                         organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode,
-                        status = brand.Participation.Status.ParticipationStatusCode.ToUpper() //DF: status should be uppercase. //TODO:C could fail tests
+                        status = brand.Participation.Status.ParticipationStatusCode.ToUpper()
                     },
                     status = brand.BrandStatus.BrandStatusCode,
                     endpointDetail = new
@@ -263,19 +267,19 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             var getDataholderBrandsUrl = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/{industry}/data-holders/brands";
             string expectedDataholderBrandsUrl = ReplaceSecureHostName(getDataholderBrandsUrl, DISCOVERY_DOWNSTREAM_BASE_URL);
 
             var expectedResponse = GetExpectedResponse(expectedDataholderBrandsUrl, expectedDataholderBrandsUrl, null, null, null, industry);
 
             // Arrange - Get access token
-            var accessToken = await new AccessToken
+            var accessToken = await new IntegrationTests.Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -412,7 +416,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                             ""code"": ""urn:au-cds:error:cds-all:Field/InvalidDateTime"",
                             ""title"": ""Invalid DateTime"",
                             ""detail"": ""updated-since should be valid DateTimeString"",
-                            ""meta"": {}
                             }
                         ]
                     }";
@@ -601,7 +604,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""code"": ""urn:au-cds:error:cds-all:Field/InvalidPageSize"",
                         ""title"": ""Invalid Page Size"",
                         ""detail"": ""Page size not a positive Integer"",
-                        ""meta"": {}
                         }
                     ]
                 }",
@@ -638,7 +640,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
                         ""title"": ""Invalid Field"",
                         ""detail"": ""Page not a positive integer"",
-                        ""meta"": {}
                         }
                     ]
                 }",
@@ -659,7 +660,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
                         ""title"": ""Invalid Field"",
                         ""detail"": ""Page is out of range"",
-                        ""meta"": {}
                         }
                     ]
                 }",
@@ -680,7 +680,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
                         ""title"": ""Invalid Field"",
                         ""detail"": ""Page size too large"",
-                        ""meta"": {}
                         }
                     ]
                 }",
@@ -736,7 +735,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                                     ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
                                     ""title"": ""ADR Status Is Not Active"",
                                     ""detail"": """",
-                                    ""meta"": {}
                                     }
                                 ]
                             }";
@@ -934,7 +932,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                                     ""code"": ""urn:au-cds:error:cds-all:Field/Invalid"",
                                     ""title"": ""Invalid Field"",                                        
                                     ""detail"": ""industry"",
-                                    ""meta"": {}
                                     }
                                 ]
                             }";
@@ -944,15 +941,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData(null, "cdr-register:bank:read", HttpStatusCode.NotFound)] // No industry
         [InlineData(null, "cdr-register:read", HttpStatusCode.NotFound)] // No industry
-        [InlineData("banking", "cdr-register:bank:read", HttpStatusCode.Forbidden)]
         [InlineData("banking", "cdr-register:read", HttpStatusCode.OK)]
-        [InlineData("energy", "cdr-register:bank:read", HttpStatusCode.Forbidden)]  // ???
         [InlineData("energy", "cdr-register:read", HttpStatusCode.OK)]
-        [InlineData("telco", "cdr-register:bank:read", HttpStatusCode.Forbidden)]  // ???
         [InlineData("telco", "cdr-register:read", HttpStatusCode.OK)]
-        public async Task ACX02_Get_WithScope_ShouldRespondWith_200OK(string industry, string scope, HttpStatusCode expectedStatusCode)
+        public async Task ACX02_Get_WithScope_ShouldRespondWith_200OK(string? industry, string scope, HttpStatusCode expectedStatusCode)
         {
             // Arrange
             var accessToken = await new Infrastructure.AccessToken
@@ -998,8 +991,8 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("foo",  "2",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)]             //Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)]             //Invalid. x-v (negative integer) is invalid with missing x-min-v
         [InlineData("3",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]                 //Unsupported. x-v is higher than supported version of 2
-        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)]             //Invalid. x-v header is an empty string
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]                  //Invalid. x-v header is missing
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]                 //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]                 //Invalid. x-v header is missing
         //Also check industry specific calls                                                                                    
         [InlineData("3",    "2",    "2",    HttpStatusCode.OK,              true,  "", "banking")]                              //Valid. Should return v2 - x-v is NOT supported and x-min-v is supported       
         [InlineData("3",    "2",    "2",    HttpStatusCode.OK,              true,  "", "energy")]                               //Valid. Should return v2 - x-v is NOT supported and x-min-v is supported        
@@ -1007,11 +1000,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("3",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR, "banking")]  //Unsupported. x-v is not supported and x-min-v invalid
         [InlineData("3",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR, "energy")]   //Unsupported. x-v is not supported and x-min-v invalid
         [InlineData("3",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR, "telco")]    //Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR, "banking")]       //Invalid. x-v header is missing
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR, "energy")]        //Invalid. x-v header is missing
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR, "telco")]         //Invalid. x-v header is missing
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR, "banking")]       //Invalid. x-v header is missing
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR, "energy")]        //Invalid. x-v header is missing
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR, "telco")]         //Invalid. x-v header is missing
 
-        public async Task ACXX_VersionHeaderValidation(string xv, string minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError, string industry = "all")
+        public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError, string industry = "all")
         {
 
             // Arrange

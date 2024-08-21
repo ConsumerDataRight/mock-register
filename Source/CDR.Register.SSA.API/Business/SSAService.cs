@@ -34,14 +34,14 @@ namespace CDR.Register.SSA.API.Business
             _tokenizer = tokenizer;
         }
 
-        public async Task<string> GetSoftwareStatementAssertionJWTAsync(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        public async Task<string> GetSoftwareStatementAssertionJWTAsync(Repository.Infrastructure.Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             // Get the SSA to be put in a JWT
             var ssa = await GetSoftwareStatementAssertionAsync(industry, dataRecipientBrandId, softwareProductId);
             return await _tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
-        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Industry industry, string dataRecipientBrandId, string softwareProductId)
+        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Repository.Infrastructure.Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             var softwareProductEntity = await GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
             var ssa = _mapper.MapV3(softwareProductEntity);

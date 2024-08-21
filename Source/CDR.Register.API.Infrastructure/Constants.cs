@@ -10,22 +10,6 @@
             public const string X_TLS_CLIENT_CERT_COMMON_NAME = "X-TlsClientCertCN";
         }
 
-        public static class ErrorCodes
-        {
-            public const string FieldMissing = "urn:au-cds:error:cds-all:Field/Missing";
-            public const string FieldInvalid = "urn:au-cds:error:cds-all:Field/Invalid";
-            public const string HeaderMissing = "urn:au-cds:error:cds-all:Header/Missing";
-            public const string VersionInvalid = "urn:au-cds:error:cds-all:Header/InvalidVersion";
-        }
-
-        public static class ErrorTitles
-        {
-            public const string FieldMissing = "Missing Required Field";
-            public const string FieldInvalid = "Invalid Field";
-            public const string HeaderMissing = "Missing Required Header";
-            public const string VersionInvalid = "Invalid Version";
-        }
-
         public static class ConfigurationKeys
         {
             public const string BasePath = "BasePath";
@@ -36,6 +20,14 @@
             public const string ClockSkewSeconds = "ClockSkewSeconds";
             public const string CertThumbprintNameHttpHeaderName = "Certificate:CertThumbprintNameHttpHeaderName";
             public const string CertCommonNameHttpHeaderName = "Certificate:CertCommonNameHttpHeaderName";
+            public const string EnableSwagger = "EnableSwagger";
+            public const string IsServerCertificateValidationEnabled = "EnableServerCertificateValidation";
         }
+
+        public static class Versioning
+        {
+            public const string GroupNameFormat = "'v'VVV";
+        }
+
     }
 }

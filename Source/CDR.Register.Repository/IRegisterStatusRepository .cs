@@ -6,8 +6,8 @@ namespace CDR.Register.Repository.Interfaces
 {
     public interface IRegisterStatusRepository
     {
-        Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Industry industry);
-        Task<SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Industry industry);
-        Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Industry industry);
+        Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Infrastructure.Industry industry);
+        Task<SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Infrastructure.Industry industry);
+        Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Infrastructure.Industry industry);
     }
 }

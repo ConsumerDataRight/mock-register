@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 7000
 EXPOSE 7001
@@ -7,12 +7,15 @@ EXPOSE 7006
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release 
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY . ./
 
 FROM build AS publish
+
+# Copy the build props 
+COPY ./Directory.Build.props /app/Directory.Build.props
 
 COPY ./CDR.Register.API.Infrastructure/. /app/CDR.Register.API.Infrastructure
 COPY ./CDR.Register.Repository/. /app/CDR.Register.Repository

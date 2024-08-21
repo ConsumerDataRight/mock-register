@@ -1,4 +1,5 @@
 ﻿using CDR.Register.API.Infrastructure.Models;
+using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

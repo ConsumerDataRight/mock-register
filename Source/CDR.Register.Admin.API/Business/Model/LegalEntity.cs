@@ -1,10 +1,5 @@
-﻿using CDR.Register.Admin.API.Business.Validators;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Repository.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace CDR.Register.Admin.API.Business.Model
 {
@@ -38,7 +33,7 @@ namespace CDR.Register.Admin.API.Business.Model
 
         public string? OrganisationType { get; set; } = null;
 
-        public virtual ICollection<Brand> DataRecipientBrands { get; set; }               
+        public virtual ICollection<Brand> DataRecipientBrands { get; set; } = [];
         
     }
 }

@@ -22,7 +22,7 @@ namespace CDR.Register.IntegrationTests.API.Status
     /// </summary>
     public class US27556_GetDataRecipientStatus_MultiIndustry_Tests : BaseTest
     {
-        public US27556_GetDataRecipientStatus_MultiIndustry_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US27556_GetDataRecipientStatus_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
         private static string GetExpectedDataRecipientsStatus(string url)
         {
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
@@ -213,10 +213,10 @@ namespace CDR.Register.IntegrationTests.API.Status
         [InlineData("foo",  "2",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
         [InlineData("3",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 2
-        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v header is an empty string
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MSSING_X_V_ERROR)]      //Invalid. x-v header is missing      
+        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)] //Invalid. x-v header is an empty string
+        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]      //Invalid. x-v header is missing      
 
-        public async Task ACXX_VersionHeaderValidation(string xv, string minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
+        public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
 
             // Act

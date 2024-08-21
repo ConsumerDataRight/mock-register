@@ -1,7 +1,6 @@
 ﻿using CDR.Register.Admin.API.Business.Model;
 using FluentValidation;
-using System;
-using static CDR.Register.API.Infrastructure.Constants;
+using static CDR.Register.Domain.Constants;
 
 namespace CDR.Register.Admin.API.Business.Validators
 {
@@ -10,19 +9,19 @@ namespace CDR.Register.Admin.API.Business.Validators
         public DataHolderEndpointValidator()
         {
             // Mandatory Field Validations
-            RuleFor(x => x.Version).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
-            RuleFor(x => x.PublicBaseUri).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
-            RuleFor(x => x.ResourceBaseUri).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
-            RuleFor(x => x.InfosecBaseUri).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
-            RuleFor(x => x.WebsiteUri).NotEmpty().WithErrorCode(ErrorCodes.FieldMissing).WithMessage(ErrorTitles.FieldMissing);
+            RuleFor(x => x.Version).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.PublicBaseUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.ResourceBaseUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.InfosecBaseUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.WebsiteUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
             // Length Validations
-            RuleFor(x => x.Version).MaximumLength(25).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
-            RuleFor(x => x.PublicBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
-            RuleFor(x => x.ResourceBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
-            RuleFor(x => x.InfosecBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
-            RuleFor(x => x.ExtensionBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
-            RuleFor(x => x.WebsiteUri).MaximumLength(1000).WithErrorCode(ErrorCodes.FieldInvalid).WithMessage(ErrorTitles.FieldInvalid);
+            RuleFor(x => x.Version).MaximumLength(25).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.PublicBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.ResourceBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.InfosecBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.ExtensionBaseUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.WebsiteUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
         }
     }
 }

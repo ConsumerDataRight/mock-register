@@ -1,6 +1,6 @@
 # Dockerfile for running unit tests
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Default ASPNETCORE_ENVIRONMENT to Release
@@ -19,5 +19,5 @@ WORKDIR /src
 RUN dotnet build --configuration Release
 
 # Run tests
-ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--filter", "UnitTests", "--no-build", "--logger", "trx;verbosity=detailed", "-r", "/testresults"]
+ENTRYPOINT ["dotnet", "test", "--configuration", "Release", "--filter", "Category=UnitTests", "--no-build", "--logger", "trx;verbosity=detailed", "--results-directory", "/testresults"]
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

@@ -1,32 +1,23 @@
-﻿using FluentAssertions.Execution;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
-using Xunit;
-using FluentAssertions;
+﻿using CDR.Register.IntegrationTests.API.Update;
+using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.IntegrationTests.Infrastructure;
-using static CDR.Register.IntegrationTests.Models.DataRecipientMetadata;
-using static System.Formats.Asn1.AsnWriter;
-using System.Security.Cryptography.X509Certificates;
-using Serilog;
-using Microsoft.AspNetCore.Http;
-using System.Threading;
-using CDR.Register.IntegrationTests.API.Update;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using CDR.Register.IntegrationTests.Extensions;
+using Serilog;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Miscellaneous
 {
     public class US50483_DynamicUrl_Tests : BaseTest
     {
-        public US50483_DynamicUrl_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US50483_DynamicUrl_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
 
         private const string DEFAULT_SOFTWAREPRODUCT_ID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
@@ -35,11 +26,11 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         [InlineData("Invalid Certificate Thumbprint", "foo", DEFAULT_CERTIFICATE_COMMON_NAME)]
         public async Task AC01_Get_Data_Holder_Brands_Invalid_Certificate_Header_For_Access_Token(string testDescription, string certificateThumbPrint, string certificateCommonName)
         {
-            Log.Information($"Executing test for {testDescription}.\nCertificate ThumbPrint: {certificateThumbPrint}.\nCertificateCommonName: {certificateCommonName}");
+            Log.Information("Executing test for {TestDescription}.\nCertificate ThumbPrint: {CertThumbPrint}.\nCertificateCommonName: {CertCommonName}", testDescription, certificateThumbPrint, certificateCommonName);
 
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             var getDataholderBrandsUrl = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/banking/data-holders/brands";
 
             // Arrange - Get access token
@@ -48,7 +39,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -68,7 +59,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             var response = await api.SendAsync();
 
-            Log.Information($"Response from {getDataholderBrandsUrl} Endpoint: {response.StatusCode} \n{response.Content.ReadAsStringAsync().Result}");
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync());
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
@@ -82,11 +73,11 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         public async Task AC02_Get_Access_Token_Invalid_Certificate_Header_For_Access_Token(string testDescription, string certificateThumbPrint, string certificateCommonName)
         {
 
-            Log.Information($"Executing test for {testDescription}.\nCertificate ThumbPrint: {certificateThumbPrint}.\nCertificateCommonName: {certificateCommonName}");
+            Log.Information("Executing test for {TestDescription}.\nCertificate ThumbPrint: {CertificateThumbPrint}.\nCertificateCommonName: {CertificateCommonName}", testDescription, certificateThumbPrint, certificateCommonName);
 
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
 
             // Arrange - Get access token
             var accessToken = new AccessToken
@@ -94,7 +85,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
                 CertificateCn = certificateCommonName
@@ -118,7 +109,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         public async Task AC03_Get_Access_Token_Invalid_Url_Regular_Expression_For_Access_Token()
         {
             
-            string tokenEndpoint = $"{IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL}/foo/idp/connect/token";
+            string tokenEndpoint = $"{IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL}/foo/idp/connect/token";
             
             // Arrange - Get access token
             var accessToken = new AccessToken
@@ -126,7 +117,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -146,7 +137,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
             string mismatachedConformanceId = Guid.NewGuid().ToString();
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             var getDataholderBrandsUrl = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL, mismatachedConformanceId)}/cdr-register/v1/banking/data-holders/brands";
 
             // Arrange - Get access token
@@ -155,7 +146,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
@@ -175,14 +166,14 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             var response = await api.SendAsync();
 
-            Log.Information($"Response from {getDataholderBrandsUrl} Endpoint: {response.StatusCode} \n{response.Content.ReadAsStringAsync().Result}");
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync());
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
         
         }
 
-        private async Task VerifyInvalidTokenRepsonse(HttpResponseMessage response)
+        private static async Task VerifyInvalidTokenRepsonse(HttpResponseMessage response)
         {
             using (new AssertionScope())
             {
@@ -209,11 +200,11 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         public async Task AC05_Get_Access_Token_With_Valid_Certificate_Header(string testDescription, string certificateThumbPrint, string certificateCommonName, string dbCommonName)
         {
 
-            Log.Information($"Executing test for {testDescription}.\nCertificate ThumbPrint: {certificateThumbPrint}.\nCertificateCommonName: {certificateCommonName}.\nDatabase Common Name: {dbCommonName}.");
+            Log.Information("Executing test for {TestDescription}.\nCertificate ThumbPrint: {CertThumbPrint}.\nCertificateCommonName: {CertCommonName}.\nDatabase Common Name: {DbCommonName}.", testDescription, certificateThumbPrint, certificateCommonName, dbCommonName);
 
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
-            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+            string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
             string getDataholderBrandsUrl = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/banking/data-holders/brands";
 
             SetCertificateCommonName(DEFAULT_SOFTWAREPRODUCT_ID, dbCommonName);
@@ -224,7 +215,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 Scope = "cdr-register:read",
-                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PRIVIDER_DOWNSTREAM_BASE_URL),
+                Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
                 CertificateCn = certificateCommonName
@@ -252,7 +243,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             HttpResponseMessage getDataHolderResponse = await api.SendAsync();
 
-            Log.Information($"Response from {getDataholderBrandsUrl} Endpoint: {accessTokenResponse.StatusCode} \n{accessTokenResponse.Content.ReadAsStringAsync().Result}");
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, accessTokenResponse.StatusCode, await accessTokenResponse.Content.ReadAsStringAsync());
 
             getDataHolderResponse.StatusCode.Should().Be(HttpStatusCode.OK, because: $"Get Data Holder should work when{testDescription}");
 

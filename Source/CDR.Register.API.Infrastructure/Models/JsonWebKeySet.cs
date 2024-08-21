@@ -2,7 +2,7 @@
 {
     public class JsonWebKeySet
     {
-        public JsonWebKey[] keys { get; set; }
+        public JsonWebKey[] keys { get; set; } = [];
 
     }
 }

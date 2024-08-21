@@ -3,6 +3,7 @@ using CDR.Register.IntegrationTests.Models;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 {
     public class US50480_UpdateDataHolders : BaseTest
     {
-        public US50480_UpdateDataHolders(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US50480_UpdateDataHolders(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
 
         private const string UPDATE_DATA_HOLDER_CURRENT_API_VERSION = "1";
 
@@ -190,7 +191,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
             ExpectedErrors expectedErrors = new();
-            expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingHeader, "x-v");
+            expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingHeader, "An API version x-v header is required, but was not specified.");
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
@@ -199,7 +200,6 @@ namespace CDR.Register.IntegrationTests.API.Update
         [Theory]
         [InlineData("0")]
         [InlineData("1.1")]
-        [InlineData("2")]
         public async Task AC05_Invalid_Version_Http_400(string xv)
         {
             DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
@@ -208,10 +208,27 @@ namespace CDR.Register.IntegrationTests.API.Update
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
             ExpectedErrors expectedErrors = new();
-            expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidVersion, $"Expected '{UPDATE_DATA_HOLDER_CURRENT_API_VERSION}'");
+            expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidVersion, "Version is not a positive Integer.");
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
+        }
+
+
+        [Theory]
+        [InlineData("20")]
+        public async Task AC10_Unsupported_Version_Http_400(string xv)
+        {
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
+
+            // Send to Register with blank x-v header
+            var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
+
+            ExpectedErrors expectedErrors = new();
+            expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version.");
+
+            // Assert Response
+            await VerifyNotAcceptableRequest(expectedErrors, response);
         }
 
         [Theory]
@@ -236,14 +253,14 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("Missing Data Holder Auth Details Jwks Endpoint", "authDetails.jwksEndpoint")]
         public async Task AC06_Missing_Mandatory_Fields_Http_400(string testId, string elementToRemove, bool expectEnumErrorAsWell = false)
         {
-            Log.Information($"Executing test for: {testId}");
+            Log.Information("Executing test for: {TestId}", testId);
 
             // Generate valid payload with only mandatory/minimun fields.
             DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
-            Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
+            Log.Information("original:\n{JsonModel}", GetJsonFromModel(dataHolderMetadata));
 
             dataHolderMetadata = RemoveModelElementBasedOnJsonPath(dataHolderMetadata, elementToRemove);
-            Log.Information($"modified (element removed):\n{GetJsonFromModel(dataHolderMetadata)}");
+            Log.Information("modified (element removed):\n{JsonModel}", GetJsonFromModel(dataHolderMetadata));
 
             // Send to Register
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
@@ -282,7 +299,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("Max Length Auth Details - JwksEndpoint", "authDetails.jwksEndpoint", 1000)]
         public async Task ACXX_Maximum_Field_Length_Exceeded(string testId, string elementUnderTest, int maxLength)
         {
-            Log.Information($"Executing test for: {testId} : Max Lenght: {maxLength}");
+            Log.Information("Executing test for: {TestId} : Max Lenght: {MaxLength}", testId, maxLength);
 
             // Create dataHolder using maximum field length
             DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
@@ -550,7 +567,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             if (!string.IsNullOrEmpty(accessToken))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
             }
 
             Log.Information($"Sending payload:\n{payload}");
@@ -563,7 +580,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         }
 
-        private async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataHolderMetadata dataHolderMetadata, string field, string value, bool isValid, Industry industry = Industry.Banking)
+        private static async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataHolderMetadata dataHolderMetadata, string field, string value, bool isValid, Industry industry = Industry.Banking)
         {
             // var response = await SendToStub(GetJsonFromModel(dataHolderMetadata), isValid ? "PASS" : "InvalidField");
 
@@ -582,7 +599,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
         }
 
-        private async Task VerifyInvalidPayloadResponse(HttpResponseMessage response, string expectedErrorMessage)
+        private static async Task VerifyInvalidPayloadResponse(HttpResponseMessage response, string expectedErrorMessage)
         {
 
             ExpectedErrors expectedErrors = new ExpectedErrors();
@@ -591,7 +608,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             await VerifyBadRequest(expectedErrors, response);
         }
 
-        private void VerifySuccessfulDataHolderUpdate(DataHolderMetadata expectedDataHolderMetadata, HttpResponseMessage httpResponseFromRegister, Industry industry)
+        private static void VerifySuccessfulDataHolderUpdate(DataHolderMetadata expectedDataHolderMetadata, HttpResponseMessage httpResponseFromRegister, Industry industry)
         {
             using (new AssertionScope())
             {
@@ -601,6 +618,8 @@ namespace CDR.Register.IntegrationTests.API.Update
                 string actualDataHolder = GetActualDataHolderFromDatabase(expectedDataHolderMetadata.LegalEntity.LegalEntityId, expectedDataHolderMetadata.DataHolderBrandId, industry);
 
                 Assert_Json(GetJsonFromModel(expectedDataHolderMetadata), actualDataHolder);
+
+                VerifyBrandLastUpdatedDateRecord(expectedDataHolderMetadata.LegalEntity.LegalEntityId);
             }
         }
 
@@ -723,7 +742,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
         }
 
-        private async Task<string> GetAzureAdAccessToken()
+        private static async Task<string> GetAzureAdAccessToken()
         {
             var client = new HttpClient();
             var content = new FormUrlEncodedContent(new[]
@@ -745,7 +764,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             return tokenResnse.access_token;
         }
 
-        private async Task<string> GetInvalidAzureAdAccessToken()
+        private static async Task<string> GetInvalidAzureAdAccessToken()
         {
             var client = new HttpClient();
             var content = new FormUrlEncodedContent(new[]

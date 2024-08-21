@@ -5,7 +5,6 @@
         public static class Scopes
         {
             public const string RegisterRead = "cdr-register:read";
-            public const string RegisterBankRead = "cdr-register:bank:read";
         }
 
         public static class ConnectionStringNames

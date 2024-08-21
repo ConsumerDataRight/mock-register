@@ -1,22 +1,23 @@
 ﻿using AutoMapper;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Admin.API.Business.Validators;
-using CDR.Register.Admin.API.Common;
+using CDR.Register.Admin.API.Extensions;
 using CDR.Register.Admin.API.Filters;
 using CDR.Register.API.Infrastructure.Filters;
-using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Domain.Entities;
+using CDR.Register.Domain.Models;
 using CDR.Register.Repository;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static CDR.Register.API.Infrastructure.Constants;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -74,14 +75,24 @@ namespace CDR.Register.Admin.API.Controllers
         [HttpGet]
         [Route("Metadata")]
         [ApiVersionNeutral]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]        
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task GetData()
         {
+            //We need to override the usual default settings so that the FK Ids can use their int values instead of their string values
+            var apiSpecificSettings = new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            };
+
+            JsonConvert.DefaultSettings = () => apiSpecificSettings;
+
             var metadata = await _dbContext.GetJsonFromDatabase();
 
             // Return the raw JSON response.
             Response.ContentType = "application/json";
-            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes($"{{ \"LegalEntities\": {metadata} }}"));
+            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes($"{{ \"legalEntities\": {metadata} }}"));
         }
 
         [HttpPost]
@@ -99,7 +110,7 @@ namespace CDR.Register.Admin.API.Controllers
 
                 // Validate the incoming data holder model.
                 var validationErrors = dataHolderBrandModel.Validate(existingDataHolderBrand);
-                if (validationErrors != null && validationErrors.Errors.Any())
+                if (validationErrors != null && validationErrors.Errors.Count > 0)
                 {
                     return BadRequest(validationErrors);
                 }
@@ -136,13 +147,13 @@ namespace CDR.Register.Admin.API.Controllers
 
                 if (string.IsNullOrWhiteSpace(json))
                 {
-                    return BadRequest(new Error { Title = ErrorTitles.FieldInvalid, Code = ErrorCodes.FieldInvalid, Detail = "Empty LegalEntity received" });
+                    return BadRequest(new Error(Domain.Constants.ErrorTitles.InvalidField, Domain.Constants.ErrorCodes.Cds.InvalidField, "Empty LegalEntity received"));
                 }
 
-                var legalEntity = JsonSerializer.Deserialize<LegalEntity>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });               
+                var legalEntity = System.Text.Json.JsonSerializer.Deserialize<LegalEntity>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); //This is inconsistent with other serializers
 
-                var errors = legalEntity.GetValidationErrors(new LegalEntityValidator());
-                if (errors.Errors.Any())
+                var errors = legalEntity?.GetValidationErrors(new LegalEntityValidator());
+                if (errors?.Errors.Count > 0)
                 {
                     return BadRequest(errors);
                 }
@@ -154,7 +165,7 @@ namespace CDR.Register.Admin.API.Controllers
                     null => Ok(),
                     _ => BadRequest(businessRuleError.ToResponseErrorList())
                 };
-            }            
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured in SaveDataRecipient");

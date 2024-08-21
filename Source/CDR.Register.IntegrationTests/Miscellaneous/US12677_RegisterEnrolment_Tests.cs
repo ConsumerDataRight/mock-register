@@ -18,7 +18,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
     /// </summary>   
     public class US12677_RegisterEnrolment_Tests : BaseTest
     {
-        public US12677_RegisterEnrolment_Tests(ITestOutputHelper outputHelper) : base(outputHelper) { }
+        public US12677_RegisterEnrolment_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
         /// <summary>
         /// Get the repository as json
         /// </summary>
@@ -137,22 +137,22 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 }
             }
 
-            ClearField(jToken, "LegalEntityId");
-            ClearField(jToken, "ParticipationId");
-            ClearField(jToken, "BrandId");
-            ClearField(jToken, "SoftwareProductId");
-            ClearField(jToken, "SoftwareProductCertificateId");
+            ClearField(jToken, "legalEntityId");
+            ClearField(jToken, "participationId");
+            ClearField(jToken, "brandId");
+            ClearField(jToken, "softwareProductId");
+            ClearField(jToken, "softwareProductCertificateId");
 
-            ClearField(jToken, "LegalEntityStatusId");
+            ClearField(jToken, "legalEntityStatusId");
         }
 
         static JToken Cleanup(JToken jToken)
         {
             // Sort
-            jToken["LegalEntities"].SortArray("LegalEntityId");
-            jToken.SortArray("$..LegalEntities..Participations", "ParticipationId");
-            jToken.SortArray("$..LegalEntities..Participations..Brands", "BrandId");
-            jToken.SortArray("$..LegalEntities..Participations..Brands..SoftwareProducts", "SoftwareProductId");
+            jToken["legalEntities"].SortArray("legalEntityId");
+            jToken.SortArray("$..legalEntities..participations", "participationId");
+            jToken.SortArray("$..legalEntities..participations..brands", "brandId");
+            jToken.SortArray("$..legalEntities..participations..brands..softwareProducts", "softwareProductId");
 
             RemoveForeignKeys(jToken);
 
@@ -160,7 +160,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             jToken.RemoveEmptyArrays();
 
             // Fix mismatch in version, convert to string
-            jToken.ReplacePath("$..LegalEntities..Participations..Brands..Endpoint..Version",
+            jToken.ReplacePath("$..legalEntities..participations..brands..endpoint..version",
                 t => $"{t}");
 
             // Issues with Guids and property names having different cases... not ideal, but just convert to upper case
@@ -204,22 +204,22 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         {
             static void UpdateNames(JToken jToken)
             {
-                if (jToken["LegalEntities"] != null)
-                    foreach (var legalEntity in jToken["LegalEntities"])
+                if (jToken["legalEntities"] != null)
+                    foreach (var legalEntity in jToken["legalEntities"])
                     {
-                        legalEntity["LegalEntityName"] += " updated";
+                        legalEntity["legalEntityName"] += " updated";
 
-                        if (legalEntity["Participations"] != null)
-                            foreach (var participation in legalEntity["Participations"])
+                        if (legalEntity["participations"] != null)
+                            foreach (var participation in legalEntity["participations"])
                             {
-                                foreach (var brand in participation["Brands"])
+                                foreach (var brand in participation["brands"])
                                 {
-                                    brand["BrandName"] += " updated";
+                                    brand["brandName"] += " updated";
 
-                                    if (brand["SoftwareProducts"] != null)
-                                        foreach (var softwareProduct in brand["SoftwareProducts"])
+                                    if (brand["softwareProducts"] != null)
+                                        foreach (var softwareProduct in brand["softwareProducts"])
                                         {
-                                            softwareProduct["SoftwareProductName"] += " updated";
+                                            softwareProduct["softwareProductName"] += " updated";
                                         }
                                 }
                             }
