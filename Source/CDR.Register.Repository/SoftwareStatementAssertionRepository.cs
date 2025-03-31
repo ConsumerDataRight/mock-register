@@ -32,7 +32,6 @@ namespace CDR.Register.Repository
                                         LegalEntity = _mapper.Map(x.Brand.Participation.LegalEntity)
                                     })
                                     .FirstOrDefaultAsync();
-
         }
     }
 }

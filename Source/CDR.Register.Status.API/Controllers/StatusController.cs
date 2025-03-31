@@ -16,10 +16,10 @@ namespace CDR.Register.Status.API.Controllers
         private readonly IConfiguration _configuration;
 
         public StatusController(
-            IStatusService StatusService,
+            IStatusService statusService,
             IConfiguration configuration)
         {
-            _statusService = StatusService;
+            _statusService = statusService;
             _configuration = configuration;
         }
 
@@ -33,7 +33,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataRecipientsStatusXV2(string industry)
         {
             var response = await _statusService.GetDataRecipientStatusesAsync(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration, HttpContext, "");
+            response.Links = this.GetSelf(_configuration, HttpContext, string.Empty);
             return Ok(response);
         }
 
@@ -47,7 +47,7 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetSoftwareProductStatusXV2(string industry)
         {
             var response = await _statusService.GetSoftwareProductStatusesAsync(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration, HttpContext, "");
+            response.Links = this.GetSelf(_configuration, HttpContext, string.Empty);
             return Ok(response);
         }
 
@@ -61,9 +61,8 @@ namespace CDR.Register.Status.API.Controllers
         public async Task<IStatusCodeActionResult> GetDataHolderStatusXV1(string industry)
         {
             var response = await _statusService.GetDataHolderStatusesAsyncXV1(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration, HttpContext, "");
+            response.Links = this.GetSelf(_configuration, HttpContext, string.Empty);
             return Ok(response);
         }
-
     }
 }

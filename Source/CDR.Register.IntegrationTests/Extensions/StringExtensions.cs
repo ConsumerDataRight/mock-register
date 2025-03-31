@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CDR.Register.IntegrationTests.Extensions
 {
@@ -14,7 +11,6 @@ namespace CDR.Register.IntegrationTests.Extensions
             Random random = new Random();
             return new string(Enumerable.Repeat(allowableChars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
-
         }
 
         public static string GetLastFieldFromJsonPath(this string path)

@@ -44,8 +44,8 @@ namespace CDR.Register.API.Infrastructure
                     string swaggerJsonBasePath = string.IsNullOrWhiteSpace(options.RoutePrefix) ? "." : "..";
 
                     options.SwaggerEndpoint(
-                             $"{swaggerJsonBasePath}/swagger/v1/swagger.json",
-                            name);
+                        $"{swaggerJsonBasePath}/swagger/v1/swagger.json",
+                        name);
                 });
 
             return builder;

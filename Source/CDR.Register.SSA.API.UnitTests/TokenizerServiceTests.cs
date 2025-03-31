@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -14,7 +14,6 @@ using Xunit;
 
 namespace CDR.Register.SSA.API.UnitTests
 {
-
     public class TokenizerServiceTests
     {
         private readonly ServiceProvider _serviceProvider;
@@ -40,7 +39,7 @@ namespace CDR.Register.SSA.API.UnitTests
         [Fact]
         public async Task GenerateJwtTokenAsync_Success()
         {
-            //Arrange
+            // Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
@@ -67,18 +66,18 @@ namespace CDR.Register.SSA.API.UnitTests
                 software_roles = "data-recipient-software-product",
             };
 
-            //Generate the SSA JWT token
+            // Generate the SSA JWT token
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            //Create the certificate which has only public key
+            // Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
 
-            //Get credentials from certificate
+            // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
 
-            //Set token validation parameters
+            // Set token validation parameters
             var validationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = certificateSecurityKey,
@@ -90,10 +89,11 @@ namespace CDR.Register.SSA.API.UnitTests
             };
 
             SecurityToken validatedToken;
-            //Act
+
+            // Act
             var principal = tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
 
-            //Assert
+            // Assert
             Assert.NotNull(validatedToken);
             Assert.Equal("cdr-register", validatedToken.Issuer);
             Assert.Equal(17, principal.Claims.Count());
@@ -102,7 +102,7 @@ namespace CDR.Register.SSA.API.UnitTests
         [Fact]
         public async Task GenerateJwtTokenAsync_InvalidToken_Failure()
         {
-            //Arrange
+            // Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
@@ -129,21 +129,21 @@ namespace CDR.Register.SSA.API.UnitTests
                 software_roles = "data-recipient-software-product",
             };
 
-            //Generate the SSA JWT token
+            // Generate the SSA JWT token
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
 
-            //Create invalid token
+            // Create invalid token
             ssaToken = ssaToken.Replace('a', 'b');
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            
-            //Create the certificate which has only public key
+
+            // Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
 
-            //Get credentials from certificate
+            // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
 
-            //Set token validation parameters
+            // Set token validation parameters
             var validationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = certificateSecurityKey,
@@ -157,22 +157,23 @@ namespace CDR.Register.SSA.API.UnitTests
             try
             {
                 SecurityToken validatedToken;
-                //Act
-                var principal = tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
+
+                // Act
+                tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
             }
             catch (Exception ex)
             {
-                var errorMessage = ex.Message.Replace("\n", "");
-                //Assert
+                var errorMessage = ex.Message.Replace("\n", string.Empty);
+
+                // Assert
                 Assert.StartsWith("IDX10511: Signature validation failed.", errorMessage);
             }
-
         }
 
         [Fact]
         public async Task GenerateJwtTokenAsync_InvalidCertificate_Failure()
         {
-            //Arrange
+            // Arrange
             var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
@@ -199,18 +200,18 @@ namespace CDR.Register.SSA.API.UnitTests
                 software_roles = "data-recipient-software-product",
             };
 
-            //Generate the SSA JWT token
+            // Generate the SSA JWT token
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            //Create the certificate which has only public key
+            // Create the certificate which has only public key
             var cert = new X509Certificate2(_configuration["InvalidSigningCertificatePublic:Path"]);
 
-            //Get credentials from certificate
+            // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
 
-            //Set token validation parameters
+            // Set token validation parameters
             var validationParameters = new TokenValidationParameters()
             {
                 IssuerSigningKey = certificateSecurityKey,
@@ -224,16 +225,17 @@ namespace CDR.Register.SSA.API.UnitTests
             try
             {
                 SecurityToken validatedToken;
-                //Act
-                var principal = tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
+
+                // Act
+                tokenHandler.ValidateToken(ssaToken, validationParameters, out validatedToken);
             }
             catch (Exception ex)
             {
-                var errorMessage = ex.Message.Replace("\n", "");
-                //Assert
+                var errorMessage = ex.Message.Replace("\n", string.Empty);
+
+                // Assert
                 Assert.StartsWith("IDX10503: Signature validation failed.", errorMessage);
             }
-
         }
 
         [Fact]
@@ -268,14 +270,15 @@ namespace CDR.Register.SSA.API.UnitTests
             // Generate the SSA JWT token
             var ssaToken = await tokenizerService.GenerateJwtTokenAsync(ssa);
             var tokenHandler = new JwtSecurityTokenHandler();
-            var parsedJwt = tokenHandler.ReadToken(ssaToken) as JwtSecurityToken;
+            tokenHandler.ReadToken(ssaToken);
 
             // Get the certificate service based on config settings.
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ssa.pfx");
-            var inMemorySettings = new Dictionary<string, string> {
-                            {"SigningCertificate:Path", path},
-                            {"SigningCertificate:Password", "#M0ckRegister#"},
-                        };
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "SigningCertificate:Path", path },
+                { "SigningCertificate:Password", "#M0ckRegister#" },
+            };
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();

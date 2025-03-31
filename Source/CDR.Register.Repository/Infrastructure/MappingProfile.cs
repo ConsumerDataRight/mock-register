@@ -23,9 +23,8 @@ namespace CDR.Register.Repository.Infrastructure
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Participations.FirstOrDefault().Status.ParticipationStatusCode.ToUpper()));
 
             CreateMap<DomainEntities.DataRecipientLegalEntity, LegalEntity>()
-                .ForMember(dest => dest.OrganisationTypeId, source => source.MapFrom(source => source.OrganisationType == null ? null : Enum.Parse(typeof(Entities.OrganisationTypes), source.OrganisationType.Replace("_", ""), true)))
+                .ForMember(dest => dest.OrganisationTypeId, source => source.MapFrom(source => source.OrganisationType == null ? null : Enum.Parse(typeof(Entities.OrganisationTypes), source.OrganisationType.Replace("_", string.Empty), true)))
                 .ForMember(dest => dest.OrganisationType, opt => opt.Ignore());
-
 
             CreateMap<Participation, DomainEntities.DataHolder>()
                 .ForMember(dest => dest.DataHolderId, source => source.MapFrom(source => source.ParticipationId))
@@ -77,12 +76,11 @@ namespace CDR.Register.Repository.Infrastructure
                 .ForMember(dest => dest.BrandStatus, opts => opts.Ignore())
                 .ForMember(dest => dest.SoftwareProducts, opts => opts.Ignore());
 
-
             CreateMap<SoftwareProduct, DomainEntities.SoftwareProduct>()
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.SoftwareProductStatusCode))
                 .ForMember(dest => dest.IsActive, source => source.MapFrom(source => source.Status.SoftwareProductStatusId == SoftwareProductStatusType.Active))
                 .ForMember(dest => dest.RedirectUri, source => source.MapFrom(src => src.RedirectUris))
-                .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) //Ignore this as it is a computed property with no setter
+                .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) // Ignore this as it is a computed property with no setter
                 .ForMember(dest => dest.DataRecipientBrand, source => source.MapFrom(s => s.Brand));
 
             CreateMap<DomainEntities.SoftwareProduct, SoftwareProduct>()
@@ -102,7 +100,7 @@ namespace CDR.Register.Repository.Infrastructure
             CreateMap<AuthDetail, DomainEntities.DataHolderAuthentication>()
                 .ForMember(dest => dest.RegisterUType, source => source.MapFrom(source => source.RegisterUType.RegisterUTypeCode));
             CreateMap<DomainEntities.DataHolderAuthentication, AuthDetail>()
-                .ForMember(dest => dest.RegisterUTypeId, source => source.MapFrom(source => 
+                .ForMember(dest => dest.RegisterUTypeId, source => source.MapFrom(source =>
                     Enum.Parse(typeof(RegisterUTypes), source.RegisterUType.Replace("-", string.Empty), true)))
                 .ForMember(dest => dest.JwksEndpoint, source => source.MapFrom(source => source.JwksEndpoint))
                 .ForMember(dest => dest.RegisterUType, opt => opt.Ignore())

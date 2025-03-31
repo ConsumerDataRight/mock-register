@@ -37,7 +37,7 @@ namespace CDR.Register.API.Infrastructure
         public static string GetInfosecBaseUrl(this IConfiguration configuration, HttpContext? context, bool isSecure = false)
         {
             var basePath = string.Empty;
-            if (context.Request != null && context.Request.PathBase.HasValue)
+            if (context?.Request != null && context.Request.PathBase.HasValue)
             {
                 basePath = context.Request.PathBase.ToString();
             }
@@ -50,10 +50,8 @@ namespace CDR.Register.API.Infrastructure
         }
 
         /// <summary>
-        /// CTS conformance ids must be validated
-        /// </summary>        
-        /// <param name="context"></param>
-        /// <returns></returns>        
+        /// CTS conformance ids must be validated.
+        /// </summary>
         public static bool ValidateIssuer(this HttpContext context)
         {
             if (context.Request != null && context.Request.PathBase.HasValue)
@@ -65,7 +63,7 @@ namespace CDR.Register.API.Infrastructure
                     return false;
                 }
 
-                // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only                
+                // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only
                 return issuer?.Contains(context.Request.PathBase) ?? false;
             }
 
@@ -79,7 +77,7 @@ namespace CDR.Register.API.Infrastructure
             {
                 app.UsePathBase(basePath);
             }
-            
+
             // A dynamic base path can be set by the Mock Register:BasePathExpression app setting.
             // This allows a regular expression to be set and matched rather than a static base path.
             var basePathExpression = configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
@@ -88,12 +86,12 @@ namespace CDR.Register.API.Infrastructure
                 app.Use((context, next) =>
                 {
                     var matches = Regex.Matches(context.Request.Path, basePathExpression, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(500));
-                    if (matches.Count!=0)
+                    if (matches.Count != 0)
                     {
                         var path = matches[0].Groups[0].Value;
                         var remainder = matches[0].Groups[1].Value;
                         context.Request.Path = $"/{remainder}";
-                        context.Request.PathBase = path.Replace(remainder, "").TrimEnd('/');
+                        context.Request.PathBase = path.Replace(remainder, string.Empty).TrimEnd('/');
                     }
 
                     return next(context);
@@ -125,6 +123,7 @@ namespace CDR.Register.API.Infrastructure
         {
             var metadataAddress = configuration.GetValue<string>(Constants.ConfigurationKeys.OidcMetadataAddress);
             var jwks = Task.Run(() => LoadJwks($"{metadataAddress}/jwks", configuration)).Result;
+
             // Default 2 mins*
             var clockSkew = configuration.GetValue<int>(Constants.ConfigurationKeys.ClockSkewSeconds, 120);
 
@@ -162,9 +161,9 @@ namespace CDR.Register.API.Infrastructure
             services.AddMvcCore().AddAuthorization(options =>
             {
                 var allAuthPolicies = AuthorisationPolicies.GetAllPolicies();
-                
-                //Apply all listed policities from a single source of truth that is also used for self-documentation
-                foreach(var pol in allAuthPolicies)
+
+                // Apply all listed policities from a single source of truth that is also used for self-documentation
+                foreach (var pol in allAuthPolicies)
                 {
                     options.AddPolicy(pol.Name, policy =>
                     {
@@ -179,10 +178,9 @@ namespace CDR.Register.API.Infrastructure
             services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
             services.AddSingleton<IAuthorizationHandler, DataRecipientSoftwareProductIdHandler>();
             services.AddSingleton<IAuthorizationHandler, MtlsHandler>();
-
         }
 
-        static async Task<Microsoft.IdentityModel.Tokens.JsonWebKeySet?> LoadJwks(string jwksUri, IConfiguration configuration)
+        private static async Task<Microsoft.IdentityModel.Tokens.JsonWebKeySet?> LoadJwks(string jwksUri, IConfiguration configuration)
         {
             var handler = new HttpClientHandler();
             handler.SetServerCertificateValidation(configuration);
@@ -195,7 +193,7 @@ namespace CDR.Register.API.Infrastructure
 
         public static string GetHostName(this string url)
         {
-            return url.Replace("https://", "").Replace("http://", "").Split('/')[0];
+            return url.Replace("https://", string.Empty).Replace("http://", string.Empty).Split('/')[0];
         }
 
         public static LinksPaginated GetPaginated(
@@ -230,6 +228,7 @@ namespace CDR.Register.API.Infrastructure
                 {
                     links.Prev = controller.GetPageUri(routeName, updatedSince, currentPage - 1, pageSize, hostName);
                 }
+
                 if (currentPage >= totalPages)
                 {
                     links.Next = null;
@@ -264,19 +263,20 @@ namespace CDR.Register.API.Infrastructure
             {
                 if (controller.Request.Headers.TryGetValue("X-Forwarded-Host", out StringValues forwardedHosts))
                 {
-                    hostNameToUse = forwardedHosts[0];                                        
+                    hostNameToUse = forwardedHosts[0];
                 }
                 else
                 {
                     hostNameToUse = hostName;
                 }
 
-                if (hostNameToUse!= null && !hostNameToUse.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+                if (hostNameToUse != null && !hostNameToUse.StartsWith("https", StringComparison.OrdinalIgnoreCase))
                 {
-                    hostNameToUse = "https://" +  hostNameToUse;
+                    hostNameToUse = "https://" + hostNameToUse;
                 }
             }
-            return hostNameToUse ?? "";
+
+            return hostNameToUse ?? string.Empty;
         }
 
         public static Uri? GetPageUri(
@@ -323,13 +323,13 @@ namespace CDR.Register.API.Infrastructure
             return new Uri(url.Replace(currentHost, newHostName));
         }
 
-        private static Uri ReplaceUriHost(string url, string newHost = null)
+        private static Uri ReplaceUriHost(string url, string? newHost = null)
         {
-            Uri originalUri = new(url);
-            Uri replaceUri = new(newHost);
+            Uri originalUri = new Uri(url);
+            Uri replaceUri = new Uri(newHost ?? string.Empty);
 
             // Update the Uri components
-            UriBuilder modifiedUriBuilder = new(originalUri)
+            UriBuilder modifiedUriBuilder = new UriBuilder(originalUri)
             {
                 Host = replaceUri.Host,
                 Port = replaceUri.IsDefaultPort ? -1 : replaceUri.Port,
@@ -341,9 +341,13 @@ namespace CDR.Register.API.Infrastructure
         public static Industry ToIndustry(this string industry)
         {
             if (Enum.IsDefined(typeof(Industry), industry.ToUpper()))
+            {
                 return (Industry)Enum.Parse(typeof(Industry), industry, true);
+            }
             else
+            {
                 throw new NotSupportedException($"Invalid industry: {industry}");
+            }
         }
 
         public static IEnumerable<string> GetValueAsList(this IConfiguration configuration, string key, string delimiter)
@@ -361,12 +365,12 @@ namespace CDR.Register.API.Infrastructure
         {
             var certThumbprintNameHttpHeaderName = configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
 
-            if (context.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints)  && headerThumbprints.Count > 0)
+            if (context.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints) && headerThumbprints.Count > 0)
             {
-                return headerThumbprints[0] ?? "";
+                return headerThumbprints[0] ?? string.Empty;
             }
 
-            return "";
+            return string.Empty;
         }
 
         public static string GetClientCertificateCommonName(this HttpContext context, ILogger logger, IConfiguration configuration)
@@ -376,7 +380,7 @@ namespace CDR.Register.API.Infrastructure
 
             if (context.Request.Headers.TryGetValue(certCommonNameHttpHeaderName, out StringValues headerCommonNames) && headerCommonNames.Count > 0)
             {
-                headerCommonName = headerCommonNames[0] ?? "";
+                headerCommonName = headerCommonNames[0] ?? string.Empty;
             }
             else
             {
@@ -425,11 +429,10 @@ namespace CDR.Register.API.Infrastructure
         {
             try
             {
-                X500DistinguishedName dn = new(distinguishedName);
+                X500DistinguishedName dn = new X500DistinguishedName(distinguishedName);
                 var cnAttribute = Array.Find(
-                    dn.Decode(X500DistinguishedNameFlags.UseNewLines).Split('\n'), 
+                    dn.Decode(X500DistinguishedNameFlags.UseNewLines).Split('\n'),
                     attr => attr.Trim().StartsWith("CN="));
-                    
 
                 if (cnAttribute != null)
                 {
@@ -442,7 +445,6 @@ namespace CDR.Register.API.Infrastructure
             {
                 return string.Empty;
             }
-
         }
 
         public static IServiceCollection AddCdrSwaggerGen(this IServiceCollection services, Action<CdrSwaggerOptions> configureRegisterSwaggerOptions, bool isVersioned = true)
@@ -456,12 +458,11 @@ namespace CDR.Register.API.Infrastructure
             {
                 services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
-                //Required for our Swagger setup to work when endpoints have been versioned
+                // Required for our Swagger setup to work when endpoints have been versioned
                 services.AddVersionedApiExplorer(opt =>
                 {
                     opt.GroupNameFormat = options.VersionedApiGroupNameFormat;
                 });
-
             }
             else
             {

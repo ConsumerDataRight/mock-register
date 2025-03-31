@@ -11,12 +11,13 @@ namespace CDR.Register.API.Infrastructure
         {
             var actionAttributes = info.GetCustomAttributes(inherit);
 
-            IEnumerable<Object> controllerAttributes = [];
+            IEnumerable<object> controllerAttributes = [];
 
             if (info.DeclaringType != null)
             {
                 controllerAttributes = info.DeclaringType.GetTypeInfo().GetCustomAttributes(inherit);
             }
+
             var actionAndControllerAttributes = actionAttributes.Union(controllerAttributes);
 
             return actionAndControllerAttributes.Where(attr => types.Contains(attr.GetType()));
@@ -26,12 +27,13 @@ namespace CDR.Register.API.Infrastructure
         {
             var actionAttributes = info.GetCustomAttributes(inherit);
 
-            IEnumerable<Object> controllerAttributes = [];
+            IEnumerable<object> controllerAttributes = [];
 
             if (info.DeclaringType != null)
             {
                 controllerAttributes = info.DeclaringType.GetTypeInfo().GetCustomAttributes(inherit);
             }
+
             var actionAndControllerAttributes = actionAttributes.Union(controllerAttributes);
 
             return (T?)actionAndControllerAttributes.SingleOrDefault(attr => attr.GetType() == typeof(T));
@@ -41,12 +43,13 @@ namespace CDR.Register.API.Infrastructure
         {
             var actionAttributes = info.GetCustomAttributes(inherit);
 
-            IEnumerable<Object> controllerAttributes = [];
+            IEnumerable<object> controllerAttributes = [];
 
             if (info.DeclaringType != null)
             {
                 controllerAttributes = info.DeclaringType.GetTypeInfo().GetCustomAttributes(inherit);
             }
+
             var actionAndControllerAttributes = actionAttributes.Union(controllerAttributes);
 
             return actionAndControllerAttributes.Any(attr => attr.GetType() == type);

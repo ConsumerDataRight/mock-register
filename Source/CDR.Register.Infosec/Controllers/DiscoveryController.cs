@@ -1,4 +1,4 @@
-using CDR.Register.API.Infrastructure;
+﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.Infosec.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +48,7 @@ namespace CDR.Register.Infosec.Controllers
         [Route("openid-configuration/jwks")]
         public API.Infrastructure.Models.JsonWebKeySet? GetJwks()
         {
-            var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? "", _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var cert64 = Convert.ToBase64String(cert.RawData);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var thumbprint = Base64Url.Encode(cert.GetCertHash());
@@ -75,10 +75,12 @@ namespace CDR.Register.Infosec.Controllers
                             x5c = [cert64],
                             alg = "PS256"
                         }
+
                     ]
                 };
                 return jwks;
             }
+
             return null;
         }
     }

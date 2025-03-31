@@ -89,9 +89,9 @@ namespace CDR.Register.Repository
             return _mapper.Map<DataRecipient[]>(allParticipants);
         }
 
-        /// <remarks>
+        /// <summary>
         /// The industry parameter is passed but currently not used.
-        /// </remarks>
+        /// </summary>
         protected async Task<List<Participation>> ProcessGetDataRecipients(Infrastructure.Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()

@@ -5,7 +5,6 @@ using CDR.Register.Status.API.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-
 namespace CDR.Register.Status.API.Extensions
 {
     public static class ServiceCollectionExtensions

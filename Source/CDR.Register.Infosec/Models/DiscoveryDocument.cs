@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 namespace CDR.Register.Infosec.Models
-{    
+{
     public class DiscoveryDocument
     {
         [JsonProperty("issuer")]
@@ -42,6 +42,5 @@ namespace CDR.Register.Infosec.Models
 
         [JsonProperty("token_endpoint_auth_signing_alg_values_supported")]
         public string[]? TokenEndpointAuthSigningAlgValuesSupported { get; set; }
-
     }
 }

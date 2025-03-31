@@ -15,9 +15,8 @@ namespace CDR.Register.Admin.API.Controllers
     [ApiController]
     [Route("[controller]")]
     [ApiVersionNeutral]
-    public class LoopbackController : Controller
+    public class LoopbackController : ControllerBase
     {
-
         private readonly IConfiguration _config;
 
         public LoopbackController(IConfiguration config)
@@ -28,7 +27,7 @@ namespace CDR.Register.Admin.API.Controllers
         /// <summary>
         /// This controller action provides an implementation of a JWKS for a Mock Data Recipient.
         /// </summary>
-        /// <returns>JWKS</returns>
+        /// <returns>JWKS.</returns>
         [HttpGet]
         [Route("MockDataRecipientJwks")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
@@ -36,7 +35,7 @@ namespace CDR.Register.Admin.API.Controllers
         {
             var cert = new X509Certificate2("Certificates/client.pem");
             var key = cert.GetRSAPublicKey();
-            var rsaParams = key.ExportParameters(false);
+            var rsaParams = key!.ExportParameters(false);
             var kid = GenerateKid(rsaParams, out var e, out var n);
             var jwk = new CDR.Register.API.Infrastructure.Models.JsonWebKey()
             {
@@ -48,7 +47,7 @@ namespace CDR.Register.Admin.API.Controllers
                 key_ops = new string[] { "sign", "verify" }
             };
 
-            return Ok(new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
+            return new OkObjectResult(new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
             {
                 keys = new CDR.Register.API.Infrastructure.Models.JsonWebKey[] { jwk }
             });
@@ -57,7 +56,7 @@ namespace CDR.Register.Admin.API.Controllers
         /// <summary>
         /// This controller action produces a client assertion for a mock data recipient.
         /// </summary>
-        /// <returns>Client assertion string</returns>
+        /// <returns>Client assertion string.</returns>
         /// <remarks>
         /// This client assertion can then be used in a private key jwt request.
         /// </remarks>
@@ -67,7 +66,7 @@ namespace CDR.Register.Admin.API.Controllers
         public IActionResult MockDataRecipientClientAssertion()
         {
             var privateKeyRaw = System.IO.File.ReadAllText("Certificates/client.key");
-            var privateKey = privateKeyRaw.Replace("-----BEGIN PRIVATE KEY-----", "").Replace("-----END PRIVATE KEY-----", "").Replace("\r\n", "").Trim();
+            var privateKey = privateKeyRaw.Replace("-----BEGIN PRIVATE KEY-----", string.Empty).Replace("-----END PRIVATE KEY-----", string.Empty).Replace("\r\n", string.Empty).Trim();
             var privateKeyBytes = Convert.FromBase64String(privateKey);
 
             string audience = _config.GetValue<string>("IdentityServerTokenUri") ?? "https://localhost:7001/idp/connect/token";
@@ -79,7 +78,7 @@ namespace CDR.Register.Admin.API.Controllers
 
             if (Request.Query.TryGetValue("aud", out var aud))
             {
-                audience = aud.ToString();                
+                audience = aud.ToString();
             }
 
             using (var rsa = RSA.Create())
@@ -116,14 +115,14 @@ namespace CDR.Register.Admin.API.Controllers
         /// <summary>
         /// This controller action produces a self signed JWT for the mock register.
         /// </summary>
-        /// <returns>Self Signed JWT</returns>
+        /// <returns>Self Signed JWT.</returns>
         [HttpGet]
         [Route("RegisterSelfSignedJwt")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult RegisterSelfSignedJwt(
             [FromQuery] string aud)
         {
-            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path") ?? "", _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);            
+            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path") ?? string.Empty, _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
             var descriptor = new SecurityTokenDescriptor
@@ -153,10 +152,11 @@ namespace CDR.Register.Admin.API.Controllers
         {
             e = Base64UrlEncoder.Encode(rsaParams.Exponent);
             n = Base64UrlEncoder.Encode(rsaParams.Modulus);
-            var dict = new Dictionary<string, string>() {
-                {"e", e},
-                {"kty", "RSA"},
-                {"n", n}
+            var dict = new Dictionary<string, string>()
+            {
+                { "e", e },
+                { "kty", "RSA" },
+                { "n", n }
             };
             var hash = SHA256.Create();
             var hashBytes = hash.ComputeHash(System.Text.Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(dict)));

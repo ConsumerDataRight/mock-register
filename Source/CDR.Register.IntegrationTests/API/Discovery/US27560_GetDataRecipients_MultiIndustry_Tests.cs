@@ -22,7 +22,10 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     /// </summary>
     public class US27560_GetDataRecipients_MultiIndustry_Tests : BaseTest
     {
-        public US27560_GetDataRecipients_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US27560_GetDataRecipients_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
 
         // Get expected data recipients
         private static string GetExpectedDataRecipients(string url)
@@ -70,8 +73,10 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                             lastUpdated = participation.Brands.OrderByDescending(brand => brand.LastUpdated).First().LastUpdated.ToString("yyyy-MM-ddTHH:mm:ssZ")
                         })
                         .ToList(),
+
                     // DF: these are new properties that need to be included in the Get Data Recipients payload.
-                    links = new { 
+                    links = new
+                    {
                         self = url
                     },
                     meta = new object()
@@ -92,18 +97,18 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData(3, "banking")]
         [InlineData(3, "energy")]
         [InlineData(3, "telco")]
-        public async Task AC01_Get_WithXV_ShouldRespondWith_200OK_DataRecipients(int XV, string industry)
+        public async Task AC01_Get_WithXV_ShouldRespondWith_200OK_DataRecipients(int xv, string industry)
         {
-            // Arrange 
+            // Arrange
             var url = $"{TLS_BaseURL}/cdr-register/v1/{industry}/data-recipients";
             var expectedDataRecipients = GetExpectedDataRecipients(url);
 
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = url,
-                XV = XV.ToString()
+                XV = xv.ToString()
             }.SendAsync();
 
             // Assert
@@ -116,7 +121,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 Assert_HasContentType_ApplicationJson(response.Content);
 
                 // // Assert - Check XV
-                Assert_HasHeader(XV.ToString(), response.Headers, "x-v");
+                Assert_HasHeader(xv.ToString(), response.Headers, "x-v");
 
                 // Assert - Check json
                 await Assert_HasContent_Json(expectedDataRecipients, response.Content);
@@ -129,18 +134,18 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData(3, "banking")]
         [InlineData(3, "energy")]
         [InlineData(3, "telco")]
-        public async Task AC01_CTS_URL_Get_WithXV_ShouldRespondWith_200OK_DataRecipients(int XV, string industry)
+        public async Task AC01_CTS_URL_Get_WithXV_ShouldRespondWith_200OK_DataRecipients(int xv, string industry)
         {
-            // Arrange 
+            // Arrange
             var url = $"{GenerateDynamicCtsUrl(DISCOVERY_DOWNSTREAM_BASE_URL)}/cdr-register/v1/{industry}/data-recipients";
             var expectedDataRecipients = GetExpectedDataRecipients(ReplacePublicHostName(url, DISCOVERY_DOWNSTREAM_BASE_URL));
 
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = url,
-                XV = XV.ToString()
+                XV = xv.ToString()
             }.SendAsync();
 
             // Assert
@@ -153,7 +158,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 Assert_HasContentType_ApplicationJson(response.Content);
 
                 // // Assert - Check XV
-                Assert_HasHeader(XV.ToString(), response.Headers, "x-v");
+                Assert_HasHeader(xv.ToString(), response.Headers, "x-v");
 
                 // Assert - Check json
                 await Assert_HasContent_Json(expectedDataRecipients, response.Content);
@@ -165,12 +170,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("foo")] // AC06
         public async Task AC04_AC06_Get_WithIfNoneMatch_ShouldRespondWith_200OK_ETag(string? ifNoneMatch)
         {
-            // Arrange 
+            // Arrange
             var url = $"{TLS_BaseURL}/cdr-register/v1/all/data-recipients";
             var expectedDataRecipients = GetExpectedDataRecipients(url);
 
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = url,
@@ -202,16 +207,16 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         public async Task AC05_Get_WithIfNoneMatchKnownETAG_ShouldRespondWith_304NotModified_ETag()
         {
             // Arrange - Get SoftwareProductsStatus and save the ETag
-            var expectedETag = (await new Infrastructure.API
+            var expectedETag = (await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = $"{TLS_BaseURL}/cdr-register/v1/all/data-recipients",
                 XV = "3",
-                IfNoneMatch = null, // ie If-None-Match is not set                
+                IfNoneMatch = null, // ie If-None-Match is not set
             }.SendAsync()).Headers.GetValues("ETag").First().Trim('"');
 
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = $"{TLS_BaseURL}/cdr-register/v1/all/data-recipients",
@@ -231,29 +236,28 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("3",    "4",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-min-v is ignored when > x-v
-        [InlineData("3",    "2",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is supported and higher than x-min-v 
-        [InlineData("3",    "3",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is supported equal to x-min-v 
-        [InlineData("4",    "3",    "3",    HttpStatusCode.OK,              true,  "")]                             //Valid. Should return v3 - x-v is NOT supported and x-min-v is supported        
-        [InlineData("3",    "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is supported but x-min-v is invalid (not a positive integer) 
-        [InlineData("99",   "foo",  "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is not supported and x-min-v is invalid (not a positive integer) 
-        [InlineData("4",    "0",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //invalid. x-v is not supported and x-min-v invalid
-        [InlineData("4",    "4",    "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. Both x-v and x-min-v exceed supported version of 3
-        [InlineData("1",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is an obsolete version
-        [InlineData("2",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is an obsolete version        
-        [InlineData("foo",  null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
-        [InlineData("0",    null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (not a positive integer) is invalid with missing x-min-v
-        [InlineData("foo",  "3",    "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v is invalid with valid x-min-v
-        [InlineData("-1",   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_INVALID_VERSION_ERROR)] //Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("4",    null,   "N/A",  HttpStatusCode.NotAcceptable,   false, EXPECTED_UNSUPPORTED_ERROR)]     //Unsupported. x-v is higher than supported version of 3
-        [InlineData("",     null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]     //Invalid. x-v header is an empty string
-        [InlineData(null,   null,   "N/A",  HttpStatusCode.BadRequest,      false, EXPECTED_MISSING_X_V_ERROR)]     //Invalid. x-v header is missing
+        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-min-v is ignored when > x-v
+        [InlineData("3", "2", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is supported and higher than x-min-v
+        [InlineData("3", "3", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is supported equal to x-min-v
+        [InlineData("4", "3", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
+        [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
+        [InlineData("99", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // invalid. x-v is not supported and x-min-v invalid
+        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. Both x-v and x-min-v exceed supported version of 3
+        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is an obsolete version
+        [InlineData("2", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is an obsolete version
+        [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("foo", "3", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
+        [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
+        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is higher than supported version of 3
+        [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]     // Invalid. x-v header is an empty string
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]     // Invalid. x-v header is missing
 
         public async Task ACX01_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
-
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients",
@@ -280,7 +284,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     // Assert - Check error response
                     await Assert_HasContent_Json(expecetdError, response.Content);
                 }
-
             }
         }
     }

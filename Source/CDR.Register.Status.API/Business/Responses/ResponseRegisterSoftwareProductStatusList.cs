@@ -8,7 +8,9 @@ namespace CDR.Register.Status.API.Business.Responses
     public class ResponseRegisterSoftwareProductStatusList
     {
         public IEnumerable<RegisterSoftwareProductStatusModel> Data { get; set; }
+
         public Links Links { get; set; } = new Links();
+
         public Meta Meta { get; set; } = new Meta();
     }
 }

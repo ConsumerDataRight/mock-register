@@ -32,6 +32,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim for issuer '{Issuer}'.", requirement.Issuer);
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -42,6 +43,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. Access token is missing 'client_id' claim.");
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -54,6 +56,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. Access token client_id '{AccessTokenClientId}' does not match request softwareProductId '{RequestDataRecipientProductId}'", accessTokenClientId, requestDataRecipientProductId);
                 }
+
                 return Task.CompletedTask;
             }
 

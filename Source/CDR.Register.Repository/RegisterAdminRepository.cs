@@ -21,9 +21,9 @@ namespace CDR.Register.Repository
         public RegisterAdminRepository(RegisterDatabaseContext registerDatabaseContext, IMapper mapper, IRepositoryMapper repositoryMapper, ILogger<RegisterAdminRepository> logger)
         {
             _registerDatabaseContext = registerDatabaseContext;
-            _mapper=mapper;
+            _mapper = mapper;
             _reporsitoryMapper = repositoryMapper;
-            _logger=logger;
+            _logger = logger;
         }
 
         private async Task<(LegalEntity, Participation)> SaveDataHolderLegalEntity(DataHolder dataHolder)
@@ -114,7 +114,7 @@ namespace CDR.Register.Repository
         {
             var existingDataRecipient = await GetDataRecipientIdAsync(dataRecipient.LegalEntity.LegalEntityId);
 
-            using var transaction = _registerDatabaseContext.Database.BeginTransaction();
+            using var transaction = await _registerDatabaseContext.Database.BeginTransactionAsync();
 
             LegalEntity legalEntity = _reporsitoryMapper.Map(dataRecipient.LegalEntity);
 
@@ -136,8 +136,8 @@ namespace CDR.Register.Repository
             {
                 await _registerDatabaseContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-            }            
-            
+            }
+
             return error;
         }
 
@@ -148,15 +148,15 @@ namespace CDR.Register.Repository
                 return false;
             }
 
-            (_ , var savedParticipation) = await SaveDataHolderLegalEntity(dataHolderBrand.DataHolder);
+            (_, var savedParticipation) = await SaveDataHolderLegalEntity(dataHolderBrand.DataHolder);
 
             // Save DH Brand
             var dhBrandToSave = _mapper.Map<Entities.Brand>(dataHolderBrand);
-            var existingBrand = _registerDatabaseContext.Brands
+            var existingBrand = await _registerDatabaseContext.Brands
                 .Include(b => b.Participation)
                 .Include(b => b.AuthDetails)
                 .Include(b => b.Endpoint)
-                .Where(brand => brand.BrandId == dataHolderBrand.BrandId).FirstOrDefault();
+                .Where(brand => brand.BrandId == dataHolderBrand.BrandId).FirstOrDefaultAsync();
             if (existingBrand == null)
             {
                 dhBrandToSave.LastUpdated = DateTime.UtcNow;

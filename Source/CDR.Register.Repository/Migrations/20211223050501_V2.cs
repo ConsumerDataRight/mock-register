@@ -66,7 +66,7 @@ namespace CDR.Register.Repository.Migrations
                 {
                     table.PrimaryKey("PK_LegalEntityStatus", x => x.LegalEntityStatusId);
                 });
-            
+
             migrationBuilder.InsertData(
                 table: "LegalEntityStatus",
                 columns: new[] { "LegalEntityStatusId", "LegalEntityStatusCode" },
@@ -85,10 +85,9 @@ namespace CDR.Register.Repository.Migrations
                     { 1, "Unrestricted" }
                 });
 
-            //Updating exsiting data
+            // Updating exsiting data
             migrationBuilder.Sql(@"Update IndustryType Set IndustryTypeCode='Banking' where IndustryTypeId=1;
                                    Update IndustryType Set IndustryTypeCode='Energy' where IndustryTypeId=2;");
-
 
             migrationBuilder.CreateIndex(
                 name: "IX_LegalEntity_AccreditationLevelId",
@@ -152,7 +151,7 @@ namespace CDR.Register.Repository.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_LegalEntity_LegalEntityStatusId",
                 table: "LegalEntity");
-            
+
             migrationBuilder.DropColumn(
                 name: "AccreditationLevelId",
                 table: "LegalEntity");

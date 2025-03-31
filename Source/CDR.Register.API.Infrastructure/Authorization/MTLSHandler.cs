@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Serilog.Context;
-using System.Configuration;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
@@ -21,7 +19,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
         {
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
-            _configuration=config;
+            _configuration = config;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MtlsRequirement requirement)
@@ -32,10 +30,8 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 return Task.CompletedTask;
             }
 
-            //
-            //  Check that the thumbprint of the client cert used for TLS MA is the same
-            //  as the one expected by the cnf:x5t#S256 claim in the access token 
-            //
+            // Check that the thumbprint of the client cert used for TLS MA is the same
+            // as the one expected by the cnf:x5t#S256 claim in the access token
             string? requestHeaderClientCertThumprint = null;
 
             var certThumbprintNameHttpHeaderName = _configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
@@ -50,6 +46,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -67,6 +64,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. cnf:x5t#S256 claim is missing from access token.");
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -76,6 +74,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{RequestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{AccessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
                 }
+
                 return Task.CompletedTask;
             }
 

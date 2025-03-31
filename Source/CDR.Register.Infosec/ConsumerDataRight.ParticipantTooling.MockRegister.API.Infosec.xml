@@ -6,10 +6,10 @@
     <members>
         <member name="M:CDR.Register.Infosec.Services.TokenService.ValidateClientAssertion(System.String,System.String)">
             <summary>
-            
+            Validate Client Assertion.
             </summary>
-            <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject </param> 
-            <param name="clientAssertion">clientAssertion </param> 
+            <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject.</param>
+            <param name="clientAssertion">client Assertion.</param>
             <returns></returns>
         </member>
     </members>

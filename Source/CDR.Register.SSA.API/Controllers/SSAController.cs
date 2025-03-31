@@ -15,15 +15,15 @@ namespace CDR.Register.SSA.API.Controllers
 {
     [Route("cdr-register")]
     [ApiController]
-    public class SSAController : ControllerBase
+    public class SsaController : ControllerBase
     {
-        private readonly ISSAService _ssaService;
+        private readonly ISsaService _ssaService;
         private readonly ICertificateService _certificateService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
         private readonly IConfiguration _configuration;
 
-        public SSAController(
-            ISSAService ssaService,
+        public SsaController(
+            ISsaService ssaService,
             ICertificateService certificateService,
             IDataRecipientStatusCheckService statusCheckService,
             IConfiguration configuration)
@@ -56,7 +56,9 @@ namespace CDR.Register.SSA.API.Controllers
 
             var result = await CheckSoftwareProduct(softwareProductId);
             if (result != null)
+            {
                 return result;
+            }
 
             var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsync(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
             return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
@@ -68,38 +70,46 @@ namespace CDR.Register.SSA.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult GetJwks()
         {
-            return Ok(_certificateService.JsonWebKeySet);
+            return new OkObjectResult(_certificateService.JsonWebKeySet);
         }
 
         private Guid? GetSoftwareProductIdFromAccessToken()
         {
             string clientId = User.FindFirst("client_id")?.Value;
             if (Guid.TryParse(clientId, out Guid softwareProductId))
+            {
                 return softwareProductId;
+            }
 
             return null;
         }
 
         /// <summary>
-        /// Performs status check against the softwareProductId parameter
+        /// Performs status check against the softwareProductId parameter.
         /// </summary>
-        /// <param name="softwareProductId">Software Product ID</param>
+        /// <param name="softwareProductId">Software Product ID.</param>
         /// <returns>An ActionResult if there is an error to return, otherwise null if there are no issues.</returns>
         private async Task<IActionResult> CheckSoftwareProduct(string softwareProductId)
         {
             // Get the software product id based on the access token.
             var softwareProductIdAsGuid = GetSoftwareProductIdFromAccessToken();
             if (softwareProductIdAsGuid == null)
+            {
                 return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
+            }
 
             // Ensure that the software product id from the access token matches the software product id in the request.
             if (!softwareProductIdAsGuid.ToString().Equals(softwareProductId, StringComparison.OrdinalIgnoreCase))
+            {
                 return new NotFoundObjectResult(new ResponseErrorList(ResponseErrorList.InvalidSoftwareProduct(softwareProductId)));
+            }
 
             // Check the status of the data recipient making the SSA request.
             var statusErrors = await CheckStatus(softwareProductIdAsGuid.Value);
             if (statusErrors.HasErrors())
+            {
                 return new RegisterForbidResult(statusErrors);
+            }
 
             return null;
         }
@@ -108,6 +118,5 @@ namespace CDR.Register.SSA.API.Controllers
         {
             return await _statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
         }
-
     }
 }

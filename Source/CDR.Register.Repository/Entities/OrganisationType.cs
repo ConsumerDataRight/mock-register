@@ -7,7 +7,8 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public OrganisationTypes OrganisationTypeId { get; set; }
 
-        [MaxLength(100), Required]
+        [MaxLength(100)]
+        [Required]
         public string OrganisationTypeCode { get; set; }
     }
 

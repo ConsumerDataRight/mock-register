@@ -6,14 +6,16 @@ namespace CDR.Register.API.Infrastructure.Versioning
     {
         public string HeaderName { get; set; }
 
-        public MissingRequiredHeaderException() : base() 
+        public MissingRequiredHeaderException()
+            : base()
         {
             HeaderName = string.Empty;
         }
 
-        public MissingRequiredHeaderException(string headerName) : base()
+        public MissingRequiredHeaderException(string headerName)
+            : base()
         {
             this.HeaderName = headerName;
-        }        
+        }
     }
 }

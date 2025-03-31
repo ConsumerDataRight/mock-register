@@ -1,11 +1,11 @@
 ﻿using CDR.Register.IntegrationTests.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CDR.Register.IntegrationTests.API.Update
 {
-    //TODO: Work out why this class exists and errors are defined in multiple places in IntTests project
     public class ExpectedErrors
     {
         public enum ErrorType
@@ -17,10 +17,15 @@ namespace CDR.Register.IntegrationTests.API.Update
             UnsupportedVersion,
             Unauthorized
         }
-        private List<ExpectedApiErrors> _expectedErrors;
-        private const string CDS_ERROR_PREFIX = "urn:au-cds:error:cds-all:";
 
-        public List<ExpectedApiErrors> errors { get => _expectedErrors.ToList(); }
+        private const string CDS_ERROR_PREFIX = "urn:au-cds:error:cds-all:";
+        private readonly List<ExpectedApiErrors> _expectedErrors;
+
+        /// <summary>
+        /// This is used in serialised JSON to compare against the actual JSON. Do not remove.
+        /// </summary>
+        [JsonProperty(PropertyName = "errors")]
+        public List<ExpectedApiErrors> Errors { get => _expectedErrors.ToList(); }
 
         public ExpectedErrors()
         {
@@ -84,7 +89,5 @@ namespace CDR.Register.IntegrationTests.API.Update
                     throw new NotSupportedException($"{nameof(ErrorType)}={errorType}");
             }
         }
-
     }
-
 }

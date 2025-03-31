@@ -173,8 +173,8 @@ steps:
     BasePath: '$(BasePath)'
     PublicHostName: '$(CtsPublicHostNameUrl)'
     SecureHostName: '$(CtsSecureHostNameUrl)'
-    Certificate__CertThumbprintNameHttpHeaderName: 'X-SSLClientCertThumbprint'
-    Certificate__CertCommonNameHttpHeaderName: 'X-SSLClientCertCN'
+    Certificate__CertThumbprintNameHttpHeaderName: '$(CtsSettings__CertThumbprintNameHttpHeaderName)'
+    Certificate__CertCommonNameHttpHeaderName: '$(CtsSettings_CertCommonNameHttpHeaderName)'
 
 # Run trx formatter to output .MD and .CSV
 - script: |

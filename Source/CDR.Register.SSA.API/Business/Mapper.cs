@@ -35,9 +35,9 @@ namespace CDR.Register.SSA.API.Business
                 .ForMember(d => d.software_id, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductId))
                 .ForMember(d => d.tos_uri, s => s.MapFrom(source => source.SoftwareProduct.TosUri))
                 .ForMember(d => d.iss, s => s.MapFrom(source => _config["SSA:Issuer"]))
-                .ForMember(d => d.iat, s => s.MapFrom(source => (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds))
+                .ForMember(d => d.iat, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds))
                 .ForMember(d => d.jti, s => s.MapFrom(source => Guid.NewGuid().ToString().Replace("-", string.Empty)))
-                .ForMember(d => d.exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds + long.Parse(_config["SSA:ExpiryInSeconds"])))
+                .ForMember(d => d.exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds + long.Parse(_config["SSA:ExpiryInSeconds"])))
                 .ForMember(d => d.legal_entity_id, s => s.MapFrom(source => source.LegalEntity.LegalEntityId))
                 .ForMember(d => d.legal_entity_name, s => s.MapFrom(source => source.LegalEntity.LegalEntityName))
                 .ForMember(d => d.sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri));
@@ -52,6 +52,7 @@ namespace CDR.Register.SSA.API.Business
             {
                 return null;
             }
+
             return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
         }
     }

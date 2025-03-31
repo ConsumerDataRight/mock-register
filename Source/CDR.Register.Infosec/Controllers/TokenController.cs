@@ -1,4 +1,4 @@
-using CDR.Register.API.Infrastructure;
+﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.Domain.Entities;
 using CDR.Register.Infosec.Interfaces;
 using CDR.Register.Infosec.Models;
@@ -58,7 +58,7 @@ namespace CDR.Register.Infosec.Controllers
                 return (false, "invalid_request", "Content-Type is not application/x-www-form-urlencoded", null);
             }
 
-            // Basic validation.            
+            // Basic validation.
             var basicValidationResult = ValidateBasicParameters(clientAssertion);
             if (!basicValidationResult.isValid)
             {
@@ -66,7 +66,7 @@ namespace CDR.Register.Infosec.Controllers
             }
 
             // Grant type needs to be client_credentials.
-            if (clientAssertion.grant_type!= null &&  !clientAssertion.grant_type.Equals("client_credentials", StringComparison.OrdinalIgnoreCase))
+            if (clientAssertion.grant_type != null && !clientAssertion.grant_type.Equals("client_credentials", StringComparison.OrdinalIgnoreCase))
             {
                 return (false, "unsupported_grant_type", "grant_type must be client_credentials", null);
             }
@@ -84,7 +84,7 @@ namespace CDR.Register.Infosec.Controllers
                 return scopeValidationResult;
             }
 
-            // Code changes for client id optional 
+            // Code changes for client id optional
             // The issuer of the client assertion is the client_id of the calling data recipient.
             // Need to extract the client_id (iss) from client assertion to load the client details.
             var tokenValidationResult = ValidateClientAssertionToken(clientAssertion.client_assertion);
@@ -94,7 +94,7 @@ namespace CDR.Register.Infosec.Controllers
             }
 
             // Validate the client assertion.
-            var clientAssertionResult = await _tokenService.ValidateClientAssertion(clientAssertion.client_id ?? "", clientAssertion.client_assertion ?? "");
+            var clientAssertionResult = await _tokenService.ValidateClientAssertion(clientAssertion.client_id ?? string.Empty, clientAssertion.client_assertion ?? string.Empty);
 
             if (!clientAssertionResult.isValid)
             {
@@ -165,7 +165,7 @@ namespace CDR.Register.Infosec.Controllers
         {
             var handler = new JwtSecurityTokenHandler();
 
-            if (clientAssertion == null  || !handler.CanReadToken(clientAssertion))
+            if (clientAssertion == null || !handler.CanReadToken(clientAssertion))
             {
                 return (false, ErrorCodes.Generic.InvalidClient, "Invalid client_assertion - token validation error", null);
             }
@@ -178,8 +178,6 @@ namespace CDR.Register.Infosec.Controllers
 
             return (true, null, null, null);
         }
-
-
 
         private bool IsValidCertificate(
             SoftwareProductInfosec client)
@@ -196,6 +194,7 @@ namespace CDR.Register.Infosec.Controllers
 
             // Find a matching cert for the software product client.
             var certs = client.X509Certificates.ToList();
+
             // Check if there is a matching cert with the provided common name (validating the thumbprint is not required)
             var matchingCert = certs.Find(c =>
                 c.CommonName.GetCommonName().Equals(httpHeaderCommonName, StringComparison.OrdinalIgnoreCase));

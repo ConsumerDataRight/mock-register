@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using CDR.Register.Domain.ValueObjects;
 using CDR.Register.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DomainEntities = CDR.Register.Domain.Entities;
-using System.Collections.Generic;
-using CDR.Register.Domain.ValueObjects;
 
 namespace CDR.Register.Repository.Infrastructure
 {
@@ -57,9 +57,9 @@ namespace CDR.Register.Repository.Infrastructure
         }
 
         /// <summary>
-        /// This is the initial database seed. If there are records in the database, this will not re-seed the database
+        /// This is the initial database seed. If there are records in the database, this will not re-seed the database.
         /// </summary>
-        public async static Task SeedDatabaseFromJsonFile(
+        public static async Task SeedDatabaseFromJsonFile(
             this RegisterDatabaseContext registerDatabaseContext,
             string jsonFileFullPath,
             ILogger logger,
@@ -76,9 +76,9 @@ namespace CDR.Register.Repository.Infrastructure
         }
 
         /// <summary>
-        /// This is the initial database seed. If there are records in the database, this will not re-seed the database
+        /// This is the initial database seed. If there are records in the database, this will not re-seed the database.
         /// </summary>
-        public async static Task<bool> SeedDatabaseFromJson(
+        public static async Task<bool> SeedDatabaseFromJson(
             this RegisterDatabaseContext registerDatabaseContext,
             string json,
             ILogger logger,
@@ -106,7 +106,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Retrieves all participant metadata from the database, serialises to JSON and return as a string.
         /// </summary>
-        public async static Task<string> GetJsonFromDatabase(
+        public static async Task<string> GetJsonFromDatabase(
             this RegisterDatabaseContext registerDatabaseContext)
         {
             var allData = await registerDatabaseContext.LegalEntities.AsNoTracking().OrderBy(l => l.LegalEntityName)
@@ -135,9 +135,9 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Re-Seed the database from the input JSON data. All existing data in the database will be removed prior to creating the new data set.
         /// </summary>
-        public async static Task<bool> ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
+        public static async Task<bool> ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
         {
-            using (var transaction = registerDatabaseContext.Database.BeginTransaction())
+            using (var transaction = await registerDatabaseContext.Database.BeginTransactionAsync())
             {
                 try
                 {
@@ -146,10 +146,9 @@ namespace CDR.Register.Repository.Infrastructure
                     // Remove all existing data in the system
                     var existingLegalEntities = await registerDatabaseContext.LegalEntities.AsNoTracking().ToListAsync();
                     registerDatabaseContext.RemoveRange(existingLegalEntities);
-                    registerDatabaseContext.SaveChanges();
+                    await registerDatabaseContext.SaveChangesAsync();
 
                     logger.LogInformation("Existing data removed from the repository.");
-
 
                     logger.LogInformation("Adding JSON data to repository...");
 
@@ -159,10 +158,10 @@ namespace CDR.Register.Repository.Infrastructure
                     {
                         var newLegalEntities = allData["legalEntities"].ToObject<LegalEntity[]>();
                         registerDatabaseContext.LegalEntities.AddRange(newLegalEntities);
-                        registerDatabaseContext.SaveChanges();
+                        await registerDatabaseContext.SaveChangesAsync();
 
                         // Finally commit the transaction
-                        transaction.Commit();
+                        await transaction.CommitAsync();
 
                         logger.LogInformation("JSON data added to the repository.");
                         return true;
@@ -172,15 +171,19 @@ namespace CDR.Register.Repository.Infrastructure
                 {
                     // Log any errors.
                     logger.LogError(ex, "Error while seeding the database.");
-                    throw;
+                    throw new InvalidOperationException("Error while seeding the database.");
                 }
+
                 return false;
             }
         }
 
-        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientLegalEntity(this DomainEntities.DataRecipient dataRecipient,
-                                                                                      LegalEntity legalEntity, RegisterDatabaseContext registerDatabaseContext,
-                                                                                      IRepositoryMapper repositoryMapper, ILogger<RegisterAdminRepository> logger)
+        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientLegalEntity(
+            this DomainEntities.DataRecipient dataRecipient,
+            LegalEntity legalEntity,
+            RegisterDatabaseContext registerDatabaseContext,
+            IRepositoryMapper repositoryMapper,
+            ILogger<RegisterAdminRepository> logger)
         {
             BusinessRuleError error = null;
 
@@ -190,29 +193,29 @@ namespace CDR.Register.Repository.Infrastructure
                 var drBrandToSave = repositoryMapper.Map(dataRecipientBrand);
                 drBrandToSave.LastUpdated = DateTime.UtcNow;
 
-                //create new brand as it is a new one
-                if (null == dbBrand)
+                // create new brand as it is a new one
+                if (dbBrand == null)
                 {
                     logger.LogInformation("New Brand of id:{BrandId} name:{BrandName} getting added to the repository.", dataRecipientBrand.BrandId, dataRecipientBrand.BrandName);
 
                     await registerDatabaseContext.Brands.AddAsync(drBrandToSave);
                 }
 
-                //handle participation
+                // handle participation
                 if ((error = await drBrandToSave.AddOrUpdateDataRecipientParticipation(legalEntity, dataRecipient, registerDatabaseContext, logger)) != null)
                 {
                     logger.LogError("Update participation encountered error of {Error}", @error);
                     return error;
                 }
 
-                //update the brand as it is an existing one.
+                // update the brand as it is an existing one.
                 if (dbBrand != null)
                 {
                     logger.LogInformation("Updating Brand of id:{BrandId} name:{BrandName}", dataRecipientBrand.BrandId, dataRecipientBrand.BrandName);
                     registerDatabaseContext.Brands.Update(drBrandToSave);
                 }
 
-                //handle software products
+                // handle software products
                 if ((error = await drBrandToSave.UpsertRecipientBrandSoftwareProducts(registerDatabaseContext, repositoryMapper, dataRecipientBrand.SoftwareProducts, logger)) != null)
                 {
                     logger.LogError("Update SoftwareProduct encountered error of {Error}", @error);
@@ -223,10 +226,13 @@ namespace CDR.Register.Repository.Infrastructure
             return error;
         }
 
-        public static async Task<BusinessRuleError> UpsertRecipientBrandSoftwareProducts(this Brand brand, RegisterDatabaseContext registerDbContext,
-            IRepositoryMapper repositoryMapper, ICollection<DomainEntities.SoftwareProduct> softwareProducts, ILogger<RegisterAdminRepository> logger)
+        public static async Task<BusinessRuleError> UpsertRecipientBrandSoftwareProducts(
+            this Brand brand,
+            RegisterDatabaseContext registerDbContext,
+            IRepositoryMapper repositoryMapper,
+            ICollection<DomainEntities.SoftwareProduct> softwareProducts,
+            ILogger<RegisterAdminRepository> logger)
         {
-
             brand.SoftwareProducts ??= new List<SoftwareProduct>();
 
             foreach (var s in softwareProducts)
@@ -237,10 +243,12 @@ namespace CDR.Register.Repository.Infrastructure
 
                 if (existingSoftwareProduct != null)
                 {
-                    //check if we getting assigned to new brand.
+                    // check if we getting assigned to new brand.
                     if (existingSoftwareProduct.BrandId != brand.BrandId)
                     {
-                        return new BusinessRuleError("urn:au-cds:error:cds-all:Field/Invalid", "Invalid Field",
+                        return new BusinessRuleError(
+                            "urn:au-cds:error:cds-all:Field/Invalid",
+                            "Invalid Field",
                             $"Value '{existingSoftwareProduct.SoftwareProductId}' in SoftwareProductId is already associated with a different brand.");
                     }
 
@@ -248,7 +256,7 @@ namespace CDR.Register.Repository.Infrastructure
                     registerDbContext.SoftwareProducts.Update(softwareProduct);
                 }
 
-                if (null == existingSoftwareProduct)
+                if (existingSoftwareProduct == null)
                 {
                     softwareProduct.BrandId = brand.BrandId;
                     logger.LogInformation("Adding new SoftwareProduct of id:{SoftwareProductId} for name:{SoftwareProdcutName}", softwareProduct.SoftwareProductId, softwareProduct.SoftwareProductName);
@@ -261,17 +269,21 @@ namespace CDR.Register.Repository.Infrastructure
             return null;
         }
 
-        public static async Task UpsertSoftwareProductCertificates(this SoftwareProduct softwareProduct, RegisterDatabaseContext registerDbContext,
-            IRepositoryMapper repositoryMapper, ICollection<DomainEntities.SoftwareProductCertificateInfosec> certificates, ILogger<RegisterAdminRepository> logger)
+        public static async Task UpsertSoftwareProductCertificates(
+            this SoftwareProduct softwareProduct,
+            RegisterDatabaseContext registerDbContext,
+            IRepositoryMapper repositoryMapper,
+            ICollection<DomainEntities.SoftwareProductCertificateInfosec> certificates,
+            ILogger<RegisterAdminRepository> logger)
         {
             softwareProduct.Certificates ??= [];
 
             foreach (var c in certificates)
             {
-                var existingCertificate = await registerDbContext.SoftwareProductCertificates.SingleOrDefaultAsync(cert => 
-                                                    cert.Thumbprint == c.Thumbprint && 
-                                                    cert.SoftwareProductId == softwareProduct.SoftwareProductId && 
-                                                    cert.CommonName == c.CommonName);                
+                var existingCertificate = await registerDbContext.SoftwareProductCertificates.SingleOrDefaultAsync(cert =>
+                                                    cert.Thumbprint == c.Thumbprint &&
+                                                    cert.SoftwareProductId == softwareProduct.SoftwareProductId &&
+                                                    cert.CommonName == c.CommonName);
 
                 if (existingCertificate != null)
                 {
@@ -280,29 +292,33 @@ namespace CDR.Register.Repository.Infrastructure
                     registerDbContext.SoftwareProductCertificates.Update(existingCertificate);
                 }
 
-                if (null == existingCertificate)
+                if (existingCertificate == null)
                 {
                     var certificate = repositoryMapper.Map(c);
                     certificate.SoftwareProductId = softwareProduct.SoftwareProductId;
                     await registerDbContext.SoftwareProductCertificates.AddAsync(certificate);
                     await registerDbContext.SaveChangesAsync();
                     logger.LogInformation("Adding new SoftwareProductCertificate of id:{SoftwareProductCertificateId} for SoftwareProductId:{SoftwareProductId}", certificate.SoftwareProductCertificateId, certificate.SoftwareProductId);
-                }                
+                }
             }
         }
 
-        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientParticipation(this Brand brand, LegalEntity legalEntity, 
-            DomainEntities.DataRecipient dataRecipient, RegisterDatabaseContext registerDatabaseContext, ILogger<RegisterAdminRepository> logger)
+        public static async Task<BusinessRuleError> AddOrUpdateDataRecipientParticipation(
+            this Brand brand,
+            LegalEntity legalEntity,
+            DomainEntities.DataRecipient dataRecipient,
+            RegisterDatabaseContext registerDatabaseContext,
+            ILogger<RegisterAdminRepository> logger)
         {
             var existingParticipant = await registerDatabaseContext.Participations.
                 Include(x => x.LegalEntity).
-                SingleOrDefaultAsync(p => (p.LegalEntityId == legalEntity.LegalEntityId || p.Brands.Any(b => b.BrandId == brand.BrandId) && p.ParticipationTypeId == ParticipationTypes.Dr));
+                SingleOrDefaultAsync(p => (p.LegalEntityId == legalEntity.LegalEntityId || (p.Brands.Any(b => b.BrandId == brand.BrandId) && p.ParticipationTypeId == ParticipationTypes.Dr)));
 
             var participationStatus = (ParticipationStatusType)Enum.Parse(typeof(Entities.ParticipationStatusType), dataRecipient.LegalEntity.Status, true);
 
             if (existingParticipant != null)
             {
-                //check if there is a change in the participation between brand and legal entity
+                // check if there is a change in the participation between brand and legal entity
                 if (existingParticipant.LegalEntityId != legalEntity.LegalEntityId)
                 {
                     return new BusinessRuleError("urn:au-cds:error:cds-all:Field/Invalid", "Invalid Field", $"dataRecipientBrandId '{brand.BrandId}' is already associated with a different legal entity.");
@@ -312,7 +328,7 @@ namespace CDR.Register.Repository.Infrastructure
                 existingParticipant.StatusId = participationStatus;
             }
 
-            //create the Participation if required.
+            // create the Participation if required.
             if (existingParticipant == null)
             {
                 var participant = new Participation
@@ -325,13 +341,13 @@ namespace CDR.Register.Repository.Infrastructure
                 legalEntity.Participations ??= new List<Participation>();
                 legalEntity.Participations.Add(participant);
 
-                //assigning new participation to the brand.
+                // assigning new participation to the brand.
                 brand.ParticipationId = participant.ParticipationId;
 
                 await registerDatabaseContext.Participations.AddAsync(participant);
                 await registerDatabaseContext.SaveChangesAsync();
                 logger.LogInformation("Adding new Participation of id:{ParticipationId} getting added to the repository.", participant.ParticipationId);
-            }            
+            }
 
             return null;
         }

@@ -8,7 +8,9 @@ namespace CDR.Register.Status.API.Business.Responses
     public class ResponseRegisterDataRecipientStatusList
     {
         public IEnumerable<RegisterDataRecipientStatusModel> Data { get; set; }
+
         public Links Links { get; set; } = new Links();
+
         public Meta Meta { get; set; } = new Meta();
     }
 }

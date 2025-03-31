@@ -1,4 +1,4 @@
-using CDR.Register.API.Infrastructure.Versioning;
+﻿using CDR.Register.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
@@ -11,7 +11,6 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
     [Trait("Category", "UnitTests")]
     public partial class CdrVersionReaderTests
     {
-
         [Fact]
         public void Read_DataHolderStatus_NoXvHeader_ShouldReturn1()
         {
@@ -37,7 +36,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
             var expectedVersion = "1";
 
             var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
-            mockHttpHeaders.Add("x-v", new StringValues(""));
+            mockHttpHeaders.Add("x-v", new StringValues(string.Empty));
 
             var mockHttpRequest = Substitute.For<HttpRequest>();
             mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/status"));
@@ -74,7 +73,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
             var apiVersionReader = new CdrVersionReader(new Models.CdrApiOptions());
 
             var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
-            mockHttpHeaders.Add("x-v", new StringValues(""));
+            mockHttpHeaders.Add("x-v", new StringValues(string.Empty));
 
             var mockHttpRequest = Substitute.For<HttpRequest>();
             mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/brands"));
@@ -95,7 +94,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
             var apiVersionReader = new CdrVersionReader(new Models.CdrApiOptions());
 
             var mockHttpHeaders = new HeaderDictionary(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase));
-            mockHttpHeaders.Add("x-v", new StringValues());
+            mockHttpHeaders.Add("x-v", default);
 
             var mockHttpRequest = Substitute.For<HttpRequest>();
             mockHttpRequest.Path.Returns(new PathString("/cdr-register/v1/all/data-holders/brands"));

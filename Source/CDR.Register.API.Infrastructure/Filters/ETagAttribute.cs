@@ -40,7 +40,7 @@ namespace CDR.Register.API.Infrastructure.Filters
                     }
                 }
 
-                // Add ETag response header 
+                // Add ETag response header
                 response.Headers.Append(HeaderNames.ETag, $"\"{etag}\"");
             }
 
@@ -49,14 +49,16 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         private static string GenerateETag(string response)
         {
-            if (String.IsNullOrEmpty(response))
-                return String.Empty;
+            if (string.IsNullOrEmpty(response))
+            {
+                return string.Empty;
+            }
 
             using (var sha = SHA256.Create())
             {
                 byte[] textData = System.Text.Encoding.UTF8.GetBytes(response);
                 byte[] hash = sha.ComputeHash(textData);
-                return BitConverter.ToString(hash).Replace("-", String.Empty);
+                return BitConverter.ToString(hash).Replace("-", string.Empty);
             }
         }
     }

@@ -33,10 +33,10 @@ namespace CDR.Register.Infosec.Services
         }
 
         /// <summary>
-        /// 
+        /// Validate Client Assertion.
         /// </summary>
-        /// <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject </param> 
-        /// <param name="clientAssertion">clientAssertion </param> 
+        /// <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject.</param>
+        /// <param name="clientAssertion">client Assertion.</param>
         /// <returns></returns>
         public async Task<(bool isValid, string? message, SoftwareProductInfosec? client)> ValidateClientAssertion(string? client_id, string clientAssertion)
         {
@@ -46,7 +46,7 @@ namespace CDR.Register.Infosec.Services
             {
                 var handler = new JwtSecurityTokenHandler();
 
-                // Validate the client assertion token.                        
+                // Validate the client assertion token.
                 var invalidToken = handler.ReadJwtToken(clientAssertion);
                 var clientId = invalidToken.Issuer;
                 if (string.IsNullOrEmpty(clientId))
@@ -57,8 +57,7 @@ namespace CDR.Register.Infosec.Services
                 // client_id (form param) when provided and must match client assertion issuer and subject
                 if (!string.IsNullOrEmpty(client_id) &&
                      (!client_id.Equals(invalidToken.Issuer, StringComparison.OrdinalIgnoreCase) ||
-                      !client_id.Equals(invalidToken.Subject, StringComparison.OrdinalIgnoreCase)
-                     ))
+                      !client_id.Equals(invalidToken.Subject, StringComparison.OrdinalIgnoreCase)))
                 {
                     return (false, "Invalid client_assertion - 'sub' and 'iss' must be set to the client_id", null);
                 }
@@ -122,15 +121,14 @@ namespace CDR.Register.Infosec.Services
             return new TokenValidationParameters
             {
                 ValidateIssuer = false,
-                IssuerSigningKeys = (await GetClientKeys(client)),
+                IssuerSigningKeys = await GetClientKeys(client),
                 ValidateIssuerSigningKey = true,
 
                 ValidAudiences = validAudiences,
                 ValidateAudience = true,
                 AudienceValidator = (IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
                 {
-
-                    bool isValid = audiences.Any(audience => validationParameters.ValidAudiences.Contains(audience, StringComparer.OrdinalIgnoreCase));                    
+                    bool isValid = audiences.Any(audience => validationParameters.ValidAudiences.Contains(audience, StringComparer.OrdinalIgnoreCase));
 
                     if (!isValid)
                     {
@@ -170,12 +168,12 @@ namespace CDR.Register.Infosec.Services
             string scope,
             string cnf)
         {
-            var cert = await Task.Run(() => new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? "", _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable));
+            var cert = await Task.Run(() => new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable));
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var issuer = _configuration.GetInfosecBaseUrl(_httpContextAccessor.HttpContext);
 
-            List<Claim> claims = [new Claim("client_id", client.Id), 
-                new Claim("jti", Guid.NewGuid().ToString()), 
+            List<Claim> claims = [new Claim("client_id", client.Id),
+                new Claim("jti", Guid.NewGuid().ToString()),
                 new Claim("scope", scope)];
 
             claims.Add(new Claim(
@@ -228,7 +226,7 @@ namespace CDR.Register.Infosec.Services
             handler.SetServerCertificateValidation(_configuration);
             var httpClient = new HttpClient(handler);
 
-            var passUserAgent = _configuration.GetValue<bool>("PassUserAgent"); //allows CTS to attach a header for request filtering
+            var passUserAgent = _configuration.GetValue<bool>("PassUserAgent"); // allows CTS to attach a header for request filtering
             if (passUserAgent)
             {
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "mock-register");

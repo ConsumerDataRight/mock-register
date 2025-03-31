@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using FluentAssertions;
@@ -7,22 +7,23 @@ using FluentAssertions;
 
 namespace CDR.Register.IntegrationTests.Extensions
 {
-    static public class JwtSecurityTokenExtensions
+    public static class JwtSecurityTokenExtensions
     {
         /// <summary>
         /// Get claim for claimType. Throws exception if no claim or multiple claims (ie must be a single claim for claimType).
         /// </summary>
         /// <returns></returns>
-        static public Claim Claim(this JwtSecurityToken jwt, string claimType)
-            => jwt.Claims.Where(claim => claim.Type == claimType).Single();
+        public static Claim Claim(this JwtSecurityToken jwt, string claimType)
+            => jwt.Claims.Single(claim => claim.Type == claimType);
 
         /// <summary>
         /// Assert JWT contains a claim with given value.
         /// </summary>
-        /// <param name="claimType">The claim type to assert</param>
-        /// <param name="claimValue">The claim value to assert. If null then claim value can be anything (it is not checked)</param>
-        /// <param name="optional">If true then the claim itself is optional and doesn't need to exist in the claims</param>
-        static public void AssertClaim(this JwtSecurityToken jwt, string claimType, string? claimValue, bool optional = false)
+        /// <param name="jwt">The JWT token to assert.</param>
+        /// <param name="claimType">The claim type to assert.</param>
+        /// <param name="claimValue">The claim value to assert. If null then claim value can be anything (it is not checked).</param>
+        /// <param name="optional">If true then the claim itself is optional and doesn't need to exist in the claims.</param>
+        public static void AssertClaim(this JwtSecurityToken jwt, string claimType, string? claimValue, bool optional = false)
         {
             var claims = jwt.Claims.Where(claim => claim.Type == claimType);
 
@@ -43,7 +44,7 @@ namespace CDR.Register.IntegrationTests.Extensions
             }
         }
 
-        static public void AssertClaimIsArray(this JwtSecurityToken jwt, string claimType, string[]? claimValues)
+        public static void AssertClaimIsArray(this JwtSecurityToken jwt, string claimType, string[]? claimValues)
         {
             var claims = jwt.Claims.Where(claim => claim.Type == claimType);
 

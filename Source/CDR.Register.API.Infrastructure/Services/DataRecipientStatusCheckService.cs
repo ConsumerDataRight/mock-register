@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CDR.Register.Domain.Models;
-using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
 
 namespace CDR.Register.API.Infrastructure.Services
 {
-
     /// <summary>
     /// Service to check the status of a Data Recipient.
     /// </summary>
@@ -14,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Services
     /// Checks the:
     /// - software product status = ACTIVE
     /// - brand status = ACTIVE
-    /// - participation status = ACTIVE
+    /// - participation status = ACTIVE.
     /// </remarks>
     public class DataRecipientStatusCheckService : IDataRecipientStatusCheckService
     {
@@ -42,6 +40,7 @@ namespace CDR.Register.API.Infrastructure.Services
             {
                 errorList.Errors.Add(ResponseErrorList.DataRecipientSoftwareProductNotActive());
             }
+
             if (!softwareProduct.DataRecipientBrand.IsActive || !softwareProduct.DataRecipientBrand.DataRecipient.IsActive)
             {
                 errorList.Errors.Add(ResponseErrorList.DataRecipientParticipationNotActive());

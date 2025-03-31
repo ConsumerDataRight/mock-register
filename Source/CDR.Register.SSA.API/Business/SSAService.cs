@@ -1,28 +1,25 @@
-﻿using CDR.Register.API.Infrastructure;
-using CDR.Register.Domain.Entities;
+﻿using CDR.Register.Domain.Entities;
 using CDR.Register.Domain.Repositories;
-using CDR.Register.Repository.Infrastructure;
 using CDR.Register.SSA.API.Business.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace CDR.Register.SSA.API.Business
 {
-    public class SSAService : ISSAService
+    public class SsaService : ISsaService
     {
-        private readonly ILogger<SSAService> _logger;
+        private readonly ILogger<SsaService> _logger;
         private readonly IMapper _mapper;
         private readonly ISoftwareStatementAssertionRepository _repository;
         private readonly ITokenizerService _tokenizer;
 
-        public SSAService(
-            ILogger<SSAService> logger,
+        public SsaService(
+            ILogger<SsaService> logger,
             IConfiguration configuration,
             IMapper mapper,
             ISoftwareStatementAssertionRepository repository,
@@ -52,7 +49,7 @@ namespace CDR.Register.SSA.API.Business
 
             using (LogContext.PushProperty("MethodName", "GetSoftwareStatementAssertionAsync"))
             {
-                _logger.LogDebug("SSA for dataRecipientBrandId: {dataRecipientBrandId} / softwareProductId: {softwareProductId} \r\n{ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
+                _logger.LogDebug("SSA for dataRecipientBrandId: {DataRecipientBrandId} / softwareProductId: {SoftwareProductId} \r\n{Ssa}", dataRecipientBrandId, softwareProductId, ssa.ToJson());
             }
 
             // Validate the SSA
@@ -68,7 +65,7 @@ namespace CDR.Register.SSA.API.Business
             if (!Validator.TryValidateObject(ssa, validationContext, validationResults, true))
             {
                 var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {ssa.org_id} / softwareProductId: {ssa.software_id} \r\n{validationResults.ToJson()}";
-                throw new SSAValidationException(errorMessage);
+                throw new SsaValidationException(errorMessage);
             }
         }
 

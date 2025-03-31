@@ -23,13 +23,13 @@ namespace CDR.Register.API.Infrastructure.Versioning
             context.AddParameter("x-min-v", ApiVersionParameterLocation.Header);
         }
 
-        public string Read(HttpRequest request)
+        public string? Read(HttpRequest request)
         {
             var endpointOption = _options.GetApiEndpointVersionOption(request.Path);
 
             if (endpointOption == null)
             {
-                //handle any endpoint that hasn't been defined in options
+                // handle any endpoint that hasn't been defined in options
                 endpointOption = new CdrApiEndpointVersionOptions(string.Empty, false, int.Parse(_options.DefaultVersion));
             }
             else if (!endpointOption.IsVersioned)
@@ -64,7 +64,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
             return Domain.Constants.ErrorTitles.InvalidVersion;
         }
 
-        private static string CalculateVersion(int xvInt, string xvMinString, CdrApiEndpointVersionOptions endpointOption)
+        private static string? CalculateVersion(int xvInt, string? xvMinString, CdrApiEndpointVersionOptions endpointOption)
         {
             if (!string.IsNullOrEmpty(xvMinString))
             {

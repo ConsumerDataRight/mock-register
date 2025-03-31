@@ -7,9 +7,9 @@ namespace CDR.Register.Repository.Migrations
     public partial class V7 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
-        {            
-            // Autognerate ADR###### as the format for AccreditationNumbers eg ADR000099 for null 
-            // Accreditation Number Fixing all the exisitng data. 
+        {
+            // Autognerate ADR###### as the format for AccreditationNumbers eg ADR000099 for null.
+            // Accreditation Number Fixing all the exisitng data.
             var sqlQuery = @"DECLARE @Counter INT; 
 
                             SET @Counter = 0
@@ -27,7 +27,7 @@ namespace CDR.Register.Repository.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
+            // Not required.
         }
     }
 }

@@ -1,29 +1,30 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-#nullable enable 
+#nullable enable
 
 namespace CDR.Register.IntegrationTests.Infrastructure
 {
     /// <summary>
-    /// Call API
+    /// Call API.
     /// </summary>
-    public class API
+    public class Api
     {
         private const string CERTIFICATE_THUMBPRINT_HEADER_NAME = "X-SSLClientCertThumbprint";
         private const string CERTIFICATE_CN_HEADER_NAME = "X-SSLClientCertCN";
+
         /// <summary>
-        /// Filename of certificate to use. 
+        /// Filename of certificate to use.
         /// If null then no certificate will be attached to the request.
         /// </summary>
         public string? CertificateFilename { get; set; }
 
         /// <summary>
-        /// Password for certificate. 
+        /// Password for certificate.
         /// If null then no certificate password will be set.
         /// </summary>
         public string? CertificatePassword { get; set; }
@@ -64,18 +65,22 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         public string? IfNoneMatch { get; set; }
 
         public string? CertificateThumbprint { get; set; } = null;
+
         public string? CertificateCn { get; set; } = null;
 
         /// <summary>
         /// Send a request to the API.
         /// </summary>
-        /// <returns>The API response</returns>
+        /// <returns>The API response.</returns>
         public async Task<HttpResponseMessage> SendAsync()
         {
             // Build request
             HttpRequestMessage BuildRequest()
             {
-                if (HttpMethod == null) { throw new Exception($"{nameof(API)}.{nameof(SendAsync)}.{nameof(BuildRequest)} - {nameof(HttpMethod)} not set"); }
+                if (HttpMethod == null)
+                {
+                    throw new Exception($"{nameof(Api)}.{nameof(SendAsync)}.{nameof(BuildRequest)} - {nameof(HttpMethod)} not set");
+                }
 
                 var request = new HttpRequestMessage(HttpMethod, URL);
 
@@ -127,8 +132,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                         clientHandler.ClientCertificates.Add(new X509Certificate2(
                             CertificateFilename,
                             CertificatePassword,
-                            X509KeyStorageFlags.Exportable
-                        ));
+                            X509KeyStorageFlags.Exportable));
 
                         return new HttpClient(clientHandler);
                     }

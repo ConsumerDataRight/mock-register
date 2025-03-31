@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
@@ -18,20 +18,24 @@ namespace CDR.Register.IntegrationTests.Gateway
 {
     /// <summary>
     /// Integration tests for mTLS Gateway.
-    /// </summary>       
+    /// </summary>
     public class US12841_Gateway_MTLS_Tests : BaseTest
     {
-        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
+
         // Client certificates
-        const string INVALID_CERTIFICATE_FILENAME = "Certificates/client-invalid.pfx";
+        private const string INVALID_CERTIFICATE_FILENAME = "Certificates/client-invalid.pfx";
 
         // Server certificate
-        const string SERVER_CERTIFICATE_FILENAME = "Certificates/server.pfx";
-        const string SERVER_CERTIFICATE_PASSWORD = "#M0ckDataHolder#";
+        private const string SERVER_CERTIFICATE_FILENAME = "Certificates/server.pfx";
+        private const string SERVER_CERTIFICATE_PASSWORD = "#M0ckDataHolder#";
 
         // Client assertion
-        private static readonly string AUDIENCE = IDENTITYSERVER_URL;
         private const string SCOPE = "cdr-register:read";
+        private static readonly string AUDIENCE = IDENTITYSERVER_URL;
 
         // Token request
         private const string GRANT_TYPE = "client_credentials";
@@ -40,27 +44,28 @@ namespace CDR.Register.IntegrationTests.Gateway
         private const string ISSUER = CLIENT_ID;
 
         // Participation/Brand/SoftwareProduct Ids
-        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup 
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup
+
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
         /// <summary>
-        /// Get HttpClient with client certificate
+        /// Get HttpClient with client certificate.
         /// </summary>
         private static HttpClient GetClient(string certificateFilename, string certificatePassword)
         {
-            var _clientHandler = new HttpClientHandler();
-            _clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             // Attach certificate
             var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
-            _clientHandler.ClientCertificates.Add(clientCertificate);
+            clientHandler.ClientCertificates.Add(clientCertificate);
 
-            return new HttpClient(_clientHandler);
+            return new HttpClient(clientHandler);
         }
 
         /// <summary>
-        /// Get HttpRequestMessage for access token request
+        /// Get HttpRequestMessage for access token request.
         /// </summary>
         private static HttpRequestMessage GetAccessTokenRequest(string certificateFilename, string certificatePassword)
         {
@@ -115,8 +120,8 @@ namespace CDR.Register.IntegrationTests.Gateway
         [Fact]
         public async Task AC01_PostAccessTokenRequest_WithClientCert_ShouldRespondWith_200OK_AccessToken()
         {
-            // Expected JWT claims           
-            string JWT_CLAIM_ISS = $"{TLS_BaseURL}/idp";
+            // Expected JWT claims
+            string jwtClaimIss = $"{TLS_BaseURL}/idp";
             const string JWT_CLAIM_AUD = "cdr-register";
             const string JWT_CLAIM_CLIENT_ID = CLIENT_ID;
             const string JWT_CLAIM_SCOPE = SCOPE;
@@ -126,7 +131,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             const int ACCESSTOKEN_EXPIRESIN = 300;
             const string ACCESSTOKEN_TOKENTYPE = JwtBearerDefaults.AuthenticationScheme;
 
-            // Arrange 
+            // Arrange
             var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
             var accessTokenRequest = GetAccessTokenRequest(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
 
@@ -156,7 +161,7 @@ namespace CDR.Register.IntegrationTests.Gateway
 
                 // Assert - Check the JWT access_token
                 var jwt = new JwtSecurityTokenHandler().ReadJwtToken(accessToken.access_token);
-                AssertClaim(jwt.Claims, "iss", JWT_CLAIM_ISS);
+                AssertClaim(jwt.Claims, "iss", jwtClaimIss);
                 AssertClaim(jwt.Claims, "aud", JWT_CLAIM_AUD);
                 AssertClaim(jwt.Claims, "client_id", JWT_CLAIM_CLIENT_ID);
                 AssertClaim(jwt.Claims, "scope", JWT_CLAIM_SCOPE);
@@ -216,8 +221,10 @@ namespace CDR.Register.IntegrationTests.Gateway
             }
         }
 
-        delegate void BeforeDataHolderBrandsRequest();
-        delegate void AfterDataHolderBrandsRequest();
+        private delegate void BeforeDataHolderBrandsRequest();
+
+        private delegate void AfterDataHolderBrandsRequest();
+
         private static async Task Test_GetDataHolderBrands(
             string certificateFilename,
             string certificatePassword,
@@ -228,14 +235,14 @@ namespace CDR.Register.IntegrationTests.Gateway
             string expectedContent = null)
         {
             // DataHolderBrands
-            string URL = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands";
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands";
 
             const string XV = "2";
 
             // Arrange
             var client = GetClient(certificateFilename, certificatePassword);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, URL);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("x-v", XV);
 
             // Supply access token with request?
@@ -304,7 +311,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             await Test_GetDataHolderBrands(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized, false);
         }
 
-        const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
+        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
                 {
                 ""errors"": [
                         {
@@ -337,7 +344,7 @@ namespace CDR.Register.IntegrationTests.Gateway
         [Theory]
         [InlineData(1, HttpStatusCode.OK)]        // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed 
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
         public async Task AC11_GetDataHolderBrands_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
             int brandStatusId,
             HttpStatusCode expectedStatusCode)
@@ -350,17 +357,16 @@ namespace CDR.Register.IntegrationTests.Gateway
                 expectedStatusCode,
                 beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
                 afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE
-            );
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
 
         [Theory]
         [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Removed 
-        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended 
-        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked 
+        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
+        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
+        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
         [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
-        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive 
+        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
         public async Task AC12_GetDataHolderBrands_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
             int participationStatusId,
             HttpStatusCode expectedStatusCode)
@@ -373,12 +379,13 @@ namespace CDR.Register.IntegrationTests.Gateway
                 expectedStatusCode,
                 beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
                 afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE
-            );
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
 
-        delegate void BeforeSSARequest();
-        delegate void AfterSSARequest();
+        private delegate void BeforeSSARequest();
+
+        private delegate void AfterSSARequest();
+
         private static async Task Test_GetSSA(
             string certificateFilename,
             string certificatePassword,
@@ -388,13 +395,13 @@ namespace CDR.Register.IntegrationTests.Gateway
             AfterSSARequest afterRequest = null,
             string expectedContent = null)
         {
-            string URL = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
             const string XV = "3";
 
             // Arrange
             var client = GetClient(certificateFilename, certificatePassword);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, URL);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("x-v", XV);
 
             // Supply access token with request?
@@ -467,7 +474,7 @@ namespace CDR.Register.IntegrationTests.Gateway
         [Theory]
         [InlineData(1, HttpStatusCode.OK)]        // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed 
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
         public async Task AC18_GetSSA_WithAccessToken_AndSoftwareProductStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
             int softwareProductStatusId,
             HttpStatusCode expectedStatusCode)
@@ -480,14 +487,13 @@ namespace CDR.Register.IntegrationTests.Gateway
                 expectedStatusCode,
                 beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
                 afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE
-            );
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
 
         [Theory]
         [InlineData(1, HttpStatusCode.OK)]        // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed 
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
         public async Task AC19_GetSSA_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
             int brandStatusId,
             HttpStatusCode expectedStatusCode)
@@ -500,17 +506,16 @@ namespace CDR.Register.IntegrationTests.Gateway
                 expectedStatusCode,
                 beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
                 afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE
-            );
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
 
         [Theory]
         [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Removed 
-        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended 
-        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked 
+        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
+        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
+        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
         [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
-        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive 
+        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
         public async Task AC20_GetSSA_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
             int participationStatusId,
             HttpStatusCode expectedStatusCode)
@@ -523,8 +528,7 @@ namespace CDR.Register.IntegrationTests.Gateway
                 expectedStatusCode,
                 beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
                 afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE
-            );
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
     }
 }

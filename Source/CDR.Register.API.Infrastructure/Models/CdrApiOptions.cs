@@ -8,20 +8,20 @@ namespace CDR.Register.API.Infrastructure.Models
     {
         private static readonly List<CdrApiEndpointVersionOptions> _supportedApiVersions = new List<CdrApiEndpointVersionOptions>
             {
-                //(?i) is to make the regex case insensitive
-                //(%7B)* and (%7D)* represent the possibility of a { and } in the path, to cover the value '{industry}' for OAS generation purposes
+                // (?i) is to make the regex case insensitive
+                // (%7B)* and (%7D)* represent the possibility of a { and } in the path, to cover the value '{industry}' for OAS generation purposes
 
-                //Register
+                // Register
                 new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-holders\/brands", true, 2),
-                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-holders\/status",false,1),
-                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients",true,3),
-                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/status",true,2),
-                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/brands\/software-products\/status",true,2),
-                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/brands\/[A-Za-z0-9\-]*\/software-products\/[A-Za-z0-9\-]*\/ssa",true,3),
+                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-holders\/status", false, 1),
+                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients", true, 3),
+                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/status", true, 2),
+                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/brands\/software-products\/status", true, 2),
+                new CdrApiEndpointVersionOptions(@"(?i)\/cdr-register\/v1\/(%7B)*[A-Za-z]*(%7D)*\/data-recipients\/brands\/[A-Za-z0-9\-]*\/software-products\/[A-Za-z0-9\-]*\/ssa", true, 3),
 
-                //Admin
-                new CdrApiEndpointVersionOptions(@"(?i)\/admin\/metadata\/data-holders",true,1),
-                new CdrApiEndpointVersionOptions(@"(?i)\/admin\/metadata\/data-recipients",true,1),
+                // Admin
+                new CdrApiEndpointVersionOptions(@"(?i)\/admin\/metadata\/data-holders", true, 1),
+                new CdrApiEndpointVersionOptions(@"(?i)\/admin\/metadata\/data-recipients", true, 1),
             };
 
         public List<CdrApiEndpointVersionOptions> EndpointVersionOptions { get; } = _supportedApiVersions;

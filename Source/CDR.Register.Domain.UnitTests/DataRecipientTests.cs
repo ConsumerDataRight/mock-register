@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CDR.Register.Domain.Entities;
 using Xunit;
@@ -8,7 +8,7 @@ namespace CDR.Register.Domain.UnitTests
     public class DataRecipientTests
     {
         /// <summary>
-        /// When the data recipient has no brands, the last updated date should be null
+        /// When the data recipient has no brands, the last updated date should be null.
         /// </summary>
         public static IEnumerable<object[]> GetEmptyDataRecipientBrands() => new List<object[]>
         {

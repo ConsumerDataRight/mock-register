@@ -17,7 +17,7 @@ namespace CDR.Register.SSA.API.Extensions
         public static IServiceCollection AddRegisterSSA(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ISoftwareStatementAssertionRepository, SoftwareStatementAssertionRepository>();
-            services.AddScoped<ISSAService, SSAService>();
+            services.AddScoped<ISsaService, SsaService>();
             services.AddScoped<IDataRecipientStatusCheckService, DataRecipientStatusCheckService>();
             services.AddScoped<IRegisterDiscoveryRepository, RegisterDiscoveryRepository>();
             services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
