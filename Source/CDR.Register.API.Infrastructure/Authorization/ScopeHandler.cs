@@ -30,6 +30,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 {
                     _logger.LogError("Unauthorized request. Access token is missing 'scope' claim.");
                 }
+
                 return Task.CompletedTask;
             }
 
@@ -40,7 +41,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             // The space character is used to seperate the scopes as this is in line with CDS specifications.
             string[] requiredScopes = requirement.Scope.Split(' ');
 
-            if (userClaimScopes!=null && userClaimScopes.Intersect(requiredScopes).Any())
+            if (userClaimScopes != null && userClaimScopes.Intersect(requiredScopes).Any())
             {
                 context.Succeed(requirement);
             }

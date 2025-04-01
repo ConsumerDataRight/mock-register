@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace CDR.Register.Domain.Models
 {
@@ -31,7 +30,7 @@ namespace CDR.Register.Domain.Models
         }
 
         /// <summary>
-        /// Add unexpected error to the response error list
+        /// Add unexpected error to the response error list.
         /// </summary>
         public ResponseErrorList AddUnexpectedError(string message)
         {
@@ -46,7 +45,7 @@ namespace CDR.Register.Domain.Models
         }
 
         /// <summary>
-        /// Add invalid industry error to the response error list
+        /// Add invalid industry error to the response error list.
         /// </summary>
         public ResponseErrorList AddInvalidIndustry()
         {
@@ -115,22 +114,22 @@ namespace CDR.Register.Domain.Models
             return new Error(Constants.ErrorCodes.Cds.InvalidDateTime, Constants.ErrorTitles.InvalidDateTime, "{0} should be valid DateTimeString");
         }
 
-        public static Error InvalidPageSize() //Should be looked at compared to CDS
+        public static Error InvalidPageSize() // Should be looked at compared to CDS
         {
             return new Error(Constants.ErrorCodes.Cds.InvalidPageSize, Constants.ErrorTitles.InvalidPageSize, "Page size not a positive Integer");
         }
 
-        public static Error PageSizeTooLarge() //Should be looked at compared to CDS
+        public static Error PageSizeTooLarge() // Should be looked at compared to CDS
         {
             return new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "Page size too large");
         }
 
-        public static Error InvalidPage() //Should be looked at compared to CDS
+        public static Error InvalidPage() // Should be looked at compared to CDS
         {
             return new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "Page not a positive integer");
         }
 
-        public static Error PageOutOfRange() //Should be looked at compared to CDS
+        public static Error PageOutOfRange() // Should be looked at compared to CDS
         {
             return new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "Page is out of range");
         }

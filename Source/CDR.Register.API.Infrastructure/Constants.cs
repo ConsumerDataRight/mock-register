@@ -13,7 +13,7 @@
         public static class ConfigurationKeys
         {
             public const string BasePath = "BasePath";
-            public const string BasePathExpression = "BasePathExpression";            
+            public const string BasePathExpression = "BasePathExpression";
             public const string PublicHostName = "PublicHostName";
             public const string SecureHostName = "SecureHostName";
             public const string OidcMetadataAddress = "OidcMetadataAddress";
@@ -28,6 +28,5 @@
         {
             public const string GroupNameFormat = "'v'VVV";
         }
-
     }
 }

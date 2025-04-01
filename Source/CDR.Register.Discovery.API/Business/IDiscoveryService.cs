@@ -8,6 +8,7 @@ namespace CDR.Register.Discovery.API.Business
     public interface IDiscoveryService
     {
         Task<ResponseRegisterDataHolderBrandList> GetDataHolderBrandsAsync(Industry industry, DateTime? updatedSince, int page, int pageSize);
+
         Task<ResponseRegisterDataRecipientList> GetDataRecipientsAsync(Industry industry);
     }
 }

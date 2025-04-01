@@ -16,6 +16,7 @@ FROM build AS publish
 
 # Copy the build props 
 COPY ./Directory.Build.props /app/Directory.Build.props
+COPY ./.editorconfig /app/.editorconfig
 
 COPY ./CDR.Register.API.Infrastructure/. /app/CDR.Register.API.Infrastructure
 COPY ./CDR.Register.Repository/. /app/CDR.Register.Repository

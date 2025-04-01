@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -19,13 +20,13 @@ namespace CDR.Register.Discovery.API.Controllers
     [Consumes("application/json")]
     public class DiscoveryController : ControllerBase
     {
-        private readonly IDiscoveryService _discoveryService;
-        private readonly IDataRecipientStatusCheckService _statusCheckService;
-        private readonly IConfiguration _configuration;
-
         // Route names.
         private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV2 = "GetDataHolderBrandsXV2";
         private const string ROUTE_GET_DATA_RECIPIENTS_XV3 = "GetDataRecipientsXV3";
+
+        private readonly IDiscoveryService _discoveryService;
+        private readonly IDataRecipientStatusCheckService _statusCheckService;
+        private readonly IConfiguration _configuration;
 
         public DiscoveryController(
             IDiscoveryService discoveryService,
@@ -36,7 +37,6 @@ namespace CDR.Register.Discovery.API.Controllers
             _configuration = configuration;
             _statusCheckService = statusCheckService;
         }
-
 
         [HttpGet("v1/{industry}/data-holders/brands", Name = ROUTE_GET_DATA_HOLDER_BRANDS_XV2)]
         [PolicyAuthorize(RegisterAuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
@@ -51,7 +51,6 @@ namespace CDR.Register.Discovery.API.Controllers
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
         {
-
             // CTS conformance ID validations
             var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
             if (!string.IsNullOrEmpty(basePathExpression))
@@ -71,7 +70,7 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set the default values for the incoming parameters
-            DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince);
+            DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince, CultureInfo.InvariantCulture);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
             var response = await _discoveryService.GetDataHolderBrandsAsync(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
@@ -83,8 +82,15 @@ namespace CDR.Register.Discovery.API.Controllers
             }
 
             // Set pagination meta data
-            response.Links = this.GetPaginated(ROUTE_GET_DATA_HOLDER_BRANDS_XV2, _configuration,
-                updatedSinceDate, pageNumber, response.Meta.TotalPages.Value, pageSizeNumber, "", true);
+            response.Links = this.GetPaginated(
+                ROUTE_GET_DATA_HOLDER_BRANDS_XV2,
+                _configuration,
+                updatedSinceDate,
+                pageNumber,
+                response.Meta.TotalPages.Value,
+                pageSizeNumber,
+                string.Empty,
+                true);
 
             return Ok(response);
         }
@@ -93,12 +99,12 @@ namespace CDR.Register.Discovery.API.Controllers
         [ReturnXV("3")]
         [ApiVersion("3")]
         [ETag]
-        [CheckIndustry()]
+        [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipientsXV3(string industry)
         {
             var response = await _discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration, HttpContext, "");
+            response.Links = this.GetSelf(_configuration, HttpContext, string.Empty);
             return Ok(response);
         }
 
@@ -132,6 +138,7 @@ namespace CDR.Register.Discovery.API.Controllers
             {
                 return softwareProductId;
             }
+
             return null;
         }
 

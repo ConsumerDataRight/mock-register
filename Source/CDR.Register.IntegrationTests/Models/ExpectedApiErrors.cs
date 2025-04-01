@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace CDR.Register.IntegrationTests.Models
 {
     public class ExpectedApiErrors
     {
-
         [JsonProperty("code")]
         public string Code { get; set; }
 
@@ -17,11 +15,10 @@ namespace CDR.Register.IntegrationTests.Models
 
         [JsonProperty("meta")]
         public MetaData Meta { get; set; }
-        
+
         public class MetaData
         {
+            // This is to get a empty JSON object
         }
-
     }
-    
 }

@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Exceptions;
@@ -18,7 +17,7 @@ using Ocelot.Middleware;
 using Serilog;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CDR.Register.API.Gateway.mTLS
+namespace CDR.Register.API.Gateway.Mtls
 {
     public class Startup
     {
@@ -61,6 +60,7 @@ namespace CDR.Register.API.Gateway.mTLS
                      }
                  };
              })
+
              // Adding an ICertificateValidationCache results in certificate auth caching the results.
              // The default implementation uses a memory cache.
              .AddCertificateCache();
@@ -90,7 +90,7 @@ namespace CDR.Register.API.Gateway.mTLS
                     {
                         context.Response.StatusCode = StatusCodes.Status502BadGateway;
                     }
-                    
+
                     context.Response.ContentType = Text.Plain;
                     await context.Response.WriteAsync($"An error occurred handling the request: {ex?.Message}");
                 });

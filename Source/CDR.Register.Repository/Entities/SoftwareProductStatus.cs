@@ -6,7 +6,9 @@ namespace CDR.Register.Repository.Entities
     {
         [Key]
         public SoftwareProductStatusType SoftwareProductStatusId { get; set; }
-        [MaxLength(25), Required]
+
+        [MaxLength(25)]
+        [Required]
         public string SoftwareProductStatusCode { get; set; }
     }
 

@@ -21,17 +21,26 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.AuthDetails).Must(x => x != null).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
             // Enum Validations
-            RuleForEach(x => x.Industries).Must(x => Enum.TryParse(x, true, out Industry result)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
-            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out DhParticipationStatus result)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleForEach(x => x.Industries).Must(x => Enum.TryParse(x, true, out Industry _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out DhParticipationStatus _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
 
             // Length Validations
             RuleFor(x => x.BrandName).MaximumLength(200).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
             RuleFor(x => x.LogoUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
 
             // Child Validation
-            RuleFor(x => x.EndpointDetail).SetValidator(new DataHolderEndpointValidator());
-            RuleFor(x => x.AuthDetails).SetValidator(new DataHolderAuthenticationValidator());
-            RuleFor(x => x.LegalEntity).SetValidator(new DataHolderLegalEntityValidator());
+            When(x => x != null, () =>
+            {
+                RuleFor(x => x.EndpointDetail!).SetValidator(new DataHolderEndpointValidator());
+            });
+            When(x => x != null, () =>
+            {
+                RuleFor(x => x.AuthDetails!).SetValidator(new DataHolderAuthenticationValidator());
+            });
+            When(x => x != null, () =>
+            {
+                RuleFor(x => x.LegalEntity!).SetValidator(new DataHolderLegalEntityValidator());
+            });
         }
     }
 }

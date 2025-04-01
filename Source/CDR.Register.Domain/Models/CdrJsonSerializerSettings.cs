@@ -7,7 +7,8 @@ namespace CDR.Register.Domain.Models
 {
     public class CdrJsonSerializerSettings : JsonSerializerSettings
     {
-        public CdrJsonSerializerSettings() : base()
+        public CdrJsonSerializerSettings()
+            : base()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver();
             DefaultValueHandling = DefaultValueHandling.Include;

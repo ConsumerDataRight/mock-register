@@ -1,5 +1,4 @@
-﻿using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.IntegrationTests.Extensions;
+﻿using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.IntegrationTests.Models;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
@@ -24,7 +23,10 @@ namespace CDR.Register.IntegrationTests.API.Update
 {
     public class US50480_UpdateDataRecipients : BaseTest
     {
-        public US50480_UpdateDataRecipients(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US50480_UpdateDataRecipients(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
 
         private const string UPDATE_DATA_RECIPIENT_CURRENT_API_VERSION = "1";
         private const string DEFAULT_SCOPES = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.usage:read energy:electricity.der:read energy:accounts.basic:read energy:accounts.basic:read energy:accounts.detail:read " +
@@ -59,12 +61,12 @@ namespace CDR.Register.IntegrationTests.API.Update
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
 
             // Send to Register
-            var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
+            await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            //Using the same Legal Entity, update some fields.
+            // Using the same Legal Entity, update some fields.
             dataRecipientMetadata.LegalEntityName = "Updated Legal Entity Name";
-            dataRecipientMetadata.DataRecipientBrands.First().BrandName = "Updated Brand Name";
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductName = "Updated Software Product Name";
+            dataRecipientMetadata.DataRecipientBrands[0].BrandName = "Updated Brand Name";
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductName = "Updated Software Product Name";
 
             // Send Updated Data Recipient to Register
             var updateResponse = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
@@ -110,20 +112,19 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register
             _ = await PostUpdateDataRecipientRequest(GetJsonFromModel(originalDataRecipient));
 
-
-            //Using the same Legal Entity, Add
+            // Using the same Legal Entity, Add
             DataRecipientMetadata newDataRecipientMetadata = GetCopyOfDataRecipient(originalDataRecipient);
-            newDataRecipientMetadata.DataRecipientBrands.First().DataRecipientBrandId = Guid.NewGuid().ToString();
-            newDataRecipientMetadata.DataRecipientBrands.First().BrandName = "Brand Name 2";
-            newDataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductId = Guid.NewGuid().ToString();
-            newDataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductName = "Software Product Name 2";
+            newDataRecipientMetadata.DataRecipientBrands[0].DataRecipientBrandId = Guid.NewGuid().ToString();
+            newDataRecipientMetadata.DataRecipientBrands[0].BrandName = "Brand Name 2";
+            newDataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductId = Guid.NewGuid().ToString();
+            newDataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductName = "Software Product Name 2";
 
             // Send Updated Data Recipient to Register
             var updateResponse = await PostUpdateDataRecipientRequest(GetJsonFromModel(newDataRecipientMetadata));
 
             // Assert http response and database updates.
             DataRecipientMetadata expectedDataRecipientMetadata = GetCopyOfDataRecipient(originalDataRecipient);
-            expectedDataRecipientMetadata.DataRecipientBrands.Add(newDataRecipientMetadata.DataRecipientBrands.First());
+            expectedDataRecipientMetadata.DataRecipientBrands.Add(newDataRecipientMetadata.DataRecipientBrands[0]);
             VerifySuccessfulDataRecipientUpdate(expectedDataRecipientMetadata, updateResponse);
 
             // Assert Participation Record created correctly
@@ -136,8 +137,8 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid payload without a Software Product
             DataRecipientMetadata dataRecipient = GenerateValidDataRecipient(false);
 
-            //Add Duplicate Cert
-            dataRecipient.DataRecipientBrands.First().SoftwareProducts.First().Certificates.Add(new DataRecipientMetadata.Certificate()
+            // Add Duplicate Cert
+            dataRecipient.DataRecipientBrands[0].SoftwareProducts[0].Certificates.Add(new DataRecipientMetadata.Certificate()
             {
                 CommonName = "Test Automation Certificate Common Name",
                 Thumbprint = TEST_DATA_THUMBPRINT
@@ -147,7 +148,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipient));
 
             // Remove one of the certificates from expected results
-            dataRecipient.DataRecipientBrands.First().SoftwareProducts.First().Certificates.Remove(dataRecipient.DataRecipientBrands.First().SoftwareProducts.First().Certificates.First());
+            dataRecipient.DataRecipientBrands[0].SoftwareProducts[0].Certificates.Remove(dataRecipient.DataRecipientBrands[0].SoftwareProducts[0].Certificates[0]);
 
             // Assert http response and database updates.
             VerifySuccessfulDataRecipientUpdate(dataRecipient, response);
@@ -156,7 +157,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifyParticipationRecord(dataRecipient.LegalEntityId, DATA_RECIPIENT_PARTICIPATION_TYPE, null, dataRecipient.Status);
         }
 
-
         [Fact]
         public async Task ACXX_Add_New_Legal_Entity_With_Multiple_Software_Products_Http_200()
         {
@@ -164,7 +164,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
 
             // Add second Software Product
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(new DataRecipientMetadata.SoftwareProduct()
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(new DataRecipientMetadata.SoftwareProduct()
             {
                 SoftwareProductId = Guid.NewGuid().ToString(),
                 SoftwareProductName = "Test Automation Data Recipient Brand Name 001 - Software Product 002",
@@ -191,7 +191,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
             // Assert http response and database updates.
-            dataRecipientMetadata.DataRecipientBrands.ToList().OrderBy(b => b.DataRecipientBrandId);
+            dataRecipientMetadata.DataRecipientBrands.OrderBy(b => b.DataRecipientBrandId);
 
             // Assert http response and database updates.
             VerifySuccessfulDataRecipientUpdate(dataRecipientMetadata, response);
@@ -206,7 +206,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid payload
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
 
-            //Remove Scope(s)
+            // Remove Scope(s)
             dataRecipientMetadata.DataRecipientBrands.ForEach(dataRecipientBrand =>
             {
                 dataRecipientBrand.SoftwareProducts.ForEach(softwareProduct =>
@@ -218,7 +218,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            //Update expected Data Reciepent to use default scopes.
+            // Update expected Data Reciepent to use default scopes.
             dataRecipientMetadata.DataRecipientBrands.ForEach(dataRecipientBrand =>
             {
                 dataRecipientBrand.SoftwareProducts.ForEach(softwareProduct =>
@@ -234,7 +234,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert Participation Record created correctly
             VerifyParticipationRecord(dataRecipientMetadata.LegalEntityId, DATA_RECIPIENT_PARTICIPATION_TYPE, null, dataRecipientMetadata.Status);
-
         }
 
         [Fact]
@@ -251,7 +250,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert Participation Record created correctly
             VerifyParticipationRecord(dataRecipientMetadata.LegalEntityId, DATA_RECIPIENT_PARTICIPATION_TYPE, null, dataRecipientMetadata.Status);
-
         }
 
         [Fact]
@@ -260,7 +258,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid payload with only mandatory/minimun fields.
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
 
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Clear();
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Clear();
 
             // Send to Register
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
@@ -283,7 +281,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingHeader, "An API version x-v header is required, but was not specified.");
 
             // Assert Response
@@ -301,13 +299,12 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidVersion, "Version is not a positive Integer.");
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
         }
-
 
         [Theory]
         [InlineData("20")]
@@ -319,7 +316,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version.");
 
             // Assert Response
@@ -363,7 +360,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             string expectedMissingField = ConvertJsonPathToPascalCase(elementToRemove);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ExpectedErrors();
 
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingField, $"{expectedMissingField}");
 
@@ -378,25 +375,23 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
-
         }
 
         [Fact]
         public async Task AC14_Missing_Multiple_Mandatory_Fields_Http_400()
         {
-
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient();
             Log.Information($"Original Payload:\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             // Remove mandatory fields
-            dataRecipientMetadata.AccreditationNumber = "";
+            dataRecipientMetadata.AccreditationNumber = string.Empty;
             dataRecipientMetadata.LegalEntityName = null;
-            dataRecipientMetadata.DataRecipientBrands.First().LogoUri = "";
-            dataRecipientMetadata.DataRecipientBrands.First().BrandName = null;
+            dataRecipientMetadata.DataRecipientBrands[0].LogoUri = string.Empty;
+            dataRecipientMetadata.DataRecipientBrands[0].BrandName = null;
 
             Log.Information($"Modified Payload (elements removed):\n{GetJsonFromModel(dataRecipientMetadata)}");
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingField, "LegalEntityName");
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingField, "AccreditationNumber");
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingField, "DataRecipientBrands[0].BrandName");
@@ -407,7 +402,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
-
         }
 
         [Theory]
@@ -429,7 +423,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataRecipientMetadata.AccreditationLevel = dataRecipientMetadata.AccreditationLevel.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(response, dataRecipientMetadata, "AccreditationLevel", accreditationLevel, isValid);
-
         }
 
         [Theory]
@@ -455,7 +448,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataRecipientMetadata.OrganisationType = dataRecipientMetadata.OrganisationType.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(response, dataRecipientMetadata, "OrganisationType", orgType, isValid);
-
         }
 
         [Theory]
@@ -480,7 +472,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataRecipientMetadata.Status = dataRecipientMetadata.Status.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(response, dataRecipientMetadata, "Status", status, isValid);
-
         }
 
         [Theory]
@@ -495,15 +486,14 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"Original Payload:\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             // Modify DR Status
-            dataRecipientMetadata.DataRecipientBrands.First().Status = status;
+            dataRecipientMetadata.DataRecipientBrands[0].Status = status;
             Log.Information($"Modified Payload (elements removed):\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            dataRecipientMetadata.DataRecipientBrands.First().Status = dataRecipientMetadata.DataRecipientBrands.First().Status.ToUpper();
+            dataRecipientMetadata.DataRecipientBrands[0].Status = dataRecipientMetadata.DataRecipientBrands[0].Status.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(response, dataRecipientMetadata, "Status", status, isValid);
-
         }
 
         [Theory]
@@ -518,15 +508,14 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"Original Payload:\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             // Modify DR - SP Status
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().Status = status;
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].Status = status;
             Log.Information($"Modified Payload (elements removed):\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().Status = dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().Status.ToUpper();
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].Status = dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].Status.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(response, dataRecipientMetadata, "Status", status, isValid);
-
         }
 
         [Fact]
@@ -542,12 +531,11 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             Log.Information($"Modified from Database:\n{GetJsonFromModel(originalDataRecipientMetadata)}");
 
-            string dataRecipientBrandId = originalDataRecipientMetadata.DataRecipientBrands.First().DataRecipientBrandId;
+            string dataRecipientBrandId = originalDataRecipientMetadata.DataRecipientBrands[0].DataRecipientBrandId;
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(originalDataRecipientMetadata));
 
-            await VerifyInvalidPayloadResponse(response, originalDataRecipientMetadata, $"dataRecipientBrandId '{dataRecipientBrandId}' is already associated with a different legal entity.");
-
+            await VerifyInvalidPayloadResponse(response, $"dataRecipientBrandId '{dataRecipientBrandId}' is already associated with a different legal entity.");
         }
 
         [Fact]
@@ -559,18 +547,17 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"original from Database:\n{GetJsonFromModel(originalDataRecipientMetadata)}");
 
             // Get First Software Product Id.
-            string softwareProductId = originalDataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductId;
+            string softwareProductId = originalDataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductId;
 
             // Generate new Data Recipient payload and replace softwareProductId with the already associated softwareProductId  (already linked to orignal Dataholder Brand).
             DataRecipientMetadata generatedDataRecipientMetadata = GenerateValidDataRecipient();
-            generatedDataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductId = softwareProductId;
+            generatedDataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductId = softwareProductId;
 
             Log.Information($"Payload to send:\n{GetJsonFromModel(generatedDataRecipientMetadata)}");
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(generatedDataRecipientMetadata));
 
-            await VerifyInvalidPayloadResponse(response, generatedDataRecipientMetadata, $"Value '{softwareProductId}' in SoftwareProductId is already associated with a different brand.");
-
+            await VerifyInvalidPayloadResponse(response, $"Value '{softwareProductId}' in SoftwareProductId is already associated with a different brand.");
         }
 
         [Fact]
@@ -579,7 +566,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid payload with only mandatory/minimun fields.
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
 
-            string brandId = dataRecipientMetadata.DataRecipientBrands.First().DataRecipientBrandId;
+            string brandId = dataRecipientMetadata.DataRecipientBrands[0].DataRecipientBrandId;
 
             // Add Data Recipient Brand with duplicate id
             dataRecipientMetadata.DataRecipientBrands.Add(new DataRecipientMetadata.DataRecipientBrand()
@@ -594,7 +581,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            await VerifyInvalidPayloadResponse(response, dataRecipientMetadata, $"Duplicate DataRecipientBrandId '{brandId}' is not allowed in the same request");
+            await VerifyInvalidPayloadResponse(response, $"Duplicate DataRecipientBrandId '{brandId}' is not allowed in the same request");
         }
 
         [Fact]
@@ -604,19 +591,18 @@ namespace CDR.Register.IntegrationTests.API.Update
             DataRecipientMetadata dataRecipientMetadata = GenerateValidDataRecipient(false);
             Log.Information($"Original Payload:\n{GetJsonFromModel(dataRecipientMetadata)}");
 
-            string initialSoftwareProductId = dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SoftwareProductId;
+            string initialSoftwareProductId = dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SoftwareProductId;
 
             // Add Software Product with duplicate id
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(GenerateNewSofwareProduct());
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(GenerateNewSofwareProduct());
 
             // Set both Software Products to the same id
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.ForEach(sp => sp.SoftwareProductId = initialSoftwareProductId);
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.ForEach(sp => sp.SoftwareProductId = initialSoftwareProductId);
             Log.Information($"Payload to send:\n{GetJsonFromModel(dataRecipientMetadata)}");
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            await VerifyInvalidPayloadResponse(response, dataRecipientMetadata, $"Duplicate softwareProductId '{initialSoftwareProductId}' is not allowed in the same request");
-
+            await VerifyInvalidPayloadResponse(response, $"Duplicate softwareProductId '{initialSoftwareProductId}' is not allowed in the same request");
         }
 
         [Fact]
@@ -634,15 +620,14 @@ namespace CDR.Register.IntegrationTests.API.Update
             DataRecipientMetadata.SoftwareProduct softwareProduct4 = GenerateNewSofwareProduct();
             softwareProduct3.SoftwareProductId = softwareProduct4.SoftwareProductId;
 
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(softwareProduct1);
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(softwareProduct2);
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(softwareProduct3);
-            dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.Add(softwareProduct4);
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(softwareProduct1);
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(softwareProduct2);
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(softwareProduct3);
+            dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts.Add(softwareProduct4);
 
             HttpResponseMessage response = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
 
-            await VerifyInvalidPayloadResponse(response, dataRecipientMetadata, $"Duplicate softwareProductId '{softwareProduct1.SoftwareProductId}' is not allowed in the same request");
-
+            await VerifyInvalidPayloadResponse(response, $"Duplicate softwareProductId '{softwareProduct1.SoftwareProductId}' is not allowed in the same request");
         }
 
         [Theory]
@@ -691,9 +676,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send and verify negative scenario
             HttpResponseMessage responseNegative = await PostUpdateDataRecipientRequest(GetJsonFromModel(dataRecipientMetadata));
             await VerifyInvalidAndValidFieldResponse(responseNegative, dataRecipientMetadata, ConvertJsonPathToPascalCase(elementUnderTest.GetLastFieldFromJsonPath()), maxLengthPlusOneValue, false);
-
         }
-
 
         private static string RemoveEmptyJsonArrays(string json)
         {
@@ -710,7 +693,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private static async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataRecipientMetadata dataRecipientMetadata, string field, string value, bool isValid)
         {
-
             if (isValid)
             {
                 VerifySuccessfulDataRecipientUpdate(dataRecipientMetadata, response);
@@ -724,21 +706,19 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
         }
 
-        private static async Task VerifyInvalidPayloadResponse(HttpResponseMessage response, DataRecipientMetadata dataRecipientMetadata, string expectedErrorMessage)
+        private static async Task VerifyInvalidPayloadResponse(HttpResponseMessage response, string expectedErrorMessage)
         {
-
             ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidField, expectedErrorMessage);
 
             await VerifyBadRequest(expectedErrors, response);
-
         }
 
         private static void VerifySuccessfulDataRecipientUpdate(DataRecipientMetadata expectedDataRecipientMetadata, HttpResponseMessage httpResponseFromRegister)
         {
             using (new AssertionScope())
             {
-                //Check status code
+                // Check status code
                 httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 // For each data recipient, order software products and set default scope to default if missing
@@ -753,7 +733,6 @@ namespace CDR.Register.IntegrationTests.API.Update
                             sp.Scope ??= DEFAULT_SCOPES;
                         }
                     }
-
                 }
 
                 expectedDataRecipientMetadata.DataRecipientBrands = expectedDataRecipientMetadata.DataRecipientBrands.OrderBy(b => b.DataRecipientBrandId).ToList();
@@ -771,11 +750,9 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private static async Task<HttpResponseMessage> PostUpdateDataRecipientRequest(string payload, string xv = UPDATE_DATA_RECIPIENT_CURRENT_API_VERSION)
         {
-
             var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             var client = new HttpClient(clientHandler);
-            //var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:3500/admin/metadata/data-recipients");
             var request = new HttpRequestMessage(HttpMethod.Post, $"{ADMIN_BaseURL}/admin/metadata/data-recipients");
 
             request.Content = new StringContent($"{payload}", Encoding.UTF8, "application/json");
@@ -792,12 +769,10 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"Response from admin/metadata/data-recipients API: {httpResponse.StatusCode} \n{httpResponse.Content.ReadAsStringAsync().Result}");
 
             return httpResponse;
-
         }
 
         private static DataRecipientMetadata GenerateValidDataRecipient(bool includeOptionalFields = false)
         {
-
             DataRecipientMetadata dataRecipientMetadata = new DataRecipientMetadata
             {
                 LegalEntityId = Guid.NewGuid().ToString(),
@@ -812,7 +787,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                     {
                         DataRecipientBrandId = Guid.NewGuid().ToString(),
                         BrandName = "Test Automation Data Recipient Brand Name 001",
-                        LogoUri= $"{TEST_DATA_BASE_URI}/DRBlogo.png",
+                        LogoUri = $"{TEST_DATA_BASE_URI}/DRBlogo.png",
                         Status = "ACTIVE",
                         SoftwareProducts = new List<DataRecipientMetadata.SoftwareProduct>
                         {
@@ -832,19 +807,18 @@ namespace CDR.Register.IntegrationTests.API.Update
                 dataRecipientMetadata.Arbn = "987654321";
                 dataRecipientMetadata.AnzsicDivision = "Test Automation Anzsic Division";
                 dataRecipientMetadata.OrganisationType = "COMPANY";
-                dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().SectorIdentifierUri = $"{TEST_DATA_BASE_URI}/SectorIdentifierUri";
-                dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().TosUri = $"{TEST_DATA_BASE_URI}/TosUri";
-                dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().PolicyUri = $"{TEST_DATA_BASE_URI}/PolicyUri";
-                dataRecipientMetadata.DataRecipientBrands.First().SoftwareProducts.First().Scope = "openid profile cdr-register:read";
-
+                dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].SectorIdentifierUri = $"{TEST_DATA_BASE_URI}/SectorIdentifierUri";
+                dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].TosUri = $"{TEST_DATA_BASE_URI}/TosUri";
+                dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].PolicyUri = $"{TEST_DATA_BASE_URI}/PolicyUri";
+                dataRecipientMetadata.DataRecipientBrands[0].SoftwareProducts[0].Scope = "openid profile cdr-register:read";
             }
 
             return dataRecipientMetadata;
-
         }
+
         private static DataRecipientMetadata.SoftwareProduct GenerateNewSofwareProduct()
         {
-            DataRecipientMetadata.SoftwareProduct softwareProduct = new()
+            DataRecipientMetadata.SoftwareProduct softwareProduct = new DataRecipientMetadata.SoftwareProduct()
             {
                 SoftwareProductId = Guid.NewGuid().ToString(),
                 SoftwareProductName = "Test Automation Data Recipient Brand Name 001 - Software Product 001",
@@ -871,7 +845,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private static string GetActualDataRecipientFromDatabase(string legalEntityId)
         {
-
             var legalEntityIdGuid = Guid.Parse(legalEntityId);
 
             try
@@ -902,7 +875,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                             registeredCountry = participation.LegalEntity.RegisteredCountry,
                             abn = participation.LegalEntity.Abn,
                             acn = participation.LegalEntity.Acn,
-                            arbn = participation.LegalEntity.Arbn == "" ? null : participation.LegalEntity.Arbn,
+                            arbn = participation.LegalEntity.Arbn == string.Empty ? null : participation.LegalEntity.Arbn,
                             anzsicDivision = participation.LegalEntity.AnzsicDivision,
                             organisationType = participation.LegalEntity.OrganisationType.OrganisationTypeCode.ToUpper(),
                             status = participation.Status.ParticipationStatusCode,
@@ -935,9 +908,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                                     })
                                 }),
                             }),
-
                         });
-
 
                 string jsonRepresentation = JsonConvert.SerializeObject(expectedDataRecipients.First());
 

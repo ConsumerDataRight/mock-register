@@ -11,28 +11,28 @@ namespace CDR.Register.Admin.API.Business.Validators
     {
         public LegalEntityValidator()
         {
-            //check all mandatory fields
+            // check all mandatory fields
             RuleFor(x => x.LegalEntityId).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.LegalEntityName).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.AccreditationNumber).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.AccreditationLevel).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.LogoUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.Status).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
-            RuleFor(x => x.DataRecipientBrands).Must(x => x!= null && x.Count>0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.DataRecipientBrands).Must(x => x != null && x.Count > 0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
-            //enum validations
-            RuleFor(x => x.AccreditationLevel).Must(x => Enum.TryParse(x, true, out Repository.Entities.AccreditationLevelType result)).WithErrorCode(ErrorCodes.Cds.InvalidField).
+            // enum validations
+            RuleFor(x => x.AccreditationLevel).Must(x => Enum.TryParse(x, true, out Repository.Entities.AccreditationLevelType _)).WithErrorCode(ErrorCodes.Cds.InvalidField).
                 WithMessage(ErrorTitles.InvalidField).
                 WithState(le => $"Value '{le.AccreditationLevel}' is not allowed for AccreditationLevel");
-            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out Repository.Entities.ParticipationStatusType result)).
+            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out Repository.Entities.ParticipationStatusType _)).
                 WithErrorCode(ErrorCodes.Cds.InvalidField).
                 WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.Status}' is not allowed for Status");
-            RuleFor(x => x.OrganisationType).Must(x => x == null || Enum.TryParse(x?.Replace("_", ""), true, out Repository.Entities.OrganisationTypes result)).
+            RuleFor(x => x.OrganisationType).Must(x => x == null || Enum.TryParse(x?.Replace("_", string.Empty), true, out Repository.Entities.OrganisationTypes _)).
                 WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).
                 WithState(le => $"Value '{le.OrganisationType}' is not allowed for OrganisationType");
 
-            //field lengths
-            RuleFor(x => x.LegalEntityName).MaximumLength(200).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState( le =>  $"Value '{le.LegalEntityName}' is not allowed for LegalEntityName");
+            // field lengths
+            RuleFor(x => x.LegalEntityName).MaximumLength(200).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.LegalEntityName}' is not allowed for LegalEntityName");
             RuleFor(x => x.AccreditationNumber).MaximumLength(100).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.AccreditationNumber}' is not allowed for AccreditationNumber");
             RuleFor(x => x.AccreditationLevel).MaximumLength(13).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.AccreditationLevel}' is not allowed for AccreditationLevel");
             RuleFor(x => x.LogoUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.LogoUri}' is not allowed for LogoUri");
@@ -42,7 +42,7 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.Acn).MaximumLength(9).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.Acn}' is not allowed for Acn");
             RuleFor(x => x.Arbn).MaximumLength(9).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.Arbn}' is not allowed for Arbn");
             RuleFor(x => x.AnzsicDivision).MaximumLength(100).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(le => $"Value '{le.AnzsicDivision}' is not allowed for AnzsicDivision");
-            
+
             RuleForEach(x => x.DataRecipientBrands).SetValidator(new BrandValidator());
 
             RuleFor(x => x.DataRecipientBrands).Must(HaveUniqueIds).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(GetDuplicateId);
@@ -59,12 +59,13 @@ namespace CDR.Register.Admin.API.Business.Validators
                     return $"Duplicate DataRecipientBrandId '{legalEntity.DataRecipientBrands.ElementAt(i).DataRecipientBrandId}' is not allowed in the same request";
                 }
             }
+
             return null;
         }
 
         private bool HaveUniqueIds(ICollection<Brand>? brands)
         {
             return brands?.Select(b => b.DataRecipientBrandId).Distinct().Count() == brands?.Count;
-        }       
+        }
     }
 }

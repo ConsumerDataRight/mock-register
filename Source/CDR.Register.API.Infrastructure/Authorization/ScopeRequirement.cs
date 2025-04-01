@@ -11,5 +11,5 @@ namespace CDR.Register.API.Infrastructure.Authorization
         {
             Scope = scope ?? throw new ArgumentNullException(nameof(scope));
         }
-    }    
+    }
 }

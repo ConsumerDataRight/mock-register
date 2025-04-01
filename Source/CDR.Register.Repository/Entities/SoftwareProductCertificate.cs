@@ -12,10 +12,12 @@ namespace CDR.Register.Repository.Entities
 
         public SoftwareProduct SoftwareProduct { get; set; }
 
-        [MaxLength(2000), Required]
+        [MaxLength(2000)]
+        [Required]
         public string CommonName { get; set; }
 
-        [MaxLength(2000), Required]
+        [MaxLength(2000)]
+        [Required]
         public string Thumbprint { get; set; }
     }
 }

@@ -31,30 +31,9 @@ using Xunit.Sdk;
 
 namespace CDR.Register.IntegrationTests
 {
-    class DisplayTestMethodNameAttribute : BeforeAfterTestAttribute
+    public abstract class BaseTest : BaseTest0, IClassFixture<TestFixture>
     {
-        static int count = 0;
-
-        public override void Before(MethodInfo methodUnderTest)
-        {
-            Log.Information($"********** Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name} **********");
-            Console.WriteLine($"Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name}");
-        }
-
-    }
-
-    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
-    [Collection("IntegrationTests")]
-    [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
-    [DisplayTestMethodName]
-    abstract public class BaseTest0
-    {
-    }
-
-    abstract public class BaseTest : BaseTest0, IClassFixture<TestFixture>
-    {
-
-        public BaseTest(ITestOutputHelper output, TestFixture testFixture)
+        protected BaseTest(ITestOutputHelper output, TestFixture testFixture)
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
@@ -67,18 +46,28 @@ namespace CDR.Register.IntegrationTests
                 .CreateLogger();
 
             JsonConvert.DefaultSettings = () => new CdrJsonSerializerSettings();
-            TestFixture=testFixture;
+            TestFixture = testFixture;
         }
 
+        private const string REGISTER_RW = "DefaultConnection";
 
-        const string REGISTER_RW = "DefaultConnection";
+        public static string CONNECTIONSTRING_REGISTER_RW
+        {
+            get
+            {
+                var connectionString = ConnectionStringCheck.Check(Configuration.GetConnectionString(REGISTER_RW));
+                if (connectionString == null)
+                {
+                    throw new Exception($"Configuration setting for '{REGISTER_RW}' not found");
+                }
 
-        static public string CONNECTIONSTRING_REGISTER_RW =>
-            ConnectionStringCheck.Check(Configuration.GetConnectionString(REGISTER_RW)
-                ?? throw new Exception($"Configuration setting for '{REGISTER_RW}' not found"));
+                return connectionString!;
+            }
+        }
 
-        static private IConfigurationRoot? configuration;
-        static public IConfigurationRoot Configuration
+        private static IConfigurationRoot? configuration;
+
+        public static IConfigurationRoot Configuration
         {
             get
             {
@@ -107,34 +96,48 @@ namespace CDR.Register.IntegrationTests
         // This seed data is copied from ..\CDR.Register.Admin.API\Data\ (see CDR.Register.IntegrationTests.csproj)
         public static readonly string SEEDDATA_FILENAME = $"seed-data.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json";
 
-        // URLs
-        static public string TLS_BaseURL => Configuration["TLS_BaseURL"]
-            ?? throw new Exception($"{nameof(TLS_BaseURL)} - configuration setting not found");
-        static public string MTLS_BaseURL => Configuration["MTLS_BaseURL"]
-            ?? throw new Exception($"{nameof(MTLS_BaseURL)} - configuration setting not found");
-        static public string ADMIN_BaseURL => Configuration["Admin_BaseURL"]
-            ?? throw new Exception($"{nameof(ADMIN_BaseURL)} - configuration setting not found");
-        static public readonly string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
-        static public readonly string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
-
         // START CTS Settings
-        static public string AZURE_AD_TOKEN_ENDPOINT_URL => Configuration["CtsSettings:AzureAd:TokenEndpointUrl"] ?? throw new Exception($"{nameof(AZURE_AD_TOKEN_ENDPOINT_URL)} - configuration setting not found");
-        static public string AZURE_AD_CLIENT_ID => Configuration["CtsSettings:AzureAd:ClientId"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_ID)} - configuration setting not found");
-        static public string AZURE_AD_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:ClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_SECRET)} - configuration setting not found");
-        static public string AZURE_AD_UNAUTHORISED_CLIENT_ID => Configuration["CtsSettings:AzureAd:UnauthorisedClientId"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_ID)} - configuration setting not found");
-        static public string AZURE_AD_UNAUTHORISED_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:UnauthorisedClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_SECRET)} - configuration setting not found");
-        static public string AZURE_AD_SCOPE => Configuration["CtsSettings:AzureAd:Scope"] ?? throw new Exception($"{nameof(AZURE_AD_SCOPE)} - configuration setting not found");
-        static public string AZURE_AD_GRANT_TYPE => Configuration["CtsSettings:AzureAd:GrantType"] ?? throw new Exception($"{nameof(AZURE_AD_GRANT_TYPE)} - configuration setting not found");
         public const string EXPIRED_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiI3YzVmZmE2Yy1jN2ZhLTRlNDktODMyZi1lZWQ0MzBmODE1MjUiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYWZiYmE3ZDAtNjc2Zi00MGI3LTkwYmQtOGY0NjM4MDM0YjgyL3YyLjAiLCJpYXQiOjE2ODM3ODIyMTgsIm5iZiI6MTY4Mzc4MjIxOCwiZXhwIjoxNjgzNzg2MTE4LCJhaW8iOiJFMlpnWUdnS2VoSXp6ODFpMWFYazA2NG5jcU15ZU90dUNhOUs4NTB6dGNiYjhvR1g5UVVBIiwiYXpwIjoiMzA5MjJhZWUtMDc5OS00NzkxLWFkNDUtMjI2NTUwZjg2OGJlIiwiYXpwYWNyIjoiMSIsIm9pZCI6ImY0ZGZmMGU2LTQxYjMtNDFlNy1iNWFiLWQ0MzNjZTg4MTY5NiIsInJoIjoiMC5BVUVBMEtlN3IyOW50MENRdlk5R09BTkxnbXo2WDN6NngwbE9neV91MURENEZTVkJBQUEuIiwicm9sZXMiOlsiQXBpLkFkbWluLlBhcnRpY2lwYW50TWV0YURhdGEuV3JpdGUiLCJBcGkuQWRtaW4uUGFydGljaXBhbnRNZXRhRGF0YS5SZWFkIl0sInN1YiI6ImY0ZGZmMGU2LTQxYjMtNDFlNy1iNWFiLWQ0MzNjZTg4MTY5NiIsInRpZCI6ImFmYmJhN2QwLTY3NmYtNDBiNy05MGJkLThmNDYzODAzNGI4MiIsInV0aSI6IlB6SEF3aTlXY2t5dXRkbGRSSkVTQUEiLCJ2ZXIiOiIyLjAifQ.VjMh6-FRMLWAIkYloADH--fTgUVfNgN2XYx3yeJUew1JiCRpiABj4JYkieBxkQ4vrWfj79F3O1ggf2SEOy49nym037CdA3TfW83kpw7MOVHH38-VG-LR_sobAMsS40N4dwNrvsfRQxjQha8gcnskPvtYAWYOII2vfMFxrxAeChwsDGd6A-b5-vo26GyQjebZLcfhMAgu79HFKgIrQRg9MYQ5ZI2wISi2T_d43RYyluXHBtVyCRIfEmUy3aTyJBo6ZHW5omhbUgDp9otwUmwFkv4xrmdrz5ADgqaMelEVllyJrUD9de_wvAh9V5q5Bu6bJhufQoKWXgO-dKIx6baJOA";
 
-        static public string SSA_DOWNSTREAM_BASE_URL => Configuration["SSA_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(SSA_DOWNSTREAM_BASE_URL)} - configuration setting not found");
-        static public string DISCOVERY_DOWNSTREAM_BASE_URL => Configuration["Discovery_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(DISCOVERY_DOWNSTREAM_BASE_URL)} - configuration setting not found");
-        static public string STATUS_DOWNSTREAM_BASE_URL => Configuration["Status_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(STATUS_DOWNSTREAM_BASE_URL)} - configuration setting not found");
-        static public string IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL => Configuration["IdentityProvider_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+        public static string AZURE_AD_TOKEN_ENDPOINT_URL => Configuration["CtsSettings:AzureAd:TokenEndpointUrl"] ?? throw new Exception($"{nameof(AZURE_AD_TOKEN_ENDPOINT_URL)} - configuration setting not found");
+
+        public static string AZURE_AD_CLIENT_ID => Configuration["CtsSettings:AzureAd:ClientId"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_ID)} - configuration setting not found");
+
+        public static string AZURE_AD_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:ClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_CLIENT_SECRET)} - configuration setting not found");
+
+        public static string AZURE_AD_UNAUTHORISED_CLIENT_ID => Configuration["CtsSettings:AzureAd:UnauthorisedClientId"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_ID)} - configuration setting not found");
+
+        public static string AZURE_AD_UNAUTHORISED_CLIENT_SECRET => Configuration["CtsSettings:AzureAd:UnauthorisedClientSecret"] ?? throw new Exception($"{nameof(AZURE_AD_UNAUTHORISED_CLIENT_SECRET)} - configuration setting not found");
+
+        public static string AZURE_AD_SCOPE => Configuration["CtsSettings:AzureAd:Scope"] ?? throw new Exception($"{nameof(AZURE_AD_SCOPE)} - configuration setting not found");
+
+        public static string AZURE_AD_GRANT_TYPE => Configuration["CtsSettings:AzureAd:GrantType"] ?? throw new Exception($"{nameof(AZURE_AD_GRANT_TYPE)} - configuration setting not found");
+
+        public static string SSA_DOWNSTREAM_BASE_URL => Configuration["SSA_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(SSA_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+
+        public static string DISCOVERY_DOWNSTREAM_BASE_URL => Configuration["Discovery_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(DISCOVERY_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+
+        public static string STATUS_DOWNSTREAM_BASE_URL => Configuration["Status_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(STATUS_DOWNSTREAM_BASE_URL)} - configuration setting not found");
+
+        public static string IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL => Configuration["IdentityProvider_Downstream_BaseUrl"] ?? throw new Exception($"{nameof(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)} - configuration setting not found");
 
         public TestFixture TestFixture { get; }
 
-        //END CTS Settings
+        // END CTS Settings
+
+        // URLs
+        public static string TLS_BaseURL => Configuration["TLS_BaseURL"]
+            ?? throw new Exception($"{nameof(TLS_BaseURL)} - configuration setting not found");
+
+        public static string MTLS_BaseURL => Configuration["MTLS_BaseURL"]
+            ?? throw new Exception($"{nameof(MTLS_BaseURL)} - configuration setting not found");
+
+        public static string ADMIN_BaseURL => Configuration["Admin_BaseURL"]
+            ?? throw new Exception($"{nameof(ADMIN_BaseURL)} - configuration setting not found");
+
+        public static readonly string ADMIN_URL = ADMIN_BaseURL + "/admin/metadata";
+
+        public static readonly string IDENTITYSERVER_URL = MTLS_BaseURL + "/idp/connect/token";
 
         protected const string EXPECTED_UNSUPPORTED_ERROR = @"
             {
@@ -170,10 +173,10 @@ namespace CDR.Register.IntegrationTests
             }";
 
         /// <summary>
-        /// Assert response content and expectedJson are equivalent
+        /// Assert response content and expectedJson are equivalent.
         /// </summary>
-        /// <param name="expectedJson">The expected json</param>
-        /// <param name="content">The response content</param>
+        /// <param name="expectedJson">The expected json.</param>
+        /// <param name="content">The response content.</param>
         public static async Task Assert_HasContent_Json(string expectedJson, HttpContent content)
         {
             var actualJson = await content.ReadAsStringAsync();
@@ -182,14 +185,15 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Assert actual json is equivalent to expected json
+        /// Assert actual json is equivalent to expected json.
         /// </summary>
-        /// <param name="expectedJson">The expected json</param>
-        /// <param name="actualJson">The actual json</param>       
+        /// <param name="expectedJson">The expected json.</param>
+        /// <param name="actualJson">The actual json.</param>
         public static void Assert_Json(string expectedJson, string actualJson)
         {
             Log.Information($"Verifying Actual Json:\n{actualJson}\n against expected:\n{expectedJson}");
-            //Use Fluentassertions.Json to compare. Whitespace and order is ignored.
+
+            // Use Fluentassertions.Json to compare. Whitespace and order is ignored.
             JToken expected = JToken.Parse(expectedJson);
             JToken actual = JToken.Parse(actualJson);
             actual.Should().BeEquivalentTo(expected);
@@ -197,17 +201,16 @@ namespace CDR.Register.IntegrationTests
 
         /// <summary>
         /// Assert headers has a single header with the expected value.
-        /// If expectedValue is null then just check for the existence of the header (and not it's value)
+        /// If expectedValue is null then just check for the existence of the header (and not it's value).
         /// </summary>
-        /// <param name="expectedValue">The expected header value</param>
-        /// <param name="headers">The headers to check</param>
-        /// <param name="name">Name of header to check</param>
+        /// <param name="expectedValue">The expected header value.</param>
+        /// <param name="headers">The headers to check.</param>
+        /// <param name="name">Name of header to check.</param>
         public static void Assert_HasHeader(string? expectedValue, HttpHeaders headers, string name)
         {
             headers.Should().NotBeNull();
             if (headers != null)
             {
-                // headers.Contains(name).Should().BeTrue($"Header '{name}' is missing");
                 headers.Contains(name).Should().BeTrue($"should contain {name} header");
                 if (headers.Contains(name))
                 {
@@ -224,9 +227,8 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Assert header has content type of ApplicationJson
+        /// Assert header has content type of ApplicationJson.
         /// </summary>
-        /// <param name="content"></param>
         public static void Assert_HasContentType_ApplicationJson(HttpContent content)
         {
             content.Should().NotBeNull();
@@ -236,7 +238,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Assert claim exists
+        /// Assert claim exists.
         /// </summary>
         public static void AssertClaim(IEnumerable<Claim> claims, string claimType, string claimValue)
         {
@@ -253,7 +255,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Get status of SoftwareProduct
+        /// Get status of SoftwareProduct.
         /// </summary>
         public static int GetSoftwareProductStatusId(string softwareProductId)
         {
@@ -267,7 +269,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Set status of SoftwareProduct
+        /// Set status of SoftwareProduct.
         /// </summary>
         public static void SetSoftwareProductStatusId(string softwareProductId, int statusId)
         {
@@ -287,11 +289,11 @@ namespace CDR.Register.IntegrationTests
             if (selectCommand.ExecuteScalarInt32() != 1)
             {
                 throw new Exception("Status not updated");
-            };
+            }
         }
 
         /// <summary>
-        /// Get status of Brand
+        /// Get status of Brand.
         /// </summary>
         public static int GetBrandStatusId(string brandId)
         {
@@ -305,7 +307,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Set status of Brand
+        /// Set status of Brand.
         /// </summary>
         public static void SetBrandStatusId(string brandId, int statusId)
         {
@@ -325,11 +327,11 @@ namespace CDR.Register.IntegrationTests
             if (selectCommand.ExecuteScalarInt32() != 1)
             {
                 throw new Exception("Status not updated");
-            };
+            }
         }
 
         /// <summary>
-        /// Get participationid for brand
+        /// Get participationid for brand.
         /// </summary>
         public static string GetParticipationId(string brandId)
         {
@@ -343,7 +345,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Get status of Participation
+        /// Get status of Participation.
         /// </summary>
         public static int GetParticipationStatusId(string participationId)
         {
@@ -357,7 +359,7 @@ namespace CDR.Register.IntegrationTests
         }
 
         /// <summary>
-        /// Get status of Participation
+        /// Get status of Participation.
         /// </summary>
         public static void SetParticipationStatusId(string participationId, int statusId)
         {
@@ -377,8 +379,9 @@ namespace CDR.Register.IntegrationTests
             if (selectCommand.ExecuteScalarInt32() != 1)
             {
                 throw new Exception("Status not updated");
-            };
+            }
         }
+
         protected static void VerifyParticipationRecord(string legalEntiryId, string expectedParticipationType, string expectedIndustryType, string expectedStatus)
         {
             using SqlConnection registerConnection = new SqlConnection(BaseTest.CONNECTIONSTRING_REGISTER_RW);
@@ -459,12 +462,10 @@ namespace CDR.Register.IntegrationTests
                 Log.Information($"Verifying LastUpdate Brand with Id: '{b.BrandId}' is within 120 seconds from '{DateTime.UtcNow}'");
                 b.LastUpdated.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(120), because: $"Brand with Id: '{b.BrandId}' was just updated/added.");
             }
-
         }
 
         protected static ICollection<Repository.Entities.Brand> GetActualBrandsFromDatabase(string legalEntityId)
         {
-
             var legalEntityIdGuid = Guid.Parse(legalEntityId);
 
             try
@@ -492,7 +493,7 @@ namespace CDR.Register.IntegrationTests
 
             using (new AssertionScope())
             {
-                //Check status code
+                // Check status code
                 httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
@@ -507,7 +508,7 @@ namespace CDR.Register.IntegrationTests
 
             using (new AssertionScope())
             {
-                //Check status code
+                // Check status code
                 httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
 
                 string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
@@ -523,13 +524,12 @@ namespace CDR.Register.IntegrationTests
 
             using (new AssertionScope())
             {
-                //Check status code
+                // Check status code
                 httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
                 string actualErrors = await httpResponseFromRegister.Content.ReadAsStringAsync();
 
                 Assert_Json(expectedErrorJson, actualErrors);
-
             }
         }
 
@@ -549,7 +549,7 @@ namespace CDR.Register.IntegrationTests
         {
             JToken mainJoken = JObject.FromObject(model ?? throw new ArgumentNullException(nameof(model)));
 
-            //If an array element, remove element.
+            // If an array element, remove element.
             if (path.Last() == ']')
             {
                 JToken token = mainJoken.SelectToken(path, true) ?? throw new Exception("mainJoken cannot be null.");
@@ -562,20 +562,19 @@ namespace CDR.Register.IntegrationTests
             }
 
             return mainJoken.ToObject<T>();
-
         }
 
         protected static T? ReplaceModelValueBasedOnJsonPath<T>(T model, string path, string newValue)
         {
             JToken mainJoken = JObject.FromObject(model ?? throw new ArgumentNullException(nameof(model)));
 
-            JToken tokenToUpdate = mainJoken.SelectToken(path) ?? throw new Exception($"tokenToUpdate is null. Ensure json path '{path}' exists."); ;
+            JToken tokenToUpdate = mainJoken.SelectToken(path) ?? throw new Exception($"tokenToUpdate is null. Ensure json path '{path}' exists.");
 
             tokenToUpdate.Replace(newValue);
 
             return mainJoken.ToObject<T>();
-
         }
+
         public static string GenerateDynamicCtsUrl(string baseUrl, string? conformanceId = null)
         {
             if (conformanceId == null)
@@ -590,9 +589,9 @@ namespace CDR.Register.IntegrationTests
 
         protected static string ReplaceSecureHostName(string url, string hostNamedToReplace)
         {
-            string secureHostname = Configuration["SecureHostName"] ?? "";
+            string secureHostname = Configuration["SecureHostName"] ?? string.Empty;
 
-            if (String.IsNullOrEmpty(secureHostname))
+            if (string.IsNullOrEmpty(secureHostname))
             {
                 return url;
             }
@@ -604,9 +603,9 @@ namespace CDR.Register.IntegrationTests
 
         protected static string ReplacePublicHostName(string url, string hostNamedToReplace)
         {
-            string publicHostname = Configuration["PublicHostName"] ?? "";
+            string publicHostname = Configuration["PublicHostName"] ?? string.Empty;
 
-            if (String.IsNullOrEmpty(publicHostname))
+            if (string.IsNullOrEmpty(publicHostname))
             {
                 return url;
             }
@@ -615,6 +614,25 @@ namespace CDR.Register.IntegrationTests
                 return url.Replace(hostNamedToReplace, publicHostname);
             }
         }
+    }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    internal class DisplayTestMethodNameAttribute : BeforeAfterTestAttribute
+    {
+        private static int count = 0;
+
+        public override void Before(MethodInfo methodUnderTest)
+        {
+            Log.Information($"********** Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name} **********");
+            Console.WriteLine($"Test #{++count} - {methodUnderTest.DeclaringType?.Name}.{methodUnderTest.Name}");
+        }
+    }
+
+    // Put all tests in same collection because we need them to run sequentially since some tests are mutating DB.
+    [Collection("IntegrationTests")]
+    [TestCaseOrderer("CDR.Register.IntegrationTests.XUnit.Orderers.AlphabeticalOrderer", "CDR.Register.IntegrationTests")]
+    [DisplayTestMethodName]
+    public abstract class BaseTest0
+    {
     }
 }

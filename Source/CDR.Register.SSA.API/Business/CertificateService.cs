@@ -21,19 +21,19 @@ namespace CDR.Register.SSA.API.Business
 
         public CertificateService(IConfiguration config)
         {
-            //Create the certificate
+            // Create the certificate
             var cert = new X509Certificate2(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
 
-            //Get credentials from certificate
+            // Get credentials from certificate
             SecurityKey = new X509SecurityKey(cert);
             SigningCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
-            //Get certificate kid
+            // Get certificate kid
             this.Kid = SigningCredentials.Kid;
 
             SigningCredentials.CryptoProviderFactory = new CryptoProviderFactory();
 
-            //Get signature provider
+            // Get signature provider
             this.SignatureProvider = SigningCredentials.CryptoProviderFactory.CreateForSigning(SecurityKey, "PS256");
 
             this.JsonWebKeySet = GenerateJwks();

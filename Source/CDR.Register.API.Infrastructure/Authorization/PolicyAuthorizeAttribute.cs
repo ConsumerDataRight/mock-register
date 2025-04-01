@@ -1,5 +1,4 @@
-﻿using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Domain.Models;
+﻿using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -13,11 +12,11 @@ namespace CDR.Register.API.Infrastructure.Authorization
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class PolicyAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilter
     {
-        public readonly RegisterAuthorisationPolicy policy;
+        public RegisterAuthorisationPolicy RegisterAuthorisationPolicy { get; private set; }
 
         public PolicyAuthorizeAttribute(RegisterAuthorisationPolicy policy)
         {
-            this.policy = policy;
+            this.RegisterAuthorisationPolicy = policy;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -25,14 +24,16 @@ namespace CDR.Register.API.Infrastructure.Authorization
             var authorizationService = (IAuthorizationService?)context.HttpContext.RequestServices.GetService(typeof(IAuthorizationService));
 
             if (authorizationService == null)
-            {                
-                return; 
+            {
+                return;
             }
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, policy.ToString());
+            var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, RegisterAuthorisationPolicy.ToString());
 
             if (authorizationResult.Succeeded)
+            {
                 return;
+            }
 
             if (authorizationResult.Failure.FailedRequirements.Any(r => r.GetType() == typeof(MtlsRequirement)))
             {

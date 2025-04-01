@@ -7,11 +7,17 @@ namespace CDR.Register.Domain.Entities
     public class DataHolder
     {
         public Guid DataHolderId { get; set; }
+
         public string Status { get; set; }
+
         public bool IsActive { get; set; }
+
         public string Industry { get; set; }
+
         public List<string> Industries { get; set; }
+
         public DataHolderLegalEntity LegalEntity { get; set; }
+
         public IList<DataHolderBrand> Brands { get; set; }
 
         public DateTime? LastUpdated

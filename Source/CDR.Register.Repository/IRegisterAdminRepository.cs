@@ -10,6 +10,7 @@ namespace CDR.Register.Repository
         Task<DataHolderBrand> GetDataHolderBrandAsync(Guid brandId);
 
         public Task<BusinessRuleError> AddOrUpdateDataRecipient(DataRecipient dataRecipient);
+
         Task<bool> SaveDataHolderBrand(Guid legalEntityId, DataHolderBrand dataHolderBrand);
     }
 }

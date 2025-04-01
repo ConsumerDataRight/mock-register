@@ -8,13 +8,13 @@
             <summary>
             This controller action provides an implementation of a JWKS for a Mock Data Recipient.
             </summary>
-            <returns>JWKS</returns>
+            <returns>JWKS.</returns>
         </member>
         <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.MockDataRecipientClientAssertion">
             <summary>
             This controller action produces a client assertion for a mock data recipient.
             </summary>
-            <returns>Client assertion string</returns>
+            <returns>Client assertion string.</returns>
             <remarks>
             This client assertion can then be used in a private key jwt request.
             </remarks>
@@ -23,7 +23,14 @@
             <summary>
             This controller action produces a self signed JWT for the mock register.
             </summary>
-            <returns>Self Signed JWT</returns>
+            <returns>Self Signed JWT.</returns>
+        </member>
+        <member name="M:CDR.Register.Admin.API.Program.ConfigureSerilog(Microsoft.Extensions.Configuration.IConfiguration,System.Boolean)">
+            <summary>
+            Configure Serilog logging.
+            </summary>
+            <param name="configuration">App configuration.</param>
+            <param name="isDatabaseReady">Set to True if the database is ready and the MSSqlServer sink will be configured.</param>
         </member>
         <member name="M:CDR.Register.Admin.API.Startup.RunMigrations">
             <summary>

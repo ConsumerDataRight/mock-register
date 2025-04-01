@@ -7,7 +7,9 @@ namespace CDR.Register.Discovery.API.Business.Responses
     public class ResponseRegisterDataHolderBrandList
     {
         public IEnumerable<RegisterDataHolderBrandModel> Data { get; set; }
+
         public LinksPaginated Links { get; set; } = new LinksPaginated();
+
         public MetaPaginated Meta { get; set; } = new MetaPaginated();
     }
 }

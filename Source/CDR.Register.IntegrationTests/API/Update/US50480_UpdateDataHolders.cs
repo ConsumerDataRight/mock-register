@@ -23,7 +23,10 @@ namespace CDR.Register.IntegrationTests.API.Update
 {
     public class US50480_UpdateDataHolders : BaseTest
     {
-        public US50480_UpdateDataHolders(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US50480_UpdateDataHolders(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
 
         private const string UPDATE_DATA_HOLDER_CURRENT_API_VERSION = "1";
 
@@ -51,7 +54,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert participation created correctly
             VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", industry.ToString(), dataHolderMetadata.Status);
-
         }
 
         [Theory]
@@ -69,7 +71,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, response, industry);
 
             VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", industry.ToString(), dataHolderMetadata.Status);
-
         }
 
         [Fact]
@@ -97,17 +98,16 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, modifiedResponse, Industry.Banking);
 
             VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString(), dataHolderMetadata.Status);
-
         }
 
         [Fact]
         public async Task AC03_Add_New_Brand_To_Existing_Legal_Entity_200()
         {
-
             // Generate valid payload.
             DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
+
             // Send to Register
-            HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
+            await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
 
             // Send Original request to Register
             HttpResponseMessage originalResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
@@ -118,10 +118,10 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid payload.
             DataHolderMetadata newDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
-            //Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity
+            // Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity
             newDataHolderMetadata.LegalEntity.LegalEntityId = originalDataHolderMetadata.LegalEntity.LegalEntityId;
 
-            //Also modify other fields
+            // Also modify other fields
             newDataHolderMetadata.BrandName = "Test Automation Modified Brand Name";
             newDataHolderMetadata.EndpointDetail.PublicBaseUri = $"{TEST_DATA_BASE_URI}/ModifiedPublicBaseUri";
             newDataHolderMetadata.AuthDetails.JwksEndpoint = $"{TEST_DATA_BASE_URI}/ModifiedJwks";
@@ -132,19 +132,18 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Assert http response and database updates.
             VerifySuccessfulDataHolderUpdate(newDataHolderMetadata, modifiedResponse, Industry.Banking);
 
-            //Also Check Original is not affected
+            // Also Check Original is not affected
             VerifySuccessfulDataHolderUpdate(originalDataHolderMetadata, originalResponse, Industry.Banking);
 
             VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString(), newDataHolderMetadata.Status);
-
         }
 
         [Fact]
         public async Task AC03_Add_New_Brand_To_Existing_Legal_Entity_With_Different_Industry_200()
         {
-
             // Generate valid Banking payload.
             DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
+
             // Send to Register
             _ = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
 
@@ -157,10 +156,10 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Generate valid Energy payload.
             DataHolderMetadata newDataHolderMetadata = CreateValidDataholderMetadata(Industry.Energy, true);
 
-            //Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity, and create a new participation record.
+            // Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity, and create a new participation record.
             newDataHolderMetadata.LegalEntity.LegalEntityId = originalDataHolderMetadata.LegalEntity.LegalEntityId;
 
-            //Also modify other fields
+            // Also modify other fields
             newDataHolderMetadata.BrandName = "Test Automation Energy Brand Name";
             newDataHolderMetadata.EndpointDetail.PublicBaseUri = $"{TEST_DATA_BASE_URI}/EnergyPublicBaseUri";
             newDataHolderMetadata.AuthDetails.JwksEndpoint = $"{TEST_DATA_BASE_URI}/EnergyJwks";
@@ -176,7 +175,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Verify Energy(subsequent) Participant
             VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Energy.ToString(), newDataHolderMetadata.Status);
-
         }
 
         [Theory]
@@ -190,7 +188,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingHeader, "An API version x-v header is required, but was not specified.");
 
             // Assert Response
@@ -207,13 +205,12 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidVersion, "Version is not a positive Integer.");
 
             // Assert Response
             await VerifyBadRequest(expectedErrors, response);
         }
-
 
         [Theory]
         [InlineData("20")]
@@ -224,7 +221,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new();
+            ExpectedErrors expectedErrors = new ();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version.");
 
             // Assert Response
@@ -288,7 +285,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("Max Length EndPoint - ExtensionBaseUri", "endpointDetail.extensionBaseUri", 1000)]
         [InlineData("Max Length EndPoint - WebsiteUri", "endpointDetail.websiteUri", 1000)]
         [InlineData("Max Length Legal Entity - Name", "legalEntity.legalEntityName", 200)]
-        //we don't check accredatation number for DHs as they don't have it.
+
+        // we don't check accredatation number for DHs as they don't have it.
         [InlineData("Max Length Legal Entity - logoUri", "legalEntity.logoUri", 1000)]
         [InlineData("Max Length Legal Entity - Registration Number", "legalEntity.registrationNumber", 100)]
         [InlineData("Max Length Legal Entity - Registered Country", "legalEntity.registeredCountry", 100)]
@@ -312,14 +310,13 @@ namespace CDR.Register.IntegrationTests.API.Update
             await VerifyInvalidAndValidFieldResponse(response, dataHolderMetadata, ConvertJsonPathToPascalCase(elementUnderTest), maxLengthValue, true);
 
             // Create dataHolder using maximum field lenght plus one
-            string maxLengthPlusOneValue = (maxLength+1).GenerateRandomString();
+            string maxLengthPlusOneValue = (maxLength + 1).GenerateRandomString();
             dataHolderMetadata = ReplaceModelValueBasedOnJsonPath(dataHolderMetadata, elementUnderTest, maxLengthPlusOneValue);
             Log.Information($"-ve:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             // Send and verify negative scenario
             HttpResponseMessage responseNegative = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
             await VerifyInvalidAndValidFieldResponse(responseNegative, dataHolderMetadata, ConvertJsonPathToPascalCase(elementUnderTest), maxLengthPlusOneValue, false);
-
         }
 
         [Theory]
@@ -343,22 +340,18 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             switch (industry.ToUpper())
             {
-
                 case "ENERGY":
                     industryEnum = Industry.Energy;
                     break;
 
-                case "BANKING":
                 default:
                     industryEnum = Industry.Banking;
                     break;
-
             }
 
             dataHolderMetadata.Industries = dataHolderMetadata.Industries.ConvertAll(x => x.ToUpper());
 
             await VerifyInvalidAndValidFieldResponse(httpResponseMessage, dataHolderMetadata, "Industries[0]", industry, isValid, industryEnum);
-
         }
 
         [Theory]
@@ -381,7 +374,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataHolderMetadata.Status = status.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(httpResponseMessage, dataHolderMetadata, "Status", status, isValid);
-
         }
 
         [Theory]
@@ -407,7 +399,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataHolderMetadata.LegalEntity.OrganisationType = orgType.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(httpResponseMessage, dataHolderMetadata, "LegalEntity.OrganisationType", orgType, isValid);
-
         }
 
         [Theory]
@@ -430,7 +421,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataHolderMetadata.LegalEntity.Status = status.ToUpper();
 
             await VerifyInvalidAndValidFieldResponse(httpResponseMessage, dataHolderMetadata, "LegalEntity.Status", status, isValid);
-
         }
 
         [Theory]
@@ -451,7 +441,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"modified:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             await VerifyInvalidAndValidFieldResponse(httpResponseMessage, dataHolderMetadata, "AuthDetails.RegisterUType", registerUType, isValid);
-
         }
 
         [Fact]
@@ -493,7 +482,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             HttpResponseMessage modifiedResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
             await VerifyInvalidPayloadResponse(modifiedResponse, $"Brand {dataHolderMetadata.DataHolderBrandId} is already associated with the same legal entity in a different industry.");
-
         }
 
         [Trait("Category", "CTSONLY")]
@@ -577,13 +565,10 @@ namespace CDR.Register.IntegrationTests.API.Update
             Log.Information($"Response from admin/metadata/data-holders API: {httpResponse.StatusCode} \n{httpResponse.Content.ReadAsStringAsync().Result}");
 
             return httpResponse;
-
         }
 
         private static async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataHolderMetadata dataHolderMetadata, string field, string value, bool isValid, Industry industry = Industry.Banking)
         {
-            // var response = await SendToStub(GetJsonFromModel(dataHolderMetadata), isValid ? "PASS" : "InvalidField");
-
             if (isValid)
             {
                 string actualDataHolder = GetActualDataHolderFromDatabase(dataHolderMetadata.LegalEntity.LegalEntityId, dataHolderMetadata.DataHolderBrandId, industry);
@@ -601,7 +586,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private static async Task VerifyInvalidPayloadResponse(HttpResponseMessage response, string expectedErrorMessage)
         {
-
             ExpectedErrors expectedErrors = new ExpectedErrors();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidField, expectedErrorMessage);
 
@@ -612,7 +596,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         {
             using (new AssertionScope())
             {
-                //Check status code
+                // Check status code
                 httpResponseFromRegister.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 string actualDataHolder = GetActualDataHolderFromDatabase(expectedDataHolderMetadata.LegalEntity.LegalEntityId, expectedDataHolderMetadata.DataHolderBrandId, industry);
@@ -625,7 +609,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private static DataHolderMetadata CreateValidDataholderMetadata(Industry industry, bool includeOptionalFields = false)
         {
-
             DataHolderMetadata dataHolderMetadata = new DataHolderMetadata();
             dataHolderMetadata.DataHolderBrandId = Guid.NewGuid().ToString();
             dataHolderMetadata.BrandName = "Test Automation Brand Name";
@@ -667,15 +650,13 @@ namespace CDR.Register.IntegrationTests.API.Update
                 dataHolderMetadata.LegalEntity.AnzsicDivision = "Test Automation Anzsic Division";
                 dataHolderMetadata.LegalEntity.OrganisationType = "SOLE_TRADER";
                 dataHolderMetadata.EndpointDetail.ExtensionBaseUri = $"{TEST_DATA_BASE_URI}/extensionBaseUri";
-            };
+            }
 
             return dataHolderMetadata;
-
         }
 
         private static string GetActualDataHolderFromDatabase(string legalEntityId, string brandId, Industry industry)
         {
-
             var legalEntityIdGuid = Guid.Parse(legalEntityId);
 
             try
@@ -725,7 +706,6 @@ namespace CDR.Register.IntegrationTests.API.Update
                                 infosecBaseUri = brand.Endpoint.InfosecBaseUri,
                                 extensionBaseUri = brand.Endpoint.ExtensionBaseUri,
                                 websiteUri = brand.Endpoint.WebsiteUri
-
                             },
                             authDetails = new
                             {

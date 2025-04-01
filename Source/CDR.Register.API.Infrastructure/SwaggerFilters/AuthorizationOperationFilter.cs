@@ -19,21 +19,21 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
         {
             var typeList = new List<Type>() { typeof(PolicyAuthorizeAttribute) };
             var relAtts = AttributeExtensions.GetAttributes(typeList, context.MethodInfo, true);
-            
+
             var authAtt = (PolicyAuthorizeAttribute?)relAtts.FirstOrDefault(attr => attr.GetType() == typeof(PolicyAuthorizeAttribute));
 
             var openApiObj = new OpenApiObject();
 
             if (authAtt != null)
             {
-                //Get the details of the policy
-                var authPolicy = authAtt.policy.GetPolicy();
+                // Get the details of the policy
+                var authPolicy = authAtt.RegisterAuthorisationPolicy.GetPolicy();
 
                 if (authPolicy != null)
                 {
                     AddPolicyRequirements(openApiObj, authPolicy);
                 }
-            }              
+            }
 
             operation.Extensions.Add("x-authorisation-policy", openApiObj);
         }
@@ -44,14 +44,17 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
             {
                 openApiObj["hasHolderOfKeyRequirement"] = new OpenApiBoolean(true);
             }
+
             if (authPolicy.HasAccessTokenRequirement)
             {
                 openApiObj["hasAccessTokenRequirement"] = new OpenApiBoolean(true);
             }
+
             if (authPolicy.HasMtlsRequirement)
             {
                 openApiObj["hasMtlsRequirement"] = new OpenApiBoolean(true);
             }
+
             if (!authPolicy.ScopeRequirement.IsNullOrEmpty())
             {
                 openApiObj["scopeRequirement"] = new OpenApiString(authPolicy.ScopeRequirement);

@@ -21,7 +21,7 @@
 
     public enum AccreditationLevel
     {
-        //Sponsored by Default 
+        // Sponsored by Default
         Sponsored = 0,
         Unrestricted = 1
     }
@@ -60,7 +60,7 @@
 
     public enum RegisterUType
     {
-        Unknown = 0,        
+        Unknown = 0,
         SignedJwt = 1
     }
 

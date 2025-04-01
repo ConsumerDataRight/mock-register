@@ -1,9 +1,10 @@
-using CDR.Register.API.Infrastructure;
+﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.API.Logger;
+using CDR.Register.Domain.Extensions;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Status.API.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using static CDR.Register.API.Infrastructure.Constants;
-using CDR.Register.Domain.Extensions;
 
 namespace CDR.Register.Status.API
 {
@@ -37,7 +37,7 @@ namespace CDR.Register.Status.API
 
             services.AddApiVersioning(options =>
             {
-                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); //uses default options atm
+                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
                 options.ErrorResponses = new ApiVersionErrorResponse();
             });
 

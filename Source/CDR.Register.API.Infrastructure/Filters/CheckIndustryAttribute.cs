@@ -7,7 +7,7 @@ using System;
 namespace CDR.Register.API.Infrastructure.Filters
 {
     /// <summary>
-    /// Checks the industry parameter is supported, if not then responds with BadRequest and appropriate ResponseErrorList
+    /// Checks the industry parameter is supported, if not then responds with BadRequest and appropriate ResponseErrorList.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class CheckIndustryAttribute : ActionFilterAttribute
@@ -16,7 +16,7 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         public CheckIndustryAttribute()
         {
-            _industryRestriction = "";
+            _industryRestriction = string.Empty;
         }
 
         public CheckIndustryAttribute(Industry industryRestriction)

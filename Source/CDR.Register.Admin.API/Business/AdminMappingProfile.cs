@@ -3,7 +3,6 @@ using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using DomainEntities = CDR.Register.Domain.Entities;
 
 namespace CDR.Register.Admin.API.Business
@@ -12,11 +11,9 @@ namespace CDR.Register.Admin.API.Business
     {
         public AdminMappingProfile()
         {
-
             CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipient>()
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source))
                 .ForMember(dest => dest.DataRecipientBrands, source => source.MapFrom(source => source.DataRecipientBrands));
-
 
             CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipientLegalEntity>()
                 .ForMember(dest => dest.AccreditationLevelId, source => source.MapFrom(source => source.AccreditationLevel));
@@ -27,8 +24,8 @@ namespace CDR.Register.Admin.API.Business
 
             CreateMap<Business.Model.SoftwareProduct, DomainEntities.SoftwareProduct>()
                 .ForMember(dest => dest.RedirectUri, source => source.MapFrom(src => src.RedirectUris != null ? string.Join(" ", src.RedirectUris) : string.Empty))
-                .ForMember(dest => dest.RedirectUris, opts => opts.Ignore())  //Ignore this as it is a computed property with no setter
-                .ForMember(dest => dest.Scope, opt => opt.MapFrom<SoftwareScopeResolver, string>(src => src.Scope));
+                .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) // Ignore this as it is a computed property with no setter
+                .ForMember(dest => dest.Scope, opt => opt.MapFrom<SoftwareScopeResolver, string>(src => src.Scope ?? string.Empty));
 
             CreateMap<Business.Model.SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateInfosec>();
 
@@ -36,7 +33,6 @@ namespace CDR.Register.Admin.API.Business
             CreateMap<DataHolderAuthenticationModel, DataHolderAuthentication>();
             CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
             CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
-            
 
             CreateMap<DataHolderLegalEntityModel, DataHolderLegalEntity>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntityId))
@@ -69,24 +65,4 @@ namespace CDR.Register.Admin.API.Business
                 .ForMember(dest => dest.DataHolder, source => source.MapFrom(source => source));
         }
     }
-
-    public class SoftwareScopeResolver : IMemberValueResolver<Model.SoftwareProduct, DomainEntities.SoftwareProduct, string, string>
-    {
-        private readonly IConfiguration config;
-
-        public SoftwareScopeResolver(IConfiguration config)
-        {
-            this.config=config;
-        }       
-
-        public string Resolve(Model.SoftwareProduct source, DomainEntities.SoftwareProduct destination, string sourceMember, string destMember, ResolutionContext context)
-        {
-            if (source.Scope == null)
-            {
-                return config["SoftwareProductDefaultScopes"] ?? "";
-            }
-
-            return source.Scope;
-        }
-    }   
 }

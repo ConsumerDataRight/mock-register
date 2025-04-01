@@ -25,25 +25,25 @@ namespace CDR.Register.Domain.Models
         }
 
         /// <summary>
-        /// Error code
+        /// Error code.
         /// </summary>
         [Required]
         public string Code { get; set; }
 
         /// <summary>
-        /// Error title
+        /// Error title.
         /// </summary>
         [Required]
         public string Title { get; set; }
 
         /// <summary>
-        /// Error detail
+        /// Error detail.
         /// </summary>
         [Required]
         public string Detail { get; set; }
 
         /// <summary>
-        /// Optional additional data for specific error types
+        /// Optional additional data for specific error types.
         /// </summary>
         public MetaError Meta { get; set; }
     }

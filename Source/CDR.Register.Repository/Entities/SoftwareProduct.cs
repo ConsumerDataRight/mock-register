@@ -16,19 +16,22 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public Guid SoftwareProductId { get; set; }
 
-        [MaxLength(200), Required]
+        [MaxLength(200)]
+        [Required]
         public string SoftwareProductName { get; set; }
 
         [MaxLength(4000)]
         public string SoftwareProductDescription { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string LogoUri { get; set; }
 
         [MaxLength(2048)]
         public string SectorIdentifierUri { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string ClientUri { get; set; }
 
         [MaxLength(1000)]
@@ -40,22 +43,28 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(1000)]
         public string RecipientBaseUri { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string RevocationUri { get; set; }
 
-        [MaxLength(2000), Required]
+        [MaxLength(2000)]
+        [Required]
         public string RedirectUris { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string JwksUri { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string Scope { get; set; }
 
         public SoftwareProductStatusType StatusId { get; set; }
+
         public SoftwareProductStatus Status { get; set; }
 
         public Guid BrandId { get; set; }
+
         public Brand Brand { get; set; }
 
         public ICollection<SoftwareProductCertificate> Certificates { get; set; }

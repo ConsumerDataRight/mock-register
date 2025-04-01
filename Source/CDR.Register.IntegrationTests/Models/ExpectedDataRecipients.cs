@@ -14,7 +14,7 @@ namespace CDR.Register.IntegrationTests.Models
         [JsonProperty("data")]
         public List<DataRecipient> Data { get; set; }
     }
-    
+
     public class ExpectedDataRecipients_V2
     {
         public ExpectedDataRecipients_V2()
@@ -30,7 +30,7 @@ namespace CDR.Register.IntegrationTests.Models
     {
         public DataRecipient()
         {
-            DataRecipientBrands  = new List<DataRecipientBrand>();
+            DataRecipientBrands = new List<DataRecipientBrand>();
         }
 
         [JsonProperty("accreditationNumber")]
@@ -62,7 +62,7 @@ namespace CDR.Register.IntegrationTests.Models
     {
         public DataRecipient_V2()
         {
-            DataRecipientBrands  = new List<DataRecipientBrand>();
+            DataRecipientBrands = new List<DataRecipientBrand>();
         }
 
         [JsonProperty("accreditationNumber")]
@@ -89,12 +89,12 @@ namespace CDR.Register.IntegrationTests.Models
         [JsonProperty("lastUpdated")]
         public DateTime LastUpdated { get; set; }
     }
-    
+
     public class DataRecipientBrand
     {
         public DataRecipientBrand()
         {
-            SoftwareProducts  = new List<SoftwareProduct>();
+            SoftwareProducts = new List<SoftwareProduct>();
         }
 
         [JsonProperty("dataRecipientBrandId")]
@@ -112,7 +112,7 @@ namespace CDR.Register.IntegrationTests.Models
         [JsonProperty("status")]
         public string Status { get; set; }
     }
-    
+
     public class SoftwareProduct
     {
         [JsonProperty("softwareProductId")]

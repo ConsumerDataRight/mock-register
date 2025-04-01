@@ -124,7 +124,5 @@ namespace CDR.Register.IntegrationTests.Models
             [JsonProperty("certificates")]
             public List<Certificate> Certificates { get; set; }
         }
-
-
     }
 }

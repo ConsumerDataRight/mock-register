@@ -6,7 +6,9 @@ namespace CDR.Register.Repository.Entities
     {
         [Key]
         public RegisterUTypes RegisterUTypeId { get; set; }
-        [MaxLength(25), Required]
+
+        [MaxLength(25)]
+        [Required]
         public string RegisterUTypeCode { get; set; }
     }
 

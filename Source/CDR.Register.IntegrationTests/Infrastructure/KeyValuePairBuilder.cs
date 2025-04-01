@@ -3,21 +3,23 @@
 namespace CDR.Register.IntegrationTests.Infrastructure
 {
     /// <summary>
-    /// Key/Value pair builder
+    /// Key/Value pair builder.
     /// </summary>
     public class KeyValuePairBuilder
     {
         private readonly string _delimiter;
 
         private readonly StringBuilder _sb = new StringBuilder();
+
         /// <summary>
-        /// Get key/value pairs as string
+        /// Get key/value pairs as string.
         /// </summary>
         public string Value => _sb.ToString();
 
         private int _count = 0;
+
         /// <summary>
-        /// Number of key/value pairs
+        /// Number of key/value pairs.
         /// </summary>
         public int Count => _count;
 
@@ -27,10 +29,10 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         }
 
         /// <summary>
-        /// Append key/value pair
+        /// Append key/value pair.
         /// </summary>
-        /// <param name="key">Key to add</param>
-        /// <param name="value">Value to add</param>
+        /// <param name="key">Key to add.</param>
+        /// <param name="value">Value to add.</param>
         public void Add(string key, string value)
         {
             if (_sb.Length > 0)
@@ -44,20 +46,20 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         }
 
         /// <summary>
-        /// Add key/value pair
+        /// Add key/value pair.
         /// </summary>
-        /// <param name="key">Key to add</param>
-        /// <param name="value">Value to add</param>
+        /// <param name="key">Key to add.</param>
+        /// <param name="value">Value to add.</param>
         public void Add(string key, int value)
         {
             Add(key, value.ToString());
         }
 
         /// <summary>
-        /// Add key/value pair
+        /// Add key/value pair.
         /// </summary>
-        /// <param name="key">Key to add</param>
-        /// <param name="value">Value to add</param>
+        /// <param name="key">Key to add.</param>
+        /// <param name="value">Value to add.</param>
         public void Add(string key, long value)
         {
             Add(key, value.ToString());

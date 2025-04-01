@@ -17,8 +17,8 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.Status).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
             // Enum Validations
-            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out DhStatus result)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
-            RuleFor(x => x.OrganisationType).Must(x => string.IsNullOrEmpty(x) || Enum.TryParse(x.Replace("_", string.Empty), true, out OrganisationType result)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out DhStatus _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            RuleFor(x => x.OrganisationType).Must(x => string.IsNullOrEmpty(x) || Enum.TryParse(x.Replace("_", string.Empty), true, out OrganisationType _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
 
             // Length Validations
             RuleFor(x => x.LegalEntityName).MaximumLength(200).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);

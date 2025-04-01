@@ -22,14 +22,14 @@ namespace CDR.Register.API.Infrastructure
 
         public void ValidateClientCertificate(X509Certificate2 clientCert)
         {
-            _logger.LogInformation("Validating certificate within the {Name}",nameof(CertificateValidator));
+            _logger.LogInformation("Validating certificate within the {Name}", nameof(CertificateValidator));
 
             if (clientCert == null)
             {
                 throw new ArgumentNullException(nameof(clientCert));
             }
 
-            var rootCAPath = _config.GetValue<string>("RootCACertificatePath")??throw new ClientCertificateException("Root CA Certificate path not configured");
+            var rootCAPath = _config.GetValue<string>("RootCACertificatePath") ?? throw new ClientCertificateException("Root CA Certificate path not configured");
 
             // Validate that the certificate has been issued by the Mock CDR CA.
             var rootCACertificate = new X509Certificate2(rootCAPath);
