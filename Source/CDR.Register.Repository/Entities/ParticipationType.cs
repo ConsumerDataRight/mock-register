@@ -7,7 +7,8 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public ParticipationTypes ParticipationTypeId { get; set; }
 
-        [MaxLength(2), Required]
+        [MaxLength(2)]
+        [Required]
         public string ParticipationTypeCode { get; set; }
     }
 

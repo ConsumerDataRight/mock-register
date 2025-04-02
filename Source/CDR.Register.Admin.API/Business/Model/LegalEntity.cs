@@ -34,6 +34,5 @@ namespace CDR.Register.Admin.API.Business.Model
         public string? OrganisationType { get; set; } = null;
 
         public virtual ICollection<Brand> DataRecipientBrands { get; set; } = [];
-        
     }
 }

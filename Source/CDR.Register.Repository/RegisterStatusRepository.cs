@@ -56,8 +56,7 @@ namespace CDR.Register.Repository
                     {
                         SoftwareProductId = sp.SoftwareProductId,
                         Status = sp.Status.SoftwareProductStatusCode
-                    }
-                )
+                    })
                 .OrderBy(sp => sp.SoftwareProductId)
                 .ToArray();
         }

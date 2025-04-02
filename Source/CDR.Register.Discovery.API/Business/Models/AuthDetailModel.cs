@@ -3,6 +3,7 @@
     public class AuthDetailModel
     {
         public string RegisterUType { get; set; }
+
         public string JwksEndpoint { get; set; }
     }
 }

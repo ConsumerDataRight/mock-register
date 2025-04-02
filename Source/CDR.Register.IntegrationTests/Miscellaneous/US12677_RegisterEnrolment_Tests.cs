@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,12 +15,16 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 {
     /// <summary>
     /// Integration tests for Register Admin API.
-    /// </summary>   
+    /// </summary>
     public class US12677_RegisterEnrolment_Tests : BaseTest
     {
-        public US12677_RegisterEnrolment_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US12677_RegisterEnrolment_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
+
         /// <summary>
-        /// Get the repository as json
+        /// Get the repository as json.
         /// </summary>
         private static async Task<HttpResponseMessage> GetJson()
         {
@@ -33,7 +37,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         }
 
         /// <summary>
-        /// Load (replace) the repository from json
+        /// Load (replace) the repository from json.
         /// </summary>
         private static async Task<HttpResponseMessage> PostJson(string json)
         {
@@ -54,12 +58,12 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_RepositoryAsJson()
         {
-            // Arrange            
+            // Arrange
             await TestFixture.Seeddata(); // TestFixture.InitializeAsync() seeds data but also then patches data in the database. Since we are just testing if import works need to import again (but without patching data).
             var json = await File.ReadAllTextAsync(SEEDDATA_FILENAME);
             var jToken = JToken.Parse(json);
 
-            // Act            
+            // Act
             var response = await GetJson();
             var responseJson = await response.Content.ReadAsStringAsync();
             var jTokenResponse = JToken.Parse(responseJson);
@@ -133,7 +137,10 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 foreach (var item in jToken.SelectTokens($"..{fieldName}"))
                 {
                     var prop = item as JValue;
-                    if (prop != null) prop.Value = null;
+                    if (prop != null)
+                    {
+                        prop.Value = null;
+                    }
                 }
             }
 
@@ -146,7 +153,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             ClearField(jToken, "legalEntityStatusId");
         }
 
-        static JToken Cleanup(JToken jToken)
+        private static JToken Cleanup(JToken jToken)
         {
             // Sort
             jToken["legalEntities"].SortArray("legalEntityId");
@@ -160,7 +167,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             jToken.RemoveEmptyArrays();
 
             // Fix mismatch in version, convert to string
-            jToken.ReplacePath("$..legalEntities..participations..brands..endpoint..version",
+            jToken.ReplacePath(
+                "$..legalEntities..participations..brands..endpoint..version",
                 t => $"{t}");
 
             // Issues with Guids and property names having different cases... not ideal, but just convert to upper case
@@ -205,11 +213,13 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             static void UpdateNames(JToken jToken)
             {
                 if (jToken["legalEntities"] != null)
+                {
                     foreach (var legalEntity in jToken["legalEntities"])
                     {
                         legalEntity["legalEntityName"] += " updated";
 
                         if (legalEntity["participations"] != null)
+                        {
                             foreach (var participation in legalEntity["participations"])
                             {
                                 foreach (var brand in participation["brands"])
@@ -217,13 +227,17 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                                     brand["brandName"] += " updated";
 
                                     if (brand["softwareProducts"] != null)
+                                    {
                                         foreach (var softwareProduct in brand["softwareProducts"])
                                         {
                                             softwareProduct["softwareProductName"] += " updated";
                                         }
+                                    }
                                 }
                             }
+                        }
                     }
+                }
             }
 
             // Arrange

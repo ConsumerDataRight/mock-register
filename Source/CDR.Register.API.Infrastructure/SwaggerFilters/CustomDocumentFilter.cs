@@ -21,8 +21,8 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
 
                 foreach (var op in path.Operations.Select(op => op.Value))
                 {
-                    //api-version included as it is currently used in some places in PT instead of x-v
-                    if (op.Parameters.Any(p => p.Name.Equals("x-v",System.StringComparison.OrdinalIgnoreCase)) || op.Parameters.Any(p => p.Name.Equals("api-version", System.StringComparison.OrdinalIgnoreCase)))
+                    // api-version included as it is currently used in some places in PT instead of x-v
+                    if (op.Parameters.Any(p => p.Name.Equals("x-v", System.StringComparison.OrdinalIgnoreCase)) || op.Parameters.Any(p => p.Name.Equals("api-version", System.StringComparison.OrdinalIgnoreCase)))
                     {
                         op.Extensions.TryGetValue("x-version", out var value);
                         if (value == null && !string.IsNullOrWhiteSpace(swaggerDoc.Info.Version))

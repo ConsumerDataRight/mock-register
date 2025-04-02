@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using CDR.Register.API.Infrastructure.Exceptions;
@@ -17,11 +16,12 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_ValidCertificate_ShouldReturnTrue()
         {
-            // Arrange.            
+            // Arrange.
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "RootCACertificatePath", rootCaPath }
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -45,15 +45,14 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             // Arrange.
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "RootCACertificatePath", rootCaPath }
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
-            var clientCertPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "client.pfx");
-            var goodClientCert = new X509Certificate2(clientCertPath, "#M0ckDataRecipient#");
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
@@ -65,11 +64,12 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_SelfSignedCertificate_ShouldReturnFalse()
         {
-            // Arrange.            
+            // Arrange.
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "RootCACertificatePath", rootCaPath }
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -86,11 +86,12 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_FakeMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.            
+            // Arrange.
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "RootCACertificatePath", rootCaPath }
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -109,11 +110,12 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
         [Fact]
         public void IsValid_NonMockCDRCACertificate_ShouldReturnFalse()
         {
-            // Arrange.            
+            // Arrange.
             var logger = Substitute.For<ILogger<CertificateValidator>>();
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
-            var inMemorySettings = new Dictionary<string, string> {
-                {"RootCACertificatePath", rootCaPath}
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "RootCACertificatePath", rootCaPath }
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -128,6 +130,5 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
 
             // Assert.
         }
-
     }
 }

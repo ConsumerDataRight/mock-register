@@ -7,14 +7,15 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public ParticipationStatusType ParticipationStatusId { get; set; }
 
-        [MaxLength(25), Required]
+        [MaxLength(25)]
+        [Required]
         public string ParticipationStatusCode { get; set; }
 
         /// <summary>
         /// Applicable participation types. If null or Unknown, it's available for all participation types.
         /// </summary>
-		public ParticipationTypes? ParticipationTypeId { get; set; }
-	}
+        public ParticipationTypes? ParticipationTypeId { get; set; }
+    }
 
     public enum ParticipationStatusType
     {

@@ -14,10 +14,12 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public Guid LegalEntityId { get; set; }
 
-        [MaxLength(200), Required]
+        [MaxLength(200)]
+        [Required]
         public string LegalEntityName { get; set; }
 
-        [MaxLength(1000), Required]
+        [MaxLength(1000)]
+        [Required]
         public string LogoUri { get; set; }
 
         [MaxLength(100)]
@@ -41,15 +43,16 @@ namespace CDR.Register.Repository.Entities
         public string AnzsicDivision { get; set; }
 
         public OrganisationTypes? OrganisationTypeId { get; set; }
+
         public OrganisationType OrganisationType { get; set; }
 
         [MaxLength(100)]
         public string AccreditationNumber { get; set; }
 
         public AccreditationLevelType? AccreditationLevelId { get; set; }
+
         public AccreditationLevel AccreditationLevel { get; set; }
 
         public virtual ICollection<Participation> Participations { get; set; }
-
     }
 }

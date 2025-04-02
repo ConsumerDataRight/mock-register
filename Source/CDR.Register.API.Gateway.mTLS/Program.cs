@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -8,13 +8,11 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 
-namespace CDR.Register.API.Gateway.mTLS
+namespace CDR.Register.API.Gateway.Mtls
 {
     public static class Program
     {
-
         public static int Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
@@ -25,7 +23,7 @@ namespace CDR.Register.API.Gateway.mTLS
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
+                .ReadFrom.Configuration(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
@@ -87,13 +85,13 @@ namespace CDR.Register.API.Gateway.mTLS
                                     listenOptions.OnAuthenticate = (context, sslOptions) =>
                                     {
                                         // Set the cipher suites dictated by the CDS.
-                                        sslOptions.CipherSuitesPolicy = new CipherSuitesPolicy(
-                                            new[] {
+                                        sslOptions.CipherSuitesPolicy = new CipherSuitesPolicy(new[]
+                                        {
                                             TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
                                             TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
                                             TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
                                             TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-                                            });
+                                        });
                                     };
                                 }
                             });

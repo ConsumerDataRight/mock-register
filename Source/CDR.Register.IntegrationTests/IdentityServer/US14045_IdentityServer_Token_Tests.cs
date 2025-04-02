@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -13,7 +13,6 @@ using CDR.Register.IntegrationTests.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Xunit;
@@ -26,10 +25,14 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 {
     /// <summary>
     /// Integration tests for Identity Server Token Tests.
-    /// </summary>   
+    /// </summary>
     public class US14045_IdentityServer_Token_Tests : BaseTest
     {
-        public US14045_IdentityServer_Token_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US14045_IdentityServer_Token_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
+
         protected const string CLIENTASSERTION_ISSUER = "86ecb655-9eba-409c-9be3-59e7adf7080d";
 
         protected static string CLIENTASSERTION_AUDIENCE => MTLS_BaseURL + "/idp/connect/token";
@@ -41,24 +44,24 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
         private static HttpClient GetClient()
         {
-            var _clientHandler = new HttpClientHandler();
-            _clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-            return new HttpClient(_clientHandler);
+            return new HttpClient(clientHandler);
         }
 
         private static HttpClient GetClientWithCertificate(
            string certificateFilename = CERTIFICATE_FILENAME,
            string certificatePassword = CERTIFICATE_PASSWORD)
         {
-            var _clientHandler = new HttpClientHandler();
-            _clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             // Attach certificate
             var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
-            _clientHandler.ClientCertificates.Add(clientCertificate);
+            clientHandler.ClientCertificates.Add(clientCertificate);
 
-            return new HttpClient(_clientHandler);
+            return new HttpClient(clientHandler);
         }
 
         private static string GetClientAssertion(
@@ -81,7 +84,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }
 
             var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword, jtiClaim);
-            return tokenizer.Generate(clientAssertionIssuer, clientAssetionAudience, subClaim, signingAlgorithm: signingAlgorithm);
+            return tokenizer.Generate(clientAssertionIssuer, clientAssetionAudience, subClaim, signingAlgorithm: signingAlgorithm!);
         }
 
         private static HttpRequestMessage GetAccessTokenRequest(
@@ -89,7 +92,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
            string? client_id,
            string? client_assertion_type,
            string? client_assertion,
-           string content_type_header = "application/x-www-form-urlencoded",
+           string? content_type_header = "application/x-www-form-urlencoded",
            string scope = CLIENTASSERTION_SCOPE,
            string? tokenEndpointUrl = null)
         {
@@ -132,7 +135,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 Content = new StringContent(
                     BuildContent(grant_type, client_id, client_assertion_type, client_assertion, scope),
                     Encoding.UTF8,
-                    content_type_header)
+                    content_type_header!)
             };
 
             if (string.IsNullOrEmpty(content_type_header))
@@ -159,7 +162,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 var jwksResponse = await jwksClient.GetAsync($"{TLS_BaseURL}/idp/.well-known/openid-configuration/jwks");
                 var jwks = new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
 
-                // Setup validation paramters                
+                // Setup validation paramters
                 var validationParameters = new TokenValidationParameters()
                 {
                     ValidateLifetime = true,
@@ -167,7 +170,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
                     RequireSignedTokens = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = jwks.Keys.First(),
+                    IssuerSigningKey = jwks.Keys[0],
 
                     ValidateIssuer = true,
                     ValidIssuer = $"{TLS_BaseURL}/idp",
@@ -193,7 +196,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     CLIENTASSERTION_CLIENT_ASSERTION_TYPE,
                     clientAssertion);
 
-            // Act 
+            // Act
             var response = await client.SendAsync(request);
 
             Log.Information("Response from {IdentityServerUrl}: {StatusCode} \n{Content}", IDENTITYSERVER_URL, response.StatusCode, await response.Content.ReadAsStringAsync());
@@ -219,10 +222,10 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     // Assert - Check scope
                     accessToken.scope.Should().Contain("cdr-register:read");
 
-                    // Assert - Validate access token                
+                    // Assert - Validate access token
                     SecurityToken? validatedToken = null;
                     Func<Task> getValidatedTokenFunc = async () => validatedToken = await GetValidatedToken(accessToken);
-                    await getValidatedTokenFunc.Should().NotThrowAsync(); // If token is valid then no exceptions should be thrown 
+                    await getValidatedTokenFunc.Should().NotThrowAsync(); // If token is valid then no exceptions should be thrown
                     validatedToken?.Should().NotBeNull();
 
                     // Assert - Check the cnf claim
@@ -265,16 +268,16 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
                 if (expectedError != null)
                 {
-                    // Assert - Check error response 
+                    // Assert - Check error response
                     await Assert_HasContent_Json(expectedError, response.Content);
                 }
             }
         }
 
         [Theory]
-        [InlineData(null)]  // omit granttype
-        [InlineData("")]    // blank granttype
-        [InlineData("foo")] // non-blank 
+        [InlineData(null)] // omit granttype
+        [InlineData("")] // blank granttype
+        [InlineData("foo")] // non-blank
         public async Task AC05_TokenRequest_InvalidGrantType_ShouldRespondWith_400BadRequest_ErrorResponse(string? grantType)
         {
             // Arrange
@@ -298,7 +301,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error response
-                var expectedContent = String.IsNullOrEmpty(grantType) ?
+                var expectedContent = string.IsNullOrEmpty(grantType) ?
                     @"{""error"":""invalid_client"",""error_description"":""grant_type not provided""}" :
                     @"{""error"":""unsupported_grant_type"",""error_description"":""grant_type must be client_credentials""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
@@ -306,8 +309,8 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         }
 
         [Theory]
-        [InlineData(null)] // omit client assertion 
-        [InlineData("")] // blank 
+        [InlineData(null)] // omit client assertion
+        [InlineData("")] // blank
         [InlineData("foo")] // invalid
         public async Task AC06_TokenRequest_InvalidClientAssertion_ShouldRespondWith_400BadRequest_ErrorResponse(string? clientAssertion)
         {
@@ -330,7 +333,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = String.IsNullOrEmpty(clientAssertion) ?
+                var expectedContent = string.IsNullOrEmpty(clientAssertion) ?
                     @"{""error"":""invalid_client"",""error_description"":""client_assertion not provided""}" :
                     @"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
@@ -339,7 +342,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
         [Theory]
         [InlineData(null)] // omit client assertion type
-        [InlineData("")] // blank 
+        [InlineData("")] // blank
         [InlineData("foo")] // invalid
         public async Task AC07_AC08_TokenRequest_InvalidClientAssertionType_ShouldRespondWith_400BadRequest_ErrorResponse(string? clientAssertionType)
         {
@@ -364,7 +367,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 // Assert - Check error reponse
-                var expectedContent = String.IsNullOrEmpty(clientAssertionType) ?
+                var expectedContent = string.IsNullOrEmpty(clientAssertionType) ?
                     @"{""error"":""invalid_client"",""error_description"":""client_assertion_type not provided""}" :
                     @"{""error"":""invalid_client"",""error_description"":""client_assertion_type must be urn:ietf:params:oauth:client-assertion-type:jwt-bearer""}";
                 await Assert_HasContent_Json(expectedContent, response.Content);
@@ -372,7 +375,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         }
 
         [Theory]
-        [InlineData("")] // blank 
+        [InlineData("")] // blank
         [InlineData("cdr-register:bank:read")] // invalid old scope
         [InlineData("foo")] // invalid
         public async Task AC09_TokenRequest_InvaldScope_ShouldRespondWith_400BadRequest_ErrorResponse(string scope)
@@ -413,7 +416,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             // Arrange
             var client = GetClientWithCertificate();
 
-            var clientAssertion = GetClientAssertion(jtiClaim: "");
+            var clientAssertion = GetClientAssertion(jtiClaim: string.Empty);
 
             var request = GetAccessTokenRequest(
                     CLIENTASSERTION_GRANT_TYPE,
@@ -546,7 +549,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 // Assert - Check status code
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-                // Assert - Check error response 
+                // Assert - Check error response
                 var expectedContent = @"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - 'jti' in the client assertion token must be unique""}";
 
                 await Assert_HasContent_Json(expectedContent, response.Content);
@@ -554,7 +557,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         }
 
         [Theory]
-        [InlineData(ADDITIONAL_CERTIFICATE_FILENAME, ADDITIONAL_CERTIFICATE_PASSWORD)]  // invalid certificate
+        [InlineData(ADDITIONAL_CERTIFICATE_FILENAME, ADDITIONAL_CERTIFICATE_PASSWORD)] // invalid certificate
         public async Task AC16_TokenRequest_ValidWithInvalidClientCertificate_ShouldRespondWith_400BadRequest_ErrorResponse(string certificateFilename, string certificatePassword)
         {
             // Arrange
@@ -584,10 +587,10 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         }
 
         // Use MemberData due to dynamic aud strings
-        [Theory, MemberData(nameof(ValidAudienceScenarios))]
+        [Theory]
+        [MemberData(nameof(ValidAudienceScenarios))]
         public async Task AC00_TokenRequest_ValidAudience(string aud, string scenarioDescription)
         {
-
             Log.Information("Running positive test case for valid audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
 
             // Arrange
@@ -614,7 +617,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 string responseString = await response.Content.ReadAsStringAsync();
                 responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
             }
-
         }
 
         public static IEnumerable<object[]> ValidAudienceScenarios
@@ -627,17 +629,16 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         }
 
         // Use MemberData due to dynamic aud strings
-        [Theory, MemberData(nameof(InvalidAudienceScenarios))]
+        [Theory]
+        [MemberData(nameof(InvalidAudienceScenarios))]
         public async Task AC00_TokenRequest_InvalidAudience(string aud, string scenarioDescription)
         {
-
             Log.Information("Running negative test case for invalid audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
 
             // Arrange
             var client = GetClientWithCertificate();
 
             var clientAssertion = GetClientAssertion(clientAssetionAudience: aud);
-
 
             var request = GetAccessTokenRequest(
                     CLIENTASSERTION_GRANT_TYPE,
@@ -654,10 +655,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 // Assert - Check status code
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest, because: aud + " - " + scenarioDescription);
 
-                // Assert - Check error response 
+                // Assert - Check error response
                 await Assert_HasContent_Json(@"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}", response.Content);
             }
-
         }
 
         public static IEnumerable<object[]> InvalidAudienceScenarios
@@ -666,7 +666,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             {
                 yield return new string[] { $"foo", "'foo' is not a valid token endpoint or OIDC issuer" };
                 yield return new string[] { $"{MTLS_BaseURL}/idp/connect/token/x", "Audience is only partial Token Endpoint match (only start matches)" };
-                yield return new string[] { $"foo{MTLS_BaseURL}/idp/connect/token", "Audience is only partial Token Endpoint match (only end matches)" };                
+                yield return new string[] { $"foo{MTLS_BaseURL}/idp/connect/token", "Audience is only partial Token Endpoint match (only end matches)" };
                 yield return new string[] { $"{TLS_BaseURL}/idp/foo", "Audience is only partial OICD issuer match (only start matches)" };
                 yield return new string[] { $"foo{TLS_BaseURL}/idp", "Audience is only partial OICD issuer match (only end matches)" };
                 yield return new string[] { $"{TLS_BaseURL}/idp/connect/token", "Audience is only partial OICD issuer match - Ends with '/connect/token'" };
@@ -676,10 +676,10 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
         // Use MemberData due to dynamic aud strings
         [Trait("Category", "CTSONLY")]
-        [Theory, MemberData(nameof(ValidCtsUrlAudienceScenarios))]
+        [Theory]
+        [MemberData(nameof(ValidCtsUrlAudienceScenarios))]
         public static async Task AC00_TokenRequest_ValidAudience_DynamicBasePath(string aud, string scenarioDescription, string tokenEndpointUrl)
         {
-
             Log.Information("Running positive test case for valid audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
 
             // Arrange - Get access token
@@ -706,10 +706,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 string responseString = await response.Content.ReadAsStringAsync();
                 responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
             }
-
         }
 
-        public static IEnumerable<object[]> ValidCtsUrlAudienceScenarios 
+        public static IEnumerable<object[]> ValidCtsUrlAudienceScenarios
         {
             get
             {
@@ -723,10 +722,10 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
         // Use MemberData due to dynamic aud strings
         [Trait("Category", "CTSONLY")]
-        [Theory, MemberData(nameof(InvalidCtsUrlAudienceScenarios))]
+        [Theory]
+        [MemberData(nameof(InvalidCtsUrlAudienceScenarios))]
         public async Task AC00_TokenRequest_InvalidAudience_DynamicBasePath(string aud, string scenarioDescription, string tokenEndpointUrl)
         {
-
             Log.Information("Running negative test case for audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
 
             // Arrange - Get access token
@@ -749,10 +748,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 // Assert - Check status code
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest, because: aud + " - " + scenarioDescription);
 
-                // Assert - Check error response 
+                // Assert - Check error response
                 await Assert_HasContent_Json(@"{""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}", response.Content);
             }
-
         }
 
         public static IEnumerable<object[]> InvalidCtsUrlAudienceScenarios

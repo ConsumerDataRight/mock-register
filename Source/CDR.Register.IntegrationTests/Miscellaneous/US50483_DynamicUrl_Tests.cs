@@ -17,7 +17,10 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 {
     public class US50483_DynamicUrl_Tests : BaseTest
     {
-        public US50483_DynamicUrl_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US50483_DynamicUrl_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
 
         private const string DEFAULT_SOFTWAREPRODUCT_ID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
@@ -45,9 +48,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
             }.GetAsync(addCertificateToRequest: false);
 
-            var api = new Infrastructure.API
+            var api = new Infrastructure.Api
             {
-
                 HttpMethod = HttpMethod.Get,
                 URL = getDataholderBrandsUrl,
                 AccessToken = accessToken,
@@ -63,7 +65,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
-
         }
 
         [Trait("Category", "CTSONLY")]
@@ -72,7 +73,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         [InlineData("Missing Certificate Thumbprint", "", DEFAULT_CERTIFICATE_COMMON_NAME)]
         public async Task AC02_Get_Access_Token_Invalid_Certificate_Header_For_Access_Token(string testDescription, string certificateThumbPrint, string certificateCommonName)
         {
-
             Log.Information("Executing test for {TestDescription}.\nCertificate ThumbPrint: {CertificateThumbPrint}.\nCertificateCommonName: {CertificateCommonName}", testDescription, certificateThumbPrint, certificateCommonName);
 
             // Arrange
@@ -96,11 +96,9 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Assert
             using (new AssertionScope())
             {
-
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
                 await Assert_HasContent_Json(@"{""error"":""invalid_client"",""error_description"":""Client certificate validation failed""}", response.Content);
-
             }
         }
 
@@ -108,9 +106,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         [Fact]
         public async Task AC03_Get_Access_Token_Invalid_Url_Regular_Expression_For_Access_Token()
         {
-            
             string tokenEndpoint = $"{IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL}/foo/idp/connect/token";
-            
+
             // Arrange - Get access token
             var accessToken = new AccessToken
             {
@@ -127,13 +124,12 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
         }
 
         [Trait("Category", "CTSONLY")]
-        [Fact] 
+        [Fact]
         public async Task AC04_Get_Data_Holder_Brands_Invalid_Access_Token_Issuer()
-        { 
+        {
             // Arrange
             string conformanceId = Guid.NewGuid().ToString();
             string mismatachedConformanceId = Guid.NewGuid().ToString();
@@ -152,9 +148,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
             }.GetAsync(addCertificateToRequest: false);
 
-            var api = new Infrastructure.API
+            var api = new Infrastructure.Api
             {
-
                 HttpMethod = HttpMethod.Get,
                 URL = getDataholderBrandsUrl,
                 AccessToken = accessToken,
@@ -170,14 +165,12 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
-        
         }
 
         private static async Task VerifyInvalidTokenRepsonse(HttpResponseMessage response)
         {
             using (new AssertionScope())
             {
-
                 response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
                 ExpectedErrors expectedErrors = new ExpectedErrors();
@@ -186,20 +179,17 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 string actualErrors = await response.Content.ReadAsStringAsync();
 
                 Assert_Json(GetJsonFromModel(expectedErrors), actualErrors);
-
             }
         }
 
         [Trait("Category", "CTSONLY")]
         [Theory]
-        [InlineData("Both Header and Database using only Common Name",                          DEFAULT_CERTIFICATE_THUMBPRINT, "Test Common Name",                                         "Test Common Name")]
-        [InlineData("Both Header and Database using Full Distinguished Name",                   DEFAULT_CERTIFICATE_THUMBPRINT, "CN=TestCommonName1,O=Test Org,OU=Test Org Unit,C=AU",      "CN=TestCommonName1,O=Test Org,OU=Test Org Unit,C=AU")]
-        [InlineData("Header using only Common Name and Database using Full Distinguished Name", DEFAULT_CERTIFICATE_THUMBPRINT, "Test Common Name 2",                                       "CN=Test Common Name 2,O=Test Org,OU=Test Org Unit,C=AU")]
-        [InlineData("Header using Full Distinguished Name and Database using only Common Name", DEFAULT_CERTIFICATE_THUMBPRINT, "CN=Test Common Name 3,O=Test Org,OU=Test Org Unit,C=AU",    "Test Common Name 3")]
-
+        [InlineData("Both Header and Database using only Common Name", DEFAULT_CERTIFICATE_THUMBPRINT, "Test Common Name", "Test Common Name")]
+        [InlineData("Both Header and Database using Full Distinguished Name", DEFAULT_CERTIFICATE_THUMBPRINT, "CN=TestCommonName1,O=Test Org,OU=Test Org Unit,C=AU", "CN=TestCommonName1,O=Test Org,OU=Test Org Unit,C=AU")]
+        [InlineData("Header using only Common Name and Database using Full Distinguished Name", DEFAULT_CERTIFICATE_THUMBPRINT, "Test Common Name 2", "CN=Test Common Name 2,O=Test Org,OU=Test Org Unit,C=AU")]
+        [InlineData("Header using Full Distinguished Name and Database using only Common Name", DEFAULT_CERTIFICATE_THUMBPRINT, "CN=Test Common Name 3,O=Test Org,OU=Test Org Unit,C=AU", "Test Common Name 3")]
         public async Task AC05_Get_Access_Token_With_Valid_Certificate_Header(string testDescription, string certificateThumbPrint, string certificateCommonName, string dbCommonName)
         {
-
             Log.Information("Executing test for {TestDescription}.\nCertificate ThumbPrint: {CertThumbPrint}.\nCertificateCommonName: {CertCommonName}.\nDatabase Common Name: {DbCommonName}.", testDescription, certificateThumbPrint, certificateCommonName, dbCommonName);
 
             // Arrange
@@ -229,9 +219,8 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Send request to get Data Holders to ensure Access token works.
             string validAccessToken = await accessToken.GetAsync();
 
-            var api = new Infrastructure.API
+            var api = new Infrastructure.Api
             {
-
                 HttpMethod = HttpMethod.Get,
                 URL = getDataholderBrandsUrl,
                 AccessToken = validAccessToken,
@@ -246,7 +235,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, accessTokenResponse.StatusCode, await accessTokenResponse.Content.ReadAsStringAsync());
 
             getDataHolderResponse.StatusCode.Should().Be(HttpStatusCode.OK, because: $"Get Data Holder should work when{testDescription}");
-
         }
 
         private static void SetCertificateCommonName(string softwareProductId, string commonName)
@@ -267,10 +255,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             if (selectCommand.ExecuteScalarInt32() == 0)
             {
                 throw new Exception($"Common name was not updated for Software Product: {softwareProductId}");
-            };
+            }
         }
-
-      
-
     }
 }

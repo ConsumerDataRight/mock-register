@@ -8,6 +8,7 @@ ENV ASPNETCORE_ENVIRONMENT=Release
 
 # Copy the build props 
 COPY ./Directory.Build.props ./Directory.Build.props
+COPY ./.editorconfig ./.editorconfig
 
 # Copy source
 COPY ./CDR.Register.API.Gateway.mTLS/Certificates/ca.crt ./CDR.Register.API.Gateway.mTLS/Certificates/ca.crt

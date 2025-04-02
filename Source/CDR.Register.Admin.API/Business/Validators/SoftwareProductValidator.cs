@@ -1,7 +1,6 @@
 ﻿using CDR.Register.Admin.API.Business.Model;
 using FluentValidation;
 using System;
-using System.Linq;
 using static CDR.Register.Domain.Constants;
 
 namespace CDR.Register.Admin.API.Business.Validators
@@ -17,12 +16,12 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.ClientUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.RecipientBaseUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.RevocationUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
-            RuleFor(x => x.RedirectUris).Must(x => x!= null && x.Length>0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.RedirectUris).Must(x => x != null && x.Length > 0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.JwksUri).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
             RuleFor(x => x.Status).NotEmpty().WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
-            RuleFor(x => x.Certificates).Must(x => x!= null && x.Count>0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
+            RuleFor(x => x.Certificates).Must(x => x != null && x.Count > 0).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
-            //lengths
+            // lengths
             RuleFor(x => x.SoftwareProductName).MaximumLength(200).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.SoftwareProductName}' is not allowed for SoftwareProductName");
             RuleFor(x => x.SoftwareProductDescription).MaximumLength(4000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.SoftwareProductDescription}' is not allowed for SoftwareProductDescription");
             RuleFor(x => x.LogoUri).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.LogoUri}' is not allowed for LogoUri");
@@ -37,10 +36,10 @@ namespace CDR.Register.Admin.API.Business.Validators
             RuleFor(x => x.Scope).MaximumLength(1000).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.Scope}' is not allowed for Scope");
             RuleFor(x => x.Status).MaximumLength(9).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.Status}' is not allowed for Status");
 
-            //enum
-            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out Repository.Entities.SoftwareProductStatusType result)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.Status}' is not allowed for Status");
+            // enum
+            RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out Repository.Entities.SoftwareProductStatusType _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField).WithState(x => $"Value '{x.Status}' is not allowed for Status");
 
             RuleForEach(x => x.Certificates).SetValidator(new SoftwareProductCertificateValidator());
-        }        
+        }
     }
 }

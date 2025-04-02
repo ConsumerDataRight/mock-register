@@ -1,7 +1,7 @@
 ﻿namespace CDR.Register.Infosec
 {
     public static class Constants
-    {        
+    {
         public static class Scopes
         {
             public const string RegisterRead = "cdr-register:read";

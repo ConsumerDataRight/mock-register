@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace CDR.Register.SSA.API.Business.Models
 {
-    
-    public class SSAValidationException : Exception
+    public class SsaValidationException : Exception
     {
-        public SSAValidationException()
+        public SsaValidationException()
         {
-
         }
 
-        public SSAValidationException(string message) : base(message)
+        public SsaValidationException(string message)
+            : base(message)
         {
-
         }
     }
-
 }

@@ -13,10 +13,11 @@ namespace CDR.Register.SSA.API.UnitTests
         {
             // Arrange.
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ssa.pfx");
-            var inMemorySettings = new Dictionary<string, string> {
-                            {"SigningCertificate:Path", path},
-                            {"SigningCertificate:Password", "#M0ckRegister#"},
-                        };
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "SigningCertificate:Path", path },
+                { "SigningCertificate:Password", "#M0ckRegister#" },
+            };
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
@@ -38,6 +39,5 @@ namespace CDR.Register.SSA.API.UnitTests
             Assert.Equal("AQAB", jwk.e);
             Assert.Equal(2, jwk.key_ops.Length);
         }
-
     }
 }

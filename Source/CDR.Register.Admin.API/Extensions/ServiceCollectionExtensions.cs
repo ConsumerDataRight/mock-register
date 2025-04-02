@@ -39,7 +39,7 @@ namespace CDR.Register.Admin.API.Extensions
                 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         .AddJwtBearer(options =>
                         {
-                            // Sets the authority to Azure AD.                                                         
+                            // Sets the authority to Azure AD.
                             options.Authority = issuer;
                             options.TokenValidationParameters = new TokenValidationParameters()
                             {
@@ -51,6 +51,7 @@ namespace CDR.Register.Admin.API.Extensions
 
                                 // Validates that the intended audience for the access token is the API app.
                                 ValidateAudience = true,
+
                                 // the application id of the API App Registration.
                                 ValidAudience = clientId,
 

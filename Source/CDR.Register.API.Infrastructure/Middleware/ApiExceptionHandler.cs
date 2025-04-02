@@ -1,11 +1,9 @@
-﻿using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.API.Infrastructure.Versioning;
+﻿using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using static CDR.Register.API.Infrastructure.Constants;
@@ -14,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Middleware
 {
     public static class ApiExceptionHandler
     {
-        public async static Task Handle(HttpContext context)
+        public static async Task Handle(HttpContext context)
         {
             var exceptionDetails = context.Features.Get<IExceptionHandlerFeature>();
             var ex = exceptionDetails?.Error;
@@ -45,7 +43,7 @@ namespace CDR.Register.API.Infrastructure.Middleware
                     handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVUnsupportedVersion(), jsonSerializerSettings);
                 }
 
-                if (ex is MissingRequiredHeaderException)
+                if (ex.GetType() == typeof(MissingRequiredHeaderException))
                 {
                     var missingRequiredHeaderException = ex as MissingRequiredHeaderException;
                     if (missingRequiredHeaderException?.HeaderName == Headers.X_V)

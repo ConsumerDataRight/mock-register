@@ -4,7 +4,7 @@ using CDR.Register.SSA.API.Business.Models;
 
 namespace CDR.Register.SSA.API.Business
 {
-    public interface ISSAService
+    public interface ISsaService
     {
         Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Industry industry, string dataRecipientBrandId, string softwareProductId);
 

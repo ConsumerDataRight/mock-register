@@ -8,7 +8,8 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public Industry IndustryTypeId { get; set; }
 
-        [MaxLength(25), Required]
+        [MaxLength(25)]
+        [Required]
         public string IndustryTypeCode { get; set; }
     }
 }

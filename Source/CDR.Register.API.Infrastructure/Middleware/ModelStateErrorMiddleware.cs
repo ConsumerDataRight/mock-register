@@ -40,7 +40,6 @@ namespace CDR.Register.API.Infrastructure.Middleware
                             }
                         }
                     }
-
                 }
             }
 

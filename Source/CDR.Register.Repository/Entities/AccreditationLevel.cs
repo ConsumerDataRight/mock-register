@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -12,14 +7,15 @@ namespace CDR.Register.Repository.Entities
         [Key]
         public AccreditationLevelType AccreditationLevelId { get; set; }
 
-        [MaxLength(100), Required]
+        [MaxLength(100)]
+        [Required]
         public string AccreditationLevelCode { get; set; }
     }
 
     public enum AccreditationLevelType
     {
-        //Sponsored by Default 
-        Sponsored = 0,                  
+        // Sponsored by Default
+        Sponsored = 0,
         Unrestricted = 1
     }
 }

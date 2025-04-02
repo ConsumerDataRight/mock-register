@@ -1,11 +1,5 @@
-using System;
-using System.IO;
-using CDR.Register.API.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
+﻿using CDR.Register.API.Infrastructure;
 using Serilog;
-using Serilog.Events;
 
 namespace CDR.Register.Infosec
 {
@@ -21,7 +15,7 @@ namespace CDR.Register.Infosec
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)                
+                .ReadFrom.Configuration(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()

@@ -38,7 +38,7 @@ jobs:
 
     steps:
     - name: Checkout Register
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: ./mock-register
 
@@ -84,7 +84,7 @@ jobs:
 
     # Archive unit test results
     - name: Archive unit test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: unit-test-results
@@ -92,7 +92,7 @@ jobs:
 
     # Archive integration test results
     - name: Archive integration test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: integration-test-results
@@ -100,7 +100,7 @@ jobs:
 
     # Archive mock register logs 
     - name: Archive mock register logs
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: integration-test-artifacts

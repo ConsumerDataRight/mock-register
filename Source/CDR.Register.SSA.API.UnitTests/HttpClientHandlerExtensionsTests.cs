@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure;
@@ -13,20 +12,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Xunit;
 
+#nullable enable
+
 namespace CDR.Register.SSA.API.UnitTests
 {
     public class HttpClientHandlerExtensionsTests
     {
         private readonly IConfiguration _configuration;
-        private readonly HttpClientHandler _handler = null!;
+        private readonly HttpClientHandler _handler;
 
         public HttpClientHandlerExtensionsTests()
         {
             var configuration = new ConfigurationBuilder()
                                 .SetBasePath(Directory.GetCurrentDirectory())
-                                .AddInMemoryCollection(new Dictionary<string, string>()
+                                .AddInMemoryCollection(new Dictionary<string, string?>()
                                 {
-                                    { "EnableServerCertificateValidation", "True"},
+                                    { "EnableServerCertificateValidation", "True" },
                                 })
                                 .Build();
             _configuration = configuration;
@@ -42,7 +43,10 @@ namespace CDR.Register.SSA.API.UnitTests
         public async Task ServerCertificates_ValidationEnabled_ShouldValidateSslConnection(
             string certName, string certPassword, bool expected, string reason)
         {
-            await using (var mockEndpoint = new MockEndpoint("https://localhost:9990",
+            Log.Information($"Scenario: {reason}");
+
+            await using (var mockEndpoint = new MockEndpoint(
+                "https://localhost:9990",
                 Path.Combine(Directory.GetCurrentDirectory(), "Certificates", certName),
                 certPassword))
             {
@@ -57,6 +61,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 {
                     await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990"));
                 }
+
                 await mockEndpoint.Stop();
             }
         }
@@ -71,8 +76,11 @@ namespace CDR.Register.SSA.API.UnitTests
             }
 
             public string Url { get; init; }
+
             private int UrlPort => new Uri(Url).Port;
+
             public string CertificatePath { get; init; }
+
             public string CertificatePassword { get; init; }
 
             private IWebHost? _host;
@@ -84,10 +92,11 @@ namespace CDR.Register.SSA.API.UnitTests
                 _host = new WebHostBuilder()
                     .UseKestrel(opts =>
                     {
-                        opts.ListenAnyIP(UrlPort,
+                        opts.ListenAnyIP(
+                            UrlPort,
                             opts => opts.UseHttps(new X509Certificate2(CertificatePath, CertificatePassword, X509KeyStorageFlags.Exportable)));
                     })
-                   .UseStartup(_ => new MockEndpointStartup())
+                   .UseStartup(typeof(MockEndpointStartup))
                    .Build();
 
                 _host.RunAsync();
@@ -103,7 +112,8 @@ namespace CDR.Register.SSA.API.UnitTests
                 }
             }
 
-            bool _disposed;
+            private bool _disposed;
+
             public async ValueTask DisposeAsync()
             {
                 Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(DisposeAsync), nameof(MockEndpoint));
@@ -117,8 +127,12 @@ namespace CDR.Register.SSA.API.UnitTests
                 GC.SuppressFinalize(this);
             }
 
-            class MockEndpointStartup
+            public class MockEndpointStartup
             {
+                protected MockEndpointStartup()
+                {
+                }
+
                 public static void Configure(IApplicationBuilder app)
                 {
                     app.UseHttpsRedirection();

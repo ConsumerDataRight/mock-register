@@ -1,6 +1,5 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -11,16 +10,19 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 {
     /// <summary>
     /// Integration tests for Identity Server OIDC.
-    /// </summary>   
+    /// </summary>
     public class US12665_IdentityServer_OIDC_Tests : BaseTest
     {
-        public US12665_IdentityServer_OIDC_Tests(ITestOutputHelper outputHelper, TestFixture testFixture) : base(outputHelper, testFixture) { }
+        public US12665_IdentityServer_OIDC_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
+
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_OIDC()
         {
-
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
@@ -30,7 +32,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
             // Assert
             await AssertOidcConfiguration(response, TLS_BaseURL, MTLS_BaseURL);
-
         }
 
         [Trait("Category", "CTSONLY")]
@@ -39,8 +40,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
         {
             // Arrange
             string ctsBaseUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}";
+
             // Act
-            var response = await new Infrastructure.API
+            var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
                 URL = $"{ctsBaseUrl}/idp/.well-known/openid-configuration",
@@ -48,7 +50,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
             // Assert
             await AssertOidcConfiguration(response, ReplacePublicHostName(ctsBaseUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL), ReplaceSecureHostName(ctsBaseUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL));
-
         }
 
         private static async Task AssertOidcConfiguration(HttpResponseMessage response, string publicBaseUrl, string secureBaseUrl)

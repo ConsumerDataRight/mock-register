@@ -5,8 +5,6 @@ namespace CDR.Register.IntegrationTests.Models
 {
     public class DataHolderMetadata
     {
-
-
         [JsonProperty("dataHolderBrandId")]
         public string DataHolderBrandId { get; set; }
 
@@ -98,7 +96,6 @@ namespace CDR.Register.IntegrationTests.Models
 
             [JsonProperty("status")]
             public string Status { get; set; }
-        }       
-
+        }
     }
 }

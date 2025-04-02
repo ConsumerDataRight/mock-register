@@ -58,7 +58,7 @@ namespace CDR.Register.Infosec
                 services.AddDataProtection()
                     .SetApplicationName("reg-infosec")
                     .PersistKeysToStackExchangeRedis(
-                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache) ?? ""),
+                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache) ?? string.Empty),
                         "register-cache-dp-keys");
             }
             else

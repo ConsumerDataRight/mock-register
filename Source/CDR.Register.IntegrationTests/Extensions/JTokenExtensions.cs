@@ -1,18 +1,18 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
 namespace CDR.Register.IntegrationTests.Extensions
 {
-    static public class JTokenExtensions
+    public static class JTokenExtensions
     {
         /// <summary>
-        /// Remove child JToken from JToken
+        /// Remove child JToken from JToken.
         /// </summary>
-        /// <param name="jToken">JToken from which to remove child JToken</param>
-        /// <param name="key">Key of child to remove</param>
-        static public void Remove(this JToken jToken, string key)
+        /// <param name="jToken">JToken from which to remove child JToken.</param>
+        /// <param name="key">Key of child to remove.</param>
+        public static void Remove(this JToken jToken, string key)
         {
             var t = jToken[key];
 
@@ -32,18 +32,18 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Should a JToken be removed?
+        /// Should a JToken be removed?.
         /// </summary>
         public delegate bool ShouldRemove(JToken jToken);
 
         /// <summary>
-        /// Recursively remove child JTokens from a JToken
+        /// Recursively remove child JTokens from a JToken.
         /// </summary>
-        /// <param name="rootJToken">Root JToken to start processing from</param>
-        /// <param name="shouldRemove">Should a token be removed?</param>
+        /// <param name="rootJToken">Root JToken to start processing from.</param>
+        /// <param name="shouldRemove">Should a token be removed?.</param>
         public static void RemoveJTokens(this JToken rootJToken, ShouldRemove shouldRemove)
         {
-            List<JToken> jTokensToRemove = new();
+            List<JToken> jTokensToRemove = [];
 
             void DoJToken(JToken jToken)
             {
@@ -55,6 +55,7 @@ namespace CDR.Register.IntegrationTests.Extensions
                     {
                         jTokensToRemove.Add(childJToken);
                     }
+
                     // Not marked for removal, so process children if applicable
                     else if (childJToken.HasValues)
                     {
@@ -75,7 +76,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Recursively remove null JTokens from a root JToken
+        /// Recursively remove null JTokens from a root JToken.
         /// </summary>
         public static void RemoveNulls(this JToken rootJToken)
         {
@@ -83,7 +84,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Recursively remove empty array JTokens from a root JToken
+        /// Recursively remove empty array JTokens from a root JToken.
         /// </summary>
         public static void RemoveEmptyArrays(this JToken rootJToken)
         {
@@ -101,6 +102,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         public delegate JToken Replace(JToken token);
+
         public static void ReplacePath(this JToken jToken, string jsonPath, Replace replace)
         {
             var tokens = jToken.SelectTokens(jsonPath);
@@ -112,7 +114,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Sort tokens under jsonPath by key
+        /// Sort tokens under jsonPath by key.
         /// </summary>
         public static void Sort(this JToken rootToken, string jsonPath, string key)
         {
@@ -134,7 +136,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Sort array by key
+        /// Sort array by key.
         /// </summary>
         public static void SortArray(this JToken token, string key)
         {
@@ -158,17 +160,18 @@ namespace CDR.Register.IntegrationTests.Extensions
         }
 
         /// <summary>
-        /// Sort path arrays by key
+        /// Sort path arrays by key.
         /// </summary>
-        /// <param name="path">For arrays matching this path</param>
-        /// <param name="key">Key to sort array by</param>
+        /// <param name="token">Token to sort.</param>
+        /// <param name="path">For arrays matching this path.</param>
+        /// <param name="key">Key to sort array by.</param>
         public static void SortArray(this JToken token, string path, string key)
         {
             var tokens = token.SelectTokens(path);
 
-            foreach (var _token in tokens)
+            foreach (var tokenToSort in tokens)
             {
-                _token.SortArray(key);
+                tokenToSort.SortArray(key);
             }
         }
     }

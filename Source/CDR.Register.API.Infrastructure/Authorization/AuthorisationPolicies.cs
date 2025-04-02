@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System;
-using Microsoft.OpenApi.Extensions;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.OpenApi.Extensions;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {

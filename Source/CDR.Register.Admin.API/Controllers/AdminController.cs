@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -46,13 +45,15 @@ namespace CDR.Register.Admin.API.Controllers
         {
             using var reader = new StreamReader(Request.Body);
             string json = await reader.ReadToEndAsync();
-            string respMsg = "";
+            string respMsg = string.Empty;
 
             try
             {
                 bool updated = await _dbContext.SeedDatabaseFromJson(json, _logger, true);
                 if (updated)
+                {
                     Response.StatusCode = StatusCodes.Status200OK;
+                }
                 else
                 {
                     Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -78,7 +79,7 @@ namespace CDR.Register.Admin.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task GetData()
         {
-            //We need to override the usual default settings so that the FK Ids can use their int values instead of their string values
+            // We need to override the usual default settings so that the FK Ids can use their int values instead of their string values
             var apiSpecificSettings = new JsonSerializerSettings()
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -150,7 +151,7 @@ namespace CDR.Register.Admin.API.Controllers
                     return BadRequest(new Error(Domain.Constants.ErrorTitles.InvalidField, Domain.Constants.ErrorCodes.Cds.InvalidField, "Empty LegalEntity received"));
                 }
 
-                var legalEntity = System.Text.Json.JsonSerializer.Deserialize<LegalEntity>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); //This is inconsistent with other serializers
+                var legalEntity = System.Text.Json.JsonSerializer.Deserialize<LegalEntity>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); // This is inconsistent with other serializers
 
                 var errors = legalEntity?.GetValidationErrors(new LegalEntityValidator());
                 if (errors?.Errors.Count > 0)

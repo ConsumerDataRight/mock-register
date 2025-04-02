@@ -1,10 +1,15 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading.Tasks;
 using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.Admin.API.Extensions;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.Versioning;
-using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Domain.Extensions;
+using CDR.Register.Repository.Infrastructure;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -18,13 +23,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using static CDR.Register.API.Infrastructure.Constants;
 using Constants = CDR.Register.Admin.API.Common.Constants;
-using System;
-using System.Net.Mime;
 
 namespace CDR.Register.Admin.API
 {
@@ -56,7 +56,7 @@ namespace CDR.Register.Admin.API
 
             services.AddApiVersioning(options =>
             {
-                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); //uses default options atm
+                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
                 options.ErrorResponses = new ApiVersionErrorResponse();
                 options.ReportApiVersions = true;
             });
@@ -68,7 +68,7 @@ namespace CDR.Register.Admin.API
                 services.AddCdrSwaggerGen(opt =>
                 {
                     opt.SwaggerTitle = "Consumer Data Right (CDR) Participant Tooling - Mock Register - Admin API";
-                    opt.IncludeAuthentication = !string.IsNullOrEmpty(issuer); //authentication is included for CTS when the issuer is not empty
+                    opt.IncludeAuthentication = !string.IsNullOrEmpty(issuer); // authentication is included for CTS when the issuer is not empty
                 });
             }
 
@@ -84,7 +84,6 @@ namespace CDR.Register.Admin.API
             {
                 ResponseWriter = CustomResponseWriter
             });
-
 
             if (env.IsDevelopment())
             {
@@ -124,6 +123,7 @@ namespace CDR.Register.Admin.API
                 logger.LogError("ServiceScope cannot be created");
                 throw new InvalidOperationException("Service scope could not be created.");
             }
+
             // Run EF database migrations.
             if (RunMigrations())
             {
@@ -134,6 +134,7 @@ namespace CDR.Register.Admin.API
                     logger.LogError("Mirgation failed. Unable to get {Name}", nameof(RegisterDatabaseContext));
                     throw new InvalidOperationException($"Unable to get {nameof(RegisterDatabaseContext)}");
                 }
+
                 context?.Database.Migrate();
                 healthCheckMigrationMessage = "Migration completed";
 
@@ -147,6 +148,9 @@ namespace CDR.Register.Admin.API
                     Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, seedDataOverwrite)).Wait();
                     healthCheckSeedDataMessage = "Seeding of data completed";
                 }
+
+                // Re-configure logger with the DB now.
+                Program.ConfigureSerilog(Configuration, true);
             }
 
             // If we get here migration (if required) and seeding (if required) has completed

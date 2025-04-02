@@ -36,11 +36,6 @@ namespace CDR.Register.Repository.Infrastructure
             return _mapper.Map<Entities.LegalEntity>(legalEntity);
         }
 
-        public Domain.Entities.SoftwareProduct MapSoftwareProduct(Entities.SoftwareProduct softwareProduct)
-        {
-            return _mapper.Map<Domain.Entities.SoftwareProduct>(softwareProduct);
-        }
-
         public Entities.Brand Map(DataRecipientBrand brand)
         {
             return _mapper.Map<Entities.Brand>(brand);
@@ -54,6 +49,11 @@ namespace CDR.Register.Repository.Infrastructure
         public Entities.SoftwareProductCertificate Map(SoftwareProductCertificateInfosec softwareProductCertificate)
         {
             return _mapper.Map<Entities.SoftwareProductCertificate>(softwareProductCertificate);
+        }
+
+        public Domain.Entities.SoftwareProduct MapSoftwareProduct(Entities.SoftwareProduct softwareProduct)
+        {
+            return _mapper.Map<Domain.Entities.SoftwareProduct>(softwareProduct);
         }
     }
 }

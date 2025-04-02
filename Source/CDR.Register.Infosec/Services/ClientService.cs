@@ -19,6 +19,7 @@ namespace CDR.Register.Infosec.Services
             {
                 return null;
             }
+
             if (!Guid.TryParse(clientId, out Guid softwareProductId))
             {
                 return null;
