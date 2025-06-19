@@ -90,7 +90,7 @@ namespace CDR.Register.API.Gateway.Mtls
                                             TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
                                             TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
                                             TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
-                                            TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                                            TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
                                         });
                                     };
                                 }

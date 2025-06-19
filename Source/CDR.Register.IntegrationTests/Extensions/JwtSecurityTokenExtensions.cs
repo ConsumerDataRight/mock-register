@@ -12,7 +12,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// <summary>
         /// Get claim for claimType. Throws exception if no claim or multiple claims (ie must be a single claim for claimType).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Claim.</returns>
         public static Claim Claim(this JwtSecurityToken jwt, string claimType)
             => jwt.Claims.Single(claim => claim.Type == claimType);
 

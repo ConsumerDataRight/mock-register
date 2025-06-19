@@ -20,13 +20,13 @@ namespace CDR.Register.API.Infrastructure.Services
 
         public DataRecipientStatusCheckService(IRegisterDiscoveryRepository registerDiscoveryRepository)
         {
-            _registerDiscoveryRepository = registerDiscoveryRepository;
+            this._registerDiscoveryRepository = registerDiscoveryRepository;
         }
 
         public async Task<ResponseErrorList> ValidateSoftwareProductStatus(Guid softwareProductId)
         {
             // Get the latest data recipient details from the repository
-            var softwareProduct = await _registerDiscoveryRepository.GetSoftwareProductIdAsync(softwareProductId);
+            var softwareProduct = await this._registerDiscoveryRepository.GetSoftwareProductIdAsync(softwareProductId);
 
             // Perform validations
             ResponseErrorList errorList = new ResponseErrorList();

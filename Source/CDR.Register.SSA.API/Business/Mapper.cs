@@ -13,37 +13,37 @@ namespace CDR.Register.SSA.API.Business
 
         public Mapper(IConfiguration config)
         {
-            _config = config;
+            this._config = config;
 
             var configuration = new MapperConfiguration(cfg =>
             {
                 // Base mapping.
                 cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModel>()
-                .ForMember(d => d.client_name, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductName))
-                .ForMember(d => d.client_description, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductDescription))
-                .ForMember(d => d.client_uri, s => s.MapFrom(source => source.SoftwareProduct.ClientUri))
-                .ForMember(d => d.jwks_uri, s => s.MapFrom(source => source.SoftwareProduct.JwksUri))
-                .ForMember(d => d.logo_uri, s => s.MapFrom(source => source.SoftwareProduct.LogoUri))
-                .ForMember(d => d.org_id, s => s.MapFrom(source => source.DataRecipientBrand.BrandId))
-                .ForMember(d => d.org_name, s => s.MapFrom(source => source.DataRecipientBrand.BrandName))
-                .ForMember(d => d.policy_uri, s => s.MapFrom(source => source.SoftwareProduct.PolicyUri))
-                .ForMember(d => d.redirect_uris, s => s.MapFrom(source => source.SoftwareProduct.RedirectUris))
-                .ForMember(d => d.revocation_uri, s => s.MapFrom(source => source.SoftwareProduct.RevocationUri))
-                .ForMember(d => d.recipient_base_uri, s => s.MapFrom(source => source.SoftwareProduct.RecipientBaseUri))
-                .ForMember(d => d.scope, s => s.MapFrom(source => source.SoftwareProduct.Scope))
-                .ForMember(d => d.software_roles, s => s.MapFrom(source => "data-recipient-software-product"))
-                .ForMember(d => d.software_id, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductId))
-                .ForMember(d => d.tos_uri, s => s.MapFrom(source => source.SoftwareProduct.TosUri))
-                .ForMember(d => d.iss, s => s.MapFrom(source => _config["SSA:Issuer"]))
-                .ForMember(d => d.iat, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds))
-                .ForMember(d => d.jti, s => s.MapFrom(source => Guid.NewGuid().ToString().Replace("-", string.Empty)))
-                .ForMember(d => d.exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds + long.Parse(_config["SSA:ExpiryInSeconds"])))
-                .ForMember(d => d.legal_entity_id, s => s.MapFrom(source => source.LegalEntity.LegalEntityId))
-                .ForMember(d => d.legal_entity_name, s => s.MapFrom(source => source.LegalEntity.LegalEntityName))
-                .ForMember(d => d.sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri));
+                .ForMember(d => d.Client_name, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductName))
+                .ForMember(d => d.Client_description, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductDescription))
+                .ForMember(d => d.Client_uri, s => s.MapFrom(source => source.SoftwareProduct.ClientUri))
+                .ForMember(d => d.Jwks_uri, s => s.MapFrom(source => source.SoftwareProduct.JwksUri))
+                .ForMember(d => d.Logo_uri, s => s.MapFrom(source => source.SoftwareProduct.LogoUri))
+                .ForMember(d => d.Org_id, s => s.MapFrom(source => source.DataRecipientBrand.BrandId))
+                .ForMember(d => d.Org_name, s => s.MapFrom(source => source.DataRecipientBrand.BrandName))
+                .ForMember(d => d.Policy_uri, s => s.MapFrom(source => source.SoftwareProduct.PolicyUri))
+                .ForMember(d => d.Redirect_uris, s => s.MapFrom(source => source.SoftwareProduct.RedirectUris))
+                .ForMember(d => d.Revocation_uri, s => s.MapFrom(source => source.SoftwareProduct.RevocationUri))
+                .ForMember(d => d.Recipient_base_uri, s => s.MapFrom(source => source.SoftwareProduct.RecipientBaseUri))
+                .ForMember(d => d.Scope, s => s.MapFrom(source => source.SoftwareProduct.Scope))
+                .ForMember(d => d.Software_roles, s => s.MapFrom(source => "data-recipient-software-product"))
+                .ForMember(d => d.Software_id, s => s.MapFrom(source => source.SoftwareProduct.SoftwareProductId))
+                .ForMember(d => d.Tos_uri, s => s.MapFrom(source => source.SoftwareProduct.TosUri))
+                .ForMember(d => d.Iss, s => s.MapFrom(source => this._config["SSA:Issuer"]))
+                .ForMember(d => d.Iat, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds))
+                .ForMember(d => d.Jti, s => s.MapFrom(source => Guid.NewGuid().ToString().Replace("-", string.Empty)))
+                .ForMember(d => d.Exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds + long.Parse(this._config["SSA:ExpiryInSeconds"])))
+                .ForMember(d => d.Legal_entity_id, s => s.MapFrom(source => source.LegalEntity.LegalEntityId))
+                .ForMember(d => d.Legal_entity_name, s => s.MapFrom(source => source.LegalEntity.LegalEntityName))
+                .ForMember(d => d.Sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri));
             });
 
-            _mapper = configuration.CreateMapper();
+            this._mapper = configuration.CreateMapper();
         }
 
         public SoftwareStatementAssertionModel MapV3(SoftwareStatementAssertion softwareStatementAssertion)
@@ -53,7 +53,7 @@ namespace CDR.Register.SSA.API.Business
                 return null;
             }
 
-            return _mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
+            return this._mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
         }
     }
 }

@@ -11,22 +11,22 @@ namespace CDR.Register.IntegrationTests.Infrastructure
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        /// <summary>
-        /// Get key/value pairs as string.
-        /// </summary>
-        public string Value => _sb.ToString();
-
         private int _count = 0;
-
-        /// <summary>
-        /// Number of key/value pairs.
-        /// </summary>
-        public int Count => _count;
 
         public KeyValuePairBuilder(string delimiter = "&")
         {
-            _delimiter = delimiter;
+            this._delimiter = delimiter;
         }
+
+        /// <summary>
+        /// Gets key/value pairs as string.
+        /// </summary>
+        public string Value => this._sb.ToString();
+
+        /// <summary>
+        /// Gets number of key/value pairs.
+        /// </summary>
+        public int Count => this._count;
 
         /// <summary>
         /// Append key/value pair.
@@ -35,14 +35,14 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// <param name="value">Value to add.</param>
         public void Add(string key, string value)
         {
-            if (_sb.Length > 0)
+            if (this._sb.Length > 0)
             {
-                _sb.Append(_delimiter);
+                this._sb.Append(this._delimiter);
             }
 
-            _sb.Append($"{key}={value}");
+            this._sb.Append($"{key}={value}");
 
-            _count++;
+            this._count++;
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// <param name="value">Value to add.</param>
         public void Add(string key, int value)
         {
-            Add(key, value.ToString());
+            this.Add(key, value.ToString());
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// <param name="value">Value to add.</param>
         public void Add(string key, long value)
         {
-            Add(key, value.ToString());
+            this.Add(key, value.ToString());
         }
     }
 }

@@ -28,126 +28,102 @@ namespace CDR.Register.IntegrationTests.IdentityServer
     /// </summary>
     public class US14045_IdentityServer_Token_Tests : BaseTest
     {
-        public US14045_IdentityServer_Token_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
-            : base(outputHelper, testFixture)
-        {
-        }
-
         protected const string CLIENTASSERTION_ISSUER = "86ecb655-9eba-409c-9be3-59e7adf7080d";
-
-        protected static string CLIENTASSERTION_AUDIENCE => MTLS_BaseURL + "/idp/connect/token";
 
         protected const string CLIENTASSERTION_GRANT_TYPE = "client_credentials";
         protected const string CLIENTASSERTION_CLIENT_ID = "86ecb655-9eba-409c-9be3-59e7adf7080d";
         protected const string CLIENTASSERTION_SCOPE = "cdr-register:read";
         protected const string CLIENTASSERTION_CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
-        private static HttpClient GetClient()
+        public US14045_IdentityServer_Token_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+           : base(outputHelper, testFixture)
         {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-
-            return new HttpClient(clientHandler);
         }
 
-        private static HttpClient GetClientWithCertificate(
-           string certificateFilename = CERTIFICATE_FILENAME,
-           string certificatePassword = CERTIFICATE_PASSWORD)
+        public static IEnumerable<object[]> ValidCtsUrlAudienceScenarios
         {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-
-            // Attach certificate
-            var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
-            clientHandler.ClientCertificates.Add(clientCertificate);
-
-            return new HttpClient(clientHandler);
+            get
+            {
+                string conformanceId = Guid.NewGuid().ToString();
+                string tokenEndpointUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+                string validIssuer = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp";
+                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}", "Audience matches Token Endpoint", tokenEndpointUrl };
+                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}", "Audience matches OIDC Issuer", tokenEndpointUrl };
+            }
         }
 
-        private static string GetClientAssertion(
-            string certificateFilename = CERTIFICATE_FILENAME,
-            string certificatePassword = CERTIFICATE_PASSWORD,
-            string clientAssertionIssuer = CLIENTASSERTION_ISSUER,
-            string? clientAssetionAudience = null,
-            string subClaim = CLIENTASSERTION_ISSUER,
-            string? jtiClaim = null,
-            string? signingAlgorithm = SecurityAlgorithms.RsaSsaPssSha256)
+        public static IEnumerable<object[]> ValidAudienceScenarios
         {
-            if (clientAssetionAudience == null)
+            get
             {
-                clientAssetionAudience = CLIENTASSERTION_AUDIENCE;
+                yield return new string[] { $"{MTLS_BaseURL}/idp/connect/token", "Audience matches Token Endpoint" };
+                yield return new string[] { $"{TLS_BaseURL}/idp", "Audience matches OIDC Issuer" };
             }
-
-            if (jtiClaim == null)
-            {
-                jtiClaim = Guid.NewGuid().ToString();
-            }
-
-            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword, jtiClaim);
-            return tokenizer.Generate(clientAssertionIssuer, clientAssetionAudience, subClaim, signingAlgorithm: signingAlgorithm!);
         }
 
-        private static HttpRequestMessage GetAccessTokenRequest(
-           string? grant_type,
-           string? client_id,
-           string? client_assertion_type,
-           string? client_assertion,
-           string? content_type_header = "application/x-www-form-urlencoded",
-           string scope = CLIENTASSERTION_SCOPE,
-           string? tokenEndpointUrl = null)
+        public static IEnumerable<object[]> InvalidAudienceScenarios
         {
-            static string BuildContent(string? grant_type, string? client_id, string? client_assertion_type, string? client_assertion, string? scope)
+            get
             {
-                var kvp = new KeyValuePairBuilder();
-
-                kvp.Add("scope", scope);
-
-                if (grant_type != null)
-                {
-                    kvp.Add("grant_type", grant_type);
-                }
-
-                if (client_id != null)
-                {
-                    kvp.Add("client_id", client_id);
-                }
-
-                if (client_assertion_type != null)
-                {
-                    kvp.Add("client_assertion_type", client_assertion_type);
-                }
-
-                if (client_assertion != null)
-                {
-                    kvp.Add("client_assertion", client_assertion);
-                }
-
-                return kvp.Value;
+                yield return new string[] { $"foo", "'foo' is not a valid token endpoint or OIDC issuer" };
+                yield return new string[] { $"{MTLS_BaseURL}/idp/connect/token/x", "Audience is only partial Token Endpoint match (only start matches)" };
+                yield return new string[] { $"foo{MTLS_BaseURL}/idp/connect/token", "Audience is only partial Token Endpoint match (only end matches)" };
+                yield return new string[] { $"{TLS_BaseURL}/idp/foo", "Audience is only partial OICD issuer match (only start matches)" };
+                yield return new string[] { $"foo{TLS_BaseURL}/idp", "Audience is only partial OICD issuer match (only end matches)" };
+                yield return new string[] { $"{TLS_BaseURL}/idp/connect/token", "Audience is only partial OICD issuer match - Ends with '/connect/token'" };
+                yield return new string[] { $"{MTLS_BaseURL}/idp", "Audience is only partial OICD issuer match - Ends with /idp'" };
             }
+        }
 
-            if (tokenEndpointUrl == null)
+        public static IEnumerable<object[]> InvalidCtsUrlAudienceScenarios
+        {
+            get
             {
-                tokenEndpointUrl = IDENTITYSERVER_URL;
+                string conformanceId = Guid.NewGuid().ToString();
+                string tokenEndpointUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
+                string validIssuer = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp";
+                yield return new string[] { "foo", "Audience is 'foo'", tokenEndpointUrl };
+                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/idp", "Audience start has Token Endpoint but ends with '/idp'", tokenEndpointUrl };
+                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/idp/connect/token", "Audience start has OIDC Issuer but ends with '/idp/connect/token'", tokenEndpointUrl };
+                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/foo", "Audience start has Token Endpoint but ends with '/foo'", tokenEndpointUrl };
+                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/foo", "Audience start has OIDC Issuer but ends with '/foo'", tokenEndpointUrl };
             }
+        }
 
-            var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpointUrl)
+        protected static string CLIENTASSERTION_AUDIENCE => MTLS_BaseURL + "/idp/connect/token";
+
+        // Use MemberData due to dynamic aud strings
+        [Trait("Category", "CTSONLY")]
+        [Theory]
+        [MemberData(nameof(ValidCtsUrlAudienceScenarios))]
+        public static async Task AC00_TokenRequest_ValidAudience_DynamicBasePath(string aud, string scenarioDescription, string tokenEndpointUrl)
+        {
+            Log.Information("Running positive test case for valid audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
+
+            // Arrange - Get access token
+            var accessToken = new Infrastructure.AccessToken
             {
-                Content = new StringContent(
-                    BuildContent(grant_type, client_id, client_assertion_type, client_assertion, scope),
-                    Encoding.UTF8,
-                    content_type_header!)
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                Scope = "cdr-register:read",
+                Audience = aud,
+                TokenEndPoint = tokenEndpointUrl,
+                CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             };
 
-            if (string.IsNullOrEmpty(content_type_header))
-            {
-                request.Content.Headers.ContentType = null;
-            }
-            else
-            {
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue(content_type_header);
-            }
+            HttpResponseMessage response = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
 
-            return request;
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert that access token in response
+                string responseString = await response.Content.ReadAsStringAsync();
+                responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
+            }
         }
 
         [Theory]
@@ -180,7 +156,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 };
 
                 // Validate token (throws exception if token fails to validate)
-                new JwtSecurityTokenHandler().ValidateToken(accessToken.access_token, validationParameters, out var validatedToken);
+                new JwtSecurityTokenHandler().ValidateToken(accessToken.Access_token, validationParameters, out var validatedToken);
 
                 return validatedToken;
             }
@@ -214,13 +190,13 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 if (accessToken != null)
                 {
                     // Assert - Check expires in
-                    accessToken.expires_in.Should().Be(300);
+                    accessToken.Expires_in.Should().Be(300);
 
                     // Assert - Check token type
-                    accessToken.token_type.Should().Be(JwtBearerDefaults.AuthenticationScheme);
+                    accessToken.Token_type.Should().Be(JwtBearerDefaults.AuthenticationScheme);
 
                     // Assert - Check scope
-                    accessToken.scope.Should().Contain("cdr-register:read");
+                    accessToken.Scope.Should().Contain("cdr-register:read");
 
                     // Assert - Validate access token
                     SecurityToken? validatedToken = null;
@@ -619,15 +595,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }
         }
 
-        public static IEnumerable<object[]> ValidAudienceScenarios
-        {
-            get
-            {
-                yield return new string[] { $"{MTLS_BaseURL}/idp/connect/token", "Audience matches Token Endpoint" };
-                yield return new string[] { $"{TLS_BaseURL}/idp", "Audience matches OIDC Issuer" };
-            }
-        }
-
         // Use MemberData due to dynamic aud strings
         [Theory]
         [MemberData(nameof(InvalidAudienceScenarios))]
@@ -660,66 +627,6 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }
         }
 
-        public static IEnumerable<object[]> InvalidAudienceScenarios
-        {
-            get
-            {
-                yield return new string[] { $"foo", "'foo' is not a valid token endpoint or OIDC issuer" };
-                yield return new string[] { $"{MTLS_BaseURL}/idp/connect/token/x", "Audience is only partial Token Endpoint match (only start matches)" };
-                yield return new string[] { $"foo{MTLS_BaseURL}/idp/connect/token", "Audience is only partial Token Endpoint match (only end matches)" };
-                yield return new string[] { $"{TLS_BaseURL}/idp/foo", "Audience is only partial OICD issuer match (only start matches)" };
-                yield return new string[] { $"foo{TLS_BaseURL}/idp", "Audience is only partial OICD issuer match (only end matches)" };
-                yield return new string[] { $"{TLS_BaseURL}/idp/connect/token", "Audience is only partial OICD issuer match - Ends with '/connect/token'" };
-                yield return new string[] { $"{MTLS_BaseURL}/idp", "Audience is only partial OICD issuer match - Ends with /idp'" };
-            }
-        }
-
-        // Use MemberData due to dynamic aud strings
-        [Trait("Category", "CTSONLY")]
-        [Theory]
-        [MemberData(nameof(ValidCtsUrlAudienceScenarios))]
-        public static async Task AC00_TokenRequest_ValidAudience_DynamicBasePath(string aud, string scenarioDescription, string tokenEndpointUrl)
-        {
-            Log.Information("Running positive test case for valid audience of {aud} - {scenarioDescription}", aud, scenarioDescription);
-
-            // Arrange - Get access token
-            var accessToken = new Infrastructure.AccessToken
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                Scope = "cdr-register:read",
-                Audience = aud,
-                TokenEndPoint = tokenEndpointUrl,
-                CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
-            };
-
-            HttpResponseMessage response = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert that access token in response
-                string responseString = await response.Content.ReadAsStringAsync();
-                responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
-            }
-        }
-
-        public static IEnumerable<object[]> ValidCtsUrlAudienceScenarios
-        {
-            get
-            {
-                string conformanceId = Guid.NewGuid().ToString();
-                string tokenEndpointUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
-                string validIssuer = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp";
-                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}", "Audience matches Token Endpoint", tokenEndpointUrl };
-                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}", "Audience matches OIDC Issuer", tokenEndpointUrl };
-            }
-        }
-
         // Use MemberData due to dynamic aud strings
         [Trait("Category", "CTSONLY")]
         [Theory]
@@ -737,7 +644,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 Audience = aud,
                 TokenEndPoint = tokenEndpointUrl,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             };
 
             HttpResponseMessage response = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
@@ -753,19 +660,112 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }
         }
 
-        public static IEnumerable<object[]> InvalidCtsUrlAudienceScenarios
+        private static HttpRequestMessage GetAccessTokenRequest(
+           string? grant_type,
+           string? client_id,
+           string? client_assertion_type,
+           string? client_assertion,
+           string? content_type_header = "application/x-www-form-urlencoded",
+           string scope = CLIENTASSERTION_SCOPE,
+           string? tokenEndpointUrl = null)
         {
-            get
+            static string BuildContent(string? grant_type, string? client_id, string? client_assertion_type, string? client_assertion, string? scope)
             {
-                string conformanceId = Guid.NewGuid().ToString();
-                string tokenEndpointUrl = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
-                string validIssuer = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp";
-                yield return new string[] { "foo", "Audience is 'foo'", tokenEndpointUrl };
-                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/idp", "Audience start has Token Endpoint but ends with '/idp'", tokenEndpointUrl };
-                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/idp/connect/token", "Audience start has OIDC Issuer but ends with '/idp/connect/token'", tokenEndpointUrl };
-                yield return new string[] { $"{ReplaceSecureHostName(tokenEndpointUrl, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/foo", "Audience start has Token Endpoint but ends with '/foo'", tokenEndpointUrl };
-                yield return new string[] { $"{ReplacePublicHostName(validIssuer, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL)}/foo", "Audience start has OIDC Issuer but ends with '/foo'", tokenEndpointUrl };
+                var kvp = new KeyValuePairBuilder();
+
+                kvp.Add("scope", scope);
+
+                if (grant_type != null)
+                {
+                    kvp.Add("grant_type", grant_type);
+                }
+
+                if (client_id != null)
+                {
+                    kvp.Add("client_id", client_id);
+                }
+
+                if (client_assertion_type != null)
+                {
+                    kvp.Add("client_assertion_type", client_assertion_type);
+                }
+
+                if (client_assertion != null)
+                {
+                    kvp.Add("client_assertion", client_assertion);
+                }
+
+                return kvp.Value;
             }
+
+            if (tokenEndpointUrl == null)
+            {
+                tokenEndpointUrl = IDENTITYSERVER_URL;
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpointUrl)
+            {
+                Content = new StringContent(
+                    BuildContent(grant_type, client_id, client_assertion_type, client_assertion, scope),
+                    Encoding.UTF8,
+                    content_type_header!),
+            };
+
+            if (string.IsNullOrEmpty(content_type_header))
+            {
+                request.Content.Headers.ContentType = null;
+            }
+            else
+            {
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue(content_type_header);
+            }
+
+            return request;
+        }
+
+        private static HttpClient GetClientWithCertificate(
+           string certificateFilename = CERTIFICATE_FILENAME,
+           string certificatePassword = CERTIFICATE_PASSWORD)
+        {
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+
+            // Attach certificate
+            var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
+            clientHandler.ClientCertificates.Add(clientCertificate);
+
+            return new HttpClient(clientHandler);
+        }
+
+        private static string GetClientAssertion(
+            string certificateFilename = CERTIFICATE_FILENAME,
+            string certificatePassword = CERTIFICATE_PASSWORD,
+            string clientAssertionIssuer = CLIENTASSERTION_ISSUER,
+            string? clientAssetionAudience = null,
+            string subClaim = CLIENTASSERTION_ISSUER,
+            string? jtiClaim = null,
+            string? signingAlgorithm = SecurityAlgorithms.RsaSsaPssSha256)
+        {
+            if (clientAssetionAudience == null)
+            {
+                clientAssetionAudience = CLIENTASSERTION_AUDIENCE;
+            }
+
+            if (jtiClaim == null)
+            {
+                jtiClaim = Guid.NewGuid().ToString();
+            }
+
+            var tokenizer = new PrivateKeyJwt(certificateFilename, certificatePassword, jtiClaim);
+            return tokenizer.Generate(clientAssertionIssuer, clientAssetionAudience, subClaim, signingAlgorithm: signingAlgorithm!);
+        }
+
+        private static HttpClient GetClient()
+        {
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+
+            return new HttpClient(clientHandler);
         }
     }
 }

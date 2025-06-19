@@ -48,7 +48,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     AccreditationLevelId = table.Column<int>(type: "int", nullable: false),
-                    AccreditationLevelCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    AccreditationLevelCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -60,7 +60,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     LegalEntityStatusId = table.Column<int>(type: "int", nullable: false),
-                    LegalEntityStatusCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    LegalEntityStatusCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -73,7 +73,7 @@ namespace CDR.Register.Repository.Migrations
                 values: new object[,]
                 {
                     { 1, "Active" },
-                    { 2, "Removed" }
+                    { 2, "Removed" },
                 });
 
             migrationBuilder.InsertData(
@@ -82,7 +82,7 @@ namespace CDR.Register.Repository.Migrations
                 values: new object[,]
                 {
                     { 0, "Sponsored" },
-                    { 1, "Unrestricted" }
+                    { 1, "Unrestricted" },
                 });
 
             // Updating exsiting data

@@ -11,7 +11,7 @@ namespace CDR.Register.API.Infrastructure.Filters
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext? validationContext)
         {
-            if (!DateTime.TryParse(value?.ToString(), CultureInfo.InvariantCulture,  out _))
+            if (!DateTime.TryParse(value?.ToString(), CultureInfo.InvariantCulture, out _))
             {
                 return new ValidationResult(JsonConvert.SerializeObject(ResponseErrorList.InvalidDateTime()));
             }

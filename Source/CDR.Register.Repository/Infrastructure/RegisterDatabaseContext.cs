@@ -1,6 +1,6 @@
-﻿using CDR.Register.Repository.Entities;
+﻿using System.Linq;
+using CDR.Register.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace CDR.Register.Repository.Infrastructure
 {

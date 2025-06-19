@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -10,16 +11,5 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(100)]
         [Required]
         public string OrganisationTypeCode { get; set; }
-    }
-
-    public enum OrganisationTypes
-    {
-        Unknown = 0,
-        SoleTrader = 1,
-        Company = 2,
-        Partnership = 3,
-        Trust = 4,
-        GovernmentEntity = 5,
-        Other = 6
     }
 }

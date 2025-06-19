@@ -14,7 +14,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     BrandStatusId = table.Column<int>(type: "int", nullable: false),
-                    BrandStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    BrandStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -26,7 +26,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     IndustryTypeId = table.Column<int>(type: "int", nullable: false),
-                    IndustryTypeCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    IndustryTypeCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -38,7 +38,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     OrganisationTypeId = table.Column<int>(type: "int", nullable: false),
-                    OrganisationTypeCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    OrganisationTypeCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -50,7 +50,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     ParticipationStatusId = table.Column<int>(type: "int", nullable: false),
-                    ParticipationStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    ParticipationStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -62,7 +62,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     ParticipationTypeId = table.Column<int>(type: "int", nullable: false),
-                    ParticipationTypeCode = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false)
+                    ParticipationTypeCode = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -74,7 +74,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     RegisterUTypeId = table.Column<int>(type: "int", nullable: false),
-                    RegisterUTypeCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    RegisterUTypeCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -86,7 +86,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     SoftwareProductStatusId = table.Column<int>(type: "int", nullable: false),
-                    SoftwareProductStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                    SoftwareProductStatusCode = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -108,7 +108,7 @@ namespace CDR.Register.Repository.Migrations
                     Arbn = table.Column<string>(type: "nvarchar(9)", maxLength: 9, nullable: true),
                     IndustryCode = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: true),
                     OrganisationTypeId = table.Column<int>(type: "int", nullable: true),
-                    AccreditationNumber = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true)
+                    AccreditationNumber = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
                 },
                 constraints: table =>
                 {
@@ -129,7 +129,7 @@ namespace CDR.Register.Repository.Migrations
                     LegalEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ParticipationTypeId = table.Column<int>(type: "int", nullable: false),
                     IndustryId = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false)
+                    StatusId = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -169,7 +169,7 @@ namespace CDR.Register.Repository.Migrations
                     LogoUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     BrandStatusId = table.Column<int>(type: "int", nullable: false),
                     ParticipationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -194,7 +194,7 @@ namespace CDR.Register.Repository.Migrations
                 {
                     BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RegisterUTypeId = table.Column<int>(type: "int", nullable: false),
-                    JwksEndpoint = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    JwksEndpoint = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -223,7 +223,7 @@ namespace CDR.Register.Repository.Migrations
                     ResourceBaseUri = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     InfosecBaseUri = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     ExtensionBaseUri = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    WebsiteUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    WebsiteUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -254,7 +254,7 @@ namespace CDR.Register.Repository.Migrations
                     JwksUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Scope = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     StatusId = table.Column<int>(type: "int", nullable: false),
-                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -280,7 +280,7 @@ namespace CDR.Register.Repository.Migrations
                     SoftwareProductCertificateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SoftwareProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CommonName = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    Thumbprint = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false)
+                    Thumbprint = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                 },
                 constraints: table =>
                 {
@@ -300,7 +300,7 @@ namespace CDR.Register.Repository.Migrations
                 {
                     { 1, "ACTIVE" },
                     { 2, "INACTIVE" },
-                    { 3, "REMOVED" }
+                    { 3, "REMOVED" },
                 });
 
             migrationBuilder.InsertData(
@@ -323,7 +323,7 @@ namespace CDR.Register.Repository.Migrations
                     { 3, "PARTNERSHIP" },
                     { 4, "TRUST" },
                     { 5, "GOVERNMENT_ENTITY" },
-                    { 6, "OTHER" }
+                    { 6, "OTHER" },
                 });
 
             migrationBuilder.InsertData(
@@ -336,7 +336,7 @@ namespace CDR.Register.Repository.Migrations
                     { 4, "REVOKED" },
                     { 1, "ACTIVE" },
                     { 2, "REMOVED" },
-                    { 3, "SUSPENDED" }
+                    { 3, "SUSPENDED" },
                 });
 
             migrationBuilder.InsertData(
@@ -345,7 +345,7 @@ namespace CDR.Register.Repository.Migrations
                 values: new object[,]
                 {
                     { 1, "DH" },
-                    { 2, "DR" }
+                    { 2, "DR" },
                 });
 
             migrationBuilder.InsertData(
@@ -360,7 +360,7 @@ namespace CDR.Register.Repository.Migrations
                 {
                     { 2, "INACTIVE" },
                     { 1, "ACTIVE" },
-                    { 3, "REMOVED" }
+                    { 3, "REMOVED" },
                 });
 
             migrationBuilder.CreateIndex(

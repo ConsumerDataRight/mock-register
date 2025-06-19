@@ -1,16 +1,16 @@
-﻿using CDR.Register.IntegrationTests.Extensions;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,134 +21,33 @@ namespace CDR.Register.IntegrationTests.API.SSA
     /// <summary>
     /// Integration tests for GetSoftwareStatementAssertion.
     /// </summary>
-    public class US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests : BaseTest
+    public partial class US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests : BaseTest
     {
-        public US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
-            : base(outputHelper, testFixture)
-        {
-        }
-
-        // Participation/Brand/SoftwareProduct Ids
-        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup.
-
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
-        private enum AccessTokenType
+        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
+            {
+                ""errors"": [
+                        {
+                        ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
+                        ""title"": ""ADR Status Is Not Active"",
+                        ""detail"": """",
+                        }
+                    ]
+            }";
+
+        public US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
         {
-            ValidAccessToken,   // Get and send valid access token
-            InvalidAccessToken, // Send an invalid access token
-            ExpiredAccessToken, // Send expired access token
-            NoAccessToken,      // Don't send any access token
         }
 
         private delegate void BeforeSSARequest();
 
         private delegate void AfterSSARequest();
 
-        private static async Task<string?> GetAccessToken(
-            AccessTokenType accessTokenType,
-            string? getAccessTokenCertificateFilename,
-            string? getAccessTokenCertificatePassword,
-            string certificateFilename,
-            string certificatePassword)
-        {
-            // Access token
-            switch (accessTokenType)
-            {
-                case AccessTokenType.ValidAccessToken:
-                    // Get the access token with the valid certificate.
-                    return await new Infrastructure.AccessToken
-                    {
-                        CertificateFilename = getAccessTokenCertificateFilename ?? certificateFilename,
-                        CertificatePassword = getAccessTokenCertificatePassword ?? certificatePassword
-                    }.GetAsync();
-
-                case AccessTokenType.InvalidAccessToken:
-                    return "foo";
-
-                case AccessTokenType.ExpiredAccessToken:
-                    // Represents an expired access token.
-                    // "exp": 1621344825
-                    // Expired at "Tuesday, May 18, 2021 11:33:45 PM GMT+10:00"
-                    return "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2MjEzNDQ1MjUsImV4cCI6MTYyMTM0NDgyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiJDODRBNTM5MTA2QjI4NUJBODI2RjZGMDQ3MjU4RjBBNCIsImlhdCI6MTYyMTM0NDUyNSwic2NvcGUiOlsiY2RyLXJlZ2lzdGVyOmJhbms6cmVhZCJdLCJjbmYiOnsieDV0I1MyNTYiOiI1OEQ3NkY3QTYxQ0Q3MjZEQTFDNTRGNjg5OEU4RTY5RUE0Qzg4MDYwIn19.RTU-zrqkb-WXcJzCz62SJ4h19lj8MDyGcvLOmg0qx05WFbAsY4mEP3gsoqM1LJfq4ncw7RqSvbkCNQQ-NOnyoBHF8MGe7mzdUh3YrD0_lTg20Dkx1-l044svtP_CKTI3rXT3bZaYWce0Tb1s3mrJzfN3ja23o93FGR-wbIwHp2347b0DxjznpKBw5meLhAjS7OCx6_uMm1la6IziSQgqMd2WaA-od7w8J5br-Nn-QZZi7X1KGiPEKFDFNk8KrUdPc4NCH6t7f-Sbc34KNNEWfAOJkWdDrmsBaifSlWvSlS4nUnurGHYkmimA2JUuv3ZTqzCcLRamEER1ZoTcIs_PDw";
-
-                case AccessTokenType.NoAccessToken:
-                    return null;
-
-                default:
-                    throw new NotSupportedException();
-            }
-        }
-
-        private static async Task Test_GetSSA(
-           string certificateFilename,
-           string certificatePassword,
-           HttpStatusCode expectedStatusCode,
-           AccessTokenType accessTokenType = AccessTokenType.ValidAccessToken,
-           BeforeSSARequest? beforeRequest = null,
-           AfterSSARequest? afterRequest = null,
-           string? x_v = "3",
-           string? x_min_v = null,
-           string? expectedContent = null,
-           string? getAccessTokenCertificateFilename = null,
-           string? getAccessTokenCertificatePassword = null,
-           string? expectedXV = null,
-           string? industry = "all",
-           string brandId = BRANDID,
-           string softwareProductId = SOFTWAREPRODUCTID)
-        {
-            // Arrange
-            string url = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa";
-
-            var accessToken = await GetAccessToken(
-                accessTokenType,
-                getAccessTokenCertificateFilename,
-                getAccessTokenCertificatePassword,
-                certificateFilename,
-                certificatePassword);
-
-            var api = new Infrastructure.Api
-            {
-                CertificateFilename = certificateFilename,
-                CertificatePassword = certificatePassword,
-                HttpMethod = HttpMethod.Get,
-                URL = url,
-                AccessToken = accessToken,
-                XV = x_v,
-                XMinV = x_min_v
-            };
-
-            beforeRequest?.Invoke();
-            try
-            {
-                // Act
-                var response = await api.SendAsync();
-
-                // Assert
-                using (new AssertionScope())
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        // Assert - Check XV
-                        Assert_HasHeader(expectedXV ?? x_v, response.Headers, "x-v");
-                    }
-
-                    // Assert - Check expected content
-                    if (expectedContent != null)
-                    {
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                afterRequest?.Invoke();
-            }
-        }
+        // Participation/Brand/SoftwareProduct Ids
+        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup.
 
         [Theory]
         [InlineData(3)]
@@ -165,7 +64,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             // Act - Send request to SSA API
@@ -176,7 +75,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
                 XV = xv.ToString(),
-                AccessToken = accessToken
+                AccessToken = accessToken,
             }.SendAsync();
 
             await AssertSsa(response, softwareProduct, xv);
@@ -200,7 +99,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             // Act - Send request to SSA API
@@ -211,25 +110,14 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
                 XV = "3",
-                AccessToken = accessToken
+                AccessToken = accessToken,
             }.SendAsync();
 
             await AssertSsa(response, softwareProduct, 3);
         }
 
-        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
-            {
-                ""errors"": [
-                        {
-                        ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                        ""title"": ""ADR Status Is Not Active"",
-                        ""detail"": """",
-                        }
-                    ]
-            }";
-
         [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
+        [InlineData(1, HttpStatusCode.OK)] // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Removed
         [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
         [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
@@ -251,7 +139,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
+        [InlineData(1, HttpStatusCode.OK)] // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
         [InlineData(3, HttpStatusCode.Forbidden)] // Removed
         public async Task AC04_GetSSA_WithBrandNotActive_ShouldRespondWith_403Forbidden(
@@ -270,7 +158,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
+        [InlineData(1, HttpStatusCode.OK)] // Active
         [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
         [InlineData(3, HttpStatusCode.Forbidden)] // Removed
         public async Task AC05_GetSSA_WithSoftwareProductNotActive_ShouldRespondWith_403Forbidden(
@@ -339,13 +227,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
         [InlineData("3", "foo")]
         public async Task AC11_GetSSA_InvalidSoftwareProductId_ShouldRespondWith_404NotFound(string xv, string softwareProductId)
         {
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                HttpStatusCode.NotFound,
-                x_v: xv,
-                softwareProductId: softwareProductId,
-                expectedContent: $@"
+            var expectedContent =
+                $@"
                     {{
                         ""errors"": [
                                 {{
@@ -354,7 +237,14 @@ namespace CDR.Register.IntegrationTests.API.SSA
                                 ""detail"": ""{softwareProductId}"",
                                 }}
                             ]
-                    }}");
+                    }}";
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                HttpStatusCode.NotFound,
+                x_v: xv,
+                softwareProductId: softwareProductId,
+                expectedContent: expectedContent);
         }
 
         [Theory]
@@ -379,34 +269,24 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 brandId: Guid.NewGuid().ToString());
         }
 
-        private static async Task<JsonWebKeySet> GetSsaJwks()
-        {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-
-            var jwksClient = new HttpClient(clientHandler);
-            var jwksResponse = await jwksClient.GetAsync($"{TLS_BaseURL}/cdr-register/v1/jwks");
-            return new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
-        }
-
         [Theory]
-        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-min-v is ignored when > x-v
-        [InlineData("3", "2", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is supported and higher than x-min-v
-        [InlineData("3", "3", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is supported equal to x-min-v
-        [InlineData("4", "3", "3", HttpStatusCode.OK, true, "")]                             // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
+        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
+        [InlineData("3", "2", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported and higher than x-min-v
+        [InlineData("3", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported equal to x-min-v
+        [InlineData("4", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
         [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
         [InlineData("4", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
         [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
-        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. Both x-v and x-min-v exceed supported version of 3
-        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is an obsolete version
-        [InlineData("2", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is an obsolete version
+        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 3
+        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
+        [InlineData("2", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "3", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is higher than supported version of 3
-        [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]     // Invalid. x-v header is an empty string
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]      // Invalid. x-v header is missing
+        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 3
+        [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
         public async Task ACX01_VersionHeaderValidation(string? xv, string? xminv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
@@ -427,7 +307,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 URL = url,
                 AccessToken = accessToken,
                 XV = xv,
-                XMinV = xminv
+                XMinV = xminv,
             };
 
             // Act
@@ -477,7 +357,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             }.GetAsync(addCertificateToRequest: false);
 
             // Act - Send request to SSA API
@@ -488,7 +368,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 XV = xv.ToString(),
                 AccessToken = accessToken,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             }.SendAsync();
 
             await AssertSsa(response, softwareProduct, xv);
@@ -568,6 +448,120 @@ namespace CDR.Register.IntegrationTests.API.SSA
                     new JwtSecurityTokenHandler().ValidateToken(ssa.RawData, validationParameters, out _);
                 }
             }
+        }
+
+        private static async Task Test_GetSSA(
+           string certificateFilename,
+           string certificatePassword,
+           HttpStatusCode expectedStatusCode,
+           AccessTokenType accessTokenType = AccessTokenType.ValidAccessToken,
+           BeforeSSARequest? beforeRequest = null,
+           AfterSSARequest? afterRequest = null,
+           string? x_v = "3",
+           string? x_min_v = null,
+           string? expectedContent = null,
+           string? getAccessTokenCertificateFilename = null,
+           string? getAccessTokenCertificatePassword = null,
+           string? expectedXV = null,
+           string? industry = "all",
+           string brandId = BRANDID,
+           string softwareProductId = SOFTWAREPRODUCTID)
+        {
+            // Arrange
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa";
+
+            var accessToken = await GetAccessToken(
+                accessTokenType,
+                getAccessTokenCertificateFilename,
+                getAccessTokenCertificatePassword,
+                certificateFilename,
+                certificatePassword);
+
+            var api = new Infrastructure.Api
+            {
+                CertificateFilename = certificateFilename,
+                CertificatePassword = certificatePassword,
+                HttpMethod = HttpMethod.Get,
+                URL = url,
+                AccessToken = accessToken,
+                XV = x_v,
+                XMinV = x_min_v,
+            };
+
+            beforeRequest?.Invoke();
+            try
+            {
+                // Act
+                var response = await api.SendAsync();
+
+                // Assert
+                using (new AssertionScope())
+                {
+                    // Assert - Check status code
+                    response.StatusCode.Should().Be(expectedStatusCode);
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        // Assert - Check XV
+                        Assert_HasHeader(expectedXV ?? x_v, response.Headers, "x-v");
+                    }
+
+                    // Assert - Check expected content
+                    if (expectedContent != null)
+                    {
+                        await Assert_HasContent_Json(expectedContent, response.Content);
+                    }
+                }
+            }
+            finally
+            {
+                afterRequest?.Invoke();
+            }
+        }
+
+        private static async Task<string?> GetAccessToken(
+            AccessTokenType accessTokenType,
+            string? getAccessTokenCertificateFilename,
+            string? getAccessTokenCertificatePassword,
+            string certificateFilename,
+            string certificatePassword)
+        {
+            // Access token
+            switch (accessTokenType)
+            {
+                case AccessTokenType.ValidAccessToken:
+                    // Get the access token with the valid certificate.
+                    return await new Infrastructure.AccessToken
+                    {
+                        CertificateFilename = getAccessTokenCertificateFilename ?? certificateFilename,
+                        CertificatePassword = getAccessTokenCertificatePassword ?? certificatePassword,
+                    }.GetAsync();
+
+                case AccessTokenType.InvalidAccessToken:
+                    return "foo";
+
+                case AccessTokenType.ExpiredAccessToken:
+                    // Represents an expired access token.
+                    // "exp": 1621344825
+                    // Expired at "Tuesday, May 18, 2021 11:33:45 PM GMT+10:00"
+                    return "eyJhbGciOiJQUzI1NiIsImtpZCI6IkFBMjRGMTg1RUUzRjY3NTA0ODA4RkM0RTI2QjEzNUI5OUU2M0JEQTkiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJxaVR4aGU0X1oxQklDUHhPSnJFMXVaNWp2YWsifQ.eyJuYmYiOjE2MjEzNDQ1MjUsImV4cCI6MTYyMTM0NDgyNSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAwMC9pZHAiLCJhdWQiOiJjZHItcmVnaXN0ZXIiLCJjbGllbnRfaWQiOiI2ZjdhMWI4ZS04Nzk5LTQ4YTgtOTAxMS1lMzkyMDM5MWY3MTMiLCJqdGkiOiJDODRBNTM5MTA2QjI4NUJBODI2RjZGMDQ3MjU4RjBBNCIsImlhdCI6MTYyMTM0NDUyNSwic2NvcGUiOlsiY2RyLXJlZ2lzdGVyOmJhbms6cmVhZCJdLCJjbmYiOnsieDV0I1MyNTYiOiI1OEQ3NkY3QTYxQ0Q3MjZEQTFDNTRGNjg5OEU4RTY5RUE0Qzg4MDYwIn19.RTU-zrqkb-WXcJzCz62SJ4h19lj8MDyGcvLOmg0qx05WFbAsY4mEP3gsoqM1LJfq4ncw7RqSvbkCNQQ-NOnyoBHF8MGe7mzdUh3YrD0_lTg20Dkx1-l044svtP_CKTI3rXT3bZaYWce0Tb1s3mrJzfN3ja23o93FGR-wbIwHp2347b0DxjznpKBw5meLhAjS7OCx6_uMm1la6IziSQgqMd2WaA-od7w8J5br-Nn-QZZi7X1KGiPEKFDFNk8KrUdPc4NCH6t7f-Sbc34KNNEWfAOJkWdDrmsBaifSlWvSlS4nUnurGHYkmimA2JUuv3ZTqzCcLRamEER1ZoTcIs_PDw";
+
+                case AccessTokenType.NoAccessToken:
+                    return null;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        private static async Task<JsonWebKeySet> GetSsaJwks()
+        {
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+
+            var jwksClient = new HttpClient(clientHandler);
+            var jwksResponse = await jwksClient.GetAsync($"{TLS_BaseURL}/cdr-register/v1/jwks");
+            return new JsonWebKeySet(await jwksResponse.Content.ReadAsStringAsync());
         }
     }
 }

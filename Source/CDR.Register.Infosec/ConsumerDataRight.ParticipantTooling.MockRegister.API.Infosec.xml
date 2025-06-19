@@ -10,7 +10,7 @@
             </summary>
             <param name="client_id">client_id (form param) when provided and must match client assertion issuer and subject.</param>
             <param name="clientAssertion">client Assertion.</param>
-            <returns></returns>
+            <returns>Tuple of IsValid, ValidationMessage, Client.</returns>
         </member>
     </members>
 </doc>

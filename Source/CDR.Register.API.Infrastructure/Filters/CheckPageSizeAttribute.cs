@@ -1,7 +1,7 @@
-﻿using CDR.Register.Domain.Models;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using CDR.Register.Domain.Models;
+using Newtonsoft.Json;
 
 namespace CDR.Register.API.Infrastructure.Filters
 {

@@ -12,12 +12,12 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
 
         public SetupApiVersionParamsOperationFilter(IOptions<CdrApiOptions> options)
         {
-            _options = options.Value;
+            this._options = options.Value;
         }
 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            var versionOption = _options.GetApiEndpointVersionOption($"/{context.ApiDescription.RelativePath}");
+            var versionOption = this._options.GetApiEndpointVersionOption($"/{context.ApiDescription.RelativePath}");
 
             foreach (var s in operation.Parameters.Where(o => o.Name == "x-v" || o.Name == "x-min-v"))
             {

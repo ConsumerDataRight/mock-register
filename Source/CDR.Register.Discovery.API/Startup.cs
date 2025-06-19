@@ -22,7 +22,7 @@ namespace CDR.Register.Discovery.API
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -32,7 +32,7 @@ namespace CDR.Register.Discovery.API
         {
             services.AddHttpContextAccessor();
 
-            services.AddRegisterDiscovery(Configuration);
+            services.AddRegisterDiscovery(this.Configuration);
 
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(options =>
@@ -46,7 +46,7 @@ namespace CDR.Register.Discovery.API
                 options.ErrorResponses = new ApiVersionErrorResponse();
             });
 
-            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)
             {
                 services.AddCdrSwaggerGen(opt =>
@@ -60,13 +60,13 @@ namespace CDR.Register.Discovery.API
 
             // This is to manage the EF database context through the web API DI.
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
-            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Register_DB")));
+            services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(this.Configuration.GetConnectionString("Register_DB")));
 
             services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
 
             services.AddScoped<LogActionEntryAttribute>();
 
-            if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
+            if (this.Configuration.GetSection("SerilogRequestResponseLogger") != null)
             {
                 Log.Logger.Information("Adding request response logging middleware");
                 services.AddRequestResponseLogging();
@@ -82,7 +82,7 @@ namespace CDR.Register.Discovery.API
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
 
-            app.UseBasePathOrExpression(Configuration);
+            app.UseBasePathOrExpression(this.Configuration);
 
             app.UseSerilogRequestLogging();
 
@@ -93,7 +93,7 @@ namespace CDR.Register.Discovery.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)
             {
                 app.UseCdrSwagger();

@@ -6,10 +6,4 @@
 
         public string JwksEndpoint { get; set; }
     }
-
-    public enum RegisterUType
-    {
-        Unknown = 0,
-        SignedJwt = 1
-    }
 }

@@ -1,4 +1,7 @@
-﻿using CDR.Register.API.Infrastructure;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Services;
@@ -7,9 +10,6 @@ using CDR.Register.SSA.API.Business;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace CDR.Register.SSA.API.Controllers
 {
@@ -28,10 +28,10 @@ namespace CDR.Register.SSA.API.Controllers
             IDataRecipientStatusCheckService statusCheckService,
             IConfiguration configuration)
         {
-            _ssaService = ssaService;
-            _certificateService = certificateService;
-            _statusCheckService = statusCheckService;
-            _configuration = configuration;
+            this._ssaService = ssaService;
+            this._certificateService = certificateService;
+            this._statusCheckService = statusCheckService;
+            this._configuration = configuration;
         }
 
         [PolicyAuthorize(RegisterAuthorisationPolicy.GetSSAMultiIndustry)]
@@ -44,24 +44,24 @@ namespace CDR.Register.SSA.API.Controllers
         public async Task<IActionResult> GetSoftwareStatementAssertionXV3(string industry, string dataRecipientBrandId, string softwareProductId)
         {
             // CTS conformance ID validations
-            var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
+            var basePathExpression = this._configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
             if (!string.IsNullOrEmpty(basePathExpression))
             {
-                var validIssuer = HttpContext.ValidateIssuer();
+                var validIssuer = this.HttpContext.ValidateIssuer();
                 if (!validIssuer)
                 {
-                    return Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
+                    return this.Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                 }
             }
 
-            var result = await CheckSoftwareProduct(softwareProductId);
+            var result = await this.CheckSoftwareProduct(softwareProductId);
             if (result != null)
             {
                 return result;
             }
 
-            var ssa = await _ssaService.GetSoftwareStatementAssertionJWTAsync(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
-            return string.IsNullOrEmpty(ssa) ? NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : Ok(ssa);
+            var ssa = await this._ssaService.GetSoftwareStatementAssertionJWTAsync(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
+            return string.IsNullOrEmpty(ssa) ? this.NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : this.Ok(ssa);
         }
 
         [HttpGet]
@@ -70,12 +70,12 @@ namespace CDR.Register.SSA.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult GetJwks()
         {
-            return new OkObjectResult(_certificateService.JsonWebKeySet);
+            return new OkObjectResult(this._certificateService.JsonWebKeySet);
         }
 
         private Guid? GetSoftwareProductIdFromAccessToken()
         {
-            string clientId = User.FindFirst("client_id")?.Value;
+            string clientId = this.User.FindFirst("client_id")?.Value;
             if (Guid.TryParse(clientId, out Guid softwareProductId))
             {
                 return softwareProductId;
@@ -92,7 +92,7 @@ namespace CDR.Register.SSA.API.Controllers
         private async Task<IActionResult> CheckSoftwareProduct(string softwareProductId)
         {
             // Get the software product id based on the access token.
-            var softwareProductIdAsGuid = GetSoftwareProductIdFromAccessToken();
+            var softwareProductIdAsGuid = this.GetSoftwareProductIdFromAccessToken();
             if (softwareProductIdAsGuid == null)
             {
                 return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
@@ -105,7 +105,7 @@ namespace CDR.Register.SSA.API.Controllers
             }
 
             // Check the status of the data recipient making the SSA request.
-            var statusErrors = await CheckStatus(softwareProductIdAsGuid.Value);
+            var statusErrors = await this.CheckStatus(softwareProductIdAsGuid.Value);
             if (statusErrors.HasErrors())
             {
                 return new RegisterForbidResult(statusErrors);
@@ -116,7 +116,7 @@ namespace CDR.Register.SSA.API.Controllers
 
         private async Task<ResponseErrorList> CheckStatus(Guid softwareProductId)
         {
-            return await _statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
+            return await this._statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
         }
     }
 }

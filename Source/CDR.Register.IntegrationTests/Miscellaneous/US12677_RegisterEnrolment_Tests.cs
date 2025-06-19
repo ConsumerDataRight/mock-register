@@ -23,38 +23,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         {
         }
 
-        /// <summary>
-        /// Get the repository as json.
-        /// </summary>
-        private static async Task<HttpResponseMessage> GetJson()
-        {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            var client = new HttpClient(clientHandler);
-            var request = new HttpRequestMessage(HttpMethod.Get, ADMIN_URL);
-            var response = await client.SendAsync(request);
-            return response;
-        }
-
-        /// <summary>
-        /// Load (replace) the repository from json.
-        /// </summary>
-        private static async Task<HttpResponseMessage> PostJson(string json)
-        {
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            var client = new HttpClient(clientHandler);
-            var request = new HttpRequestMessage(HttpMethod.Post, ADMIN_URL);
-            if (json != null)
-            {
-                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            }
-
-            var response = await client.SendAsync(request);
-            return response;
-        }
-
         [Fact]
         public async Task AC01_Get_ShouldRespondWith_200OK_RepositoryAsJson()
         {
@@ -127,54 +95,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
                 Assert_HasContentType_ApplicationJson(response.Content);
             }
-        }
-
-        // Remove "foreign keys" (LegalEntityId, ParticipationId, etc) from child collections as their values can be dynamic.
-        private static void RemoveForeignKeys(JToken jToken)
-        {
-            static void ClearField(JToken jToken, string fieldName)
-            {
-                foreach (var item in jToken.SelectTokens($"..{fieldName}"))
-                {
-                    var prop = item as JValue;
-                    if (prop != null)
-                    {
-                        prop.Value = null;
-                    }
-                }
-            }
-
-            ClearField(jToken, "legalEntityId");
-            ClearField(jToken, "participationId");
-            ClearField(jToken, "brandId");
-            ClearField(jToken, "softwareProductId");
-            ClearField(jToken, "softwareProductCertificateId");
-
-            ClearField(jToken, "legalEntityStatusId");
-        }
-
-        private static JToken Cleanup(JToken jToken)
-        {
-            // Sort
-            jToken["legalEntities"].SortArray("legalEntityId");
-            jToken.SortArray("$..legalEntities..participations", "participationId");
-            jToken.SortArray("$..legalEntities..participations..brands", "brandId");
-            jToken.SortArray("$..legalEntities..participations..brands..softwareProducts", "softwareProductId");
-
-            RemoveForeignKeys(jToken);
-
-            jToken.RemoveNulls();
-            jToken.RemoveEmptyArrays();
-
-            // Fix mismatch in version, convert to string
-            jToken.ReplacePath(
-                "$..legalEntities..participations..brands..endpoint..version",
-                t => $"{t}");
-
-            // Issues with Guids and property names having different cases... not ideal, but just convert to upper case
-            jToken = JToken.Parse(jToken.ToString().ToUpper());
-
-            return jToken;
         }
 
         [Fact]
@@ -267,6 +187,86 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 
                 JToken.DeepEquals(jToken, jTokenResponse).Should().BeTrue();
             }
+        }
+
+        /// <summary>
+        /// Get the repository as json.
+        /// </summary>
+        private static async Task<HttpResponseMessage> GetJson()
+        {
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            var client = new HttpClient(clientHandler);
+            var request = new HttpRequestMessage(HttpMethod.Get, ADMIN_URL);
+            var response = await client.SendAsync(request);
+            return response;
+        }
+
+        /// <summary>
+        /// Load (replace) the repository from json.
+        /// </summary>
+        private static async Task<HttpResponseMessage> PostJson(string json)
+        {
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            var client = new HttpClient(clientHandler);
+            var request = new HttpRequestMessage(HttpMethod.Post, ADMIN_URL);
+            if (json != null)
+            {
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            }
+
+            var response = await client.SendAsync(request);
+            return response;
+        }
+
+        private static JToken Cleanup(JToken jToken)
+        {
+            // Sort
+            jToken["legalEntities"].SortArray("legalEntityId");
+            jToken.SortArray("$..legalEntities..participations", "participationId");
+            jToken.SortArray("$..legalEntities..participations..brands", "brandId");
+            jToken.SortArray("$..legalEntities..participations..brands..softwareProducts", "softwareProductId");
+
+            RemoveForeignKeys(jToken);
+
+            jToken.RemoveNulls();
+            jToken.RemoveEmptyArrays();
+
+            // Fix mismatch in version, convert to string
+            jToken.ReplacePath(
+                "$..legalEntities..participations..brands..endpoint..version",
+                t => $"{t}");
+
+            // Issues with Guids and property names having different cases... not ideal, but just convert to upper case
+            jToken = JToken.Parse(jToken.ToString().ToUpper());
+
+            return jToken;
+        }
+
+        // Remove "foreign keys" (LegalEntityId, ParticipationId, etc) from child collections as their values can be dynamic.
+        private static void RemoveForeignKeys(JToken jToken)
+        {
+            static void ClearField(JToken jToken, string fieldName)
+            {
+                foreach (var item in jToken.SelectTokens($"..{fieldName}"))
+                {
+                    var prop = item as JValue;
+                    if (prop != null)
+                    {
+                        prop.Value = null;
+                    }
+                }
+            }
+
+            ClearField(jToken, "legalEntityId");
+            ClearField(jToken, "participationId");
+            ClearField(jToken, "brandId");
+            ClearField(jToken, "softwareProductId");
+            ClearField(jToken, "softwareProductCertificateId");
+
+            ClearField(jToken, "legalEntityStatusId");
         }
     }
 }

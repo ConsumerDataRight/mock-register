@@ -1,22 +1,16 @@
-﻿namespace CDR.Register.API.Logger
-{
-    using Microsoft.Extensions.Configuration;
-    using Serilog;
-    using Serilog.Core;
-    using Serilog.Settings.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Serilog;
+using Serilog.Settings.Configuration;
 
+namespace CDR.Register.API.Logger
+{
     public class RequestResponseLogger : IRequestResponseLogger, IDisposable
     {
-        private readonly Logger _logger;
-
-        public ILogger Log
-        {
-            get { return _logger; }
-        }
+        private readonly Serilog.Core.Logger _logger;
 
         public RequestResponseLogger(IConfiguration configuration)
         {
-            _logger = new LoggerConfiguration()
+            this._logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration, new ConfigurationReaderOptions { SectionName = "SerilogRequestResponseLogger" })
                 .Enrich.WithProperty("RequestMethod", string.Empty)
                 .Enrich.WithProperty("RequestBody", string.Empty)
@@ -36,9 +30,14 @@
                 .CreateLogger();
         }
 
+        public ILogger Log
+        {
+            get { return this._logger; }
+        }
+
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 

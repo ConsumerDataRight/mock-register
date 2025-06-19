@@ -1,4 +1,8 @@
-﻿using CDR.Register.API.Infrastructure;
+﻿using System;
+using System.Globalization;
+using System.Net;
+using System.Threading.Tasks;
+using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Services;
@@ -7,10 +11,6 @@ using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Globalization;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace CDR.Register.Discovery.API.Controllers
 {
@@ -33,9 +33,9 @@ namespace CDR.Register.Discovery.API.Controllers
             IConfiguration configuration,
             IDataRecipientStatusCheckService statusCheckService)
         {
-            _discoveryService = discoveryService;
-            _configuration = configuration;
-            _statusCheckService = statusCheckService;
+            this._discoveryService = discoveryService;
+            this._configuration = configuration;
+            this._statusCheckService = statusCheckService;
         }
 
         [HttpGet("v1/{industry}/data-holders/brands", Name = ROUTE_GET_DATA_HOLDER_BRANDS_XV2)]
@@ -52,18 +52,18 @@ namespace CDR.Register.Discovery.API.Controllers
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
         {
             // CTS conformance ID validations
-            var basePathExpression = _configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
+            var basePathExpression = this._configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
             if (!string.IsNullOrEmpty(basePathExpression))
             {
-                var validIssuer = HttpContext.ValidateIssuer();
+                var validIssuer = this.HttpContext.ValidateIssuer();
                 if (!validIssuer)
                 {
-                    return Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
+                    return this.Unauthorized(new ResponseErrorList(StatusCodes.Status401Unauthorized.ToString(), HttpStatusCode.Unauthorized.ToString(), "invalid_token"));
                 }
             }
 
             // Check if the data recipient is active
-            var result = await CheckSoftwareProduct();
+            var result = await this.CheckSoftwareProduct();
             if (result != null)
             {
                 return result;
@@ -73,7 +73,7 @@ namespace CDR.Register.Discovery.API.Controllers
             DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince, CultureInfo.InvariantCulture);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await _discoveryService.GetDataHolderBrandsAsync(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
+            var response = await this._discoveryService.GetDataHolderBrandsAsync(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
 
             // Check if the given page number is out of range
             if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
@@ -84,7 +84,7 @@ namespace CDR.Register.Discovery.API.Controllers
             // Set pagination meta data
             response.Links = this.GetPaginated(
                 ROUTE_GET_DATA_HOLDER_BRANDS_XV2,
-                _configuration,
+                this._configuration,
                 updatedSinceDate,
                 pageNumber,
                 response.Meta.TotalPages.Value,
@@ -92,7 +92,7 @@ namespace CDR.Register.Discovery.API.Controllers
                 string.Empty,
                 true);
 
-            return Ok(response);
+            return this.Ok(response);
         }
 
         [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV3)]
@@ -103,9 +103,9 @@ namespace CDR.Register.Discovery.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetDataRecipientsXV3(string industry)
         {
-            var response = await _discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
-            response.Links = this.GetSelf(_configuration, HttpContext, string.Empty);
-            return Ok(response);
+            var response = await this._discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
+            response.Links = this.GetSelf(this._configuration, this.HttpContext, string.Empty);
+            return this.Ok(response);
         }
 
         /// <summary>
@@ -115,14 +115,14 @@ namespace CDR.Register.Discovery.API.Controllers
         private async Task<IActionResult> CheckSoftwareProduct()
         {
             // Get the software product id based on the access token.
-            var softwareProductIdAsGuid = GetSoftwareProductIdFromAccessToken();
+            var softwareProductIdAsGuid = this.GetSoftwareProductIdFromAccessToken();
             if (softwareProductIdAsGuid == null)
             {
                 return new BadRequestObjectResult(new ResponseErrorList().AddUnexpectedError());
             }
 
             // Check the status of the data recipient making the SSA request.
-            var statusErrors = await CheckStatus(softwareProductIdAsGuid.Value);
+            var statusErrors = await this.CheckStatus(softwareProductIdAsGuid.Value);
             if (statusErrors.HasErrors())
             {
                 return new RegisterForbidResult(statusErrors);
@@ -133,7 +133,7 @@ namespace CDR.Register.Discovery.API.Controllers
 
         private Guid? GetSoftwareProductIdFromAccessToken()
         {
-            string clientId = User.FindFirst("client_id")?.Value;
+            string clientId = this.User.FindFirst("client_id")?.Value;
             if (Guid.TryParse(clientId, out Guid softwareProductId))
             {
                 return softwareProductId;
@@ -144,7 +144,7 @@ namespace CDR.Register.Discovery.API.Controllers
 
         private async Task<ResponseErrorList> CheckStatus(Guid softwareProductId)
         {
-            return await _statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
+            return await this._statusCheckService.ValidateSoftwareProductStatus(softwareProductId);
         }
     }
 }

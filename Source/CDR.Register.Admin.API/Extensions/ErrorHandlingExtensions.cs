@@ -1,9 +1,9 @@
-﻿using CDR.Register.Admin.API.Business.Model;
+﻿using System.Linq;
+using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Domain.Models;
 using CDR.Register.Domain.ValueObjects;
-using System.Linq;
 
 namespace CDR.Register.Admin.API.Extensions
 {

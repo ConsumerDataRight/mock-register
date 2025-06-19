@@ -21,12 +21,12 @@ namespace CDR.Register.API.Gateway.Mtls
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
+
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -57,7 +57,7 @@ namespace CDR.Register.API.Gateway.Mtls
                      {
                          context.Fail("invalid client certificate");
                          throw context.Exception;
-                     }
+                     },
                  };
              })
 
@@ -109,8 +109,8 @@ namespace CDR.Register.API.Gateway.Mtls
                     // The thumbprint and common name from the client certificate are extracted and added as headers for the downstream services.
                     if (clientCert != null)
                     {
-                        var certThumbprintNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
-                        var certCommonNameHttpHeaderName = Configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
+                        var certThumbprintNameHttpHeaderName = this.Configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
+                        var certCommonNameHttpHeaderName = this.Configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
 
                         httpContext.Request.Headers.Append(certThumbprintNameHttpHeaderName, clientCert.Thumbprint);
                         httpContext.Request.Headers.Append(certCommonNameHttpHeaderName, clientCert.GetNameInfo(X509NameType.SimpleName, false));
@@ -120,7 +120,7 @@ namespace CDR.Register.API.Gateway.Mtls
                     httpContext.Request.Headers.Append("X-Forwarded-Host", httpContext.Request.Host.ToString());
 
                     await next.Invoke();
-                }
+                },
             };
 
             app.UseOcelot(pipelineConfiguration).Wait();

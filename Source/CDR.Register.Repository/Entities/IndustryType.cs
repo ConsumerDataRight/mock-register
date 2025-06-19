@@ -1,5 +1,5 @@
-﻿using CDR.Register.Repository.Infrastructure;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Infrastructure;
 
 namespace CDR.Register.Repository.Entities
 {

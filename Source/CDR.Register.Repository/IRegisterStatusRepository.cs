@@ -1,5 +1,5 @@
-﻿using CDR.Register.Domain.Entities;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using CDR.Register.Domain.Entities;
 
 namespace CDR.Register.Repository.Interfaces
 {

@@ -14,7 +14,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
 
         public CdrVersionReader(CdrApiOptions options)
         {
-            _options = options;
+            this._options = options;
         }
 
         public void AddParameters(IApiVersionParameterDescriptionContext context)
@@ -25,16 +25,16 @@ namespace CDR.Register.API.Infrastructure.Versioning
 
         public string? Read(HttpRequest request)
         {
-            var endpointOption = _options.GetApiEndpointVersionOption(request.Path);
+            var endpointOption = this._options.GetApiEndpointVersionOption(request.Path);
 
             if (endpointOption == null)
             {
                 // handle any endpoint that hasn't been defined in options
-                endpointOption = new CdrApiEndpointVersionOptions(string.Empty, false, int.Parse(_options.DefaultVersion));
+                endpointOption = new CdrApiEndpointVersionOptions(string.Empty, false, int.Parse(this._options.DefaultVersion));
             }
             else if (!endpointOption.IsVersioned)
             {
-                return _options.DefaultVersion;
+                return this._options.DefaultVersion;
             }
 
             // If x-min-v is passed in, we expect it to be a Positive Integer, the x-v value is parsed out of the header and will be validated by the Package itself

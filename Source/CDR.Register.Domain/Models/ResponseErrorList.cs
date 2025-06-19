@@ -5,109 +5,24 @@ namespace CDR.Register.Domain.Models
 {
     public class ResponseErrorList
     {
-        [Required]
-        public List<Error> Errors { get; set; }
-
-        public bool HasErrors()
-        {
-            return Errors != null && Errors.Count > 0;
-        }
-
         public ResponseErrorList()
         {
-            Errors = [];
+            this.Errors = [];
         }
 
         public ResponseErrorList(Error error)
         {
-            Errors = [error];
+            this.Errors = [error];
         }
 
         public ResponseErrorList(string errorCode, string errorTitle, string errorDetail)
         {
             var error = new Error(errorCode, errorTitle, errorDetail);
-            Errors = [error];
+            this.Errors = [error];
         }
 
-        /// <summary>
-        /// Add unexpected error to the response error list.
-        /// </summary>
-        public ResponseErrorList AddUnexpectedError(string message)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, message));
-            return this;
-        }
-
-        public ResponseErrorList AddUnexpectedError()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, "An unexpected exception occurred while processing the request."));
-            return this;
-        }
-
-        /// <summary>
-        /// Add invalid industry error to the response error list.
-        /// </summary>
-        public ResponseErrorList AddInvalidIndustry()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "industry"));
-            return this;
-        }
-
-        // Return Unsupported Version
-        public ResponseErrorList AddInvalidXVUnsupportedVersion()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.UnsupportedVersion, Constants.ErrorTitles.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version."));
-            return this;
-        }
-
-        // Return Invalid Version
-        public ResponseErrorList AddInvalidXVInvalidVersion()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidVersion, Constants.ErrorTitles.InvalidVersion, "Version is not a positive Integer."));
-            return this;
-        }
-
-        public ResponseErrorList AddInvalidXVMissingRequiredHeader()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredHeader, Constants.ErrorTitles.MissingRequiredHeader, "An API version x-v header is required, but was not specified."));
-            return this;
-        }
-
-        public ResponseErrorList AddInvalidConsentArrangement(string arrangementId)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidConsentArrangement, Constants.ErrorTitles.InvalidConsentArrangement, arrangementId));
-            return this;
-        }
-
-        public ResponseErrorList AddMissingRequiredHeader(string headerName)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredHeader, Constants.ErrorTitles.MissingRequiredHeader, headerName));
-            return this;
-        }
-
-        public ResponseErrorList AddMissingRequiredField(string headerName)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredField, Constants.ErrorTitles.MissingRequiredField, headerName));
-            return this;
-        }
-
-        public ResponseErrorList AddInvalidField(string fieldName)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, fieldName));
-            return this;
-        }
-
-        public ResponseErrorList AddInvalidHeader(string headerName)
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidHeader, Constants.ErrorTitles.InvalidHeader, headerName));
-            return this;
-        }
-
-        public ResponseErrorList AddInvalidDateTime()
-        {
-            Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidDateTime, Constants.ErrorTitles.InvalidDateTime, "{0} should be valid DateTimeString"));
-            return this;
-        }
+        [Required]
+        public List<Error> Errors { get; set; }
 
         public static Error InvalidDateTime()
         {
@@ -157,6 +72,93 @@ namespace CDR.Register.Domain.Models
         public static Error NotFound()
         {
             return new Error(Constants.ErrorCodes.Cds.ResourceNotFound, Constants.ErrorTitles.ResourceNotFound, string.Empty);
+        }
+
+        public bool HasErrors()
+        {
+            return this.Errors != null && this.Errors.Count > 0;
+        }
+
+        /// <summary>
+        /// Add unexpected error to the response error list.
+        /// </summary>
+        /// <returns>ErrorList for response.</returns>
+        public ResponseErrorList AddUnexpectedError(string message)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, message));
+            return this;
+        }
+
+        public ResponseErrorList AddUnexpectedError()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.UnexpectedError, Constants.ErrorTitles.UnexpectedError, "An unexpected exception occurred while processing the request."));
+            return this;
+        }
+
+        /// <summary>
+        /// Add invalid industry error to the response error list.
+        /// </summary>
+        /// <returns>Errorlist for response.</returns>
+        public ResponseErrorList AddInvalidIndustry()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, "industry"));
+            return this;
+        }
+
+        // Return Unsupported Version
+        public ResponseErrorList AddInvalidXVUnsupportedVersion()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.UnsupportedVersion, Constants.ErrorTitles.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version."));
+            return this;
+        }
+
+        // Return Invalid Version
+        public ResponseErrorList AddInvalidXVInvalidVersion()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidVersion, Constants.ErrorTitles.InvalidVersion, "Version is not a positive Integer."));
+            return this;
+        }
+
+        public ResponseErrorList AddInvalidXVMissingRequiredHeader()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredHeader, Constants.ErrorTitles.MissingRequiredHeader, "An API version x-v header is required, but was not specified."));
+            return this;
+        }
+
+        public ResponseErrorList AddInvalidConsentArrangement(string arrangementId)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidConsentArrangement, Constants.ErrorTitles.InvalidConsentArrangement, arrangementId));
+            return this;
+        }
+
+        public ResponseErrorList AddMissingRequiredHeader(string headerName)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredHeader, Constants.ErrorTitles.MissingRequiredHeader, headerName));
+            return this;
+        }
+
+        public ResponseErrorList AddMissingRequiredField(string headerName)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.MissingRequiredField, Constants.ErrorTitles.MissingRequiredField, headerName));
+            return this;
+        }
+
+        public ResponseErrorList AddInvalidField(string fieldName)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidField, Constants.ErrorTitles.InvalidField, fieldName));
+            return this;
+        }
+
+        public ResponseErrorList AddInvalidHeader(string headerName)
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidHeader, Constants.ErrorTitles.InvalidHeader, headerName));
+            return this;
+        }
+
+        public ResponseErrorList AddInvalidDateTime()
+        {
+            this.Errors.Add(new Error(Constants.ErrorCodes.Cds.InvalidDateTime, Constants.ErrorTitles.InvalidDateTime, "{0} should be valid DateTimeString"));
+            return this;
         }
     }
 }

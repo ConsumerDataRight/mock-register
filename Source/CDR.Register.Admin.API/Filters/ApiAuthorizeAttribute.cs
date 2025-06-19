@@ -1,11 +1,11 @@
-﻿using CDR.Register.Admin.API.Common;
+﻿using System;
+using System.Linq;
+using CDR.Register.Admin.API.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
-using System;
-using System.Linq;
 
 namespace CDR.Register.Admin.API.Filters
 {

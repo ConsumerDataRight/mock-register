@@ -1,11 +1,11 @@
-﻿using CDR.Register.API.Infrastructure.Versioning;
+﻿using System.Net;
+using System.Threading.Tasks;
+using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.Domain.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Net;
-using System.Threading.Tasks;
 using static CDR.Register.API.Infrastructure.Constants;
 
 namespace CDR.Register.API.Infrastructure.Middleware
@@ -27,8 +27,8 @@ namespace CDR.Register.API.Infrastructure.Middleware
                     NullValueHandling = NullValueHandling.Ignore,
                     ContractResolver = new DefaultContractResolver
                     {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    }
+                        NamingStrategy = new CamelCaseNamingStrategy(),
+                    },
                 };
 
                 if (ex is InvalidVersionException)

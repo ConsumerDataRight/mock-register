@@ -7,6 +7,6 @@ namespace CDR.Register.API.Infrastructure.Authorization
         [AuthorisationPolicy("DataHolderBrandsApiMultiIndustry", CdsRegistrationScopes.Read, true, false, false)]
         DataHolderBrandsApiMultiIndustry,
         [AuthorisationPolicy("GetSSAMultiIndustry", CdsRegistrationScopes.Read, true, false, false)]
-        GetSSAMultiIndustry
+        GetSSAMultiIndustry,
     }
 }

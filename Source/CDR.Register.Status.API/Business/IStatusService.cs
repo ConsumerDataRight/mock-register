@@ -1,6 +1,6 @@
-﻿using CDR.Register.Repository.Infrastructure;
+﻿using System.Threading.Tasks;
+using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Status.API.Business.Responses;
-using System.Threading.Tasks;
 
 namespace CDR.Register.Status.API.Business
 {

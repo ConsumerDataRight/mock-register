@@ -1,13 +1,13 @@
-using CDR.Register.IntegrationTests.Extensions;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.Extensions;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 #nullable enable
@@ -43,6 +43,17 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
+        public async Task InitializeAsync()
+        {
+            await Seeddata();
+            await PatchRegister();
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         // Patch JWKSURI to be the Register loopback URI
         private static async Task PatchRegister()
         {
@@ -53,17 +64,6 @@ namespace CDR.Register.IntegrationTests
             using var updateCommand = new SqlCommand($@"update softwareproduct set jwksuri = '{BaseTest.ADMIN_BaseURL}/loopback/MockDataRecipientJwks'", connection);
 
             await updateCommand.ExecuteNonQueryAsync();
-        }
-
-        public async Task InitializeAsync()
-        {
-            await Seeddata();
-            await PatchRegister();
-        }
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
         }
     }
 }

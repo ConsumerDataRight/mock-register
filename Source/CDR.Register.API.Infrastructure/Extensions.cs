@@ -1,4 +1,13 @@
-﻿using CDR.Register.API.Infrastructure.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Configuration;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.SwaggerFilters;
@@ -18,16 +27,10 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Extensions.Http;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace CDR.Register.API.Infrastructure
@@ -52,6 +55,7 @@ namespace CDR.Register.API.Infrastructure
         /// <summary>
         /// CTS conformance ids must be validated.
         /// </summary>
+        /// <returns>if issuer is valid.</returns>
         public static bool ValidateIssuer(this HttpContext context)
         {
             if (context.Request != null && context.Request.PathBase.HasValue)
@@ -137,7 +141,7 @@ namespace CDR.Register.API.Infrastructure
                 options.Configuration = new OpenIdConnectConfiguration()
                 {
                     JwksUri = $"{metadataAddress}/jwks",
-                    JsonWebKeySet = jwks
+                    JsonWebKeySet = jwks,
                 };
 
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
@@ -148,7 +152,7 @@ namespace CDR.Register.API.Infrastructure
                     RequireSignedTokens = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromSeconds(clockSkew),
-                    IssuerSigningKeys = options.Configuration.JsonWebKeySet?.Keys
+                    IssuerSigningKeys = options.Configuration.JsonWebKeySet?.Keys,
                 };
 
                 // Ignore server certificate issues when retrieving OIDC configuration and JWKS.
@@ -180,17 +184,6 @@ namespace CDR.Register.API.Infrastructure
             services.AddSingleton<IAuthorizationHandler, MtlsHandler>();
         }
 
-        private static async Task<Microsoft.IdentityModel.Tokens.JsonWebKeySet?> LoadJwks(string jwksUri, IConfiguration configuration)
-        {
-            var handler = new HttpClientHandler();
-            handler.SetServerCertificateValidation(configuration);
-            var httpClient = new HttpClient(handler);
-            var httpResponse = await httpClient.GetAsync(jwksUri);
-
-            var contentAsString = await httpResponse.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Microsoft.IdentityModel.Tokens.JsonWebKeySet>(contentAsString);
-        }
-
         public static string GetHostName(this string url)
         {
             return url.Replace("https://", string.Empty).Replace("http://", string.Empty).Split('/')[0];
@@ -210,7 +203,7 @@ namespace CDR.Register.API.Infrastructure
             var currentUrl = controller.Request.GetDisplayUrl();
             var links = new LinksPaginated
             {
-                Self = new Uri(currentUrl)
+                Self = new Uri(currentUrl),
             };
 
             links.Self = ReplaceUriHost(currentUrl, controller.GetHostNameAsUri(configuration, hostName, isSecure));
@@ -247,7 +240,7 @@ namespace CDR.Register.API.Infrastructure
             var currentUrl = controller.Request.GetDisplayUrl();
             var links = new Links
             {
-                Self = new Uri(currentUrl)
+                Self = new Uri(currentUrl),
             };
             links.Self = ReplaceUriHost(currentUrl, controller.GetHostNameAsUri(configuration, hostName));
             return links;
@@ -323,21 +316,6 @@ namespace CDR.Register.API.Infrastructure
             return new Uri(url.Replace(currentHost, newHostName));
         }
 
-        private static Uri ReplaceUriHost(string url, string? newHost = null)
-        {
-            Uri originalUri = new Uri(url);
-            Uri replaceUri = new Uri(newHost ?? string.Empty);
-
-            // Update the Uri components
-            UriBuilder modifiedUriBuilder = new UriBuilder(originalUri)
-            {
-                Host = replaceUri.Host,
-                Port = replaceUri.IsDefaultPort ? -1 : replaceUri.Port,
-            };
-
-            return modifiedUriBuilder.Uri;
-        }
-
         public static Industry ToIndustry(this string industry)
         {
             if (Enum.IsDefined(typeof(Industry), industry.ToUpper()))
@@ -373,7 +351,7 @@ namespace CDR.Register.API.Infrastructure
             return string.Empty;
         }
 
-        public static string GetClientCertificateCommonName(this HttpContext context, ILogger logger, IConfiguration configuration)
+        public static string GetClientCertificateCommonName(this HttpContext context, Microsoft.Extensions.Logging.ILogger logger, IConfiguration configuration)
         {
             string? headerCommonName;
             var certCommonNameHttpHeaderName = configuration.GetValue<string>(Constants.ConfigurationKeys.CertCommonNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_COMMON_NAME;
@@ -510,6 +488,55 @@ namespace CDR.Register.API.Infrastructure
             services.AddSwaggerGenNewtonsoftSupport();
 
             return services;
+        }
+
+        private static async Task<Microsoft.IdentityModel.Tokens.JsonWebKeySet?> LoadJwks(string jwksUri, IConfiguration configuration)
+        {
+            var retryPolicy = GetRetryPolicy();
+            var handler = new HttpClientHandler();
+            handler.SetServerCertificateValidation(configuration);
+            var httpClient = new HttpClient(handler);
+
+            var httpResponse = await retryPolicy.ExecuteAsync(async () =>
+            {
+                return await httpClient.GetAsync(jwksUri);
+            });
+
+            var contentAsString = await httpResponse.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Microsoft.IdentityModel.Tokens.JsonWebKeySet>(contentAsString);
+        }
+
+        private static Polly.Retry.AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            // Handles HttpRequestException, Http status codes >= 500 (server errors) and status code 408 (request timeout)
+            int maxRetryCount = 5;
+            int retryDelaySeconds = 5;
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .WaitAndRetryAsync(
+                    maxRetryCount,
+                    (retryAttempt) => TimeSpan.FromSeconds(retryAttempt * retryDelaySeconds),
+                    (exception, timeSpan, retryCount, context) =>
+                        Log.Logger.Warning(
+                            "Request failed. Retrying in {Seconds}s (attempt {RetryCount} of {MaxRetryCount}).",
+                            timeSpan.TotalSeconds,
+                            retryCount,
+                            maxRetryCount));
+        }
+
+        private static Uri ReplaceUriHost(string url, string? newHost = null)
+        {
+            Uri originalUri = new Uri(url);
+            Uri replaceUri = new Uri(newHost ?? string.Empty);
+
+            // Update the Uri components
+            UriBuilder modifiedUriBuilder = new UriBuilder(originalUri)
+            {
+                Host = replaceUri.Host,
+                Port = replaceUri.IsDefaultPort ? -1 : replaceUri.Port,
+            };
+
+            return modifiedUriBuilder.Uri;
         }
     }
 }

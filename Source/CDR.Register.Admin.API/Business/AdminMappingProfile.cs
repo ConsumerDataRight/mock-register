@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Domain.Entities;
+using CDR.Register.Repository.Enums;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using DomainEntities = CDR.Register.Domain.Entities;
 
 namespace CDR.Register.Admin.API.Business
@@ -11,30 +12,30 @@ namespace CDR.Register.Admin.API.Business
     {
         public AdminMappingProfile()
         {
-            CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipient>()
+            this.CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipient>()
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source))
                 .ForMember(dest => dest.DataRecipientBrands, source => source.MapFrom(source => source.DataRecipientBrands));
 
-            CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipientLegalEntity>()
+            this.CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipientLegalEntity>()
                 .ForMember(dest => dest.AccreditationLevelId, source => source.MapFrom(source => source.AccreditationLevel));
 
-            CreateMap<Business.Model.Brand, DomainEntities.DataRecipientBrand>()
+            this.CreateMap<Business.Model.Brand, DomainEntities.DataRecipientBrand>()
                 .ForMember(dest => dest.BrandStatus, source => source.MapFrom(source => source.Status))
                 .ForMember(dest => dest.BrandId, source => source.MapFrom(source => source.DataRecipientBrandId));
 
-            CreateMap<Business.Model.SoftwareProduct, DomainEntities.SoftwareProduct>()
+            this.CreateMap<Business.Model.SoftwareProduct, DomainEntities.SoftwareProduct>()
                 .ForMember(dest => dest.RedirectUri, source => source.MapFrom(src => src.RedirectUris != null ? string.Join(" ", src.RedirectUris) : string.Empty))
                 .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) // Ignore this as it is a computed property with no setter
                 .ForMember(dest => dest.Scope, opt => opt.MapFrom<SoftwareScopeResolver, string>(src => src.Scope ?? string.Empty));
 
-            CreateMap<Business.Model.SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateInfosec>();
+            this.CreateMap<Business.Model.SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateInfosec>();
 
             // DH Brand Mappings
-            CreateMap<DataHolderAuthenticationModel, DataHolderAuthentication>();
-            CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
-            CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
+            this.CreateMap<DataHolderAuthenticationModel, DataHolderAuthentication>();
+            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
+            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
 
-            CreateMap<DataHolderLegalEntityModel, DataHolderLegalEntity>()
+            this.CreateMap<DataHolderLegalEntityModel, DataHolderLegalEntity>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntityId))
                 .ForMember(dest => dest.LegalEntityName, source => source.MapFrom(source => source.LegalEntityName))
                 .ForMember(dest => dest.LogoUri, source => source.MapFrom(source => source.LogoUri))
@@ -48,18 +49,18 @@ namespace CDR.Register.Admin.API.Business
                 .ForMember(dest => dest.OrganisationType, source => source.MapFrom(source => source.OrganisationType))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.ToUpper()));
 
-            CreateMap<DataHolderBrandModel, DataHolder>()
+            this.CreateMap<DataHolderBrandModel, DataHolder>()
                 .ForMember(dest => dest.Industries, (IMemberConfigurationExpression<DataHolderBrandModel, DataHolder, List<string>> source) => source.MapFrom(source => source.Industries))
                 .ForMember(dest => dest.Industry, source => source.MapFrom(source => source.Industries.Length > 0 ? source.Industries[0] : string.Empty))
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source == null ? null : source.LegalEntity))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntity == null ? string.Empty : source.LegalEntity.Status.ToUpper()));
 
-            CreateMap<DataHolderBrandModel, DataHolderBrand>()
+            this.CreateMap<DataHolderBrandModel, DataHolderBrand>()
                 .ForMember(dest => dest.BrandId, source => source.MapFrom(source => source.DataHolderBrandId))
                 .ForMember(dest => dest.BrandName, source => source.MapFrom(source => source.BrandName))
                 .ForMember(dest => dest.LogoUri, source => source.MapFrom(source => source.LogoUri))
                 .ForMember(dest => dest.BrandStatus, source => source.MapFrom(source => source.Status.ToUpper()))
-                .ForMember(dest => dest.IsActive, source => source.MapFrom(source => string.Compare(source.Status, Repository.Entities.BrandStatusType.Active.ToString(), true)))
+                .ForMember(dest => dest.IsActive, source => source.MapFrom(source => string.Compare(source.Status, BrandStatusType.Active.ToString(), true)))
                 .ForMember(dest => dest.DataHolderAuthentications, source => source.MapFrom(source => new[] { source.AuthDetails }))
                 .ForMember(dest => dest.DataHolderBrandServiceEndpoint, source => source.MapFrom(source => source.EndpointDetail))
                 .ForMember(dest => dest.DataHolder, source => source.MapFrom(source => source));

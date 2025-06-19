@@ -1,9 +1,9 @@
-﻿using CDR.Register.API.Infrastructure.Versioning;
+﻿using System;
+using System.Collections.Generic;
+using CDR.Register.API.Infrastructure.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Versioning
