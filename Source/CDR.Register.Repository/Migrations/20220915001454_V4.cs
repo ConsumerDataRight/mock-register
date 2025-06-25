@@ -79,7 +79,7 @@ namespace CDR.Register.Repository.Migrations
                 columns: table => new
                 {
                     LegalEntityStatusId = table.Column<int>(type: "int", nullable: false),
-                    LegalEntityStatusCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    LegalEntityStatusCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {

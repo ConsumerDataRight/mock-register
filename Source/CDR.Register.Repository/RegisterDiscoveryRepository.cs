@@ -1,15 +1,15 @@
-﻿using AutoMapper;
-using CDR.Register.Domain.Entities;
-using CDR.Register.Domain.ValueObjects;
-using CDR.Register.Repository.Entities;
-using CDR.Register.Repository.Infrastructure;
-using CDR.Register.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using CDR.Register.Domain.Entities;
+using CDR.Register.Domain.ValueObjects;
+using CDR.Register.Repository.Entities;
+using CDR.Register.Repository.Enums;
+using CDR.Register.Repository.Infrastructure;
+using CDR.Register.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CDR.Register.Repository
 {
@@ -26,18 +26,52 @@ namespace CDR.Register.Repository
 
         public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
-            (List<Entities.Brand> allBrands, int totalRecords) = await ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
+            (List<Entities.Brand> allBrands, int totalRecords) = await this.ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
 
             return new Page<DataHolderBrand[]>()
             {
-                Data = _mapper.Map<DataHolderBrand[]>(allBrands),
+                Data = this._mapper.Map<DataHolderBrand[]>(allBrands),
                 CurrentPage = page,
                 PageSize = pageSize,
-                TotalRecords = totalRecords
+                TotalRecords = totalRecords,
             };
         }
 
-        protected async Task<(List<Entities.Brand>, int)> ProcessGetDataHolderBrands(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<DataRecipient[]> GetDataRecipientsAsync(Infrastructure.Industry industry)
+        {
+            List<Participation> allParticipants = await this.ProcessGetDataRecipients(industry);
+
+            // Additionally sort participants.brands, participants.brands.softwareproducts by id
+            allParticipants.ForEach(p =>
+            {
+                p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
+                p.Brands.ToList().ForEach(b =>
+                {
+                    b.SoftwareProducts = b.SoftwareProducts.OrderBy(sp => sp.SoftwareProductId).ToList();
+                });
+            });
+
+            return this._mapper.Map<DataRecipient[]>(allParticipants);
+        }
+
+        public async Task<Domain.Entities.SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId)
+        {
+            var softwareProduct = await this._registerDatabaseContext.SoftwareProducts.AsNoTracking()
+                .Include(softwareProduct => softwareProduct.Status)
+                .Include(softwareProduct => softwareProduct.Brand.BrandStatus)
+                .Include(softwareProduct => softwareProduct.Brand.Participation.Status)
+                .Where(softwareProduct =>
+                    softwareProduct.SoftwareProductId == softwareProductId
+                    && softwareProduct.Brand.Participation.ParticipationTypeId == ParticipationTypes.Dr
+                    && softwareProduct.StatusId == SoftwareProductStatusType.Active
+                    && softwareProduct.Brand.BrandStatusId == BrandStatusType.Active
+                    && softwareProduct.Brand.Participation.StatusId == ParticipationStatusType.Active)
+                .FirstOrDefaultAsync();
+
+            return this._mapper.Map<Domain.Entities.SoftwareProduct>(softwareProduct);
+        }
+
+        protected async Task<(List<Entities.Brand> Brands, int Count)> ProcessGetDataHolderBrands(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize)
         {
             var allBrandsQuery = this._registerDatabaseContext.Brands.AsNoTracking()
                 .Include(brand => brand.Endpoint)
@@ -72,26 +106,10 @@ namespace CDR.Register.Repository
             return (allBrands, totalRecords);
         }
 
-        public async Task<DataRecipient[]> GetDataRecipientsAsync(Infrastructure.Industry industry)
-        {
-            List<Participation> allParticipants = await ProcessGetDataRecipients(industry);
-
-            // Additionally sort participants.brands, participants.brands.softwareproducts by id
-            allParticipants.ForEach(p =>
-            {
-                p.Brands = p.Brands.OrderBy(b => b.BrandId).ToList();
-                p.Brands.ToList().ForEach(b =>
-                {
-                    b.SoftwareProducts = b.SoftwareProducts.OrderBy(sp => sp.SoftwareProductId).ToList();
-                });
-            });
-
-            return _mapper.Map<DataRecipient[]>(allParticipants);
-        }
-
         /// <summary>
         /// The industry parameter is passed but currently not used.
         /// </summary>
+        /// <returns>representing the asynchronous operation.</returns>
         protected async Task<List<Participation>> ProcessGetDataRecipients(Infrastructure.Industry industry)
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
@@ -106,23 +124,6 @@ namespace CDR.Register.Repository
                 .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
                 .OrderBy(p => p.LegalEntityId)
                 .ToListAsync();
-        }
-
-        public async Task<Domain.Entities.SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId)
-        {
-            var softwareProduct = await _registerDatabaseContext.SoftwareProducts.AsNoTracking()
-                .Include(softwareProduct => softwareProduct.Status)
-                .Include(softwareProduct => softwareProduct.Brand.BrandStatus)
-                .Include(softwareProduct => softwareProduct.Brand.Participation.Status)
-                .Where(softwareProduct =>
-                    softwareProduct.SoftwareProductId == softwareProductId
-                    && softwareProduct.Brand.Participation.ParticipationTypeId == ParticipationTypes.Dr
-                    && softwareProduct.StatusId == SoftwareProductStatusType.Active
-                    && softwareProduct.Brand.BrandStatusId == BrandStatusType.Active
-                    && softwareProduct.Brand.Participation.StatusId == ParticipationStatusType.Active)
-                .FirstOrDefaultAsync();
-
-            return _mapper.Map<Domain.Entities.SoftwareProduct>(softwareProduct);
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
+﻿using System;
+using Microsoft.Data.SqlClient;
 
 namespace CDR.Register.IntegrationTests.Extensions
 {
@@ -8,6 +8,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// <summary>
         /// Execute scalar command and return result as Int32. Throw error if no results or conversion error.
         /// </summary>
+        /// <returns>Value in the first column of the first row in the result set.</returns>
         public static int ExecuteScalarInt32(this SqlCommand command)
         {
             var res = command.ExecuteScalar();
@@ -23,6 +24,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// <summary>
         /// Execute scalar command and return result as string. Throw error if no results or conversion error.
         /// </summary>
+        /// <returns>Value in the first column of the first row in the result set.</returns>
         public static string ExecuteScalarString(this SqlCommand command)
         {
             var res = command.ExecuteScalar();

@@ -17,7 +17,7 @@ namespace CDR.Register.Admin.API.Business
         {
             if (source.Scope == null)
             {
-                return config["SoftwareProductDefaultScopes"] ?? string.Empty;
+                return this.config["SoftwareProductDefaultScopes"] ?? string.Empty;
             }
 
             return source.Scope;

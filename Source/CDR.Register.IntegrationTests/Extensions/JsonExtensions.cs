@@ -9,12 +9,13 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// Strip comments from json string.
         /// The json will be reserialized so it's formatting may change (ie whitespace/indentation etc).
         /// </summary>
+        /// <returns>json string.</returns>
         public static string JsonStripComments(this string json)
         {
             var options = new JsonSerializerOptions
             {
                 ReadCommentHandling = JsonCommentHandling.Skip,
-                WriteIndented = true
+                WriteIndented = true,
             };
 
             var jsonObject = JsonSerializer.Deserialize<object>(json, options);
@@ -27,6 +28,7 @@ namespace CDR.Register.IntegrationTests.Extensions
         /// Json is converted to JTokens prior to comparision, thus formatting is ignore.
         /// Returns true if json is equivalent, otherwise false.
         /// </summary>
+        /// <returns>comparision result.</returns>
         public static bool JsonCompare(this string json, string jsonToCompare)
         {
             var jsonToken = JToken.Parse(json);

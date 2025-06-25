@@ -1,23 +1,23 @@
-﻿using CDR.Register.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CDR.Register.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class PolicyAuthorizeAttribute : AuthorizeAttribute, IAsyncAuthorizationFilter
     {
-        public RegisterAuthorisationPolicy RegisterAuthorisationPolicy { get; private set; }
-
         public PolicyAuthorizeAttribute(RegisterAuthorisationPolicy policy)
         {
             this.RegisterAuthorisationPolicy = policy;
         }
+
+        public RegisterAuthorisationPolicy RegisterAuthorisationPolicy { get; private set; }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
@@ -28,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
                 return;
             }
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, RegisterAuthorisationPolicy.ToString());
+            var authorizationResult = await authorizationService.AuthorizeAsync(context.HttpContext.User, this.RegisterAuthorisationPolicy.ToString());
 
             if (authorizationResult.Succeeded)
             {

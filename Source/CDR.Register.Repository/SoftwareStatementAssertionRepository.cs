@@ -15,21 +15,21 @@ namespace CDR.Register.Repository
 
         public SoftwareStatementAssertionRepository(RegisterDatabaseContext registerDatabaseContext, IRepositoryMapper mapper)
         {
-            _registerDatabaseContext = registerDatabaseContext;
-            _mapper = mapper;
+            this._registerDatabaseContext = registerDatabaseContext;
+            this._mapper = mapper;
         }
 
         public async Task<SoftwareStatementAssertion> GetSoftwareStatementAssertionAsync(Guid dataRecipientBrandId, Guid softwareProductId)
         {
-            return await _registerDatabaseContext.SoftwareProducts
+            return await this._registerDatabaseContext.SoftwareProducts
                                     .Include(x => x.Certificates)
                                     .Include(x => x.Brand).ThenInclude(x => x.Participation).ThenInclude(x => x.LegalEntity)
                                     .Where(x => x.Brand.BrandId == dataRecipientBrandId && x.SoftwareProductId == softwareProductId)
                                     .Select(x => new SoftwareStatementAssertion
                                     {
-                                        DataRecipientBrand = _mapper.Map(x.Brand),
-                                        SoftwareProduct = _mapper.MapSoftwareProduct(x),
-                                        LegalEntity = _mapper.Map(x.Brand.Participation.LegalEntity)
+                                        DataRecipientBrand = this._mapper.Map(x.Brand),
+                                        SoftwareProduct = this._mapper.MapSoftwareProduct(x),
+                                        LegalEntity = this._mapper.Map(x.Brand.Participation.LegalEntity),
                                     })
                                     .FirstOrDefaultAsync();
         }

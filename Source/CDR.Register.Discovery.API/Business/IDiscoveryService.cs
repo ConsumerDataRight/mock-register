@@ -1,7 +1,7 @@
-﻿using CDR.Register.Discovery.API.Business.Responses;
-using CDR.Register.Repository.Infrastructure;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using CDR.Register.Discovery.API.Business.Responses;
+using CDR.Register.Repository.Infrastructure;
 
 namespace CDR.Register.Discovery.API.Business
 {

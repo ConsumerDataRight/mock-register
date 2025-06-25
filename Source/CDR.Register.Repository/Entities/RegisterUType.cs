@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -10,11 +11,5 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(25)]
         [Required]
         public string RegisterUTypeCode { get; set; }
-    }
-
-    public enum RegisterUTypes
-    {
-        Unknown = 0,
-        SignedJwt = 1
     }
 }

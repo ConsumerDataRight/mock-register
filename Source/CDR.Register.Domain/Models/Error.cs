@@ -1,5 +1,5 @@
-﻿using CDR.Register.Domain.Extensions;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Domain.Extensions;
 
 namespace CDR.Register.Domain.Models
 {
@@ -11,39 +11,39 @@ namespace CDR.Register.Domain.Models
 
         public Error(string code, string title, string detail)
         {
-            Code = code;
-            Title = title;
-            Detail = detail;
+            this.Code = code;
+            this.Title = title;
+            this.Detail = detail;
         }
 
         public Error(string code, string title, string detail, string metaUrn)
         {
-            Code = code;
-            Title = title;
-            Detail = detail;
-            Meta = metaUrn.IsNullOrWhiteSpace() ? null : new MetaError(metaUrn);
+            this.Code = code;
+            this.Title = title;
+            this.Detail = detail;
+            this.Meta = metaUrn.IsNullOrWhiteSpace() ? null : new MetaError(metaUrn);
         }
 
         /// <summary>
-        /// Error code.
+        /// Gets or sets Error code.
         /// </summary>
         [Required]
         public string Code { get; set; }
 
         /// <summary>
-        /// Error title.
+        /// Gets or sets Error title.
         /// </summary>
         [Required]
         public string Title { get; set; }
 
         /// <summary>
-        /// Error detail.
+        /// Gets or sets Error detail.
         /// </summary>
         [Required]
         public string Detail { get; set; }
 
         /// <summary>
-        /// Optional additional data for specific error types.
+        /// Gets or sets Optional additional data for specific error types.
         /// </summary>
         public MetaError Meta { get; set; }
     }

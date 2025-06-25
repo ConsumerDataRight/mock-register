@@ -13,19 +13,19 @@ namespace CDR.Register.API.Infrastructure.Configuration
 
         public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, IOptions<CdrSwaggerOptions> options)
         {
-            _provider = provider;
-            _options = options.Value;
+            this._provider = provider;
+            this._options = options.Value;
         }
 
         public void Configure(SwaggerGenOptions options)
         {
-            foreach (var description in _provider.ApiVersionDescriptions)
+            foreach (var description in this._provider.ApiVersionDescriptions)
             {
                 options.SwaggerDoc(
                   description.GroupName,
                   new Microsoft.OpenApi.Models.OpenApiInfo()
                   {
-                      Title = _options.SwaggerTitle,
+                      Title = this._options.SwaggerTitle,
                       Version = description.ApiVersion.ToString(),
                   });
                 options.UseInlineDefinitionsForEnums();

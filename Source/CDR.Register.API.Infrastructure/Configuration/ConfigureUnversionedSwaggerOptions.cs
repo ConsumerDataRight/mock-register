@@ -13,7 +13,7 @@ namespace CDR.Register.API.Infrastructure.Configuration
 
         public ConfigureUnversionedSwaggerOptions(IOptions<CdrSwaggerOptions> options)
         {
-            _options = options.Value;
+            this._options = options.Value;
         }
 
         public void Configure(SwaggerGenOptions options)
@@ -22,7 +22,7 @@ namespace CDR.Register.API.Infrastructure.Configuration
                   _defaultVersion, // This name is used to direct to the path
                   new Microsoft.OpenApi.Models.OpenApiInfo()
                   {
-                      Title = _options.SwaggerTitle,
+                      Title = this._options.SwaggerTitle,
                       Version = _defaultVersion,
                   });
             options.UseInlineDefinitionsForEnums();

@@ -21,11 +21,6 @@ namespace CDR.Register.IntegrationTests.Gateway
     /// </summary>
     public class US12841_Gateway_MTLS_Tests : BaseTest
     {
-        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
-            : base(outputHelper, testFixture)
-        {
-        }
-
         // Client certificates
         private const string INVALID_CERTIFICATE_FILENAME = "Certificates/client-invalid.pfx";
 
@@ -35,7 +30,6 @@ namespace CDR.Register.IntegrationTests.Gateway
 
         // Client assertion
         private const string SCOPE = "cdr-register:read";
-        private static readonly string AUDIENCE = IDENTITYSERVER_URL;
 
         // Token request
         private const string GRANT_TYPE = "client_credentials";
@@ -43,11 +37,432 @@ namespace CDR.Register.IntegrationTests.Gateway
         private const string CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
         private const string ISSUER = CLIENT_ID;
 
+        private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
+        private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
+
+        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
+                {
+                ""errors"": [
+                        {
+                        ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
+                        ""title"": ""ADR Status Is Not Active"",
+                        ""detail"": """",
+                        }
+                    ]
+                }";
+
+        private static readonly string AUDIENCE = IDENTITYSERVER_URL;
+
+        public US12841_Gateway_MTLS_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
+
+        private delegate void BeforeDataHolderBrandsRequest();
+
+        private delegate void AfterDataHolderBrandsRequest();
+
+        private delegate void BeforeSSARequest();
+
+        private delegate void AfterSSARequest();
+
         // Participation/Brand/SoftwareProduct Ids
         private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup
 
-        private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
-        private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
+        [Fact]
+        public async Task AC01_PostAccessTokenRequest_WithClientCert_ShouldRespondWith_200OK_AccessToken()
+        {
+            // Expected JWT claims
+            string jwtClaimIss = $"{TLS_BaseURL}/idp";
+            const string JWT_CLAIM_AUD = "cdr-register";
+            const string JWT_CLAIM_CLIENT_ID = CLIENT_ID;
+            const string JWT_CLAIM_SCOPE = SCOPE;
+            const string JWT_CLAIM_CNF = @"{""x5t#S256"":""F0E5146A51F16E236844CF0353D791F11865E405""}";
+
+            // Expected AccessToken
+            const int ACCESSTOKEN_EXPIRESIN = 300;
+            const string ACCESSTOKEN_TOKENTYPE = JwtBearerDefaults.AuthenticationScheme;
+
+            // Arrange
+            var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+            var accessTokenRequest = GetAccessTokenRequest(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+
+            // Act
+            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                accessTokenResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                // Assert - Check content type
+                accessTokenResponse.Content.Headers.ContentType.ToString().Should().StartWith("application/json");
+
+                // Get access token payload
+                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
+
+                // Assert - Check expires_in
+                accessToken.Expires_in.Should().Be(ACCESSTOKEN_EXPIRESIN);
+
+                // Assert - Check token_type
+                accessToken.Token_type.Should().Be(ACCESSTOKEN_TOKENTYPE);
+
+                // Assert - Check scope
+                accessToken.Scope.Should().Contain("cdr-register:read");
+
+                // Assert - Check the JWT access_token
+                var jwt = new JwtSecurityTokenHandler().ReadJwtToken(accessToken.Access_token);
+                AssertClaim(jwt.Claims, "iss", jwtClaimIss);
+                AssertClaim(jwt.Claims, "aud", JWT_CLAIM_AUD);
+                AssertClaim(jwt.Claims, "client_id", JWT_CLAIM_CLIENT_ID);
+                AssertClaim(jwt.Claims, "scope", JWT_CLAIM_SCOPE);
+                AssertClaim(jwt.Claims, "cnf", JWT_CLAIM_CNF);
+            }
+        }
+
+        [Fact]
+        public async Task AC02_PostAccessTokenRequest_WithClientCertNotAssociatedToClient_ShouldRespondWith_400BadRequest()
+        {
+            // Arrange
+            var client = GetClient(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+            var accessTokenRequest = GetAccessTokenRequest(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+
+            // Act
+            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                accessTokenResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+                // Assert - Check error response
+                var expectedContent = @"{ ""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
+                await Assert_HasContent_Json(expectedContent, accessTokenResponse.Content);
+            }
+        }
+
+        [Fact]
+        public async Task AC03_PostAccessTokenRequest_WithExpiredClientCert_ShouldThrow_HttpRequestException()
+        {
+            // Arrange
+            var client = GetClient(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+            var accessTokenRequest = GetAccessTokenRequest(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
+
+            // Act/Assert
+            Func<Task> act = async () => await client.SendAsync(accessTokenRequest);
+            using (new AssertionScope())
+            {
+                await act.Should().ThrowAsync<HttpRequestException>();
+            }
+        }
+
+        [Fact]
+        public async Task AC04_PostAccessTokenRequest_WithServerCert_ShouldThrow_HttpRequestException()
+        {
+            // Arrange
+            var client = GetClient(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD);
+            var accessTokenRequest = GetAccessTokenRequest(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD);
+
+            // Act/Assert
+            Func<Task> act = async () => await client.SendAsync(accessTokenRequest);
+            using (new AssertionScope())
+            {
+                await act.Should().ThrowAsync<HttpRequestException>();
+            }
+        }
+
+        [Fact]
+        public async Task AC05_GetDataHolderBrands_WithAccessToken_AndClientCert_ShouldRespondWith_200OK()
+        {
+            await Test_GetDataHolderBrands(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task AC06_GetDataHolderBrands_WithAccessToken_AndExpiredClientCert_ShouldThrow_HttpRequestException()
+        {
+            Func<Task> test = async () => await Test_GetDataHolderBrands(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+            await test.Should().ThrowAsync<HttpRequestException>();
+        }
+
+        [Fact]
+        public async Task AC07_GetDataHolderBrands_WithAccessToken_AndClientCertNotAssociatedToAccessToken_ShouldRespondWith_401Unauthorised()
+        {
+            await Test_GetDataHolderBrands(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
+        public async Task AC08_GetDataHolderBrands_WithAccessToken_AndServerCertNotAssociatedToAccessToken_ShouldThrow_HttpRequestException()
+        {
+            Func<Task> test = async () => await Test_GetDataHolderBrands(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+            await test.Should().ThrowAsync<HttpRequestException>();
+        }
+
+        [Fact]
+        public async Task AC09_GetDataHolderBrands_WithNoAccessToken_AndClientCert_ShouldRespondWith_401Unauthorised()
+        {
+            await Test_GetDataHolderBrands(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized, false);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
+        public async Task AC10_GetDataHolderBrands_WithAccessToken_AndSoftwareProductStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+        int softwareProductStatusId,
+        HttpStatusCode expectedStatusCode)
+        {
+            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SOFTWAREPRODUCTID);
+
+            await Test_GetDataHolderBrands(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
+                afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
+        public async Task AC11_GetDataHolderBrands_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+            int brandStatusId,
+            HttpStatusCode expectedStatusCode)
+        {
+            int saveBrandStatusId = GetBrandStatusId(BRANDID);
+
+            await Test_GetDataHolderBrands(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
+                afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
+        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
+        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
+        [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
+        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
+        public async Task AC12_GetDataHolderBrands_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+            int participationStatusId,
+            HttpStatusCode expectedStatusCode)
+        {
+            int saveParticipationStatusId = GetParticipationStatusId(PARTICIPATIONID);
+
+            await Test_GetDataHolderBrands(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
+                afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        [Fact]
+        public async Task AC13_GetSSA_WithAccessToken_AndClientCert_ShouldRespondWith_200OK()
+        {
+            await Test_GetSSA(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task AC14_GetSSA_WithAccessToken_AndExpiredClientCert_ShouldThrow_HttpRequestException()
+        {
+            Func<Task> test = async () => await Test_GetSSA(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+            await test.Should().ThrowAsync<HttpRequestException>();
+        }
+
+        [Fact]
+        public async Task AC15_GetSSA_WithAccessToken_AndClientCertNotAssociatedToAccessToken_ShouldRespondWith_401Unauthorised()
+        {
+            await Test_GetSSA(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
+        public async Task AC16_GetSSA_WithAccessToken_AndServerCertNotAssociatedToAccessToken_ShouldThrow_HttpRequestException()
+        {
+            Func<Task> test = async () => await Test_GetSSA(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
+            await test.Should().ThrowAsync<HttpRequestException>();
+        }
+
+        [Fact]
+        public async Task AC17_GetSSA_WithNoAccessToken_AndClientCert_ShouldRespondWith_401Unauthorised()
+        {
+            await Test_GetSSA(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized, false);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
+        public async Task AC18_GetSSA_WithAccessToken_AndSoftwareProductStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+            int softwareProductStatusId,
+            HttpStatusCode expectedStatusCode)
+        {
+            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SOFTWAREPRODUCTID);
+
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
+                afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
+        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
+        public async Task AC19_GetSSA_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+            int brandStatusId,
+            HttpStatusCode expectedStatusCode)
+        {
+            int saveBrandStatusId = GetBrandStatusId(BRANDID);
+
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
+                afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.OK)] // Active
+        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
+        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
+        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
+        [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
+        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
+        public async Task AC20_GetSSA_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
+            int participationStatusId,
+            HttpStatusCode expectedStatusCode)
+        {
+            int saveParticipationStatusId = GetParticipationStatusId(PARTICIPATIONID);
+
+            await Test_GetSSA(
+                CERTIFICATE_FILENAME,
+                CERTIFICATE_PASSWORD,
+                expectedStatusCode,
+                beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
+                afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+        }
+
+        private static async Task Test_GetDataHolderBrands(
+            string certificateFilename,
+            string certificatePassword,
+            HttpStatusCode expectedStatusCode,
+            bool withAccessToken = true,
+            BeforeDataHolderBrandsRequest beforeRequest = null,
+            AfterDataHolderBrandsRequest afterRequest = null,
+            string expectedContent = null)
+        {
+            // DataHolderBrands
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands";
+
+            const string XV = "2";
+
+            // Arrange
+            var client = GetClient(certificateFilename, certificatePassword);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("x-v", XV);
+
+            // Supply access token with request?
+            if (withAccessToken)
+            {
+                var accessTokenRequest = GetAccessTokenRequest(certificateFilename, certificatePassword);
+                var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.Access_token);
+            }
+
+            beforeRequest?.Invoke();
+            try
+            {
+                // Act
+                var response = await client.SendAsync(request);
+
+                // Assert
+                using (new AssertionScope())
+                {
+                    // Assert - Check status code
+                    response.StatusCode.Should().Be(expectedStatusCode);
+
+                    // Assert - Check error response
+                    if (expectedContent != null)
+                    {
+                        await Assert_HasContent_Json(expectedContent, response.Content);
+                    }
+                }
+            }
+            finally
+            {
+                afterRequest?.Invoke();
+            }
+        }
+
+        private static async Task Test_GetSSA(
+            string certificateFilename,
+            string certificatePassword,
+            HttpStatusCode expectedStatusCode,
+            bool withAccessToken = true,
+            BeforeSSARequest beforeRequest = null,
+            AfterSSARequest afterRequest = null,
+            string expectedContent = null)
+        {
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+            const string XV = "3";
+
+            // Arrange
+            var client = GetClient(certificateFilename, certificatePassword);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("x-v", XV);
+
+            // Supply access token with request?
+            if (withAccessToken)
+            {
+                var accessTokenRequest = GetAccessTokenRequest(certificateFilename, certificatePassword);
+                var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
+
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.Access_token);
+            }
+
+            beforeRequest?.Invoke();
+            try
+            {
+                // Act
+                var response = await client.SendAsync(request);
+
+                // Assert
+                using (new AssertionScope())
+                {
+                    // Assert - Check status code
+                    response.StatusCode.Should().Be(expectedStatusCode);
+
+                    // Assert - Check error response
+                    if (expectedContent != null)
+                    {
+                        await Assert_HasContent_Json(expectedContent, response.Content);
+                    }
+                }
+            }
+            finally
+            {
+                afterRequest?.Invoke();
+            }
+        }
 
         /// <summary>
         /// Get HttpClient with client certificate.
@@ -109,426 +524,12 @@ namespace CDR.Register.IntegrationTests.Gateway
                 Content = new StringContent(
                     BuildContent(SCOPE, GRANT_TYPE, CLIENT_ID, CLIENT_ASSERTION_TYPE, client_assertion),
                     Encoding.UTF8,
-                    "application/json")
+                    "application/json"),
             };
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
             return request;
-        }
-
-        [Fact]
-        public async Task AC01_PostAccessTokenRequest_WithClientCert_ShouldRespondWith_200OK_AccessToken()
-        {
-            // Expected JWT claims
-            string jwtClaimIss = $"{TLS_BaseURL}/idp";
-            const string JWT_CLAIM_AUD = "cdr-register";
-            const string JWT_CLAIM_CLIENT_ID = CLIENT_ID;
-            const string JWT_CLAIM_SCOPE = SCOPE;
-            const string JWT_CLAIM_CNF = @"{""x5t#S256"":""F0E5146A51F16E236844CF0353D791F11865E405""}";
-
-            // Expected AccessToken
-            const int ACCESSTOKEN_EXPIRESIN = 300;
-            const string ACCESSTOKEN_TOKENTYPE = JwtBearerDefaults.AuthenticationScheme;
-
-            // Arrange
-            var client = GetClient(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-            var accessTokenRequest = GetAccessTokenRequest(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-
-            // Act
-            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                accessTokenResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                // Assert - Check content type
-                accessTokenResponse.Content.Headers.ContentType.ToString().Should().StartWith("application/json");
-
-                // Get access token payload
-                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
-
-                // Assert - Check expires_in
-                accessToken.expires_in.Should().Be(ACCESSTOKEN_EXPIRESIN);
-
-                // Assert - Check token_type
-                accessToken.token_type.Should().Be(ACCESSTOKEN_TOKENTYPE);
-
-                // Assert - Check scope
-                accessToken.scope.Should().Contain("cdr-register:read");
-
-                // Assert - Check the JWT access_token
-                var jwt = new JwtSecurityTokenHandler().ReadJwtToken(accessToken.access_token);
-                AssertClaim(jwt.Claims, "iss", jwtClaimIss);
-                AssertClaim(jwt.Claims, "aud", JWT_CLAIM_AUD);
-                AssertClaim(jwt.Claims, "client_id", JWT_CLAIM_CLIENT_ID);
-                AssertClaim(jwt.Claims, "scope", JWT_CLAIM_SCOPE);
-                AssertClaim(jwt.Claims, "cnf", JWT_CLAIM_CNF);
-            }
-        }
-
-        [Fact]
-        public async Task AC02_PostAccessTokenRequest_WithClientCertNotAssociatedToClient_ShouldRespondWith_400BadRequest()
-        {
-            // Arrange
-            var client = GetClient(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-            var accessTokenRequest = GetAccessTokenRequest(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-
-            // Act
-            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                accessTokenResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-                // Assert - Check error response
-                var expectedContent = @"{ ""error"":""invalid_client"",""error_description"":""Invalid client_assertion - token validation error""}";
-                await Assert_HasContent_Json(expectedContent, accessTokenResponse.Content);
-            }
-        }
-
-        [Fact]
-        public async Task AC03_PostAccessTokenRequest_WithExpiredClientCert_ShouldThrow_HttpRequestException()
-        {
-            // Arrange
-            var client = GetClient(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-            var accessTokenRequest = GetAccessTokenRequest(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
-
-            // Act/Assert
-            Func<Task> act = async () => await client.SendAsync(accessTokenRequest);
-            using (new AssertionScope())
-            {
-                await act.Should().ThrowAsync<HttpRequestException>();
-            }
-        }
-
-        [Fact]
-        public async Task AC04_PostAccessTokenRequest_WithServerCert_ShouldThrow_HttpRequestException()
-        {
-            // Arrange
-            var client = GetClient(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD);
-            var accessTokenRequest = GetAccessTokenRequest(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD);
-
-            // Act/Assert
-            Func<Task> act = async () => await client.SendAsync(accessTokenRequest);
-            using (new AssertionScope())
-            {
-                await act.Should().ThrowAsync<HttpRequestException>();
-            }
-        }
-
-        private delegate void BeforeDataHolderBrandsRequest();
-
-        private delegate void AfterDataHolderBrandsRequest();
-
-        private static async Task Test_GetDataHolderBrands(
-            string certificateFilename,
-            string certificatePassword,
-            HttpStatusCode expectedStatusCode,
-            bool withAccessToken = true,
-            BeforeDataHolderBrandsRequest beforeRequest = null,
-            AfterDataHolderBrandsRequest afterRequest = null,
-            string expectedContent = null)
-        {
-            // DataHolderBrands
-            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-holders/brands";
-
-            const string XV = "2";
-
-            // Arrange
-            var client = GetClient(certificateFilename, certificatePassword);
-
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("x-v", XV);
-
-            // Supply access token with request?
-            if (withAccessToken)
-            {
-                var accessTokenRequest = GetAccessTokenRequest(certificateFilename, certificatePassword);
-                var accessTokenResponse = await client.SendAsync(accessTokenRequest);
-                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
-                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.access_token);
-            }
-
-            beforeRequest?.Invoke();
-            try
-            {
-                // Act
-                var response = await client.SendAsync(request);
-
-                // Assert
-                using (new AssertionScope())
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (expectedContent != null)
-                    {
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                afterRequest?.Invoke();
-            }
-        }
-
-        [Fact]
-        public async Task AC05_GetDataHolderBrands_WithAccessToken_AndClientCert_ShouldRespondWith_200OK()
-        {
-            await Test_GetDataHolderBrands(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.OK);
-        }
-
-        [Fact]
-        public async Task AC06_GetDataHolderBrands_WithAccessToken_AndExpiredClientCert_ShouldThrow_HttpRequestException()
-        {
-            Func<Task> test = async () => await Test_GetDataHolderBrands(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-            await test.Should().ThrowAsync<HttpRequestException>();
-        }
-
-        [Fact]
-        public async Task AC07_GetDataHolderBrands_WithAccessToken_AndClientCertNotAssociatedToAccessToken_ShouldRespondWith_401Unauthorised()
-        {
-            await Test_GetDataHolderBrands(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-        }
-
-        [Fact]
-        public async Task AC08_GetDataHolderBrands_WithAccessToken_AndServerCertNotAssociatedToAccessToken_ShouldThrow_HttpRequestException()
-        {
-            Func<Task> test = async () => await Test_GetDataHolderBrands(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-            await test.Should().ThrowAsync<HttpRequestException>();
-        }
-
-        [Fact]
-        public async Task AC09_GetDataHolderBrands_WithNoAccessToken_AndClientCert_ShouldRespondWith_401Unauthorised()
-        {
-            await Test_GetDataHolderBrands(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized, false);
-        }
-
-        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
-                {
-                ""errors"": [
-                        {
-                        ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                        ""title"": ""ADR Status Is Not Active"",
-                        ""detail"": """",
-                        }
-                    ]
-                }";
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
-        public async Task AC10_GetDataHolderBrands_WithAccessToken_AndSoftwareProductStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-        int softwareProductStatusId,
-        HttpStatusCode expectedStatusCode)
-        {
-            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SOFTWAREPRODUCTID);
-
-            await Test_GetDataHolderBrands(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
-                afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
-        }
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
-        public async Task AC11_GetDataHolderBrands_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-            int brandStatusId,
-            HttpStatusCode expectedStatusCode)
-        {
-            int saveBrandStatusId = GetBrandStatusId(BRANDID);
-
-            await Test_GetDataHolderBrands(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
-                afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
-        }
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
-        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
-        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
-        [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
-        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
-        public async Task AC12_GetDataHolderBrands_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-            int participationStatusId,
-            HttpStatusCode expectedStatusCode)
-        {
-            int saveParticipationStatusId = GetParticipationStatusId(PARTICIPATIONID);
-
-            await Test_GetDataHolderBrands(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
-                afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
-        }
-
-        private delegate void BeforeSSARequest();
-
-        private delegate void AfterSSARequest();
-
-        private static async Task Test_GetSSA(
-            string certificateFilename,
-            string certificatePassword,
-            HttpStatusCode expectedStatusCode,
-            bool withAccessToken = true,
-            BeforeSSARequest beforeRequest = null,
-            AfterSSARequest afterRequest = null,
-            string expectedContent = null)
-        {
-            string url = $"{MTLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
-            const string XV = "3";
-
-            // Arrange
-            var client = GetClient(certificateFilename, certificatePassword);
-
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("x-v", XV);
-
-            // Supply access token with request?
-            if (withAccessToken)
-            {
-                var accessTokenRequest = GetAccessTokenRequest(certificateFilename, certificatePassword);
-                var accessTokenResponse = await client.SendAsync(accessTokenRequest);
-                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
-
-                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken.access_token);
-            }
-
-            beforeRequest?.Invoke();
-            try
-            {
-                // Act
-                var response = await client.SendAsync(request);
-
-                // Assert
-                using (new AssertionScope())
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (expectedContent != null)
-                    {
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                afterRequest?.Invoke();
-            }
-        }
-
-        [Fact]
-        public async Task AC13_GetSSA_WithAccessToken_AndClientCert_ShouldRespondWith_200OK()
-        {
-            await Test_GetSSA(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.OK);
-        }
-
-        [Fact]
-        public async Task AC14_GetSSA_WithAccessToken_AndExpiredClientCert_ShouldThrow_HttpRequestException()
-        {
-            Func<Task> test = async () => await Test_GetSSA(INVALID_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-            await test.Should().ThrowAsync<HttpRequestException>();
-        }
-
-        [Fact]
-        public async Task AC15_GetSSA_WithAccessToken_AndClientCertNotAssociatedToAccessToken_ShouldRespondWith_401Unauthorised()
-        {
-            await Test_GetSSA(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-        }
-
-        [Fact]
-        public async Task AC16_GetSSA_WithAccessToken_AndServerCertNotAssociatedToAccessToken_ShouldThrow_HttpRequestException()
-        {
-            Func<Task> test = async () => await Test_GetSSA(SERVER_CERTIFICATE_FILENAME, SERVER_CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized);
-            await test.Should().ThrowAsync<HttpRequestException>();
-        }
-
-        [Fact]
-        public async Task AC17_GetSSA_WithNoAccessToken_AndClientCert_ShouldRespondWith_401Unauthorised()
-        {
-            await Test_GetSSA(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD, HttpStatusCode.Unauthorized, false);
-        }
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
-        public async Task AC18_GetSSA_WithAccessToken_AndSoftwareProductStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-            int softwareProductStatusId,
-            HttpStatusCode expectedStatusCode)
-        {
-            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SOFTWAREPRODUCTID);
-
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
-                afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
-        }
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Inactive
-        [InlineData(3, HttpStatusCode.Forbidden)] // Removed
-        public async Task AC19_GetSSA_WithAccessToken_AndBrandStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-            int brandStatusId,
-            HttpStatusCode expectedStatusCode)
-        {
-            int saveBrandStatusId = GetBrandStatusId(BRANDID);
-
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
-                afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
-        }
-
-        [Theory]
-        [InlineData(1, HttpStatusCode.OK)]        // Active
-        [InlineData(2, HttpStatusCode.Forbidden)] // Removed
-        [InlineData(3, HttpStatusCode.Forbidden)] // Suspended
-        [InlineData(4, HttpStatusCode.Forbidden)] // Revoked
-        [InlineData(5, HttpStatusCode.Forbidden)] // Surrendered
-        [InlineData(6, HttpStatusCode.Forbidden)] // Inactive
-        public async Task AC20_GetSSA_WithAccessToken_AndParticipationStatusSetInactiveSinceTokenProvisioned_ShouldRespondWith_403Forbidden(
-            int participationStatusId,
-            HttpStatusCode expectedStatusCode)
-        {
-            int saveParticipationStatusId = GetParticipationStatusId(PARTICIPATIONID);
-
-            await Test_GetSSA(
-                CERTIFICATE_FILENAME,
-                CERTIFICATE_PASSWORD,
-                expectedStatusCode,
-                beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
-                afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
         }
     }
 }

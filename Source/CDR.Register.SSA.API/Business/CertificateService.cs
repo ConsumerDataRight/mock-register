@@ -9,6 +9,26 @@ namespace CDR.Register.SSA.API.Business
     /// </summary>
     public class CertificateService : ICertificateService
     {
+        public CertificateService(IConfiguration config)
+        {
+            // Create the certificate
+            var cert = new X509Certificate2(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
+
+            // Get credentials from certificate
+            this.SecurityKey = new X509SecurityKey(cert);
+            this.SigningCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
+
+            // Get certificate kid
+            this.Kid = this.SigningCredentials.Kid;
+
+            this.SigningCredentials.CryptoProviderFactory = new CryptoProviderFactory();
+
+            // Get signature provider
+            this.SignatureProvider = this.SigningCredentials.CryptoProviderFactory.CreateForSigning(this.SecurityKey, "PS256");
+
+            this.JsonWebKeySet = this.GenerateJwks();
+        }
+
         public string Kid { get; private set; }
 
         public SignatureProvider SignatureProvider { get; private set; }
@@ -19,26 +39,6 @@ namespace CDR.Register.SSA.API.Business
 
         private X509SigningCredentials SigningCredentials { get; set; }
 
-        public CertificateService(IConfiguration config)
-        {
-            // Create the certificate
-            var cert = new X509Certificate2(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
-
-            // Get credentials from certificate
-            SecurityKey = new X509SecurityKey(cert);
-            SigningCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
-
-            // Get certificate kid
-            this.Kid = SigningCredentials.Kid;
-
-            SigningCredentials.CryptoProviderFactory = new CryptoProviderFactory();
-
-            // Get signature provider
-            this.SignatureProvider = SigningCredentials.CryptoProviderFactory.CreateForSigning(SecurityKey, "PS256");
-
-            this.JsonWebKeySet = GenerateJwks();
-        }
-
         private CDR.Register.API.Infrastructure.Models.JsonWebKeySet GenerateJwks()
         {
             var rsaParams = this.SigningCredentials.Certificate.GetRSAPublicKey().ExportParameters(false);
@@ -47,17 +47,17 @@ namespace CDR.Register.SSA.API.Business
 
             var jwk = new CDR.Register.API.Infrastructure.Models.JsonWebKey()
             {
-                alg = this.SigningCredentials.Algorithm,
-                kid = this.SigningCredentials.Kid,
-                kty = this.SecurityKey.PublicKey.KeyExchangeAlgorithm,
-                n = n,
-                e = e,
-                key_ops = ["sign", "verify"]
+                Alg = this.SigningCredentials.Algorithm,
+                Kid = this.SigningCredentials.Kid,
+                Kty = this.SecurityKey.PublicKey.KeyExchangeAlgorithm,
+                N = n,
+                E = e,
+                Key_ops = ["sign", "verify"],
             };
 
             return new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
             {
-                keys = [jwk]
+                Keys = [jwk],
             };
         }
     }

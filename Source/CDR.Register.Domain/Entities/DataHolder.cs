@@ -30,20 +30,4 @@ namespace CDR.Register.Domain.Entities
             }
         }
     }
-
-    public enum Industry
-    {
-        All = 0,
-        Banking,
-        Energy,
-        Telco
-    }
-
-    public enum DhParticipationStatus
-    {
-        Unknown = 0,
-        Active = 1,
-        Removed = 2,
-        Inactive = 6
-    }
 }

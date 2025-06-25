@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -10,12 +11,5 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(2)]
         [Required]
         public string ParticipationTypeCode { get; set; }
-    }
-
-    public enum ParticipationTypes
-    {
-        Unknown = 0,
-        Dh = 1,
-        Dr = 2
     }
 }

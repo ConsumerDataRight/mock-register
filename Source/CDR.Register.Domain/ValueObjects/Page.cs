@@ -18,12 +18,12 @@ namespace CDR.Register.Domain.ValueObjects
         {
             get
             {
-                if (TotalRecords == 0 || PageSize == 0)
+                if (this.TotalRecords == 0 || this.PageSize == 0)
                 {
                     return 0;
                 }
 
-                return (int)Math.Ceiling((decimal)TotalRecords / (decimal)PageSize);
+                return (int)Math.Ceiling((decimal)this.TotalRecords / (decimal)this.PageSize);
             }
         }
     }

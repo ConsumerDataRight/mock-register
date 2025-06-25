@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using AutoMapper;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.Admin.API.Extensions;
@@ -13,10 +17,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -31,10 +31,10 @@ namespace CDR.Register.Admin.API.Controllers
 
         public AdminController(ILogger<AdminController> logger, RegisterDatabaseContext dbContext, IRegisterAdminRepository registerAdminRepository, IMapper mapper)
         {
-            _logger = logger;
-            _dbContext = dbContext;
-            _adminRepository = registerAdminRepository;
-            _mapper = mapper;
+            this._logger = logger;
+            this._dbContext = dbContext;
+            this._adminRepository = registerAdminRepository;
+            this._mapper = mapper;
         }
 
         [HttpPost]
@@ -43,33 +43,33 @@ namespace CDR.Register.Admin.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task LoadData()
         {
-            using var reader = new StreamReader(Request.Body);
+            using var reader = new StreamReader(this.Request.Body);
             string json = await reader.ReadToEndAsync();
             string respMsg = string.Empty;
 
             try
             {
-                bool updated = await _dbContext.SeedDatabaseFromJson(json, _logger, true);
+                bool updated = await this._dbContext.SeedDatabaseFromJson(json, this._logger, true);
                 if (updated)
                 {
-                    Response.StatusCode = StatusCodes.Status200OK;
+                    this.Response.StatusCode = StatusCodes.Status200OK;
                 }
                 else
                 {
-                    Response.StatusCode = StatusCodes.Status400BadRequest;
+                    this.Response.StatusCode = StatusCodes.Status400BadRequest;
                     respMsg = "Database not updated";
                 }
             }
             catch
             {
                 // SeedDatabaseFromJson doesn't throw specific error exceptions, so lets just consider any exception a BadRequest
-                Response.StatusCode = StatusCodes.Status400BadRequest;
+                this.Response.StatusCode = StatusCodes.Status400BadRequest;
                 respMsg = "UnexpectedError, An error occurred loading the database.";
             }
             finally
             {
-                Response.ContentType = "application/json";
-                await Response.BodyWriter.WriteAsync(System.Text.Encoding.UTF8.GetBytes(respMsg));
+                this.Response.ContentType = "application/json";
+                await this.Response.BodyWriter.WriteAsync(System.Text.Encoding.UTF8.GetBytes(respMsg));
             }
         }
 
@@ -89,11 +89,11 @@ namespace CDR.Register.Admin.API.Controllers
 
             JsonConvert.DefaultSettings = () => apiSpecificSettings;
 
-            var metadata = await _dbContext.GetJsonFromDatabase();
+            var metadata = await this._dbContext.GetJsonFromDatabase();
 
             // Return the raw JSON response.
-            Response.ContentType = "application/json";
-            await Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes($"{{ \"legalEntities\": {metadata} }}"));
+            this.Response.ContentType = "application/json";
+            await this.Response.BodyWriter.WriteAsync(System.Text.UTF8Encoding.UTF8.GetBytes($"{{ \"legalEntities\": {metadata} }}"));
         }
 
         [HttpPost]
@@ -107,29 +107,29 @@ namespace CDR.Register.Admin.API.Controllers
             try
             {
                 // Get the existing data holder record
-                var existingDataHolderBrand = await _adminRepository.GetDataHolderBrandAsync(dataHolderBrandModel.DataHolderBrandId);
+                var existingDataHolderBrand = await this._adminRepository.GetDataHolderBrandAsync(dataHolderBrandModel.DataHolderBrandId);
 
                 // Validate the incoming data holder model.
                 var validationErrors = dataHolderBrandModel.Validate(existingDataHolderBrand);
                 if (validationErrors != null && validationErrors.Errors.Count > 0)
                 {
-                    return BadRequest(validationErrors);
+                    return this.BadRequest(validationErrors);
                 }
 
-                var dataHolderBrandToSave = _mapper.Map<DataHolderBrand>(dataHolderBrandModel);
-                var isDhBrandSaved = await _adminRepository.SaveDataHolderBrand(dataHolderBrandToSave.DataHolder.LegalEntity.LegalEntityId, dataHolderBrandToSave);
+                var dataHolderBrandToSave = this._mapper.Map<DataHolderBrand>(dataHolderBrandModel);
+                var isDhBrandSaved = await this._adminRepository.SaveDataHolderBrand(dataHolderBrandToSave.DataHolder.LegalEntity.LegalEntityId, dataHolderBrandToSave);
                 if (!isDhBrandSaved)
                 {
                     // Return error message here
-                    return BadRequest();
+                    return this.BadRequest();
                 }
 
-                return Ok();
+                return this.Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while trying to the save data holder.");
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                this._logger.LogError(ex, "An error occurred while trying to the save data holder.");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -143,12 +143,12 @@ namespace CDR.Register.Admin.API.Controllers
         {
             try
             {
-                using var reader = new StreamReader(Request.Body);
+                using var reader = new StreamReader(this.Request.Body);
                 string json = await reader.ReadToEndAsync();
 
                 if (string.IsNullOrWhiteSpace(json))
                 {
-                    return BadRequest(new Error(Domain.Constants.ErrorTitles.InvalidField, Domain.Constants.ErrorCodes.Cds.InvalidField, "Empty LegalEntity received"));
+                    return this.BadRequest(new Error(Domain.Constants.ErrorTitles.InvalidField, Domain.Constants.ErrorCodes.Cds.InvalidField, "Empty LegalEntity received"));
                 }
 
                 var legalEntity = System.Text.Json.JsonSerializer.Deserialize<LegalEntity>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); // This is inconsistent with other serializers
@@ -156,21 +156,21 @@ namespace CDR.Register.Admin.API.Controllers
                 var errors = legalEntity?.GetValidationErrors(new LegalEntityValidator());
                 if (errors?.Errors.Count > 0)
                 {
-                    return BadRequest(errors);
+                    return this.BadRequest(errors);
                 }
 
-                var dataRecipient = _mapper.Map<DataRecipient>(legalEntity);
-                var businessRuleError = await _adminRepository.AddOrUpdateDataRecipient(dataRecipient);
+                var dataRecipient = this._mapper.Map<DataRecipient>(legalEntity);
+                var businessRuleError = await this._adminRepository.AddOrUpdateDataRecipient(dataRecipient);
                 return businessRuleError switch
                 {
-                    null => Ok(),
-                    _ => BadRequest(businessRuleError.ToResponseErrorList())
+                    null => this.Ok(),
+                    _ => this.BadRequest(businessRuleError.ToResponseErrorList()),
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured in SaveDataRecipient");
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                this._logger.LogError(ex, "An error occured in SaveDataRecipient");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

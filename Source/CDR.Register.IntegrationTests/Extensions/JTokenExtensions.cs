@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace CDR.Register.IntegrationTests.Extensions
 {
     public static class JTokenExtensions
     {
+        /// <summary>
+        /// Should a JToken be removed?.
+        /// </summary>
+        /// <returns>validation result.</returns>
+        public delegate bool ShouldRemove(JToken jToken);
+
+        public delegate JToken Replace(JToken token);
+
         /// <summary>
         /// Remove child JToken from JToken.
         /// </summary>
@@ -30,11 +38,6 @@ namespace CDR.Register.IntegrationTests.Extensions
                     throw new NotSupportedException();
             }
         }
-
-        /// <summary>
-        /// Should a JToken be removed?.
-        /// </summary>
-        public delegate bool ShouldRemove(JToken jToken);
 
         /// <summary>
         /// Recursively remove child JTokens from a JToken.
@@ -100,8 +103,6 @@ namespace CDR.Register.IntegrationTests.Extensions
                 token.Parent.Remove();
             }
         }
-
-        public delegate JToken Replace(JToken token);
 
         public static void ReplacePath(this JToken jToken, string jsonPath, Replace replace)
         {

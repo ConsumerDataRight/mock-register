@@ -17,7 +17,7 @@ namespace CDR.Register.SSA.API.Business
 
         public TokenizerService(ICertificateService certificateService)
         {
-            _certificateService = certificateService;
+            this._certificateService = certificateService;
         }
 
         /// <summary>
@@ -34,14 +34,14 @@ namespace CDR.Register.SSA.API.Business
                 return null;
             }
 
-            var signingKid = _certificateService.Kid;
+            var signingKid = this._certificateService.Kid;
 
             // Create the JWT header
             var jwtHeader = JsonConvert.SerializeObject(new Dictionary<string, string>()
                 {
                     { JwtHeaderParameterNames.Alg, "PS256" },
                     { JwtHeaderParameterNames.Kid, signingKid },
-                    { JwtHeaderParameterNames.Typ, "JWT" }
+                    { JwtHeaderParameterNames.Typ, "JWT" },
                 });
 
             var jwtEncodedHeader = Base64UrlEncoder.Encode(jwtHeader);
@@ -51,7 +51,7 @@ namespace CDR.Register.SSA.API.Business
 
             var byteData = Encoding.UTF8.GetBytes(jwtEncodedHeader + "." + jwtEncodedPayload);
 
-            var jwtSignature = _certificateService.SignatureProvider.Sign(byteData);
+            var jwtSignature = this._certificateService.SignatureProvider.Sign(byteData);
 
             var jwtEncodedSignature = Base64UrlEncoder.Encode(jwtSignature);
 

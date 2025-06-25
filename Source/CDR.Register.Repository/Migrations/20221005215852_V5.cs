@@ -1,4 +1,4 @@
-﻿using CDR.Register.Repository.Entities;
+﻿using CDR.Register.Repository.Enums;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

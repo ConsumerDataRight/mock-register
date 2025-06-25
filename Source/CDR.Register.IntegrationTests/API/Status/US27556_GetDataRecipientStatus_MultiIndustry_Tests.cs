@@ -1,15 +1,15 @@
-﻿using CDR.Register.Repository.Entities;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CDR.Register.Repository.Enums;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,32 +27,6 @@ namespace CDR.Register.IntegrationTests.API.Status
         {
         }
 
-        private static string GetExpectedDataRecipientsStatus(string url)
-        {
-            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
-
-            var expectedDataRecipientsStatus = new
-            {
-                data = dbContext.Participations.AsNoTracking<Repository.Entities.Participation>()
-                    .Include(p => p.Status)
-                    .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
-                    .Select(p => new
-                    {
-                        legalEntityId = p.LegalEntityId,
-                        status = p.Status.ParticipationStatusCode
-                    })
-                    .OrderBy(p => p.legalEntityId.ToString())
-                    .ToList(),
-                links = new
-                {
-                    self = url
-                },
-                meta = new object()
-            };
-
-            return JsonConvert.SerializeObject(expectedDataRecipientsStatus);
-        }
-
         [Theory]
         [InlineData("2", "2")]
         public async Task AC01_AC02_Get_ShouldRespondWith_200OK_DataRecipientsStatus(string? xv, string expectedXV)
@@ -66,7 +40,7 @@ namespace CDR.Register.IntegrationTests.API.Status
             {
                 HttpMethod = HttpMethod.Get,
                 URL = url,
-                XV = xv
+                XV = xv,
             }.SendAsync();
 
             // Assert
@@ -113,7 +87,7 @@ namespace CDR.Register.IntegrationTests.API.Status
             {
                 HttpMethod = HttpMethod.Get,
                 URL = url,
-                XV = xv
+                XV = xv,
             }.SendAsync();
 
             // Assert
@@ -204,22 +178,22 @@ namespace CDR.Register.IntegrationTests.API.Status
         }
 
         [Theory]
-        [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")]                             // Valid. Should return v2 - x-min-v is ignored when > x-v
-        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")]                             // Valid. Should return v2 - x-v is supported and higher than x-min-v
-        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")]                             // Valid. Should return v2 - x-v is supported equal to x-min-v
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")]                             // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
+        [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-min-v is ignored when > x-v
+        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported equal to x-min-v
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
         [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
         [InlineData("4", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
         [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
-        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. Both x-v and x-min-v exceed supported version of 2
-        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is an obsolete version
+        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
+        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "2", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]     // Unsupported. x-v is higher than supported version of 2
+        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
         [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]      // Invalid. x-v header is missing
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
         public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
@@ -229,7 +203,7 @@ namespace CDR.Register.IntegrationTests.API.Status
                 HttpMethod = HttpMethod.Get,
                 URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/status",
                 XV = xv,
-                XMinV = minXv
+                XMinV = minXv,
             }.SendAsync();
 
             // Assert
@@ -252,6 +226,32 @@ namespace CDR.Register.IntegrationTests.API.Status
                     await Assert_HasContent_Json(expecetdError, response.Content);
                 }
             }
+        }
+
+        private static string GetExpectedDataRecipientsStatus(string url)
+        {
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
+
+            var expectedDataRecipientsStatus = new
+            {
+                data = dbContext.Participations.AsNoTracking<Repository.Entities.Participation>()
+                    .Include(p => p.Status)
+                    .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
+                    .Select(p => new
+                    {
+                        legalEntityId = p.LegalEntityId,
+                        status = p.Status.ParticipationStatusCode,
+                    })
+                    .OrderBy(p => p.legalEntityId.ToString())
+                    .ToList(),
+                links = new
+                {
+                    self = url,
+                },
+                meta = new object(),
+            };
+
+            return JsonConvert.SerializeObject(expectedDataRecipientsStatus);
         }
     }
 }

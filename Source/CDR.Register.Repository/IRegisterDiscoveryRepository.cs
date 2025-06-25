@@ -1,7 +1,7 @@
-﻿using CDR.Register.Domain.Entities;
-using CDR.Register.Domain.ValueObjects;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using CDR.Register.Domain.Entities;
+using CDR.Register.Domain.ValueObjects;
 
 namespace CDR.Register.Repository.Interfaces
 {

@@ -17,8 +17,6 @@ namespace CDR.Register.IntegrationTests.Infrastructure
     /// </summary>
     public class PrivateKeyJwt
     {
-        public string PrivateKeyBase64 { get; private set; }
-
         private readonly string jtiClaim;
 
         /// <summary>
@@ -26,8 +24,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// </summary>
         public PrivateKeyJwt()
         {
-            PrivateKeyBase64 = string.Empty;
-            jtiClaim = string.Empty;
+            this.PrivateKeyBase64 = string.Empty;
+            this.jtiClaim = string.Empty;
         }
 
         /// <summary>
@@ -42,14 +40,14 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         {
             if (!string.IsNullOrEmpty(privateKey))
             {
-                PrivateKeyBase64 = FormatKey(privateKey);
+                this.PrivateKeyBase64 = FormatKey(privateKey);
             }
             else
             {
-                PrivateKeyBase64 = string.Empty;
+                this.PrivateKeyBase64 = string.Empty;
             }
 
-            jtiClaim = string.Empty;
+            this.jtiClaim = string.Empty;
         }
 
         /// <summary>
@@ -65,7 +63,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             var rsa = cert.GetRSAPrivateKey();
             if (rsa == null)
             {
-                PrivateKeyBase64 = string.Empty;
+                this.PrivateKeyBase64 = string.Empty;
                 jtiClaim = string.Empty;
             }
 
@@ -73,6 +71,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             this.PrivateKeyBase64 = Convert.ToBase64String(pvtKeyBytes);
             this.jtiClaim = jtiClaim;
         }
+
+        public string PrivateKeyBase64 { get; private set; }
 
         /// <summary>
         /// Load the private key from a file.
@@ -91,7 +91,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             }
 
             var privateKey = File.ReadAllText(filePath);
-            PrivateKeyBase64 = FormatKey(privateKey);
+            this.PrivateKeyBase64 = FormatKey(privateKey);
         }
 
         /// <summary>
@@ -100,10 +100,11 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// <param name="issuer">The issuer of the JWT, usually set to the softwareProductId.</param>
         /// <param name="audience">The audience of the JWT, usually set to the target token endpoint.</param>
         /// <param name="subject">The subject of the JWT, usually set to the softwareProductId.</param>
+        /// <param name="signingAlgorithm">The signingAlgorithm of the JWT, default is RsaSsaPssSha256.</param>
         /// <returns>A base64 encoded JWT.</returns>
         public string Generate(string? issuer, string audience, string subject, string signingAlgorithm = SecurityAlgorithms.RsaSsaPssSha256)
         {
-            if (string.IsNullOrEmpty(PrivateKeyBase64))
+            if (string.IsNullOrEmpty(this.PrivateKeyBase64))
             {
                 throw new ArgumentException("privateKey must be set");
             }
@@ -118,7 +119,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                 throw new ArgumentException("audience must be provided");
             }
 
-            var privateKeyBytes = Convert.FromBase64String(PrivateKeyBase64);
+            var privateKeyBytes = Convert.FromBase64String(this.PrivateKeyBase64);
 
             using (var rsa = RSA.Create())
             {
@@ -129,8 +130,8 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                     KeyId = kid,
                     CryptoProviderFactory = new CryptoProviderFactory()
                     {
-                        CacheSignatureProviders = false
-                    }
+                        CacheSignatureProviders = false,
+                    },
                 };
 
                 var descriptor = new SecurityTokenDescriptor
@@ -142,12 +143,12 @@ namespace CDR.Register.IntegrationTests.Infrastructure
                     SigningCredentials = new SigningCredentials(privateSecurityKey, signingAlgorithm),
                     NotBefore = null,
                     IssuedAt = null,
-                    Claims = new Dictionary<string, object>()
+                    Claims = new Dictionary<string, object>(),
                 };
 
-                if (!string.IsNullOrEmpty(jtiClaim))
+                if (!string.IsNullOrEmpty(this.jtiClaim))
                 {
-                    descriptor.Claims.Add("jti", jtiClaim);
+                    descriptor.Claims.Add("jti", this.jtiClaim);
                 }
 
                 var tokenHandler = new JsonWebTokenHandler();
@@ -173,7 +174,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             {
                 { "e", e },
                 { "kty", "RSA" },
-                { "n", n }
+                { "n", n },
             };
             var hash = SHA256.Create();
             var hashBytes = hash.ComputeHash(System.Text.Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(dict)));

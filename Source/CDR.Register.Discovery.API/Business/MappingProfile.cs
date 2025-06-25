@@ -1,10 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Discovery.API.Business.Models;
 using CDR.Register.Discovery.API.Business.Responses;
 using CDR.Register.Domain.Entities;
 using CDR.Register.Domain.ValueObjects;
-using System.Collections.Generic;
 
 namespace CDR.Register.Discovery.API.Business
 {
@@ -12,13 +12,13 @@ namespace CDR.Register.Discovery.API.Business
     {
         public MappingProfile()
         {
-            CreateMap(typeof(Page<>), typeof(MetaPaginated));
+            this.CreateMap(typeof(Page<>), typeof(MetaPaginated));
 
-            CreateMap<DataHolderAuthentication, AuthDetailModel>();
+            this.CreateMap<DataHolderAuthentication, AuthDetailModel>();
 
-            CreateMap<DataHolderBrandServiceEndpoint, EndpointDetailModel>();
+            this.CreateMap<DataHolderBrandServiceEndpoint, EndpointDetailModel>();
 
-            CreateMap<DataHolderLegalEntity, DataHolderLegalEntityModel>()
+            this.CreateMap<DataHolderLegalEntity, DataHolderLegalEntityModel>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntityId))
                 .ForMember(dest => dest.LegalEntityName, source => source.MapFrom(source => source.LegalEntityName))
                 .ForMember(dest => dest.LogoUri, source => source.MapFrom(source => source.LogoUri))
@@ -32,11 +32,11 @@ namespace CDR.Register.Discovery.API.Business
                 .ForMember(dest => dest.OrganisationType, source => source.MapFrom(source => source.OrganisationType))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.ToUpper()));
 
-            CreateMap<Page<DataHolderBrand[]>, ResponseRegisterDataHolderBrandList>()
+            this.CreateMap<Page<DataHolderBrand[]>, ResponseRegisterDataHolderBrandList>()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source.Data))
                 .ForMember(dest => dest.Meta, source => source.MapFrom(source => source));
 
-            CreateMap<DataHolderBrand, RegisterDataHolderBrandModel>()
+            this.CreateMap<DataHolderBrand, RegisterDataHolderBrandModel>()
                 .ForMember(dest => dest.DataHolderBrandId, source => source.MapFrom(source => source.BrandId))
                 .ForMember(dest => dest.Industries, source => source.MapFrom(source => new List<string> { source.DataHolder.Industry.ToLower() }))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.BrandStatus))
@@ -44,17 +44,17 @@ namespace CDR.Register.Discovery.API.Business
                 .ForMember(dest => dest.EndpointDetail, source => source.MapFrom(source => source.DataHolderBrandServiceEndpoint))
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source.DataHolder.LegalEntity));
 
-            CreateMap<DataRecipientBrand, DataRecipientBrandModel>()
+            this.CreateMap<DataRecipientBrand, DataRecipientBrandModel>()
                 .ForMember(dest => dest.DataRecipientBrandId, source => source.MapFrom(source => source.BrandId))
                 .ForMember(dest => dest.BrandName, source => source.MapFrom(source => source.BrandName))
                 .ForMember(dest => dest.LogoUri, source => source.MapFrom(source => source.LogoUri))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.BrandStatus))
                 .ForMember(dest => dest.SoftwareProducts, source => source.MapFrom(source => source.SoftwareProducts));
 
-            CreateMap<DataRecipient[], ResponseRegisterDataRecipientList>()
+            this.CreateMap<DataRecipient[], ResponseRegisterDataRecipientList>()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
-            CreateMap<DataRecipient, RegisterDataRecipientModel>()
+            this.CreateMap<DataRecipient, RegisterDataRecipientModel>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntity.LegalEntityId))
                 .ForMember(dest => dest.LegalEntityName, source => source.MapFrom(source => source.LegalEntity.LegalEntityName))
                 .ForMember(dest => dest.AccreditationNumber, source => source.MapFrom(source => source.LegalEntity.AccreditationNumber))
@@ -64,7 +64,7 @@ namespace CDR.Register.Discovery.API.Business
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status))
                 .ForMember(dest => dest.LastUpdated, source => source.MapFrom(source => source.LastUpdated));
 
-            CreateMap<SoftwareProduct, SoftwareProductModel>()
+            this.CreateMap<SoftwareProduct, SoftwareProductModel>()
                 .ForMember(dest => dest.SoftwareProductId, source => source.MapFrom(source => source.SoftwareProductId))
                 .ForMember(dest => dest.SoftwareProductName, source => source.MapFrom(source => source.SoftwareProductName))
                 .ForMember(dest => dest.LogoUri, source => source.MapFrom(source => source.LogoUri))

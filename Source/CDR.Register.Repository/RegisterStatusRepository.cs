@@ -1,10 +1,10 @@
-﻿using CDR.Register.Domain.Entities;
-using CDR.Register.Repository.Entities;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using CDR.Register.Domain.Entities;
+using CDR.Register.Repository.Enums;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CDR.Register.Repository
 {
@@ -55,7 +55,7 @@ namespace CDR.Register.Repository
                     new Domain.Entities.SoftwareProductStatus
                     {
                         SoftwareProductId = sp.SoftwareProductId,
-                        Status = sp.Status.SoftwareProductStatusCode
+                        Status = sp.Status.SoftwareProductStatusCode,
                     })
                 .OrderBy(sp => sp.SoftwareProductId)
                 .ToArray();

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
@@ -12,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
 
         public ScopeHandler(ILogger<ScopeHandler> logger)
         {
-            _logger = logger;
+            this._logger = logger;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopeRequirement requirement)
@@ -28,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. Access token is missing 'scope' claim.");
+                    this._logger.LogError("Unauthorized request. Access token is missing 'scope' claim.");
                 }
 
                 return Task.CompletedTask;

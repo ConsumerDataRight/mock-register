@@ -10,27 +10,27 @@ namespace CDR.Register.Status.API.Business
         public MappingProfile()
         {
             // DataRecipientStatus
-            CreateMap<DataRecipientStatus, RegisterDataRecipientStatusModel>()
+            this.CreateMap<DataRecipientStatus, RegisterDataRecipientStatusModel>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.DataRecipientId))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status));
 
-            CreateMap<DataRecipientStatus[], ResponseRegisterDataRecipientStatusList>()
+            this.CreateMap<DataRecipientStatus[], ResponseRegisterDataRecipientStatusList>()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
             // SoftwareProductStatus
-            CreateMap<SoftwareProductStatus, RegisterSoftwareProductStatusModel>()
+            this.CreateMap<SoftwareProductStatus, RegisterSoftwareProductStatusModel>()
                 .ForMember(dest => dest.SoftwareProductId, source => source.MapFrom(source => source.SoftwareProductId))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status));
 
-            CreateMap<SoftwareProductStatus[], ResponseRegisterSoftwareProductStatusList>()
+            this.CreateMap<SoftwareProductStatus[], ResponseRegisterSoftwareProductStatusList>()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
 
             // DataHolderStatus
-            CreateMap<DataHolderStatus, RegisterDataHolderStatusModel>()
+            this.CreateMap<DataHolderStatus, RegisterDataHolderStatusModel>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntityId))
                 .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status));
 
-            CreateMap<DataHolderStatus[], ResponseRegisterDataHolderStatusList>()
+            this.CreateMap<DataHolderStatus[], ResponseRegisterDataHolderStatusList>()
                 .ForMember(dest => dest.Data, source => source.MapFrom(source => source));
         }
     }

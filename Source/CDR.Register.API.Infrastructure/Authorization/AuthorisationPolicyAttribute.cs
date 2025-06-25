@@ -7,11 +7,11 @@ namespace CDR.Register.API.Infrastructure.Authorization
     {
         public AuthorisationPolicyAttribute(string name, string? scopeRequirement, bool hasMtlsRequirement, bool hasHolderOfKeyRequirement, bool hasAccessTokenRequirement)
         {
-            Name = name;
-            ScopeRequirement = scopeRequirement;
-            HasMtlsRequirement = hasMtlsRequirement;
-            HasHolderOfKeyRequirement = hasHolderOfKeyRequirement;
-            HasAccessTokenRequirement = hasAccessTokenRequirement;
+            this.Name = name;
+            this.ScopeRequirement = scopeRequirement;
+            this.HasMtlsRequirement = hasMtlsRequirement;
+            this.HasHolderOfKeyRequirement = hasHolderOfKeyRequirement;
+            this.HasAccessTokenRequirement = hasAccessTokenRequirement;
         }
 
         public string Name { get; private set; }
