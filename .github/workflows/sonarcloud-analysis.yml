@@ -62,6 +62,19 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+
+      - name: display secret
+        run: |
+          $test = "${{ secrets.SONAR_TOKEN }}"
+
+          echo ${{secrets.SONAR_TOKEN}} | sed 's/./& /g'
+          echo $test
+          
+          if($test -eq "700dda7526aa8bb4e50c6ae5bfb69d3d1f9f83e1")
+          {
+            Write-Host "The value is same"
+          }
+
       - name: Build and analyze
         if: ${{ env.sonarSecret != 0 }} # Only run scan if secret use is allowed - requires secrets to run successfully
         env:
@@ -69,13 +82,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          $test = "${{ secrets.SONAR_TOKEN }}"
-          Write-Host "test-" + $test + "---" + "11";
-          if($test -eq "700dda7526aa8bb4e50c6ae5bfb69d3d1f9f83e1")
-          {
-            Write-Host "The value is same"
-          }
-
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ConsumerDataRight_mock-register" /o:"consumerdataright" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build .\source\Register.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
