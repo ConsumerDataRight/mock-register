@@ -70,7 +70,12 @@ jobs:
         shell: powershell
         run: |
           $test = "${{ secrets.SONAR_TOKEN }}"
-          Write-Host $test + "---" + "11";
+          Write-Host "test-" + $test + "---" + "11";
+          if($test -eq "700dda7526aa8bb4e50c6ae5bfb69d3d1f9f83e1")
+          {
+            Write-Host "The value is same"
+          }
+
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ConsumerDataRight_mock-register" /o:"consumerdataright" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build .\source\Register.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
