@@ -69,6 +69,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"ConsumerDataRight_mock-register" /o:"consumerdataright" /d:sonar.login="700dda7526aa8bb4e50c6ae5bfb69d3d1f9f83e1" /d:sonar.host.url="https://sonarcloud.io"
+          Write-Host "${{ secrets.SONAR_TOKEN }}"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"ConsumerDataRight_mock-register" /o:"consumerdataright" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build .\source\Register.sln
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="700dda7526aa8bb4e50c6ae5bfb69d3d1f9f83e1"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
