@@ -69,7 +69,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          Write-Host "${{ secrets.SONAR_TOKEN }}"
+          $test = "${{ secrets.SONAR_TOKEN }}"
+          Write-Host $test + "---" + "11";
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ConsumerDataRight_mock-register" /o:"consumerdataright" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build .\source\Register.sln
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
