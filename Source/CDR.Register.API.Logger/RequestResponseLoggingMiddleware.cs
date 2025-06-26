@@ -47,90 +47,18 @@ namespace CDR.Register.API.Logger
 
         public RequestResponseLoggingMiddleware(RequestDelegate next, IRequestResponseLogger requestResponseLogger, IConfiguration configuration)
         {
-            _requestResponseLogger = requestResponseLogger.Log.ForContext<RequestResponseLoggingMiddleware>();
-            _next = next ?? throw new ArgumentNullException(nameof(next));
-            _recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
-            _currentProcessName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
-            _configuration = configuration;
+            this._requestResponseLogger = requestResponseLogger.Log.ForContext<RequestResponseLoggingMiddleware>();
+            this._next = next ?? throw new ArgumentNullException(nameof(next));
+            this._recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
+            this._currentProcessName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
+            this._configuration = configuration;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            InitMembers();
-            await ExtractRequestProperties(context);
-            await ExtractResponseProperties(context);
-        }
-
-        private void InitMembers()
-        {
-            _requestMethod = _requestBody = _requestHeaders = _requestPath = _requestQueryString =
-            _statusCode = _elapsedTime = _responseHeaders = _responseBody = _requestHost = _requestScheme =
-            _exceptionMessage = _requestPathBase = _clientId = _softwareId = _fapiInteractionId = _requestIpAddress = _dataHolderBrandId = string.Empty;
-        }
-
-        private void LogWithContext()
-        {
-            var logger = _requestResponseLogger
-                .ForContext("SourceContext", GetSourceContext())
-                .ForContext("RequestMethod", _requestMethod)
-                .ForContext("RequestBody", _requestBody)
-                .ForContext("RequestHeaders", _requestHeaders)
-                .ForContext("RequestPath", _requestPath)
-                .ForContext("RequestQueryString", _requestQueryString)
-                .ForContext("StatusCode", _statusCode)
-                .ForContext("RequestHost", _requestHost)
-                .ForContext("RequestIpAddress", _requestIpAddress)
-                .ForContext("ResponseHeaders", _responseHeaders)
-                .ForContext("ResponseBody", _responseBody)
-                .ForContext("ClientId", _clientId)
-                .ForContext("SoftwareId", _softwareId)
-                .ForContext("FapiInteractionId", _fapiInteractionId)
-                .ForContext("DataHolderBrandId", _dataHolderBrandId);
-
-            if (!string.IsNullOrEmpty(_exceptionMessage))
-            {
-                logger.Error(HttpSummaryExceptionMessageTemplate, _requestMethod, _requestScheme, _requestHost, _requestPathBase, _requestPath, _exceptionMessage);
-            }
-            else
-            {
-                logger.Write(LogEventLevel.Information, HttpSummaryMessageTemplate, _requestMethod, _requestScheme, _requestHost, _requestPathBase, _requestPath, _statusCode, _elapsedTime);
-            }
-        }
-
-        private async Task ExtractRequestProperties(HttpContext context)
-        {
-            try
-            {
-                context.Request.EnableBuffering();
-                await using var requestStream = _recyclableMemoryStreamManager.GetStream();
-                await context.Request.Body.CopyToAsync(requestStream);
-
-                _requestBody = ReadStreamInChunks(requestStream);
-                context.Request.Body.Position = 0;
-
-                _requestHost = GetHost(context.Request);
-                _requestIpAddress = GetIpAddress(context);
-                _requestMethod = context.Request.Method;
-                _requestScheme = context.Request.Scheme;
-                _requestPath = context.Request.Path;
-                _requestQueryString = context.Request.QueryString.ToString();
-                _requestPathBase = context.Request.PathBase.ToString();
-
-                IEnumerable<string> keyValues = context.Request.Headers.Keys.Select(key => key + ": " + string.Join(",", context.Request.Headers[key].ToArray()));
-                _requestHeaders = string.Join(Environment.NewLine, keyValues);
-
-                ExtractIdFromRequest(context.Request);
-            }
-            catch (Exception ex)
-            {
-                _exceptionMessage = ex.Message;
-            }
-        }
-
-        private static class ClaimIdentifiers
-        {
-            public const string ClientId = "client_id";
-            public const string Iss = "iss";
+            this.InitMembers();
+            await this.ExtractRequestProperties(context);
+            await this.ExtractResponseProperties(context);
         }
 
         private static void SetIdFromJwt(string jwt, string identifierType, ref string idToSet)
@@ -145,14 +73,80 @@ namespace CDR.Register.API.Logger
             }
         }
 
+        private void InitMembers()
+        {
+            this._requestMethod = this._requestBody = this._requestHeaders = this._requestPath = this._requestQueryString =
+            this._statusCode = this._elapsedTime = this._responseHeaders = this._responseBody = this._requestHost = this._requestScheme =
+            this._exceptionMessage = this._requestPathBase = this._clientId = this._softwareId = this._fapiInteractionId = this._requestIpAddress = this._dataHolderBrandId = string.Empty;
+        }
+
+        private void LogWithContext()
+        {
+            var logger = this._requestResponseLogger
+                .ForContext("SourceContext", this.GetSourceContext())
+                .ForContext("RequestMethod", this._requestMethod)
+                .ForContext("RequestBody", this._requestBody)
+                .ForContext("RequestHeaders", this._requestHeaders)
+                .ForContext("RequestPath", this._requestPath)
+                .ForContext("RequestQueryString", this._requestQueryString)
+                .ForContext("StatusCode", this._statusCode)
+                .ForContext("RequestHost", this._requestHost)
+                .ForContext("RequestIpAddress", this._requestIpAddress)
+                .ForContext("ResponseHeaders", this._responseHeaders)
+                .ForContext("ResponseBody", this._responseBody)
+                .ForContext("ClientId", this._clientId)
+                .ForContext("SoftwareId", this._softwareId)
+                .ForContext("FapiInteractionId", this._fapiInteractionId)
+                .ForContext("DataHolderBrandId", this._dataHolderBrandId);
+
+            if (!string.IsNullOrEmpty(this._exceptionMessage))
+            {
+                logger.Error(HttpSummaryExceptionMessageTemplate, this._requestMethod, this._requestScheme, this._requestHost, this._requestPathBase, this._requestPath, this._exceptionMessage);
+            }
+            else
+            {
+                logger.Write(LogEventLevel.Information, HttpSummaryMessageTemplate, this._requestMethod, this._requestScheme, this._requestHost, this._requestPathBase, this._requestPath, this._statusCode, this._elapsedTime);
+            }
+        }
+
+        private async Task ExtractRequestProperties(HttpContext context)
+        {
+            try
+            {
+                context.Request.EnableBuffering();
+                await using var requestStream = this._recyclableMemoryStreamManager.GetStream();
+                await context.Request.Body.CopyToAsync(requestStream);
+
+                this._requestBody = this.ReadStreamInChunks(requestStream);
+                context.Request.Body.Position = 0;
+
+                this._requestHost = this.GetHost(context.Request);
+                this._requestIpAddress = this.GetIpAddress(context);
+                this._requestMethod = context.Request.Method;
+                this._requestScheme = context.Request.Scheme;
+                this._requestPath = context.Request.Path;
+                this._requestQueryString = context.Request.QueryString.ToString();
+                this._requestPathBase = context.Request.PathBase.ToString();
+
+                IEnumerable<string> keyValues = context.Request.Headers.Keys.Select(key => key + ": " + string.Join(",", context.Request.Headers[key].ToArray()));
+                this._requestHeaders = string.Join(Environment.NewLine, keyValues);
+
+                this.ExtractIdFromRequest(context.Request);
+            }
+            catch (Exception ex)
+            {
+                this._exceptionMessage = ex.Message;
+            }
+        }
+
         private void ExtractIdFromRequest(HttpRequest request)
         {
             try
             {
                 // try fetching from the clientid in the body for connect/par
-                if (!string.IsNullOrEmpty(_requestBody) && _requestBody.Contains("client_assertion=") && string.IsNullOrEmpty(_clientId))
+                if (!string.IsNullOrEmpty(this._requestBody) && this._requestBody.Contains("client_assertion=") && string.IsNullOrEmpty(this._clientId))
                 {
-                    var nameValueCollection = HttpUtility.ParseQueryString(_requestBody);
+                    var nameValueCollection = HttpUtility.ParseQueryString(this._requestBody);
                     if (nameValueCollection != null)
                     {
                         var assertion = nameValueCollection["client_assertion"];
@@ -160,36 +154,36 @@ namespace CDR.Register.API.Logger
                         if (assertion != null)
                         {
                             // in this case we set the iss to clientid
-                            _softwareId = string.Empty;
-                            SetIdFromJwt(assertion, ClaimIdentifiers.Iss, ref _softwareId);
+                            this._softwareId = string.Empty;
+                            SetIdFromJwt(assertion, ClaimIdentifiers.Iss, ref this._softwareId);
                         }
                     }
                 }
 
                 // try fetching x-fapi-interaction-id. After fetching we don't return as we need other important ids.
-                _fapiInteractionId = string.Empty;
+                this._fapiInteractionId = string.Empty;
                 if (request.Headers.TryGetValue("x-fapi-interaction-id", out var interactionid))
                 {
-                    _fapiInteractionId = interactionid;
+                    this._fapiInteractionId = interactionid;
                 }
 
                 // try fetching from the JWT in the authorization header
                 var authorization = request.Headers[HeaderNames.Authorization];
-                if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue) && string.IsNullOrEmpty(_softwareId))
+                if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue) && string.IsNullOrEmpty(this._softwareId))
                 {
                     var scheme = headerValue.Scheme;
                     var parameter = headerValue.Parameter;
 
                     if (scheme == JwtBearerDefaults.AuthenticationScheme && parameter != null)
                     {
-                        _softwareId = string.Empty;
-                        SetIdFromJwt(parameter, ClaimIdentifiers.ClientId, ref _softwareId);
+                        this._softwareId = string.Empty;
+                        SetIdFromJwt(parameter, ClaimIdentifiers.ClientId, ref this._softwareId);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _exceptionMessage = ex.Message;
+                this._exceptionMessage = ex.Message;
             }
         }
 
@@ -213,7 +207,7 @@ namespace CDR.Register.API.Logger
             }
             catch (Exception ex)
             {
-                _exceptionMessage = ex.Message;
+                this._exceptionMessage = ex.Message;
             }
 
             return string.Empty;
@@ -222,35 +216,35 @@ namespace CDR.Register.API.Logger
         private async Task ExtractResponseProperties(HttpContext httpContext)
         {
             var originalBodyStream = httpContext.Response.Body;
-            await using var responseBody = _recyclableMemoryStreamManager.GetStream();
+            await using var responseBody = this._recyclableMemoryStreamManager.GetStream();
             httpContext.Response.Body = responseBody;
 
             var sw = Stopwatch.StartNew();
 
             try
             {
-                await _next(httpContext);
+                await this._next(httpContext);
             }
             catch (Exception ex)
             {
-                _exceptionMessage = ex.Message;
+                this._exceptionMessage = ex.Message;
                 throw;
             }
             finally
             {
                 sw.Stop();
-                _elapsedTime = sw.ElapsedMilliseconds.ToString();
+                this._elapsedTime = sw.ElapsedMilliseconds.ToString();
 
                 responseBody.Seek(0, SeekOrigin.Begin);
-                _responseBody = await new StreamReader(responseBody).ReadToEndAsync();
+                this._responseBody = await new StreamReader(responseBody).ReadToEndAsync();
                 responseBody.Seek(0, SeekOrigin.Begin);
 
                 IEnumerable<string> keyValues = httpContext.Response.Headers.Keys.Select(key => key + ": " + string.Join(",", httpContext.Response.Headers[key].ToArray()));
-                _responseHeaders = string.Join(System.Environment.NewLine, keyValues);
+                this._responseHeaders = string.Join(System.Environment.NewLine, keyValues);
 
-                _statusCode = httpContext.Response.StatusCode.ToString();
+                this._statusCode = httpContext.Response.StatusCode.ToString();
 
-                LogWithContext();
+                this.LogWithContext();
 
                 // This is for middleware hooked before us to see our changes.
                 // Otherwise the original stream would be seen which cannot be read again.
@@ -263,7 +257,7 @@ namespace CDR.Register.API.Logger
         {
             // 1. check if the X-Forwarded-Host header has been provided -> use that
             // 2. If not, use the request.Host
-            string hostHeaderKey = _configuration.GetValue<string>("SerilogRequestResponseLogger:HostNameHeaderKey") ?? "X-Forwarded-Host";
+            string hostHeaderKey = this._configuration.GetValue<string>("SerilogRequestResponseLogger:HostNameHeaderKey") ?? "X-Forwarded-Host";
 
             if (!request.Headers.TryGetValue(hostHeaderKey, out var keys))
             {
@@ -275,7 +269,7 @@ namespace CDR.Register.API.Logger
 
         private string? GetIpAddress(HttpContext context)
         {
-            string ipHeaderKey = _configuration.GetValue<string>("SerilogRequestResponseLogger:IPAddressHeaderKey") ?? "X-Forwarded-For";
+            string ipHeaderKey = this._configuration.GetValue<string>("SerilogRequestResponseLogger:IPAddressHeaderKey") ?? "X-Forwarded-For";
 
             if (!context.Request.Headers.TryGetValue(ipHeaderKey, out var keys))
             {
@@ -292,7 +286,7 @@ namespace CDR.Register.API.Logger
 
         private string GetSourceContext()
         {
-            switch (_currentProcessName)
+            switch (this._currentProcessName)
             {
                 case "CDR.Register.Discovery.API":
                     return "SB-REG-DISC";
@@ -305,6 +299,12 @@ namespace CDR.Register.API.Logger
             }
 
             return string.Empty;
+        }
+
+        private static class ClaimIdentifiers
+        {
+            public const string ClientId = "client_id";
+            public const string Iss = "iss";
         }
     }
 }

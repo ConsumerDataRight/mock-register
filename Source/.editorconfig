@@ -145,142 +145,31 @@ csharp_style_prefer_top_level_statements = true:silent
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
-
-#Readability Rules
-
-#A call to an instance member of the local class or a base class is not prefixed with 'this.'
-dotnet_diagnostic.SA1101.severity = none
-
-#The parameter spans multiple lines
-dotnet_diagnostic.SA1118.severity = none
-
-#Spacing Rules
-dotnet_diagnostic.SA1010.severity = none
-
+csharp_prefer_system_threading_lock = true:suggestion
 
 #Documentation Rules
-
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
-
 #file header is missing
 dotnet_diagnostic.SA1633.severity = none
-
 #Enumeration items should be documented
 dotnet_diagnostic.SA1602.severity = none
-
-# SA1623: summary text should begin with: 'Gets or sets'
-dotnet_diagnostic.SA1623.severity = none
-
 # documentation for parameter 'cdrArrangementId' is missing
 dotnet_diagnostic.SA1611.severity = none
 
-# Parameter '' has no matching param tag in the XML comment
-dotnet_diagnostic.CS1591.severity = none
-
-# Element return value should be documented
-dotnet_diagnostic.SA1615.severity = none
-
-#parameter has no matching tag in xml
-dotnet_diagnostic.CS1573.severity = none
-
-
-#Ordering Rules
-
-#static members should appear before non-static members
-dotnet_diagnostic.SA1204.severity = none
-
-# public members should come before private
-dotnet_diagnostic.SA1202.severity = none
-
-# 'public' members should come before 'private' members
-dotnet_diagnostic.SA1200.severity = none
-
-# using directive ordering
-dotnet_diagnostic.SA1208.severity = none
-
-# field should not follow class
-dotnet_diagnostic.SA1201.severity = none
-
 #Maintainability
-
-# S2325: Methods and properties that don't access instance data should be static
-dotnet_diagnostic.S2325.severity = none
-
 [*.cs]
-# Disable xUnit1013 warning
-dotnet_diagnostic.xUnit1013.severity = none
-csharp_prefer_system_threading_lock = true:suggestion
 #region should not be located within a code element
 dotnet_diagnostic.SA1123.severity = none
 dotnet_diagnostic.SA1601.severity = none
-dotnet_diagnostic.SA1616.severity = none
-dotnet_diagnostic.SA1108.severity = none
-
-# A multi-line initializer in a C# code file should use a comma on the last line.
-dotnet_diagnostic.SA1413.severity = none
-
-# Ignore rules for Testing Projects
-[/*Tests*/**]
-# SA1025: Code should not contain multiple whitespace in a row.(This is usefull for InlineData documentation.)
-dotnet_diagnostic.SA1025.severity = none
-# A C# code file contains more than one unique type.
-dotnet_diagnostic.SA1402.severity = none
-# A constant field is placed beneath a non-constant field.
-dotnet_diagnostic.SA1203.severity = none
 
 # Ignore rules for Controllers
 [**/Controllers/**]
 # This controller has multiple responsibilities and could be split into 2 smaller controllers. (https://rules.sonarsource.com/csharp/RSPEC-6960)
 dotnet_diagnostic.S6960.severity = none
-# Use model binding instead of accessing the raw request data (https://rules.sonarsource.com/csharp/RSPEC-6932)
-dotnet_diagnostic.S6932.severity = none
 # In the context of ASP.NET Core MVC web applications, both model binding and model validation are processes that take place prior to the execution of a controller action.
 dotnet_diagnostic.S6967.severity = none
-
-
-[DiscoveryDocument.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[JwtSecurityTokenExtensions.cs]
-# A closing square bracket within a C# statement is not spaced correctly.(There is an issue with identifying nullable array properties.)
-dotnet_diagnostic.SA1011.severity = none
-
-[AccessToken.cs]
-# The parameters to a C# method or indexer call or declaration are not all on the same line or each on a separate line. (Test methods with many parameters)
-dotnet_diagnostic.SA1117.severity = none
-
-[JsonWebKey.cs]
-# The name of a C# element does not begin with an upper-case letter. (Json property mapping)
-dotnet_diagnostic.SA1300.severity = none
-
-[JsonWebKeySet.cs]
-# The name of a C# element does not begin with an upper-case letter. (Json property mapping)
-dotnet_diagnostic.SA1300.severity = none
-
-[ClientAssertionRequest.cs]
-# The name of a C# element does not begin with an upper-case letter. (Json property mapping)
-dotnet_diagnostic.SA1300.severity = none
-
-[AccessToken.cs]
-# The name of a C# element does not begin with an upper-case letter. (Json property mapping)
-dotnet_diagnostic.SA1300.severity = none
-
-[SoftwareStatementAssertionModel.cs]
-# The name of a C# element does not begin with an upper-case letter. (Json property mapping)
-dotnet_diagnostic.SA1300.severity = none
-
-[DataRecipientStatus.cs]
-# A C# code file contains more than one unique type.
-dotnet_diagnostic.SA1402.severity = none
-
-[ExpectedApiErrors.cs]
-# Remove this empty class, write its code or make it an "interface".
-dotnet_diagnostic.S2094.severity = none
 
 [Program.cs]
 # Using platform dependent API on a component makes the code no longer work across all platforms.
 dotnet_diagnostic.CA1416.severity = none
-
-

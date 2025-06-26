@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using Serilog.Context;
-using System.Threading.Tasks;
 
 namespace CDR.Register.API.Infrastructure.Authorization
 {
@@ -17,9 +17,9 @@ namespace CDR.Register.API.Infrastructure.Authorization
 
         public MtlsHandler(IHttpContextAccessor httpContextAccessor, ILogger<MtlsHandler> logger, IConfiguration config)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _logger = logger;
-            _configuration = config;
+            this._httpContextAccessor = httpContextAccessor;
+            this._logger = logger;
+            this._configuration = config;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MtlsRequirement requirement)
@@ -34,8 +34,8 @@ namespace CDR.Register.API.Infrastructure.Authorization
             // as the one expected by the cnf:x5t#S256 claim in the access token
             string? requestHeaderClientCertThumprint = null;
 
-            var certThumbprintNameHttpHeaderName = _configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
-            if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints) == true)
+            var certThumbprintNameHttpHeaderName = this._configuration.GetValue<string>(Constants.ConfigurationKeys.CertThumbprintNameHttpHeaderName) ?? Constants.Headers.X_TLS_CLIENT_CERT_THUMBPRINT;
+            if (this._httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(certThumbprintNameHttpHeaderName, out StringValues headerThumbprints) == true)
             {
                 requestHeaderClientCertThumprint = headerThumbprints[0];
             }
@@ -44,7 +44,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
+                    this._logger.LogError("Unauthorized request. Request header 'X-TlsClientCertThumbprint' is missing.");
                 }
 
                 return Task.CompletedTask;
@@ -62,7 +62,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. cnf:x5t#S256 claim is missing from access token.");
+                    this._logger.LogError("Unauthorized request. cnf:x5t#S256 claim is missing from access token.");
                 }
 
                 return Task.CompletedTask;
@@ -72,7 +72,7 @@ namespace CDR.Register.API.Infrastructure.Authorization
             {
                 using (LogContext.PushProperty("MethodName", "HandleRequirementAsync"))
                 {
-                    _logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{RequestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{AccessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
+                    this._logger.LogError("Unauthorized request. X-TlsClientCertThumbprint request header value '{RequestHeaderClientCertThumprint}' does not match access token cnf:x5t#S256 claim value '{AccessTokenClientCertThumbprint}'", requestHeaderClientCertThumprint, accessTokenClientCertThumbprint);
                 }
 
                 return Task.CompletedTask;

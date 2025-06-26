@@ -12,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
 
         public ApiVersionErrorResponse()
         {
-            _logger = new LoggerFactory().CreateLogger<ApiVersionErrorResponse>();
+            this._logger = new LoggerFactory().CreateLogger<ApiVersionErrorResponse>();
         }
 
         public override IActionResult CreateResponse(ErrorResponseContext context)
@@ -42,7 +42,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
                 statusCode = StatusCodes.Status500InternalServerError;
             }
 
-            _logger.LogError("Error detail {Detail}", errorList.Errors[0].Detail);
+            this._logger.LogError("Error detail {Detail}", errorList.Errors[0].Detail);
 
             return new ObjectResult(errorList) { StatusCode = statusCode };
         }

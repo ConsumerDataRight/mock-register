@@ -19,7 +19,7 @@ namespace CDR.Register.Infosec
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -28,7 +28,7 @@ namespace CDR.Register.Infosec
         {
             services.AddHttpContextAccessor();
 
-            services.AddRegisterInfosec(Configuration);
+            services.AddRegisterInfosec(this.Configuration);
 
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(options =>
@@ -40,25 +40,25 @@ namespace CDR.Register.Infosec
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 });
 
-            if (Configuration.GetSection("SerilogRequestResponseLogger") != null)
+            if (this.Configuration.GetSection("SerilogRequestResponseLogger") != null)
             {
                 Log.Logger.Information("Adding request response logging middleware");
                 services.AddRequestResponseLogging();
             }
 
             // if the distributed cache connection string has been set then use it, otherwise fall back to in-memory caching.
-            if (UseDistributedCache())
+            if (this.UseDistributedCache())
             {
                 services.AddStackExchangeRedisCache(options =>
                 {
-                    options.Configuration = Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
+                    options.Configuration = this.Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
                     options.InstanceName = "register-cache-";
                 });
 
                 services.AddDataProtection()
                     .SetApplicationName("reg-infosec")
                     .PersistKeysToStackExchangeRedis(
-                        StackExchange.Redis.ConnectionMultiplexer.Connect(Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache) ?? string.Empty),
+                        StackExchange.Redis.ConnectionMultiplexer.Connect(this.Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache) ?? string.Empty),
                         "register-cache-dp-keys");
             }
             else
@@ -76,7 +76,7 @@ namespace CDR.Register.Infosec
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
             });
 
-            app.UseBasePathOrExpression(Configuration);
+            app.UseBasePathOrExpression(this.Configuration);
 
             app.UseSerilogRequestLogging();
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
@@ -96,7 +96,7 @@ namespace CDR.Register.Infosec
 
         private bool UseDistributedCache()
         {
-            var cacheConnectionString = Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
+            var cacheConnectionString = this.Configuration.GetConnectionString(Constants.ConnectionStringNames.Cache);
             return !string.IsNullOrEmpty(cacheConnectionString);
         }
     }

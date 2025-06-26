@@ -35,22 +35,22 @@ namespace CDR.Register.Admin.API
         private bool healthCheckSeedData = false;
         private string healthCheckSeedDataMessage = string.Empty;
 
-        public IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
+
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddCheck("migration", () => healthCheckMigration ? HealthCheckResult.Healthy(healthCheckMigrationMessage) : HealthCheckResult.Unhealthy(healthCheckMigrationMessage))
-                .AddCheck("seed-data", () => healthCheckSeedData ? HealthCheckResult.Healthy(healthCheckSeedDataMessage) : HealthCheckResult.Unhealthy(healthCheckSeedDataMessage));
+                .AddCheck("migration", () => this.healthCheckMigration ? HealthCheckResult.Healthy(this.healthCheckMigrationMessage) : HealthCheckResult.Unhealthy(this.healthCheckMigrationMessage))
+                .AddCheck("seed-data", () => this.healthCheckSeedData ? HealthCheckResult.Healthy(this.healthCheckSeedDataMessage) : HealthCheckResult.Unhealthy(this.healthCheckSeedDataMessage));
 
-            services.AddRegisterAdmin(Configuration);
-            services.AddRegisterAdminAuth(Configuration);
+            services.AddRegisterAdmin(this.Configuration);
+            services.AddRegisterAdminAuth(this.Configuration);
 
             services.AddControllers();
 
@@ -61,10 +61,10 @@ namespace CDR.Register.Admin.API
                 options.ReportApiVersions = true;
             });
 
-            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)
             {
-                var issuer = Configuration.GetValue<string>(Constants.Authorization.Issuer);
+                var issuer = this.Configuration.GetValue<string>(Constants.Authorization.Issuer);
                 services.AddCdrSwaggerGen(opt =>
                 {
                     opt.SwaggerTitle = "Consumer Data Right (CDR) Participant Tooling - Mock Register - Admin API";
@@ -82,7 +82,7 @@ namespace CDR.Register.Admin.API
         {
             app.UseHealthChecks("/health", new HealthCheckOptions()
             {
-                ResponseWriter = CustomResponseWriter
+                ResponseWriter = CustomResponseWriter,
             });
 
             if (env.IsDevelopment())
@@ -96,7 +96,7 @@ namespace CDR.Register.Admin.API
 
             app.UseRouting();
 
-            var issuer = Configuration.GetValue<string>(Constants.Authorization.Issuer);
+            var issuer = this.Configuration.GetValue<string>(Constants.Authorization.Issuer);
             if (!string.IsNullOrEmpty(issuer))
             {
                 app.UseAuthentication();
@@ -104,7 +104,7 @@ namespace CDR.Register.Admin.API
 
             app.UseAuthorization();
 
-            var enableSwagger = Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
+            var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)
             {
                 app.UseCdrSwagger();
@@ -125,9 +125,9 @@ namespace CDR.Register.Admin.API
             }
 
             // Run EF database migrations.
-            if (RunMigrations())
+            if (this.RunMigrations())
             {
-                healthCheckMigrationMessage = "Migration in progress";
+                this.healthCheckMigrationMessage = "Migration in progress";
                 var context = serviceScope.ServiceProvider.GetRequiredService<RegisterDatabaseContext>();
                 if (context == null)
                 {
@@ -136,36 +136,26 @@ namespace CDR.Register.Admin.API
                 }
 
                 context?.Database.Migrate();
-                healthCheckMigrationMessage = "Migration completed";
+                this.healthCheckMigrationMessage = "Migration completed";
 
                 // Seed the database using the sample data JSON.
-                var seedDataFilePath = Configuration.GetValue<string>("SeedData:FilePath");
-                var seedDataOverwrite = Configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
+                var seedDataFilePath = this.Configuration.GetValue<string>("SeedData:FilePath");
+                var seedDataOverwrite = this.Configuration.GetValue<bool>("SeedData:OverwriteExistingData", false);
                 if (!string.IsNullOrEmpty(seedDataFilePath))
                 {
-                    healthCheckSeedDataMessage = "Seeding of data in progress";
+                    this.healthCheckSeedDataMessage = "Seeding of data in progress";
                     logger.LogInformation("Seed data file found within configuration.  Attempting to seed the repository from the seed data...");
                     Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, seedDataOverwrite)).Wait();
-                    healthCheckSeedDataMessage = "Seeding of data completed";
+                    this.healthCheckSeedDataMessage = "Seeding of data completed";
                 }
 
                 // Re-configure logger with the DB now.
-                Program.ConfigureSerilog(Configuration, true);
+                Program.ConfigureSerilog(this.Configuration, true);
             }
 
             // If we get here migration (if required) and seeding (if required) has completed
-            healthCheckMigration = true;
-            healthCheckSeedData = true;
-        }
-
-        /// <summary>
-        /// Determine if EF Migrations should run.
-        /// </summary>
-        private bool RunMigrations()
-        {
-            // Run migrations if the DBO connection string is set.
-            var dbo = Configuration.GetConnectionString("Register_DBO");
-            return !string.IsNullOrEmpty(dbo);
+            this.healthCheckMigration = true;
+            this.healthCheckSeedData = true;
         }
 
         private static Task CustomResponseWriter(HttpContext context, HealthReport healthReport)
@@ -177,9 +167,19 @@ namespace CDR.Register.Admin.API
                 {
                     key = e.Key,
                     value = e.Value.Status.ToString(),
-                })
+                }),
             });
             return context.Response.WriteAsync(result);
+        }
+
+        /// <summary>
+        /// Determine if EF Migrations should run.
+        /// </summary>
+        private bool RunMigrations()
+        {
+            // Run migrations if the DBO connection string is set.
+            var dbo = this.Configuration.GetConnectionString("Register_DBO");
+            return !string.IsNullOrEmpty(dbo);
         }
     }
 }

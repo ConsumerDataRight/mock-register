@@ -10,7 +10,7 @@
             </summary>
             <returns>JWKS.</returns>
         </member>
-        <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.MockDataRecipientClientAssertion">
+        <member name="M:CDR.Register.Admin.API.Controllers.LoopbackController.MockDataRecipientClientAssertion(System.String,System.String)">
             <summary>
             This controller action produces a client assertion for a mock data recipient.
             </summary>

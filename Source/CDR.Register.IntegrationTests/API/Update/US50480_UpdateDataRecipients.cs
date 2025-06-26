@@ -1,4 +1,12 @@
-﻿using CDR.Register.IntegrationTests.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.IntegrationTests.Models;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
@@ -8,14 +16,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,11 +23,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 {
     public class US50480_UpdateDataRecipients : BaseTest
     {
-        public US50480_UpdateDataRecipients(ITestOutputHelper outputHelper, TestFixture testFixture)
-            : base(outputHelper, testFixture)
-        {
-        }
-
         private const string UPDATE_DATA_RECIPIENT_CURRENT_API_VERSION = "1";
         private const string DEFAULT_SCOPES = "openid profile bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:payees:read bank:regular_payments:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.usage:read energy:electricity.der:read energy:accounts.basic:read energy:accounts.basic:read energy:accounts.detail:read " +
                                               "energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:accounts.concessions:read energy:billing:read common:customer.basic:read common:customer.detail:read cdr:registration cdr-register:read";
@@ -37,6 +32,11 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private const string TEST_DATA_BASE_URI = "https://TestAumationLogoUri.gov.au";
         private const string TEST_DATA_THUMBPRINT = "52ec9233a5fcb690de8582c18223b4fee2fe3989";
+
+        public US50480_UpdateDataRecipients(ITestOutputHelper outputHelper, TestFixture testFixture)
+            : base(outputHelper, testFixture)
+        {
+        }
 
         [Fact]
         public async Task AC02_Add_New_Legal_Entity_With_All_Fields_Fields_Http_200()
@@ -141,7 +141,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             dataRecipient.DataRecipientBrands[0].SoftwareProducts[0].Certificates.Add(new DataRecipientMetadata.Certificate()
             {
                 CommonName = "Test Automation Certificate Common Name",
-                Thumbprint = TEST_DATA_THUMBPRINT
+                Thumbprint = TEST_DATA_THUMBPRINT,
             });
 
             // Send Updated Data Recipient to Register
@@ -182,9 +182,9 @@ namespace CDR.Register.IntegrationTests.API.Update
                                 new DataRecipientMetadata.Certificate()
                                 {
                                     CommonName = "Test Automation Certificate Common Name",
-                                    Thumbprint = TEST_DATA_THUMBPRINT
-                                }
-                            }
+                                    Thumbprint = TEST_DATA_THUMBPRINT,
+                                },
+                            },
             });
 
             // Send to Register
@@ -791,10 +791,10 @@ namespace CDR.Register.IntegrationTests.API.Update
                         Status = "ACTIVE",
                         SoftwareProducts = new List<DataRecipientMetadata.SoftwareProduct>
                         {
-                            GenerateNewSofwareProduct()
-                        }
-                    }
-                }
+                            GenerateNewSofwareProduct(),
+                        },
+                    },
+                },
             };
 
             if (includeOptionalFields)
@@ -836,9 +836,9 @@ namespace CDR.Register.IntegrationTests.API.Update
                                 new DataRecipientMetadata.Certificate()
                                 {
                                     CommonName = "Test Automation Certificate Common Name",
-                                    Thumbprint = TEST_DATA_THUMBPRINT
-                                }
-                            }
+                                    Thumbprint = TEST_DATA_THUMBPRINT,
+                                },
+                            },
             };
             return softwareProduct;
         }
@@ -905,7 +905,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                                     {
                                         commonName = certificates.CommonName,
                                         thumbprint = certificates.Thumbprint,
-                                    })
+                                    }),
                                 }),
                             }),
                         });

@@ -1,4 +1,8 @@
-﻿using CDR.Register.IntegrationTests.API.Update;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.API.Update;
 using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.IntegrationTests.Infrastructure;
 using FluentAssertions;
@@ -6,10 +10,6 @@ using FluentAssertions.Execution;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,12 +17,12 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 {
     public class US50483_DynamicUrl_Tests : BaseTest
     {
+        private const string DEFAULT_SOFTWAREPRODUCT_ID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
+
         public US50483_DynamicUrl_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
             : base(outputHelper, testFixture)
         {
         }
-
-        private const string DEFAULT_SOFTWAREPRODUCT_ID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
         [Trait("Category", "CTSONLY")]
         [Theory]
@@ -45,7 +45,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             }.GetAsync(addCertificateToRequest: false);
 
             var api = new Infrastructure.Api
@@ -55,7 +55,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 AccessToken = accessToken,
                 XV = "2",
                 CertificateThumbprint = certificateThumbPrint,
-                CertificateCn = certificateCommonName
+                CertificateCn = certificateCommonName,
             };
 
             // Act
@@ -88,7 +88,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
-                CertificateCn = certificateCommonName
+                CertificateCn = certificateCommonName,
             };
 
             HttpResponseMessage response = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
@@ -117,7 +117,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             };
 
             HttpResponseMessage response = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
@@ -145,7 +145,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             }.GetAsync(addCertificateToRequest: false);
 
             var api = new Infrastructure.Api
@@ -155,7 +155,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 AccessToken = accessToken,
                 XV = "2",
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             };
 
             // Act
@@ -165,21 +165,6 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
-        }
-
-        private static async Task VerifyInvalidTokenRepsonse(HttpResponseMessage response)
-        {
-            using (new AssertionScope())
-            {
-                response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-
-                ExpectedErrors expectedErrors = new ExpectedErrors();
-                expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.Unauthorized, "invalid_token");
-
-                string actualErrors = await response.Content.ReadAsStringAsync();
-
-                Assert_Json(GetJsonFromModel(expectedErrors), actualErrors);
-            }
         }
 
         [Trait("Category", "CTSONLY")]
@@ -208,7 +193,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = certificateThumbPrint,
-                CertificateCn = certificateCommonName
+                CertificateCn = certificateCommonName,
             };
 
             HttpResponseMessage accessTokenResponse = await accessToken.SendAccessTokenRequest(addCertificateToRequest: false);
@@ -226,7 +211,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
                 AccessToken = validAccessToken,
                 XV = "2",
                 CertificateThumbprint = certificateThumbPrint,
-                CertificateCn = certificateCommonName
+                CertificateCn = certificateCommonName,
             };
 
             // Act
@@ -255,6 +240,21 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             if (selectCommand.ExecuteScalarInt32() == 0)
             {
                 throw new Exception($"Common name was not updated for Software Product: {softwareProductId}");
+            }
+        }
+
+        private static async Task VerifyInvalidTokenRepsonse(HttpResponseMessage response)
+        {
+            using (new AssertionScope())
+            {
+                response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+
+                ExpectedErrors expectedErrors = new ExpectedErrors();
+                expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.Unauthorized, "invalid_token");
+
+                string actualErrors = await response.Content.ReadAsStringAsync();
+
+                Assert_Json(GetJsonFromModel(expectedErrors), actualErrors);
             }
         }
     }

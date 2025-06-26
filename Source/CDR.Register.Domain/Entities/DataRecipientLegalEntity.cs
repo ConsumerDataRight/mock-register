@@ -4,6 +4,8 @@ namespace CDR.Register.Domain.Entities
 {
     public class DataRecipientLegalEntity
     {
+        private DateTime? _registrationDate;
+
         public Guid LegalEntityId { get; set; }
 
         public string LegalEntityName { get; set; }
@@ -18,11 +20,9 @@ namespace CDR.Register.Domain.Entities
 
         public string AccreditationLevelId { get; set; }
 
-        private DateTime? _registrationDate;
-
         public string RegistrationNumber { get; set; }
 
-        public DateTime? RegistrationDate { get => _registrationDate?.Date; set => _registrationDate = value; }
+        public DateTime? RegistrationDate { get => this._registrationDate?.Date; set => this._registrationDate = value; }
 
         public string RegisteredCountry { get; set; }
 

@@ -26,44 +26,44 @@ namespace CDR.Register.SSA.API.UnitTests
                                 .AddJsonFile("appsettings.json")
                                 .Build();
 
-            _configuration = configuration;
+            this._configuration = configuration;
 
             var services = new ServiceCollection();
 
-            services.AddSingleton<ICertificateService, CertificateService>(x => new CertificateService(_configuration));
+            services.AddSingleton<ICertificateService, CertificateService>(x => new CertificateService(this._configuration));
             services.AddSingleton<ITokenizerService, TokenizerService>();
 
-            _serviceProvider = services.BuildServiceProvider();
+            this._serviceProvider = services.BuildServiceProvider();
         }
 
         [Fact]
         public async Task GenerateJwtTokenAsync_Success()
         {
             // Arrange
-            var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
+            var tokenizerService = this._serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
             {
-                client_description = "Application to allow you to track your expenses",
-                client_name = "Track Xpense",
-                client_uri = "https://fintechx.io/products/trackxpense",
-                exp = 1619233821,
-                iat = 1619233221,
-                iss = "cdr-register",
-                jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
-                jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
-                logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
-                org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
-                org_name = "Finance X",
-                recipient_base_uri = "https://fintechx.io",
-                redirect_uris = new List<string>()
+                Client_description = "Application to allow you to track your expenses",
+                Client_name = "Track Xpense",
+                Client_uri = "https://fintechx.io/products/trackxpense",
+                Exp = 1619233821,
+                Iat = 1619233221,
+                Iss = "cdr-register",
+                Jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
+                Jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
+                Logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
+                Org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
+                Org_name = "Finance X",
+                Recipient_base_uri = "https://fintechx.io",
+                Redirect_uris = new List<string>()
                 {
-                    "https://fintechx.io/products/trackxpense/cb"
+                    "https://fintechx.io/products/trackxpense/cb",
                 },
-                revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
-                software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
-                software_roles = "data-recipient-software-product",
+                Revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
+                Scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                Software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+                Software_roles = "data-recipient-software-product",
             };
 
             // Generate the SSA JWT token
@@ -72,7 +72,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
+            var cert = new X509Certificate2(this._configuration["SigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
@@ -85,7 +85,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 ValidIssuer = "cdr-register",
                 ValidateIssuer = true,
                 ValidateLifetime = false,
-                ValidateAudience = false
+                ValidateAudience = false,
             };
 
             SecurityToken validatedToken;
@@ -103,30 +103,30 @@ namespace CDR.Register.SSA.API.UnitTests
         public async Task GenerateJwtTokenAsync_InvalidToken_Failure()
         {
             // Arrange
-            var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
+            var tokenizerService = this._serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
             {
-                client_description = "Application to allow you to track your expenses",
-                client_name = "Track Xpense",
-                client_uri = "https://fintechx.io/products/trackxpense",
-                exp = 1619233821,
-                iat = 1619233221,
-                iss = "cdr-register",
-                jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
-                jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
-                logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
-                org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
-                org_name = "Finance X",
-                recipient_base_uri = "https://fintechx.io",
-                redirect_uris = new List<string>()
+                Client_description = "Application to allow you to track your expenses",
+                Client_name = "Track Xpense",
+                Client_uri = "https://fintechx.io/products/trackxpense",
+                Exp = 1619233821,
+                Iat = 1619233221,
+                Iss = "cdr-register",
+                Jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
+                Jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
+                Logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
+                Org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
+                Org_name = "Finance X",
+                Recipient_base_uri = "https://fintechx.io",
+                Redirect_uris = new List<string>()
                 {
-                    "https://fintechx.io/products/trackxpense/cb"
+                    "https://fintechx.io/products/trackxpense/cb",
                 },
-                revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
-                software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
-                software_roles = "data-recipient-software-product",
+                Revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
+                Scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                Software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+                Software_roles = "data-recipient-software-product",
             };
 
             // Generate the SSA JWT token
@@ -138,7 +138,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(_configuration["SigningCertificatePublic:Path"]);
+            var cert = new X509Certificate2(this._configuration["SigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
@@ -151,7 +151,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 ValidIssuer = "cdr-register",
                 ValidateIssuer = true,
                 ValidateLifetime = false,
-                ValidateAudience = false
+                ValidateAudience = false,
             };
 
             try
@@ -174,30 +174,30 @@ namespace CDR.Register.SSA.API.UnitTests
         public async Task GenerateJwtTokenAsync_InvalidCertificate_Failure()
         {
             // Arrange
-            var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
+            var tokenizerService = this._serviceProvider.GetRequiredService<ITokenizerService>();
 
             var ssa = new SoftwareStatementAssertionModel
             {
-                client_description = "Application to allow you to track your expenses",
-                client_name = "Track Xpense",
-                client_uri = "https://fintechx.io/products/trackxpense",
-                exp = 1619233821,
-                iat = 1619233221,
-                iss = "cdr-register",
-                jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
-                jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
-                logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
-                org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
-                org_name = "Finance X",
-                recipient_base_uri = "https://fintechx.io",
-                redirect_uris = new List<string>()
+                Client_description = "Application to allow you to track your expenses",
+                Client_name = "Track Xpense",
+                Client_uri = "https://fintechx.io/products/trackxpense",
+                Exp = 1619233821,
+                Iat = 1619233221,
+                Iss = "cdr-register",
+                Jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
+                Jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
+                Logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
+                Org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
+                Org_name = "Finance X",
+                Recipient_base_uri = "https://fintechx.io",
+                Redirect_uris = new List<string>()
                 {
-                    "https://fintechx.io/products/trackxpense/cb"
+                    "https://fintechx.io/products/trackxpense/cb",
                 },
-                revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
-                software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
-                software_roles = "data-recipient-software-product",
+                Revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
+                Scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                Software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+                Software_roles = "data-recipient-software-product",
             };
 
             // Generate the SSA JWT token
@@ -206,7 +206,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(_configuration["InvalidSigningCertificatePublic:Path"]);
+            var cert = new X509Certificate2(this._configuration["InvalidSigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
@@ -219,7 +219,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 ValidIssuer = "cdr-register",
                 ValidateIssuer = true,
                 ValidateLifetime = false,
-                ValidateAudience = false
+                ValidateAudience = false,
             };
 
             try
@@ -242,29 +242,29 @@ namespace CDR.Register.SSA.API.UnitTests
         public async Task GenerateJwtTokenAsync_ValidateJwks_Success()
         {
             // Arrange.
-            var tokenizerService = _serviceProvider.GetRequiredService<ITokenizerService>();
+            var tokenizerService = this._serviceProvider.GetRequiredService<ITokenizerService>();
             var ssa = new SoftwareStatementAssertionModel
             {
-                client_description = "Application to allow you to track your expenses",
-                client_name = "Track Xpense",
-                client_uri = "https://fintechx.io/products/trackxpense",
-                exp = 1619233821,
-                iat = 1619233221,
-                iss = "cdr-register",
-                jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
-                jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
-                logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
-                org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
-                org_name = "Finance X",
-                recipient_base_uri = "https://fintechx.io",
-                redirect_uris = new List<string>()
+                Client_description = "Application to allow you to track your expenses",
+                Client_name = "Track Xpense",
+                Client_uri = "https://fintechx.io/products/trackxpense",
+                Exp = 1619233821,
+                Iat = 1619233221,
+                Iss = "cdr-register",
+                Jti = "cfa1cd02d7914be6b4d9c4d77c080ad7",
+                Jwks_uri = "https://fintechx.io/products/trackxpense/jwks",
+                Logo_uri = "https://fintechx.io/products/trackxpense/logo.png",
+                Org_id = "20c0864b-ceef-4de0-8944-eb0962f825eb",
+                Org_name = "Finance X",
+                Recipient_base_uri = "https://fintechx.io",
+                Redirect_uris = new List<string>()
                 {
-                    "https://fintechx.io/products/trackxpense/cb"
+                    "https://fintechx.io/products/trackxpense/cb",
                 },
-                revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
-                scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
-                software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
-                software_roles = "data-recipient-software-product",
+                Revocation_uri = "https://fintechx.io/products/trackxpense/revoke",
+                Scope = "openid profile common:customer.basic:read common:customer.detail:read bank:accounts.basic:read bank:accounts.detail:read bank:transactions:read bank:regular_payments:read bank:payees:read energy:accounts.basic:read energy:accounts.detail:read energy:accounts.concessions:read energy:accounts.paymentschedule:read energy:billing:read energy:electricity.servicepoints.basic:read energy:electricity.servicepoints.detail:read energy:electricity.der:read energy:electricity.usage:read cdr:registration",
+                Software_id = "9381dad2-6b68-4879-b496-c1319d7dfbc9",
+                Software_roles = "data-recipient-software-product",
             };
 
             // Generate the SSA JWT token
@@ -289,12 +289,12 @@ namespace CDR.Register.SSA.API.UnitTests
             // Set token validation parameters
             var validationParameters = new TokenValidationParameters()
             {
-                IssuerSigningKey = new JsonWebKey(jwks.keys[0].ToJson()),
+                IssuerSigningKey = new JsonWebKey(jwks.Keys[0].ToJson()),
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = "cdr-register",
                 ValidateIssuer = true,
                 ValidateLifetime = false,
-                ValidateAudience = false
+                ValidateAudience = false,
             };
             SecurityToken validatedToken;
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CDR.Register.Domain.ValueObjects;
 using CDR.Register.Repository.Entities;
+using CDR.Register.Repository.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -59,6 +60,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database.
         /// </summary>
+        /// <returns>representing the asynchronous operation.</returns>
         public static async Task SeedDatabaseFromJsonFile(
             this RegisterDatabaseContext registerDatabaseContext,
             string jsonFileFullPath,
@@ -78,6 +80,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// This is the initial database seed. If there are records in the database, this will not re-seed the database.
         /// </summary>
+        /// <returns>representing the asynchronous operation.</returns>
         public static async Task<bool> SeedDatabaseFromJson(
             this RegisterDatabaseContext registerDatabaseContext,
             string json,
@@ -106,6 +109,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Retrieves all participant metadata from the database, serialises to JSON and return as a string.
         /// </summary>
+        /// <returns>representing the asynchronous operation.</returns>
         public static async Task<string> GetJsonFromDatabase(
             this RegisterDatabaseContext registerDatabaseContext)
         {
@@ -135,6 +139,7 @@ namespace CDR.Register.Repository.Infrastructure
         /// <summary>
         /// Re-Seed the database from the input JSON data. All existing data in the database will be removed prior to creating the new data set.
         /// </summary>
+        /// <returns>representing the asynchronous operation.</returns>
         public static async Task<bool> ReSeedDatabaseFromJson(this RegisterDatabaseContext registerDatabaseContext, string json, ILogger logger)
         {
             using (var transaction = await registerDatabaseContext.Database.BeginTransactionAsync())
@@ -314,7 +319,7 @@ namespace CDR.Register.Repository.Infrastructure
                 Include(x => x.LegalEntity).
                 SingleOrDefaultAsync(p => (p.LegalEntityId == legalEntity.LegalEntityId || (p.Brands.Any(b => b.BrandId == brand.BrandId) && p.ParticipationTypeId == ParticipationTypes.Dr)));
 
-            var participationStatus = (ParticipationStatusType)Enum.Parse(typeof(Entities.ParticipationStatusType), dataRecipient.LegalEntity.Status, true);
+            var participationStatus = (ParticipationStatusType)Enum.Parse(typeof(ParticipationStatusType), dataRecipient.LegalEntity.Status, true);
 
             if (existingParticipant != null)
             {
@@ -335,7 +340,7 @@ namespace CDR.Register.Repository.Infrastructure
                 {
                     LegalEntityId = legalEntity.LegalEntityId,
                     ParticipationTypeId = ParticipationTypes.Dr,
-                    StatusId = participationStatus
+                    StatusId = participationStatus,
                 };
 
                 legalEntity.Participations ??= new List<Participation>();

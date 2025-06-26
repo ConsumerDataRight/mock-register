@@ -1,7 +1,7 @@
-﻿using CDR.Register.Repository.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Entities;
 
 namespace CDR.Register.Admin.API.Business.Model
 {

@@ -21,7 +21,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "RootCACertificatePath", rootCaPath }
+                { "RootCACertificatePath", rootCaPath },
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -47,7 +47,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "RootCACertificatePath", rootCaPath }
+                { "RootCACertificatePath", rootCaPath },
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -69,7 +69,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "RootCACertificatePath", rootCaPath }
+                { "RootCACertificatePath", rootCaPath },
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -91,7 +91,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "RootCACertificatePath", rootCaPath }
+                { "RootCACertificatePath", rootCaPath },
             };
 
             IConfiguration configuration = new ConfigurationBuilder()
@@ -115,7 +115,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
             var rootCaPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ca.pem");
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "RootCACertificatePath", rootCaPath }
+                { "RootCACertificatePath", rootCaPath },
             };
 
             IConfiguration configuration = new ConfigurationBuilder()

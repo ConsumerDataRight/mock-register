@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {

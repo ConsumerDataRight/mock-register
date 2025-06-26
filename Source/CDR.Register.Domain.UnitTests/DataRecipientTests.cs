@@ -10,10 +10,11 @@ namespace CDR.Register.Domain.UnitTests
         /// <summary>
         /// When the data recipient has no brands, the last updated date should be null.
         /// </summary>
+        /// <returns>empty list of data recipient brands.</returns>
         public static IEnumerable<object[]> GetEmptyDataRecipientBrands() => new List<object[]>
         {
             new object[] { Array.Empty<DataRecipientBrand>() },
-            new object[] { null }
+            new object[] { null },
         };
 
         [Theory]
@@ -23,7 +24,7 @@ namespace CDR.Register.Domain.UnitTests
             // Arrange
             var sut = new DataRecipient()
             {
-                DataRecipientBrands = brands
+                DataRecipientBrands = brands,
             };
 
             // Act
@@ -47,7 +48,7 @@ namespace CDR.Register.Domain.UnitTests
                 {
                     new DataRecipientBrand() { LastUpdated = latestLastUpdated.AddDays(-1) },
                     new DataRecipientBrand() { LastUpdated = latestLastUpdated },
-                }
+                },
             };
 
             // Act

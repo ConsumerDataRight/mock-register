@@ -1,9 +1,9 @@
-﻿using CDR.Register.API.Infrastructure;
+﻿using System.Security.Cryptography.X509Certificates;
+using CDR.Register.API.Infrastructure;
 using CDR.Register.Infosec.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography.X509Certificates;
 
 namespace CDR.Register.Infosec.Controllers
 {
@@ -16,15 +16,15 @@ namespace CDR.Register.Infosec.Controllers
         public DiscoveryController(
             IConfiguration configuration)
         {
-            _configuration = configuration;
+            this._configuration = configuration;
         }
 
         [HttpGet(Name = "GetOIDD")]
         [Route("openid-configuration")]
         public DiscoveryDocument Get()
         {
-            var baseUrl = _configuration.GetInfosecBaseUrl(HttpContext);
-            var secureBaseUrl = _configuration.GetInfosecBaseUrl(HttpContext, true);
+            var baseUrl = this._configuration.GetInfosecBaseUrl(this.HttpContext);
+            var secureBaseUrl = this._configuration.GetInfosecBaseUrl(this.HttpContext, true);
 
             return new DiscoveryDocument()
             {
@@ -48,7 +48,7 @@ namespace CDR.Register.Infosec.Controllers
         [Route("openid-configuration/jwks")]
         public API.Infrastructure.Models.JsonWebKeySet? GetJwks()
         {
-            var cert = new X509Certificate2(_configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, _configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert = new X509Certificate2(this._configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var cert64 = Convert.ToBase64String(cert.RawData);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var thumbprint = Base64Url.Encode(cert.GetCertHash());
@@ -62,21 +62,21 @@ namespace CDR.Register.Infosec.Controllers
 
                 var jwks = new API.Infrastructure.Models.JsonWebKeySet
                 {
-                    keys =
+                    Keys =
                     [
                         new API.Infrastructure.Models.JsonWebKey
                         {
-                            kty = "RSA",
-                            use = "sig",
-                            kid = signingCredentials.Kid,
-                            x5t = thumbprint,
-                            e = exponent,
-                            n = modulus,
-                            x5c = [cert64],
-                            alg = "PS256"
+                            Kty = "RSA",
+                            Use = "sig",
+                            Kid = signingCredentials.Kid,
+                            X5t = thumbprint,
+                            E = exponent,
+                            N = modulus,
+                            X5c = [cert64],
+                            Alg = "PS256",
                         }
 
-                    ]
+                    ],
                 };
                 return jwks;
             }

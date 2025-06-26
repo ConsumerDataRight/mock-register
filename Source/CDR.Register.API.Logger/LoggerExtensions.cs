@@ -1,7 +1,7 @@
-﻿namespace CDR.Register.API.Logger
-{
-    using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
+namespace CDR.Register.API.Logger
+{
     public static class LoggerExtensions
     {
         public static IServiceCollection AddRequestResponseLogging(this IServiceCollection services)

@@ -1,7 +1,8 @@
-﻿using CDR.Register.Repository.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
+using CDR.Register.Repository.Infrastructure;
 
 namespace CDR.Register.Repository.Entities
 {

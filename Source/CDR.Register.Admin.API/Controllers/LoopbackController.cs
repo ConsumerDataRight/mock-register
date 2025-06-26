@@ -1,14 +1,14 @@
-﻿using CDR.Register.API.Infrastructure.Filters;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using CDR.Register.API.Infrastructure.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 
 namespace CDR.Register.Admin.API.Controllers
 {
@@ -21,7 +21,7 @@ namespace CDR.Register.Admin.API.Controllers
 
         public LoopbackController(IConfiguration config)
         {
-            _config = config;
+            this._config = config;
         }
 
         /// <summary>
@@ -39,17 +39,17 @@ namespace CDR.Register.Admin.API.Controllers
             var kid = GenerateKid(rsaParams, out var e, out var n);
             var jwk = new CDR.Register.API.Infrastructure.Models.JsonWebKey()
             {
-                alg = "PS256",
-                kid = kid,
-                kty = "RSA",
-                n = n,
-                e = e,
-                key_ops = new string[] { "sign", "verify" }
+                Alg = "PS256",
+                Kid = kid,
+                Kty = "RSA",
+                N = n,
+                E = e,
+                Key_ops = ["sign", "verify"],
             };
 
             return new OkObjectResult(new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
             {
-                keys = new CDR.Register.API.Infrastructure.Models.JsonWebKey[] { jwk }
+                Keys = [jwk],
             });
         }
 
@@ -63,53 +63,45 @@ namespace CDR.Register.Admin.API.Controllers
         [HttpGet]
         [Route("MockDataRecipientClientAssertion")]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public IActionResult MockDataRecipientClientAssertion()
+        public IActionResult MockDataRecipientClientAssertion([FromQuery(Name = "iss")] string? iss = null, [FromQuery(Name = "aud")] string? aud = null)
         {
             var privateKeyRaw = System.IO.File.ReadAllText("Certificates/client.key");
             var privateKey = privateKeyRaw.Replace("-----BEGIN PRIVATE KEY-----", string.Empty).Replace("-----END PRIVATE KEY-----", string.Empty).Replace("\r\n", string.Empty).Trim();
             var privateKeyBytes = Convert.FromBase64String(privateKey);
 
-            string audience = _config.GetValue<string>("IdentityServerTokenUri") ?? "https://localhost:7001/idp/connect/token";
-            string softwareProductId = _config.GetValue<string>("LoopbackDefaultSoftwareProductId") ?? "6F7A1B8E-8799-48A8-9011-E3920391F713";
-            if (Request.Query.TryGetValue("iss", out var iss))
-            {
-                softwareProductId = iss.ToString();
-            }
+            string audience = this._config.GetValue<string>("IdentityServerTokenUri") ?? "https://localhost:7001/idp/connect/token";
+            string softwareProductId = this._config.GetValue<string>("LoopbackDefaultSoftwareProductId") ?? "6F7A1B8E-8799-48A8-9011-E3920391F713";
 
-            if (Request.Query.TryGetValue("aud", out var aud))
-            {
-                audience = aud.ToString();
-            }
+            softwareProductId = iss ?? softwareProductId;
+            audience = aud ?? audience;
 
-            using (var rsa = RSA.Create())
+            using var rsa = RSA.Create();
+            rsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
+            var kid = GenerateKid(rsa);
+            var privateSecurityKey = new RsaSecurityKey(rsa)
             {
-                rsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
-                var kid = GenerateKid(rsa);
-                var privateSecurityKey = new RsaSecurityKey(rsa)
+                KeyId = kid,
+                CryptoProviderFactory = new CryptoProviderFactory()
                 {
-                    KeyId = kid,
-                    CryptoProviderFactory = new CryptoProviderFactory()
-                    {
-                        CacheSignatureProviders = false
-                    }
-                };
+                    CacheSignatureProviders = false,
+                },
+            };
 
-                var descriptor = new SecurityTokenDescriptor
-                {
-                    Issuer = softwareProductId,
-                    Audience = audience,
-                    Expires = DateTime.UtcNow.AddMinutes(10),
-                    Subject = new ClaimsIdentity(new List<Claim> { new Claim("sub", softwareProductId) }),
-                    SigningCredentials = new SigningCredentials(privateSecurityKey, SecurityAlgorithms.RsaSsaPssSha256),
-                    NotBefore = null,
-                    IssuedAt = null,
-                    Claims = new Dictionary<string, object>()
-                };
-                descriptor.Claims.Add("jti", Guid.NewGuid().ToString());
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Issuer = softwareProductId,
+                Audience = audience,
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                Subject = new ClaimsIdentity(new List<Claim> { new Claim("sub", softwareProductId) }),
+                SigningCredentials = new SigningCredentials(privateSecurityKey, SecurityAlgorithms.RsaSsaPssSha256),
+                NotBefore = null,
+                IssuedAt = null,
+                Claims = new Dictionary<string, object>(),
+            };
+            descriptor.Claims.Add("jti", Guid.NewGuid().ToString());
 
-                var tokenHandler = new JsonWebTokenHandler();
-                return new OkObjectResult(tokenHandler.CreateToken(descriptor));
-            }
+            var tokenHandler = new JsonWebTokenHandler();
+            return new OkObjectResult(tokenHandler.CreateToken(descriptor));
         }
 
         /// <summary>
@@ -122,7 +114,7 @@ namespace CDR.Register.Admin.API.Controllers
         public IActionResult RegisterSelfSignedJwt(
             [FromQuery] string aud)
         {
-            var cert = new X509Certificate2(_config.GetValue<string>("SigningCertificate:Path") ?? string.Empty, _config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert = new X509Certificate2(this._config.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
             var descriptor = new SecurityTokenDescriptor
@@ -134,7 +126,7 @@ namespace CDR.Register.Admin.API.Controllers
                 SigningCredentials = signingCredentials,
                 NotBefore = null,
                 IssuedAt = DateTime.UtcNow,
-                Claims = new Dictionary<string, object>()
+                Claims = new Dictionary<string, object>(),
             };
             descriptor.Claims.Add("jti", Guid.NewGuid().ToString());
 
@@ -156,7 +148,7 @@ namespace CDR.Register.Admin.API.Controllers
             {
                 { "e", e },
                 { "kty", "RSA" },
-                { "n", n }
+                { "n", n },
             };
             var hash = SHA256.Create();
             var hashBytes = hash.ComputeHash(System.Text.Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(dict)));

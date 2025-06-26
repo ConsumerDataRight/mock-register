@@ -16,6 +16,6 @@ namespace CDR.Register.Domain.Entities
 
         public bool IsActive { get; set; }
 
-        public DateTime LastUpdated { get => DateTime.SpecifyKind(lastUpdated, DateTimeKind.Utc); set => lastUpdated = value; }
+        public DateTime LastUpdated { get => DateTime.SpecifyKind(this.lastUpdated, DateTimeKind.Utc); set => this.lastUpdated = value; }
     }
 }

@@ -1,16 +1,16 @@
-﻿using CDR.Register.IntegrationTests.Infrastructure;
-using CDR.Register.Repository.Entities;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.Infrastructure;
+using CDR.Register.Repository.Enums;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,230 +23,20 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     /// </summary>
     public class US27562_GetDataHolderBrands_MultiIndustry_Tests : BaseTest
     {
+        private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
+        private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
+
         public US27562_GetDataHolderBrands_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
             : base(outputHelper, testFixture)
         {
         }
 
+        private delegate void BeforeTestAC181920();
+
+        private delegate void AfterTestAC181920Request();
+
         // Participation/Brand/SoftwareProduct Ids
         private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup
-
-        private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
-        private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
-
-        private static string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize, string? industry = null)
-        {
-            static string Link(string baseUrl, DateTime? updatedSince, int? page = null, int? pageSize = null)
-            {
-                var query = new KeyValuePairBuilder();
-
-                if (updatedSince != null)
-                {
-                    query.Add("updated-since", ((DateTime)updatedSince).ToString("yyyy-MM-ddTHH\\%3Amm\\%3Ass.fffffffZ"));
-                }
-
-                if (page != null)
-                {
-                    query.Add("page", page.Value);
-                }
-
-                if (pageSize != null)
-                {
-                    query.Add("page-size", pageSize.Value);
-                }
-
-                return query.Count == 0 ?
-                    baseUrl :
-                    $"{baseUrl}?{query.Value}";
-            }
-
-            if (industry == "all")
-            {
-                industry = null; // treat "all" same as no industry
-            }
-
-            var page = requestedPage ?? 1;
-            var pageSize = requestedPageSize ?? 25;
-
-            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
-
-            var allData = dbContext.Brands.AsNoTracking()
-                .Include(brand => brand.Endpoint)
-                .Include(brand => brand.BrandStatus)
-                .Include(brand => brand.AuthDetails)
-                .ThenInclude(authDetail => authDetail.RegisterUType)
-                .Include(brand => brand.Participation.LegalEntity.OrganisationType)
-                .Include(brand => brand.Participation.Industry)
-                .Where(brand =>
-                    brand.Participation.ParticipationTypeId == ParticipationTypes.Dh &&
-                    (industry == null || (industry != null && brand.Participation.Industry.IndustryTypeCode == industry)))
-                .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
-                .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
-                .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
-
-            var totalRecords = allData.Count();
-            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-            const int MINPAGE = 1;
-            if (page < MINPAGE)
-            {
-                throw new Exception($"Page {page} out of range. Min Page is {MINPAGE}");
-            }
-
-            var maxPage = ((totalRecords - 1) / pageSize) + 1;
-            if (page > maxPage)
-            {
-                throw new Exception($"Page {page} out of range. Max Page is {maxPage} (Records={totalRecords}, PageSize={pageSize})");
-            }
-
-            var data = allData
-                .OrderBy(brand => brand.BrandName).ThenBy(brand => brand.BrandId)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(brand => new
-                {
-                    dataHolderBrandId = brand.BrandId,
-                    brandName = brand.BrandName,
-                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode.ToLower() },
-                    logoUri = brand.LogoUri,
-                    legalEntity = new
-                    {
-                        legalEntityId = brand.Participation.LegalEntity.LegalEntityId,
-                        legalEntityName = brand.Participation.LegalEntity.LegalEntityName,
-                        logoUri = brand.Participation.LegalEntity.LogoUri,
-                        registrationNumber = brand.Participation.LegalEntity.RegistrationNumber,
-                        registrationDate = brand.Participation.LegalEntity.RegistrationDate == null ? null : brand.Participation.LegalEntity.RegistrationDate.Value.ToString("yyyy-MM-dd"),
-                        registeredCountry = brand.Participation.LegalEntity.RegisteredCountry,
-                        abn = brand.Participation.LegalEntity.Abn,
-                        acn = brand.Participation.LegalEntity.Acn,
-                        arbn = brand.Participation.LegalEntity.Arbn,
-                        anzsicDivision = brand.Participation.LegalEntity.AnzsicDivision,
-                        organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode,
-                        status = brand.Participation.Status.ParticipationStatusCode.ToUpper()
-                    },
-                    status = brand.BrandStatus.BrandStatusCode,
-                    endpointDetail = new
-                    {
-                        version = brand.Endpoint.Version,
-                        publicBaseUri = brand.Endpoint.PublicBaseUri,
-                        resourceBaseUri = brand.Endpoint.ResourceBaseUri,
-                        infosecBaseUri = brand.Endpoint.InfosecBaseUri,
-                        extensionBaseUri = brand.Endpoint.ExtensionBaseUri,
-                        websiteUri = brand.Endpoint.WebsiteUri
-                    },
-                    authDetails = brand.AuthDetails.Select(authDetails => new
-                    {
-                        registerUType = authDetails.RegisterUType.RegisterUTypeCode,
-                        jwksEndpoint = authDetails.JwksEndpoint
-                    }),
-                    lastUpdated = brand.LastUpdated.ToString("yyyy-MM-ddTHH:mm:ssZ")
-                })
-                .ToList();
-
-            var expectedResponse = new
-            {
-                data,
-                links = new
-                {
-                    first = totalPages == 0 ?
-                        null :
-                        Link(baseUrl, updatedSince, 1, pageSize),
-                    last = totalPages == 0 ?
-                        null :
-                        Link(baseUrl, updatedSince, totalPages, pageSize),
-                    next = totalPages == 0 || page == totalPages ?
-                        null :
-                        Link(baseUrl, updatedSince, page + 1, pageSize),
-                    prev = totalPages == 0 || page == 1 ?
-                        null :
-                        Link(baseUrl, updatedSince, page - 1, pageSize),
-                    self = selfUrl,
-                },
-                meta = new
-                {
-                    totalRecords,
-                    totalPages
-                }
-            };
-
-            return JsonConvert.SerializeObject(expectedResponse);
-        }
-
-        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(
-            DateTime? updatedSince,
-            int? queryPage,
-            int? queryPageSize,
-            string? industry = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
-        {
-            static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
-            {
-                // Build query
-                var query = new KeyValuePairBuilder();
-
-                if (updatedSince != null)
-                {
-                    query.Add("updated-since", ((DateTime)updatedSince).ToString("yyyy-MM-ddTHH:mm:ssZ"));
-                }
-
-                if (queryPage != null)
-                {
-                    query.Add("page", queryPage.Value);
-                }
-
-                if (queryPageSize != null)
-                {
-                    query.Add("page-size", queryPageSize.Value);
-                }
-
-                return query.Count > 0 ?
-                    $"{baseUrl}?{query.Value}" :
-                    baseUrl;
-            }
-
-            // Arrange
-            var baseUrl = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands";
-            var url = GetUrl(baseUrl, updatedSince, queryPage, queryPageSize);
-
-            var expectedResponse = GetExpectedResponse(baseUrl, url, updatedSince, queryPage, queryPageSize, industry);
-
-            var accessToken = await new Infrastructure.AccessToken
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
-            }.GetAsync();
-
-            var api = new Infrastructure.Api
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = url,
-                AccessToken = accessToken,
-                XV = "2"
-            };
-
-            // Act
-            var response = await api.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(expectedStatusCode);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    // Assert - Check content type
-                    Assert_HasContentType_ApplicationJson(response.Content);
-
-                    // Assert - Check XV
-                    Assert_HasHeader(api.XV, response.Headers, "x-v");
-
-                    // Assert - Check json
-                    await Assert_HasContent_Json(expectedResponse, response.Content);
-                }
-            }
-        }
 
         [Theory]
         [InlineData(null, HttpStatusCode.NotFound)]
@@ -283,7 +73,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 Audience = ReplaceSecureHostName(tokenEndpoint, IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL),
                 TokenEndPoint = tokenEndpoint,
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             }.GetAsync(addCertificateToRequest: false);
 
             var api = new Infrastructure.Api
@@ -295,7 +85,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 AccessToken = accessToken,
                 XV = "2",
                 CertificateThumbprint = DEFAULT_CERTIFICATE_THUMBPRINT,
-                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME
+                CertificateCn = DEFAULT_CERTIFICATE_COMMON_NAME,
             };
 
             // Act
@@ -381,7 +171,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             var api = new Infrastructure.Api
@@ -391,7 +181,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands?updated-since={updatedSince}",
                 AccessToken = accessToken,
-                XV = "2"
+                XV = "2",
             };
 
             // Act
@@ -422,29 +212,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     }";
                     await Assert_HasContent_Json(expectedContent, response.Content);
                 }
-            }
-        }
-
-        private static async Task Test_AC09_AC10(string? accessToken, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
-        {
-            var api = new Infrastructure.Api
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
-                AccessToken = accessToken,
-                XV = "2"
-            };
-
-            // Act
-            var response = await api.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(expectedStatusCode);
             }
         }
 
@@ -486,7 +253,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "2"
+                XV = "2",
             };
 
             // Act
@@ -511,7 +278,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             var api = new Infrastructure.Api
@@ -521,7 +288,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "2"
+                XV = "2",
             };
 
             // Act
@@ -532,46 +299,6 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             {
                 // Assert - Check status code
                 response.StatusCode.Should().Be(expectedStatusCode);
-            }
-        }
-
-        private static async Task Test_AC13_AC14_AC15_AC16(string queryString, HttpStatusCode expectedStatusCode, string expectedContent, string? industry)
-        {
-            // Arrange
-            var accessToken = await new Infrastructure.AccessToken
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
-            }.GetAsync();
-
-            var api = new Infrastructure.Api
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands?{queryString}",
-                AccessToken = accessToken,
-                XV = "2"
-            };
-
-            // Act
-            var response = await api.SendAsync();
-
-            // Assert
-            using (new AssertionScope())
-            {
-                // Assert - Check status code
-                response.StatusCode.Should().Be(expectedStatusCode);
-
-                // Assert - Check error response
-                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
-                {
-                    // Assert - Check content type
-                    Assert_HasContentType_ApplicationJson(response.Content);
-
-                    // Assert - Check error response
-                    await Assert_HasContent_Json(expectedContent, response.Content);
-                }
             }
         }
 
@@ -598,9 +325,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("foo", HttpStatusCode.BadRequest, "telco")]
         public async Task AC13_Get_WithInvalidPageSize_ShouldRespondWith_400BadRequest_PageSizeMustBePositiveInteger(string pageSize, HttpStatusCode expectedStatusCode, string? industry)
         {
-            await Test_AC13_AC14_AC15_AC16(
-                $"page-size={pageSize}",
-                expectedStatusCode,
+            var expectedContent =
                 @"
                 {
                     ""errors"": [
@@ -610,7 +335,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""detail"": ""Page size not a positive Integer"",
                         }
                     ]
-                }",
+                }";
+            await Test_AC13_AC14_AC15_AC16(
+                $"page-size={pageSize}",
+                expectedStatusCode,
+                expectedContent,
                 industry);
         }
 
@@ -637,9 +366,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("foo", HttpStatusCode.BadRequest, "telco")]
         public async Task AC14_Get_WithInvalidPage_ShouldRespondWith_400BadRequest_PageMustBePositiveInteger(string page, HttpStatusCode expectedStatusCode, string? industry)
         {
-            await Test_AC13_AC14_AC15_AC16(
-                $"page={page}",
-                expectedStatusCode,
+            var expectedContent =
                 @"
                 {
                     ""errors"": [
@@ -649,7 +376,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""detail"": ""Page not a positive integer"",
                         }
                     ]
-                }",
+                }";
+            await Test_AC13_AC14_AC15_AC16(
+                $"page={page}",
+                expectedStatusCode,
+                expectedContent,
                 industry);
         }
 
@@ -660,9 +391,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("3", "telco")]
         public async Task AC15_Get_WithPageOutOfRange_ShouldRespondWith_400BadRequest_PageExceedsMaxNumberOfPages(string page, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC13_AC14_AC15_AC16(
-                $"page={page}",
-                expectedStatusCode,
+            var expectedContent =
                 @"
                 {
                     ""errors"": [
@@ -672,7 +401,11 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""detail"": ""Page is out of range"",
                         }
                     ]
-                }",
+                }";
+            await Test_AC13_AC14_AC15_AC16(
+                $"page={page}",
+                expectedStatusCode,
+                expectedContent,
                 industry);
         }
 
@@ -683,9 +416,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("1001", "telco")]
         public async Task AC16_Get_WithPageSizeTooLarge_ShouldRespondWith_400BadRequest_PageSizeTooLarge(string pageSize, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest)
         {
-            await Test_AC13_AC14_AC15_AC16(
-                $"page-size={pageSize}",
-                expectedStatusCode,
+            var expectedContent =
                 @"
                 {
                     ""errors"": [
@@ -695,73 +426,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                         ""detail"": ""Page size too large"",
                         }
                     ]
-                }",
+                }";
+            await Test_AC13_AC14_AC15_AC16(
+                $"page-size={pageSize}",
+                expectedStatusCode,
+                expectedContent,
                 industry);
-        }
-
-        private delegate void BeforeTestAC181920();
-
-        private delegate void AfterTestAC181920Request();
-
-        private static async Task Test_AC17_AC18_AC19(
-           HttpStatusCode expectedStatusCode,
-           BeforeTestAC181920? beforeRequest,
-           AfterTestAC181920Request? afterRequest,
-           string? industry)
-        {
-            var accessToken = await new Infrastructure.AccessToken
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
-            }.GetAsync();
-
-            var api = new Infrastructure.Api
-            {
-                CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD,
-                HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
-                AccessToken = accessToken,
-                XV = "2"
-            };
-
-            beforeRequest?.Invoke();
-            try
-            {
-                // Act
-                var response = await api.SendAsync();
-
-                // Assert
-                using (new AssertionScope())
-                {
-                    // Assert - Check status code
-                    response.StatusCode.Should().Be(expectedStatusCode);
-
-                    // Assert - Check error response
-                    if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
-                    {
-                        // Assert - Check content type
-                        Assert_HasContentType_ApplicationJson(response.Content);
-
-                        // Assert - Check error response
-                        var expectedContent = @"
-                            {
-                                ""errors"": [
-                                    {
-                                    ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
-                                    ""title"": ""ADR Status Is Not Active"",
-                                    ""detail"": """",
-                                    }
-                                ]
-                            }";
-                        await Assert_HasContent_Json(expectedContent, response.Content);
-                    }
-                }
-            }
-            finally
-            {
-                afterRequest?.Invoke();
-            }
         }
 
         [Theory]
@@ -864,7 +534,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             // Arrange - Get brands and save the ETag
@@ -910,7 +580,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             var accessToken = await new Infrastructure.AccessToken
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
-                CertificatePassword = CERTIFICATE_PASSWORD
+                CertificatePassword = CERTIFICATE_PASSWORD,
             }.GetAsync();
 
             var api = new Infrastructure.Api
@@ -920,7 +590,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 HttpMethod = HttpMethod.Get,
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
-                XV = "2"
+                XV = "2",
             };
 
             // Act
@@ -966,7 +636,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
             {
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
-                Scope = scope
+                Scope = scope,
             }.GetAsync();
 
             var api = new Infrastructure.Api
@@ -991,33 +661,33 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")]                                         // Valid. Should return v2 - x-min-v is ignored when > x-v
-        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")]                                         // Valid. Should return v2 - x-v is supported and higher than x-min-v
-        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")]                                         // Valid. Should return v2 - x-v is supported equal to x-min-v
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")]                                         // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
-        [InlineData("2", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v is supported but x-min-v (not a positive integer)
-        [InlineData("99", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v is not supported and x-min-v (not a positive integer)
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]                 // Unsupported. Both x-v and x-min-v exceed supported version of 2
-        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]                 // Unsupported. x-v is an obsolete version
-        [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
-        [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
-        [InlineData("foo", "2", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v is invalid with valid x-min-v
-        [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)]             // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)]                 // Unsupported. x-v is higher than supported version of 2
-        [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]                 // Invalid. x-v header is an empty string
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)]                 // Invalid. x-v header is missing
+        [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-min-v is ignored when > x-v
+        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported equal to x-min-v
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
+        [InlineData("2", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v (not a positive integer)
+        [InlineData("99", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v (not a positive integer)
+        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
+        [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
+        [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
+        [InlineData("foo", "2", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
+        [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
+        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
+        [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
         // Also check industry specific calls
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "banking")]                              // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "energy")]                               // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "telco")]                                // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "banking")]  // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "energy")]   // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "telco")]    // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "banking")]       // Invalid. x-v header is missing
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "energy")]        // Invalid. x-v header is missing
-        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "telco")]         // Invalid. x-v header is missing
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "banking")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "energy")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "telco")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
+        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "banking")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "energy")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "telco")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "banking")] // Invalid. x-v header is missing
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "energy")] // Invalid. x-v header is missing
+        [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "telco")] // Invalid. x-v header is missing
 
         public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError, string industry = "all")
         {
@@ -1036,7 +706,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
                 AccessToken = accessToken,
                 XV = xv,
-                XMinV = minXv
+                XMinV = minXv,
             };
 
             // Act
@@ -1061,6 +731,344 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                     // Assert - Check error response
                     await Assert_HasContent_Json(expecetdError, response.Content);
                 }
+            }
+        }
+
+        private static async Task Test_AC01_AC02_AC03_AC04_AC05_AC06(
+            DateTime? updatedSince,
+            int? queryPage,
+            int? queryPageSize,
+            string? industry = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        {
+            static string GetUrl(string baseUrl, DateTime? updatedSince, int? queryPage, int? queryPageSize)
+            {
+                // Build query
+                var query = new KeyValuePairBuilder();
+
+                if (updatedSince != null)
+                {
+                    query.Add("updated-since", ((DateTime)updatedSince).ToString("yyyy-MM-ddTHH:mm:ssZ"));
+                }
+
+                if (queryPage != null)
+                {
+                    query.Add("page", queryPage.Value);
+                }
+
+                if (queryPageSize != null)
+                {
+                    query.Add("page-size", queryPageSize.Value);
+                }
+
+                return query.Count > 0 ?
+                    $"{baseUrl}?{query.Value}" :
+                    baseUrl;
+            }
+
+            // Arrange
+            var baseUrl = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands";
+            var url = GetUrl(baseUrl, updatedSince, queryPage, queryPageSize);
+
+            var expectedResponse = GetExpectedResponse(baseUrl, url, updatedSince, queryPage, queryPageSize, industry);
+
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.Api
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = url,
+                AccessToken = accessToken,
+                XV = "2",
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(expectedStatusCode);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    // Assert - Check content type
+                    Assert_HasContentType_ApplicationJson(response.Content);
+
+                    // Assert - Check XV
+                    Assert_HasHeader(api.XV, response.Headers, "x-v");
+
+                    // Assert - Check json
+                    await Assert_HasContent_Json(expectedResponse, response.Content);
+                }
+            }
+        }
+
+        private static string GetExpectedResponse(string baseUrl, string selfUrl, DateTime? updatedSince, int? requestedPage, int? requestedPageSize, string? industry = null)
+        {
+            static string Link(string baseUrl, DateTime? updatedSince, int? page = null, int? pageSize = null)
+            {
+                var query = new KeyValuePairBuilder();
+
+                if (updatedSince != null)
+                {
+                    query.Add("updated-since", ((DateTime)updatedSince).ToString("yyyy-MM-ddTHH\\%3Amm\\%3Ass.fffffffZ"));
+                }
+
+                if (page != null)
+                {
+                    query.Add("page", page.Value);
+                }
+
+                if (pageSize != null)
+                {
+                    query.Add("page-size", pageSize.Value);
+                }
+
+                return query.Count == 0 ?
+                    baseUrl :
+                    $"{baseUrl}?{query.Value}";
+            }
+
+            if (industry == "all")
+            {
+                industry = null; // treat "all" same as no industry
+            }
+
+            var page = requestedPage ?? 1;
+            var pageSize = requestedPageSize ?? 25;
+
+            using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
+
+            var allData = dbContext.Brands.AsNoTracking()
+                .Include(brand => brand.Endpoint)
+                .Include(brand => brand.BrandStatus)
+                .Include(brand => brand.AuthDetails)
+                .ThenInclude(authDetail => authDetail.RegisterUType)
+                .Include(brand => brand.Participation.LegalEntity.OrganisationType)
+                .Include(brand => brand.Participation.Industry)
+                .Where(brand =>
+                    brand.Participation.ParticipationTypeId == ParticipationTypes.Dh &&
+                    (industry == null || (industry != null && brand.Participation.Industry.IndustryTypeCode == industry)))
+                .Where(brand => brand.Participation.StatusId == ParticipationStatusType.Active)
+                .Where(brand => brand.BrandStatusId == BrandStatusType.Active)
+                .Where(brand => updatedSince == null || brand.LastUpdated > updatedSince);
+
+            var totalRecords = allData.Count();
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            const int MINPAGE = 1;
+            if (page < MINPAGE)
+            {
+                throw new Exception($"Page {page} out of range. Min Page is {MINPAGE}");
+            }
+
+            var maxPage = ((totalRecords - 1) / pageSize) + 1;
+            if (page > maxPage)
+            {
+                throw new Exception($"Page {page} out of range. Max Page is {maxPage} (Records={totalRecords}, PageSize={pageSize})");
+            }
+
+            var data = allData
+                .OrderBy(brand => brand.BrandName).ThenBy(brand => brand.BrandId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(brand => new
+                {
+                    dataHolderBrandId = brand.BrandId,
+                    brandName = brand.BrandName,
+                    industries = new string[] { brand.Participation.Industry.IndustryTypeCode.ToLower() },
+                    logoUri = brand.LogoUri,
+                    legalEntity = new
+                    {
+                        legalEntityId = brand.Participation.LegalEntity.LegalEntityId,
+                        legalEntityName = brand.Participation.LegalEntity.LegalEntityName,
+                        logoUri = brand.Participation.LegalEntity.LogoUri,
+                        registrationNumber = brand.Participation.LegalEntity.RegistrationNumber,
+                        registrationDate = brand.Participation.LegalEntity.RegistrationDate == null ? null : brand.Participation.LegalEntity.RegistrationDate.Value.ToString("yyyy-MM-dd"),
+                        registeredCountry = brand.Participation.LegalEntity.RegisteredCountry,
+                        abn = brand.Participation.LegalEntity.Abn,
+                        acn = brand.Participation.LegalEntity.Acn,
+                        arbn = brand.Participation.LegalEntity.Arbn,
+                        anzsicDivision = brand.Participation.LegalEntity.AnzsicDivision,
+                        organisationType = brand.Participation.LegalEntity.OrganisationType.OrganisationTypeCode,
+                        status = brand.Participation.Status.ParticipationStatusCode.ToUpper(),
+                    },
+                    status = brand.BrandStatus.BrandStatusCode,
+                    endpointDetail = new
+                    {
+                        version = brand.Endpoint.Version,
+                        publicBaseUri = brand.Endpoint.PublicBaseUri,
+                        resourceBaseUri = brand.Endpoint.ResourceBaseUri,
+                        infosecBaseUri = brand.Endpoint.InfosecBaseUri,
+                        extensionBaseUri = brand.Endpoint.ExtensionBaseUri,
+                        websiteUri = brand.Endpoint.WebsiteUri,
+                    },
+                    authDetails = brand.AuthDetails.Select(authDetails => new
+                    {
+                        registerUType = authDetails.RegisterUType.RegisterUTypeCode,
+                        jwksEndpoint = authDetails.JwksEndpoint,
+                    }),
+                    lastUpdated = brand.LastUpdated.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                })
+                .ToList();
+
+            var expectedResponse = new
+            {
+                data,
+                links = new
+                {
+                    first = totalPages == 0 ?
+                        null :
+                        Link(baseUrl, updatedSince, 1, pageSize),
+                    last = totalPages == 0 ?
+                        null :
+                        Link(baseUrl, updatedSince, totalPages, pageSize),
+                    next = totalPages == 0 || page == totalPages ?
+                        null :
+                        Link(baseUrl, updatedSince, page + 1, pageSize),
+                    prev = totalPages == 0 || page == 1 ?
+                        null :
+                        Link(baseUrl, updatedSince, page - 1, pageSize),
+                    self = selfUrl,
+                },
+                meta = new
+                {
+                    totalRecords,
+                    totalPages,
+                },
+            };
+
+            return JsonConvert.SerializeObject(expectedResponse);
+        }
+
+        private static async Task Test_AC09_AC10(string? accessToken, string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized)
+        {
+            var api = new Infrastructure.Api
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
+                AccessToken = accessToken,
+                XV = "2",
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(expectedStatusCode);
+            }
+        }
+
+        private static async Task Test_AC13_AC14_AC15_AC16(string queryString, HttpStatusCode expectedStatusCode, string expectedContent, string? industry)
+        {
+            // Arrange
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.Api
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands?{queryString}",
+                AccessToken = accessToken,
+                XV = "2",
+            };
+
+            // Act
+            var response = await api.SendAsync();
+
+            // Assert
+            using (new AssertionScope())
+            {
+                // Assert - Check status code
+                response.StatusCode.Should().Be(expectedStatusCode);
+
+                // Assert - Check error response
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
+                {
+                    // Assert - Check content type
+                    Assert_HasContentType_ApplicationJson(response.Content);
+
+                    // Assert - Check error response
+                    await Assert_HasContent_Json(expectedContent, response.Content);
+                }
+            }
+        }
+
+        private static async Task Test_AC17_AC18_AC19(
+           HttpStatusCode expectedStatusCode,
+           BeforeTestAC181920? beforeRequest,
+           AfterTestAC181920Request? afterRequest,
+           string? industry)
+        {
+            var accessToken = await new Infrastructure.AccessToken
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+            }.GetAsync();
+
+            var api = new Infrastructure.Api
+            {
+                CertificateFilename = CERTIFICATE_FILENAME,
+                CertificatePassword = CERTIFICATE_PASSWORD,
+                HttpMethod = HttpMethod.Get,
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-holders/brands",
+                AccessToken = accessToken,
+                XV = "2",
+            };
+
+            beforeRequest?.Invoke();
+            try
+            {
+                // Act
+                var response = await api.SendAsync();
+
+                // Assert
+                using (new AssertionScope())
+                {
+                    // Assert - Check status code
+                    response.StatusCode.Should().Be(expectedStatusCode);
+
+                    // Assert - Check error response
+                    if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NotFound)
+                    {
+                        // Assert - Check content type
+                        Assert_HasContentType_ApplicationJson(response.Content);
+
+                        // Assert - Check error response
+                        var expectedContent = @"
+                            {
+                                ""errors"": [
+                                    {
+                                    ""code"": ""urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive"",
+                                    ""title"": ""ADR Status Is Not Active"",
+                                    ""detail"": """",
+                                    }
+                                ]
+                            }";
+                        await Assert_HasContent_Json(expectedContent, response.Content);
+                    }
+                }
+            }
+            finally
+            {
+                afterRequest?.Invoke();
             }
         }
     }

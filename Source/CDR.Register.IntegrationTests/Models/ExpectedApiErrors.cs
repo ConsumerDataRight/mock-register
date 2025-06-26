@@ -16,7 +16,7 @@ namespace CDR.Register.IntegrationTests.Models
         [JsonProperty("meta")]
         public MetaData Meta { get; set; }
 
-        public class MetaData
+        public partial class MetaData
         {
             // This is to get a empty JSON object
         }

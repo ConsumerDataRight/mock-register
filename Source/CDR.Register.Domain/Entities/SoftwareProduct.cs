@@ -27,7 +27,7 @@ namespace CDR.Register.Domain.Entities
 
         public string RedirectUri { get; set; }
 
-        public IEnumerable<string> RedirectUris => RedirectUri?.Split(" ");
+        public IEnumerable<string> RedirectUris => this.RedirectUri?.Split(" ");
 
         public string JwksUri { get; set; }
 

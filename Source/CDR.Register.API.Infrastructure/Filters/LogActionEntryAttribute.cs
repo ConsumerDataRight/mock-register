@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
-using System;
 
 namespace CDR.Register.API.Infrastructure.Filters
 {
@@ -12,7 +12,7 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         public LogActionEntryAttribute(ILogger<LogActionEntryAttribute> logger)
         {
-            _logger = logger;
+            this._logger = logger;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -21,7 +21,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             var action = context.RouteData.Values["action"]?.ToString();
             using (LogContext.PushProperty("MethodName", action))
             {
-                _logger.LogInformation("Request received to {Controller}.{Action}", controller, action);
+                this._logger.LogInformation("Request received to {Controller}.{Action}", controller, action);
             }
 
             base.OnActionExecuting(context);

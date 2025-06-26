@@ -30,10 +30,10 @@ namespace CDR.Register.SSA.API.UnitTests
                                     { "EnableServerCertificateValidation", "True" },
                                 })
                                 .Build();
-            _configuration = configuration;
+            this._configuration = configuration;
 
-            _handler = new HttpClientHandler();
-            _handler.SetServerCertificateValidation(_configuration);
+            this._handler = new HttpClientHandler();
+            this._handler.SetServerCertificateValidation(this._configuration);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 certPassword))
             {
                 mockEndpoint.Start();
-                var client = new HttpClient(_handler);
+                var client = new HttpClient(this._handler);
                 if (expected)
                 {
                     var result = await client.GetAsync("https://localhost:9990");
@@ -68,60 +68,59 @@ namespace CDR.Register.SSA.API.UnitTests
 
         public partial class MockEndpoint : IAsyncDisposable
         {
+            private IWebHost? _host;
+            private bool _disposed;
+
             public MockEndpoint(string url, string certificatePath, string certificatePassword)
             {
-                Url = url;
-                CertificatePath = certificatePath;
-                CertificatePassword = certificatePassword;
+                this.Url = url;
+                this.CertificatePath = certificatePath;
+                this.CertificatePassword = certificatePassword;
             }
 
             public string Url { get; init; }
-
-            private int UrlPort => new Uri(Url).Port;
 
             public string CertificatePath { get; init; }
 
             public string CertificatePassword { get; init; }
 
-            private IWebHost? _host;
+            private int UrlPort => new Uri(this.Url).Port;
 
             public void Start()
             {
-                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(Start), nameof(MockEndpoint));
+                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(this.Start), nameof(MockEndpoint));
 
-                _host = new WebHostBuilder()
+                this._host = new WebHostBuilder()
                     .UseKestrel(opts =>
                     {
                         opts.ListenAnyIP(
-                            UrlPort,
-                            opts => opts.UseHttps(new X509Certificate2(CertificatePath, CertificatePassword, X509KeyStorageFlags.Exportable)));
+                            this.UrlPort,
+                            opts => opts.UseHttps(new X509Certificate2(this.CertificatePath, this.CertificatePassword, X509KeyStorageFlags.Exportable)));
                     })
                    .UseStartup(typeof(MockEndpointStartup))
                    .Build();
 
-                _host.RunAsync();
+                this._host.RunAsync();
             }
 
             public async Task Stop()
             {
-                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(Stop), nameof(MockEndpoint));
+                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(this.Stop), nameof(MockEndpoint));
 
-                if (_host != null)
+                if (this._host != null)
                 {
-                    await _host.StopAsync();
+                    await this._host.StopAsync();
                 }
             }
 
-            private bool _disposed;
-
             public async ValueTask DisposeAsync()
             {
-                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(DisposeAsync), nameof(MockEndpoint));
+                Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(this.DisposeAsync), nameof(MockEndpoint));
 
-                if (!_disposed)
+                if (!this._disposed)
                 {
-                    await Stop();
-                    _disposed = true;
+                    await this.Stop();
+                    this._disposed = true;
                 }
 
                 GC.SuppressFinalize(this);

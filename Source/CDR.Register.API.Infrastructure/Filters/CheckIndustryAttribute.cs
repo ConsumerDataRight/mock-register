@@ -1,8 +1,8 @@
-﻿using CDR.Register.Domain.Models;
+﻿using System;
+using CDR.Register.Domain.Models;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 
 namespace CDR.Register.API.Infrastructure.Filters
 {
@@ -16,17 +16,17 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         public CheckIndustryAttribute()
         {
-            _industryRestriction = string.Empty;
+            this._industryRestriction = string.Empty;
         }
 
         public CheckIndustryAttribute(Industry industryRestriction)
         {
-            _industryRestriction = industryRestriction.ToString().ToUpper();
+            this._industryRestriction = industryRestriction.ToString().ToUpper();
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.ActionArguments["industry"] is string industry && !IsValidIndustry(industry))
+            if (context.ActionArguments["industry"] is string industry && !this.IsValidIndustry(industry))
             {
                 context.Result = new BadRequestObjectResult(new ResponseErrorList().AddInvalidIndustry());
             }
@@ -49,7 +49,7 @@ namespace CDR.Register.API.Infrastructure.Filters
             }
 
             // Check that the incoming industry matches the industry restriction, if set.
-            if (!string.IsNullOrEmpty(_industryRestriction) && !string.Equals(_industryRestriction, industryItem.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            if (!string.IsNullOrEmpty(this._industryRestriction) && !string.Equals(this._industryRestriction, industryItem.ToString(), StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }

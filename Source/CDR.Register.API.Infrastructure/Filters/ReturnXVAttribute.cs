@@ -13,13 +13,13 @@ namespace CDR.Register.API.Infrastructure.Filters
 
         public ReturnXVAttribute(string version)
         {
-            _version = version;
+            this._version = version;
         }
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
             // Set version (x-v) we are responding with in the response header to the parsed in version
-            context.HttpContext.Response.Headers[Constants.Headers.X_V] = _version;
+            context.HttpContext.Response.Headers[Constants.Headers.X_V] = this._version;
 
             base.OnActionExecuted(context);
         }

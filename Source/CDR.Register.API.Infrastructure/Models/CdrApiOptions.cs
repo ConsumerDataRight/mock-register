@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace CDR.Register.API.Infrastructure.Models
 {
@@ -30,7 +30,7 @@ namespace CDR.Register.API.Infrastructure.Models
 
         public CdrApiEndpointVersionOptions? GetApiEndpointVersionOption(PathString path)
         {
-            foreach (var supportedApi in EndpointVersionOptions.OrderByDescending(v => v.Path.Length))
+            foreach (var supportedApi in this.EndpointVersionOptions.OrderByDescending(v => v.Path.Length))
             {
                 var regEx = new System.Text.RegularExpressions.Regex(supportedApi.Path);
                 if (regEx.IsMatch(path))

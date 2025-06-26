@@ -5,6 +5,6 @@
         ALL = 0,
         BANKING,
         ENERGY,
-        TELCO
+        TELCO,
     }
 }

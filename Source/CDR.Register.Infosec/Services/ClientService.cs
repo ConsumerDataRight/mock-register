@@ -10,7 +10,7 @@ namespace CDR.Register.Infosec.Services
 
         public ClientService(IRegisterInfosecRepository infosecRepository)
         {
-            _infosecRepository = infosecRepository;
+            this._infosecRepository = infosecRepository;
         }
 
         public async Task<SoftwareProductInfosec?> GetClientAsync(string? clientId)
@@ -25,7 +25,7 @@ namespace CDR.Register.Infosec.Services
                 return null;
             }
 
-            var softwareProduct = await _infosecRepository.GetSoftwareProductAsync(softwareProductId);
+            var softwareProduct = await this._infosecRepository.GetSoftwareProductAsync(softwareProductId);
             return softwareProduct;
         }
     }

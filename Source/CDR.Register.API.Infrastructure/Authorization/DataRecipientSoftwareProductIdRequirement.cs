@@ -5,11 +5,11 @@ namespace CDR.Register.API.Infrastructure.Authorization
 {
     public class DataRecipientSoftwareProductIdRequirement : IAuthorizationRequirement
     {
-        public string Issuer { get; }
-
         public DataRecipientSoftwareProductIdRequirement(string issuer)
         {
-            Issuer = issuer ?? throw new ArgumentNullException(nameof(issuer));
+            this.Issuer = issuer ?? throw new ArgumentNullException(nameof(issuer));
         }
+
+        public string Issuer { get; }
     }
 }

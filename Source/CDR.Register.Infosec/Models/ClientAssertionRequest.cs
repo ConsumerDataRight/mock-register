@@ -1,19 +1,22 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace CDR.Register.Infosec.Models
 {
     public class ClientAssertionRequest
     {
-        public string? grant_type { get; set; }
+        [JsonPropertyName("grant_type")]
+        public string? Grant_type { get; set; }
 
-        public string? client_id { get; set; }
+        [JsonPropertyName("client_id")]
+        public string? Client_id { get; set; }
 
-        public string? client_assertion_type { get; set; }
+        [JsonPropertyName("client_assertion_type")]
+        public string? Client_assertion_type { get; set; }
 
-        [JsonProperty(nameof(client_assertion))]
-        public string? client_assertion { get; set; }
+        [JsonPropertyName("client_assertion")]
+        public string? Client_assertion { get; set; }
 
-        [JsonProperty(nameof(scope))]
-        public string? scope { get; set; }
+        [JsonPropertyName("scope")]
+        public string? Scope { get; set; }
     }
 }

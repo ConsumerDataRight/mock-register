@@ -26,7 +26,7 @@ namespace CDR.Register.Repository
                                                      .Include(x => x.Certificates)
                                                      .FirstOrDefaultAsync(x => x.SoftwareProductId == id);
 
-            return _mapper.Map(softwareProduct);
+            return this._mapper.Map(softwareProduct);
         }
     }
 }

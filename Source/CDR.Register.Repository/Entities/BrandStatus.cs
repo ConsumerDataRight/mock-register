@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -10,13 +11,5 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(25)]
         [Required]
         public string BrandStatusCode { get; set; }
-    }
-
-    public enum BrandStatusType
-    {
-        Unknown = 0,
-        Active = 1,
-        Inactive = 2,
-        Removed = 3
     }
 }

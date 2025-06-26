@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CDR.Register.Repository.Enums;
 
 namespace CDR.Register.Repository.Entities
 {
@@ -10,12 +11,5 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(100)]
         [Required]
         public string AccreditationLevelCode { get; set; }
-    }
-
-    public enum AccreditationLevelType
-    {
-        // Sponsored by Default
-        Sponsored = 0,
-        Unrestricted = 1
     }
 }

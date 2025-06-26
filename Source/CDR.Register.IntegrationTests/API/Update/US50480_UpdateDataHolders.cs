@@ -1,4 +1,12 @@
-﻿using CDR.Register.IntegrationTests.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.IntegrationTests.Models;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;
@@ -8,14 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,19 +23,19 @@ namespace CDR.Register.IntegrationTests.API.Update
 {
     public class US50480_UpdateDataHolders : BaseTest
     {
+        private const string UPDATE_DATA_HOLDER_CURRENT_API_VERSION = "1";
+
+        private const string TEST_DATA_BASE_URI = "https://TestAumationLogoUri.gov.au";
+
         public US50480_UpdateDataHolders(ITestOutputHelper outputHelper, TestFixture testFixture)
             : base(outputHelper, testFixture)
         {
         }
 
-        private const string UPDATE_DATA_HOLDER_CURRENT_API_VERSION = "1";
-
-        private const string TEST_DATA_BASE_URI = "https://TestAumationLogoUri.gov.au";
-
         public enum Industry
         {
             Banking,
-            Energy
+            Energy,
         }
 
         [Theory]
@@ -188,7 +188,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new ();
+            ExpectedErrors expectedErrors = new();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.MissingHeader, "An API version x-v header is required, but was not specified.");
 
             // Assert Response
@@ -205,7 +205,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new ();
+            ExpectedErrors expectedErrors = new();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.InvalidVersion, "Version is not a positive Integer.");
 
             // Assert Response
@@ -221,7 +221,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
 
-            ExpectedErrors expectedErrors = new ();
+            ExpectedErrors expectedErrors = new();
             expectedErrors.AddExpectedError(ExpectedErrors.ErrorType.UnsupportedVersion, "Requested version is lower than the minimum version or greater than maximum version.");
 
             // Assert Response
@@ -705,13 +705,13 @@ namespace CDR.Register.IntegrationTests.API.Update
                                 resourceBaseUri = brand.Endpoint.ResourceBaseUri,
                                 infosecBaseUri = brand.Endpoint.InfosecBaseUri,
                                 extensionBaseUri = brand.Endpoint.ExtensionBaseUri,
-                                websiteUri = brand.Endpoint.WebsiteUri
+                                websiteUri = brand.Endpoint.WebsiteUri,
                             },
                             authDetails = new
                             {
                                 registerUType = brand.AuthDetails.First().RegisterUType.RegisterUTypeCode,
-                                jwksEndpoint = brand.AuthDetails.First().JwksEndpoint
-                            }
+                                jwksEndpoint = brand.AuthDetails.First().JwksEndpoint,
+                            },
                         }));
 
                 return JsonConvert.SerializeObject(expectedDataHolder.First().First(), Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
@@ -730,7 +730,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                 new KeyValuePair<string, string>("client_id", AZURE_AD_CLIENT_ID),
                 new KeyValuePair<string, string>("scope", AZURE_AD_SCOPE),
                 new KeyValuePair<string, string>("client_secret", AZURE_AD_CLIENT_SECRET),
-                new KeyValuePair<string, string>("grant_type", AZURE_AD_GRANT_TYPE)
+                new KeyValuePair<string, string>("grant_type", AZURE_AD_GRANT_TYPE),
             });
 
             var response = await client.PostAsync(AZURE_AD_TOKEN_ENDPOINT_URL, content);
@@ -741,7 +741,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
 
             var tokenResnse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
-            return tokenResnse.access_token;
+            return tokenResnse.Access_token;
         }
 
         private static async Task<string> GetInvalidAzureAdAccessToken()
@@ -752,7 +752,7 @@ namespace CDR.Register.IntegrationTests.API.Update
                 new KeyValuePair<string, string>("client_id", AZURE_AD_UNAUTHORISED_CLIENT_ID),
                 new KeyValuePair<string, string>("client_secret", AZURE_AD_UNAUTHORISED_CLIENT_SECRET),
                 new KeyValuePair<string, string>("scope", AZURE_AD_SCOPE),
-                new KeyValuePair<string, string>("grant_type", AZURE_AD_GRANT_TYPE)
+                new KeyValuePair<string, string>("grant_type", AZURE_AD_GRANT_TYPE),
             });
 
             var response = await client.PostAsync(AZURE_AD_TOKEN_ENDPOINT_URL, content);
@@ -763,7 +763,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
 
             var tokenResnse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
-            return tokenResnse.access_token;
+            return tokenResnse.Access_token;
         }
     }
 }

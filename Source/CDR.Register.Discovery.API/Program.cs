@@ -1,10 +1,10 @@
-﻿using CDR.Register.API.Infrastructure;
+﻿using System;
+using System.IO;
+using CDR.Register.API.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using System;
-using System.IO;
 
 namespace CDR.Register.Discovery.API
 {

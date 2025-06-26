@@ -4,7 +4,7 @@
     {
         public MetaError(string urn)
         {
-            Urn = urn;
+            this.Urn = urn;
         }
 
         public string Urn { get; set; }

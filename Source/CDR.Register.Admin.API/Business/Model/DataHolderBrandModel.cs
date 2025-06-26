@@ -1,8 +1,8 @@
-﻿using CDR.Register.Admin.API.Business.Validators;
+﻿using System;
+using System.Collections.Generic;
+using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.Domain.Entities;
 using CDR.Register.Domain.Models;
-using System;
-using System.Collections.Generic;
 
 namespace CDR.Register.Admin.API.Business.Model
 {
@@ -49,7 +49,7 @@ namespace CDR.Register.Admin.API.Business.Model
             }
 
             // Validate against the existing data
-            var existingDataValidationErrors = ValidateWithExisting(existingDataHolderBrand);
+            var existingDataValidationErrors = this.ValidateWithExisting(existingDataHolderBrand);
             if (existingDataValidationErrors.Count > 0)
             {
                 responseErrorList.Errors.AddRange(existingDataValidationErrors);
@@ -67,7 +67,9 @@ namespace CDR.Register.Admin.API.Business.Model
             }
 
             // Validate all the parent IDs.
-            if (existingDataHolderBrand.DataHolder == null) // This ensures it is a DH Participation
+
+            // This ensures it is a DH Participation
+            if (existingDataHolderBrand.DataHolder == null)
             {
                 errorList.Add(new Error(
                     Domain.Constants.ErrorCodes.Cds.InvalidField,

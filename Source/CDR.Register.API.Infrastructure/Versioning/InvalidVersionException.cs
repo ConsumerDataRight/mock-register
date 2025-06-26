@@ -4,8 +4,6 @@ namespace CDR.Register.API.Infrastructure.Versioning
 {
     public class InvalidVersionException : Exception
     {
-        public string HeaderName { get; set; } = string.Empty;
-
         public InvalidVersionException()
             : base()
         {
@@ -16,5 +14,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
         {
             this.HeaderName = headerName;
         }
+
+        public string HeaderName { get; set; } = string.Empty;
     }
 }
