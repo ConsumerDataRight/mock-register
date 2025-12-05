@@ -1,13 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using CDR.Register.Domain.Models;
+using Newtonsoft.Json;
 
 namespace CDR.Register.SSA.API.Business
 {
     public static class SerializationExtensions
     {
+        public static readonly JsonSerializerSettings DefaultSerializationConfiguration = new CdrJsonSerializerSettings();
+
         public static string ToJson(this object value)
-        {
-            var result = JsonConvert.SerializeObject(value);
-            return result;
-        }
+            => ToJson(value, DefaultSerializationConfiguration);
+
+        public static string ToJson(this object value, JsonSerializerSettings options)
+            => JsonConvert.SerializeObject(value, options);
     }
 }

@@ -186,5 +186,32 @@ If the host names are changed, then the data stored in the Mock Register should 
 
 This can be achieved by using the Admin API, as outlined in the solution README.
 
+## Connecting to the database
+> The solutions above utilise MS SQL database for storage. In the examples below we use [MS SQL Server Management Studio (SMSS)](https://learn.microsoft.com/en-us/ssms/), but the approach should be similar for other tooling.
+
+You will need the following authentication details:
+|                |                           |
+| --             | --                        |
+| Server type    | Database Engine           |
+| Server name    | localhost                 |
+| Authentication | SQL Server Authentication |
+| Login          | `sa`                      |
+| Password       | `Pa{}w0rd2019`            |
+
+Should you opt to use another tool, then the following would be useful
+
+|                   |                                                |
+| --                | --                                             |
+| Connection String | `Server=localhost;Database=cdr-register;User Id='SA';Password='Pa{}w0rd2019';MultipleActiveResultSets=True;TrustServerCertificate=True;Encrypt=False` |
+
+## Logging
+Once you have connected to the `cdr-register` database above you can view the various database tables that contain logs or view the console output using the following command.
+
+  ```shell
+  docker logs mock-register
+  ```
+
+Optionally, logging to OpenTelemetry compatible destinations is also supported by modifying the `docker run` commands to supply additional environment variables. Additional guidance can be found in the [readme](../../README.md#logging) file.
+
 ## Host on your own infrastructure
 The mock solutions can also be hosted on your own infrastructure, such as virtual machines or kubernetes clusters, in your private data centre or in the public cloud. 

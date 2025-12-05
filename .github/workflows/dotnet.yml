@@ -50,12 +50,12 @@ jobs:
     # Build mock-register-unit-tests image
     - name: Build the mock-register-unit-tests image
       run: |
-        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile.unit-tests --tag mock-register-unit-tests:latest
+        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile --target unit-tests --tag mock-register-unit-tests:latest
 
     # Build mock-register-integration-tests image
     - name: Build the mock-register-integration-tests image
       run: |
-        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile.integration-tests --tag mock-register-integration-tests:latest
+        docker build ./mock-register/Source --file ./mock-register/Source/Dockerfile --target integration-tests --tag mock-register-integration-tests:latest
 
     # List docker images
     - name: List Docker images

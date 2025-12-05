@@ -26,6 +26,7 @@ namespace CDR.Register.Infosec
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
             services.AddHttpContextAccessor();
 
             services.AddRegisterInfosec(this.Configuration);
@@ -40,11 +41,8 @@ namespace CDR.Register.Infosec
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 });
 
-            if (this.Configuration.GetSection("SerilogRequestResponseLogger") != null)
-            {
-                Log.Logger.Information("Adding request response logging middleware");
-                services.AddRequestResponseLogging();
-            }
+            Log.Logger.Information("Adding request response logging middleware");
+            services.AddRequestResponseLogging();
 
             // if the distributed cache connection string has been set then use it, otherwise fall back to in-memory caching.
             if (this.UseDistributedCache())
@@ -71,6 +69,7 @@ namespace CDR.Register.Infosec
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseHealthChecks("/health");
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
@@ -79,7 +78,7 @@ namespace CDR.Register.Infosec
             app.UseBasePathOrExpression(this.Configuration);
 
             app.UseSerilogRequestLogging();
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            app.UseRequestResponseLogging();
 
             app.UseHttpsRedirection();
 
