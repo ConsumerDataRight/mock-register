@@ -1,0 +1,35 @@
+[
+  {
+    "Name": "Mock Register with Gateways",
+    "Projects": [
+      {
+        "Path": "CDR.Register.Admin.API\\CDR.Register.Admin.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CDR.Register.Infosec\\CDR.Register.Infosec.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CDR.Register.Status.API\\CDR.Register.Status.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CDR.Register.Discovery.API\\CDR.Register.Discovery.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CDR.Register.SSA.API\\CDR.Register.SSA.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CDR.Register.API.Gateway.TLS\\CDR.Register.API.Gateway.TLS.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "CDR.Register.API.Gateway.mTLS\\CDR.Register.API.Gateway.mTLS.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]

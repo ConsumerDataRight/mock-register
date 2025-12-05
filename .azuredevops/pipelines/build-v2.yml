@@ -30,20 +30,22 @@ steps:
   displayName: Build mock-register-unit-tests image
   inputs:
     command: build 
-    Dockerfile: ./Source/Dockerfile.unit-tests
+    Dockerfile: ./Source/Dockerfile
     buildContext: ./Source
     repository: mock-register-unit-tests
     tags: latest
+    arguments: --target unit-tests
 
 # Build mock-register-integration-tests
 - task: Docker@2
   displayName: Build mock-register-integration-tests image
   inputs:
     command: build 
-    Dockerfile: ./Source/Dockerfile.integration-tests
+    Dockerfile: ./Source/Dockerfile
     buildContext: ./Source
     repository: mock-register-integration-tests
     tags: latest
+    arguments: --target integration-tests
 
 # List docker images
 - task: Docker@2
@@ -75,7 +77,7 @@ steps:
 # Run integration tests
 #****************************************************************************************************************
 - script: |
-    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml  up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml up --abort-on-container-exit --exit-code-from mock-register-integration-tests
   displayName: 'Integration Tests - Up'  
   condition: always()
 
@@ -208,17 +210,11 @@ steps:
     performMultiLevelLookup: true
 
 - task: CmdLine@2
-  displayName: 'Install dotnet-ef'
+  displayName: 'Restore dotnet tooling'
   condition: always()
   inputs:
-    script: 'dotnet tool install --version 8.0.3 --global dotnet-ef'
+    script: 'dotnet tool restore'
     
-- task: CmdLine@2
-  displayName: 'Check dotnet-ef version'
-  condition: always()
-  inputs:
-    script: 'dotnet-ef'
-
 - script: |
     cd Source/CDR.Register.Repository 
     dotnet ef migrations bundle --context RegisterDatabaseContext --verbose --self-contained

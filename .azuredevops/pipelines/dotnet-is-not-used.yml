@@ -1,9 +1,12 @@
 trigger:
   - develop  
   - main
-  
+
+variables:
+  - group: PT-Pipeline-Common  
+
 pool:
-  vmImage: windows-2019
+  vmImage: $(Pipeline_Host_Image)
 
 steps:
 

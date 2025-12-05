@@ -25,7 +25,7 @@ namespace CDR.Register.IntegrationTests
 
                 var clientHandler = new HttpClientHandler();
                 clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-                var client = new HttpClient(clientHandler);
+                var client = new HttpClient(clientHandler) { Timeout = TimeSpan.FromMinutes(3) };
 
                 var request = new HttpRequestMessage(HttpMethod.Post, BaseTest.ADMIN_URL);
                 request.Content = new StringContent(jsonFromSeedDataFile, Encoding.UTF8, "application/json");

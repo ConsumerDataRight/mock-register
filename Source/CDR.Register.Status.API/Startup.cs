@@ -30,6 +30,7 @@ namespace CDR.Register.Status.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
             services.AddHttpContextAccessor();
             services.AddRegisterStatus(this.Configuration);
 
@@ -61,17 +62,15 @@ namespace CDR.Register.Status.API
 
             services.AddScoped<LogActionEntryAttribute>();
 
-            if (this.Configuration.GetSection("SerilogRequestResponseLogger") != null)
-            {
-                Log.Logger.Information("Adding request response logging middleware");
-                services.AddRequestResponseLogging();
-            }
+            Log.Logger.Information("Adding request response logging middleware");
+            services.AddRequestResponseLogging();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            app.UseHealthChecks("/health");
+            app.UseRequestResponseLogging();
 
             app.UseExceptionHandler(exceptionHandlerApp =>
             {

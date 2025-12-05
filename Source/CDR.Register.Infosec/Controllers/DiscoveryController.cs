@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.Infosec.Models;
-using IdentityModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -51,14 +50,14 @@ namespace CDR.Register.Infosec.Controllers
             var cert = new X509Certificate2(this._configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var cert64 = Convert.ToBase64String(cert.RawData);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
-            var thumbprint = Base64Url.Encode(cert.GetCertHash());
+            var thumbprint = Base64UrlEncoder.Encode(cert.GetCertHash());
             var rsa = cert.GetRSAPublicKey();
 
             if (rsa != null)
             {
                 var parameters = rsa.ExportParameters(false);
-                var exponent = Base64Url.Encode(parameters.Exponent ?? []);
-                var modulus = Base64Url.Encode(parameters.Modulus ?? []);
+                var exponent = Base64UrlEncoder.Encode(parameters.Exponent ?? []);
+                var modulus = Base64UrlEncoder.Encode(parameters.Modulus ?? []);
 
                 var jwks = new API.Infrastructure.Models.JsonWebKeySet
                 {
