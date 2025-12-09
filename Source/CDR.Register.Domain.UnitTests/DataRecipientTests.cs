@@ -41,7 +41,7 @@ namespace CDR.Register.Domain.UnitTests
         public void LastUpdated_HasBrands_ShouldReturnLastUpdatedDateFromLatestBrand()
         {
             // Arrange
-            DateTime latestLastUpdated = DateTime.Now.AddDays(-1);
+            DateTime latestLastUpdated = DateTime.UtcNow.AddDays(-1);
             var sut = new DataRecipient()
             {
                 DataRecipientBrands = new DataRecipientBrand[]
@@ -55,7 +55,7 @@ namespace CDR.Register.Domain.UnitTests
             var lastUpdated = sut.LastUpdated;
 
             // Assert
-            Assert.Equal(latestLastUpdated.ToUniversalTime(), lastUpdated);
+            Assert.Equal(latestLastUpdated, lastUpdated);
         }
     }
 }

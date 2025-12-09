@@ -47,6 +47,7 @@ namespace CDR.Register.Admin.API
         {
             var loggerConfiguration = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
+                .AddOpenTelemetry(configuration)
                 .Enrich.FromLogContext()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()

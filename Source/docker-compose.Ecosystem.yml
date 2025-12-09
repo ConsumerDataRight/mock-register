@@ -1,3 +1,4 @@
+name: mock-register-ecosystem
 
 services:
   mock-register:
@@ -14,7 +15,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
     healthcheck:
-      test: wget --no-check-certificate --no-verbose --spider https://localhost:7006/health || exit 1
+      test: wget --server-response https://localhost:7000/health 2>&1 | grep 'HTTP/' | grep '200'
       timeout: 5s
       interval: 5s
       retries: 50      

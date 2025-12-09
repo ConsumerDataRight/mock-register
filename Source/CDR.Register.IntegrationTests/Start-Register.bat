@@ -1,13 +1,16 @@
 @echo off
-echo Start terminals for projects?
-pause
+REM echo Start terminals for projects?
+REM pause
 
-wt --maximized ^
---title Gateway_MTLS -d ../CDR.Register.API.Gateway.mTLS dotnet run; ^
---title Gateway_TLS -d ../CDR.Register.API.Gateway.TLS dotnet run; ^
---title IdentityServer -d ../CDR.Register.IdentityServer dotnet run; ^
---title Discovery_API -d ../CDR.Register.Discovery.API dotnet run; ^
---title SSA_API -d ../CDR.Register.SSA.API dotnet run; ^
---title Status_API -d ../CDR.Register.Status.API dotnet run; ^
---title Admin_API -d ../CDR.Register.Admin.API dotnet run
+REM wt --maximized ^
+REM --title Gateway_MTLS -d ../CDR.Register.API.Gateway.mTLS dotnet run; ^
+REM --title Gateway_TLS -d ../CDR.Register.API.Gateway.TLS dotnet run; ^
+REM --title Infosec -d ../CDR.Register.Infosec dotnet run; ^
+REM --title Discovery_API -d ../CDR.Register.Discovery.API dotnet run; ^
+REM --title SSA_API -d ../CDR.Register.SSA.API dotnet run; ^
+REM --title Status_API -d ../CDR.Register.Status.API dotnet run; ^
+REM --title Admin_API -d ../CDR.Register.Admin.API dotnet run
  
+docker compose -f ../docker-compose.IntegrationTests.yml up -d --build mssql mock-register
+echo Supporting infrastructure for tests will now stop.
+pause

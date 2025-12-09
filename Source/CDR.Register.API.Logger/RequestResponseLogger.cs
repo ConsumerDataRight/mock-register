@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Settings.Configuration;
 
@@ -10,8 +11,22 @@ namespace CDR.Register.API.Logger
 
         public RequestResponseLogger(IConfiguration configuration)
         {
-            this._logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration, new ConfigurationReaderOptions { SectionName = "SerilogRequestResponseLogger" })
+            var loggerConfiguration = new LoggerConfiguration();
+
+            // If the Serilog response logging is disabled, do not configure it using the appsettings.
+            var isSerilogRequestResponseLoggerDisabled = !configuration.GetValue<bool>("SerilogRequestResponseLogger:Enabled", true);
+            if (isSerilogRequestResponseLoggerDisabled)
+            {
+                Debug.WriteLine("Request/Response logging is disabled");
+                this._logger = loggerConfiguration.CreateLogger();
+                return;
+            }
+
+            Debug.WriteLine("Request/Response logging is enabled");
+            var options = new ConfigurationReaderOptions { SectionName = "SerilogRequestResponseLogger" };
+
+            this._logger = loggerConfiguration
+                .ReadFrom.Configuration(configuration, options)
                 .Enrich.WithProperty("RequestMethod", string.Empty)
                 .Enrich.WithProperty("RequestBody", string.Empty)
                 .Enrich.WithProperty("RequestHeaders", string.Empty)

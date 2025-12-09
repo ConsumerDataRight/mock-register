@@ -1,4 +1,5 @@
 # Docker compose for build pipeline
+name: mock-register-integration-tests
 
 services:
   mock-register:
@@ -11,6 +12,12 @@ services:
       - "7000-7006:7000-7006"
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
+      - SERILOG__MINIMUMLEVEL__DEFAULT=Warning
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__CDR=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Warning
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
       - PublicHostName
       - SecureHostName
       - BasePath
@@ -24,7 +31,7 @@ services:
     # volumes:
     #   - "./_temp/mock-register/tmp:/tmp"      
     healthcheck:
-      test: ((wget --no-check-certificate --no-verbose --spider https://localhost:7006/health) && (wget --no-check-certificate --no-verbose --spider https://localhost:7002/idp/.well-known/openid-configuration)) || exit 1
+      test: wget --server-response https://localhost:7000/health 2>&1 | grep 'HTTP/' | grep '200'
       timeout: 5s
       interval: 5s
       retries: 50
@@ -37,9 +44,13 @@ services:
     image: mock-register-integration-tests
     build:
       context: .
-      dockerfile: Dockerfile.integration-tests
+      dockerfile: Dockerfile
+      target: integration-tests
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
+      - SERILOG__MINIMUMLEVEL__DEFAULT=Information
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__CDR=Information
       # Default TEST_FILTER to not run CTS Only tests
       - TEST_FILTER=${TEST_FILTER:-"Category!=CTSONLY"}
       - CtsSettings__AzureAd__TokenEndpointUrl
@@ -61,7 +72,7 @@ services:
         condition: service_healthy
 
   mssql:
-    container_name: sql1
+    container_name: mock-register-integration-sql
     image: 'mcr.microsoft.com/mssql/server:2022-latest'
     ports: 
       - "1433:1433"

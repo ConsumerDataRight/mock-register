@@ -47,6 +47,9 @@ The following steps outline describe how to launch the Mock Register solution us
 
 [<img src="./images/MS-Visual-Studio-Select-multiple-projects.png" width='625' alt="Projects selected to be started"/>](./images/MS-Visual-Studio-Select-multiple-projects.png)
 
+> Depending on the version of Visual Studio you have you may also see a pre-existing `Mock Register with Gateways` profile that can be used
+!["Mock Register with Gateways" profile](./images/MS-Visual-Studio-Start-Profile.png)
+
 2. Click "Start" to start the Mock Register solution.
 
 [<img src="./images/MS-Visual-Studio-Start.png" width='625' alt="Start the projects"/>](./images/MS-Visual-Studio-Start.png)

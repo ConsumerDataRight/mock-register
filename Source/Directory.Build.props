@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
-		<Version>2.2.1</Version>
+		<Version>2.2.3</Version>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
@@ -11,4 +11,13 @@
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
+
+    <!--Automatically apply these items for for any *.UnitTests projects-->
+    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('UnitTests'))">
+        <!-- Ensure the tests in the project are categorised appropriately as unit tests so that they are identified when UnitTest category filter is applied -->
+        <AssemblyAttribute Include="Xunit.AssemblyTraitAttribute">
+            <_Parameter1>Category</_Parameter1>
+            <_Parameter2>UnitTests</_Parameter2>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>
