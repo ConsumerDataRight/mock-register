@@ -51,38 +51,53 @@ namespace CDR.Register.IntegrationTests
         protected const string DEFAULT_CERTIFICATE_THUMBPRINT = "f0e5146a51f16e236844cf0353d791f11865e405";
         protected const string DEFAULT_CERTIFICATE_COMMON_NAME = "MockDataRecipient";
 
-        protected const string EXPECTED_UNSUPPORTED_ERROR = @"
+        protected const string EXPECTED_UNSUPPORTED_ERROR = """
             {
-                ""errors"": [
+                "errors": [
                     {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/UnsupportedVersion"",
-                    ""title"": ""Unsupported Version"",
-                    ""detail"": ""Requested version is lower than the minimum version or greater than maximum version."",
+                    "code": "urn:au-cds:error:cds-all:Header/UnsupportedVersion",
+                    "title": "Unsupported Version",
+                    "detail": "Requested version is lower than the minimum version or greater than maximum version.",
                     }
                 ]
-            }";
+            }
+            """;
 
-        protected const string EXPECTED_INVALID_VERSION_ERROR = @"
+        protected const string EXPECTED_INVALID_VERSION_ERROR = """
             {
-                ""errors"": [
+                "errors": [
                     {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/InvalidVersion"",
-                    ""title"": ""Invalid Version"",
-                    ""detail"": ""Version is not a positive Integer.""
+                    "code": "urn:au-cds:error:cds-all:Header/InvalidVersion",
+                    "title": "Invalid Version",
+                    "detail": "Version is not a positive Integer."
                     }
                 ]
-            }";
+            }
+            """;
 
-        protected const string EXPECTED_MISSING_X_V_ERROR = @"
+        protected const string EXPECTED_MISSING_X_V_ERROR = """
             {
-                ""errors"": [
+                "errors": [
                     {
-                    ""code"": ""urn:au-cds:error:cds-all:Header/Missing"",
-                    ""title"": ""Missing Required Header"",
-                    ""detail"": ""An API version x-v header is required, but was not specified."",
+                    "code": "urn:au-cds:error:cds-all:Header/Missing",
+                    "title": "Missing Required Header",
+                    "detail": "An API version x-v header is required, but was not specified.",
                     }
                 ]
-            }";
+            }
+            """;
+
+        protected const string EXPECTED_INVALIDFIELD_INDUSTRY = """
+            {
+              "errors": [
+                {
+                  "code": "urn:au-cds:error:cds-all:Field/Invalid",
+                  "title": "Invalid Field",
+                  "detail": "industry"
+                }
+              ]
+            }
+            """;
 
         private const string REGISTER_RW = "DefaultConnection";
         private static IConfigurationRoot? configuration;
@@ -393,7 +408,7 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        protected static void VerifyParticipationRecord(string legalEntiryId, string expectedParticipationType, string expectedIndustryType, string expectedStatus)
+        protected static void VerifyParticipationRecord(string legalEntityId, string expectedParticipationType, string expectedIndustryType, string expectedStatus)
         {
             using SqlConnection registerConnection = new SqlConnection(BaseTest.CONNECTIONSTRING_REGISTER_RW);
 
@@ -414,7 +429,7 @@ namespace CDR.Register.IntegrationTests
 	                    FULL JOIN IndustryType i ON p.IndustryId = i.IndustryTypeId
 				        FULL JOIN ParticipationStatus ps ON p.StatusId = ps.ParticipationStatusId
                     WHERE 
-                        p.LegalEntityId = '{legalEntiryId}'
+                        p.LegalEntityId = '{legalEntityId}'
                         AND pt.ParticipationTypeCode = '{expectedParticipationType}' ";
 
                 if (expectedIndustryType == null)
@@ -458,7 +473,7 @@ namespace CDR.Register.IntegrationTests
             }
             catch (Exception e)
             {
-                throw new Exception($"Error Getting Participation Record for Legal Entity: {legalEntiryId}", e);
+                throw new Exception($"Error Getting Participation Record for Legal Entity: {legalEntityId}", e);
             }
         }
 

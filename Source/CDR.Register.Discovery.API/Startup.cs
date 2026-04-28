@@ -41,11 +41,7 @@ namespace CDR.Register.Discovery.API
                     options.InvalidModelStateResponseFactory = ModelStateErrorMiddleware.ExecuteResult;
                 });
 
-            services.AddApiVersioning(options =>
-            {
-                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
-                options.ErrorResponses = new ApiVersionErrorResponse();
-            });
+            services.AddCdrApiVersioning();
 
             var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)

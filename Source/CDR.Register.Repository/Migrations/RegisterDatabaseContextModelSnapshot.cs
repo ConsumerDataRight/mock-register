@@ -17,10 +17,10 @@ namespace CDR.Register.Repository.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.9")
+                .HasAnnotation("ProductVersion", "8.0.25")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.AccreditationLevel", b =>
                 {
@@ -67,15 +67,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("AuthDetail", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("AuthDetailHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.Brand", b =>
@@ -83,6 +83,11 @@ namespace CDR.Register.Repository.Migrations
                     b.Property<Guid>("BrandId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BrandGroup")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("The brand group for white-labelling");
 
                     b.Property<string>("BrandName")
                         .IsRequired()
@@ -122,15 +127,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("Brand", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("BrandHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.BrandStatus", b =>
@@ -189,6 +194,11 @@ namespace CDR.Register.Repository.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("PeriodStart");
 
+                    b.Property<string>("ProductBaseUri")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasComment("The PRD base URI");
+
                     b.Property<string>("PublicBaseUri")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -214,15 +224,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("Endpoint", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("EndpointHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.IndustryType", b =>
@@ -249,6 +259,11 @@ namespace CDR.Register.Repository.Migrations
                         {
                             IndustryTypeId = 2,
                             IndustryTypeCode = "energy"
+                        },
+                        new
+                        {
+                            IndustryTypeId = 3,
+                            IndustryTypeCode = "non-bank-lending"
                         });
                 });
 
@@ -324,15 +339,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("LegalEntity", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("LegalEntityHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.OrganisationType", b =>
@@ -423,15 +438,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("Participation", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("ParticipationHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.ParticipationStatus", b =>
@@ -623,15 +638,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("SoftwareProduct", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("SoftwareProductHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.SoftwareProductCertificate", b =>
@@ -670,15 +685,15 @@ namespace CDR.Register.Repository.Migrations
                     b.ToTable("SoftwareProductCertificate", (string)null);
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable("SoftwareProductCertificateHistory");
+                                ttb
+                                    .HasPeriodStart("PeriodStart")
+                                    .HasColumnName("PeriodStart");
+                                ttb
+                                    .HasPeriodEnd("PeriodEnd")
+                                    .HasColumnName("PeriodEnd");
+                            }));
                 });
 
             modelBuilder.Entity("CDR.Register.Repository.Entities.SoftwareProductStatus", b =>

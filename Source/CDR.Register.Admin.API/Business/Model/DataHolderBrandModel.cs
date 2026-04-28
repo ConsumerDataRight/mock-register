@@ -12,6 +12,8 @@ namespace CDR.Register.Admin.API.Business.Model
 
         public string BrandName { get; set; } = string.Empty;
 
+        public string BrandGroup { get; set; } = string.Empty;
+
         public string[] Industries { get; set; } = [];
 
         public string LogoUri { get; set; } = string.Empty;
