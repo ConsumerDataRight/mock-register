@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Asp.Versioning;
 using AutoMapper;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Admin.API.Business.Validators;

@@ -3,7 +3,6 @@ using AutoMapper;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Domain.Entities;
 using CDR.Register.Repository.Enums;
-using Microsoft.Extensions.Configuration;
 using DomainEntities = CDR.Register.Domain.Entities;
 
 namespace CDR.Register.Admin.API.Business
@@ -12,28 +11,32 @@ namespace CDR.Register.Admin.API.Business
     {
         public AdminMappingProfile()
         {
-            this.CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipient>()
+            this.CreateMap<LegalEntity, DataRecipient>()
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source))
-                .ForMember(dest => dest.DataRecipientBrands, source => source.MapFrom(source => source.DataRecipientBrands));
+                .ForMember(dest => dest.DataRecipientBrands, source => source.MapFrom(source => source.DataRecipientBrands))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
-            this.CreateMap<Business.Model.LegalEntity, DomainEntities.DataRecipientLegalEntity>()
-                .ForMember(dest => dest.AccreditationLevelId, source => source.MapFrom(source => source.AccreditationLevel));
+            this.CreateMap<LegalEntity, DataRecipientLegalEntity>()
+                .ForMember(dest => dest.AccreditationLevelId, source => source.MapFrom(source => source.AccreditationLevel))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
-            this.CreateMap<Business.Model.Brand, DomainEntities.DataRecipientBrand>()
+            this.CreateMap<Model.Brand, DataRecipientBrand>()
                 .ForMember(dest => dest.BrandStatus, source => source.MapFrom(source => source.Status))
-                .ForMember(dest => dest.BrandId, source => source.MapFrom(source => source.DataRecipientBrandId));
+                .ForMember(dest => dest.BrandId, source => source.MapFrom(source => source.DataRecipientBrandId))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
-            this.CreateMap<Business.Model.SoftwareProduct, DomainEntities.SoftwareProduct>()
+            this.CreateMap<Model.SoftwareProduct, DomainEntities.SoftwareProduct>()
                 .ForMember(dest => dest.RedirectUri, source => source.MapFrom(src => src.RedirectUris != null ? string.Join(" ", src.RedirectUris) : string.Empty))
                 .ForMember(dest => dest.RedirectUris, opts => opts.Ignore()) // Ignore this as it is a computed property with no setter
-                .ForMember(dest => dest.Scope, opt => opt.MapFrom<SoftwareScopeResolver, string>(src => src.Scope ?? string.Empty));
+                .ForMember(dest => dest.Scope, opt => opt.MapFrom<SoftwareScopeResolver, string>(src => src.Scope ?? string.Empty))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
-            this.CreateMap<Business.Model.SoftwareProductCertificate, DomainEntities.SoftwareProductCertificateInfosec>();
+            this.CreateMap<SoftwareProductCertificate, SoftwareProductCertificateInfosec>().MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
             // DH Brand Mappings
-            this.CreateMap<DataHolderAuthenticationModel, DataHolderAuthentication>();
-            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
-            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>();
+            this.CreateMap<DataHolderAuthenticationModel, DataHolderAuthentication>().MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
+            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>().MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
+            this.CreateMap<DataHolderEndpointModel, DataHolderBrandServiceEndpoint>().MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
             this.CreateMap<DataHolderLegalEntityModel, DataHolderLegalEntity>()
                 .ForMember(dest => dest.LegalEntityId, source => source.MapFrom(source => source.LegalEntityId))
@@ -47,13 +50,15 @@ namespace CDR.Register.Admin.API.Business
                 .ForMember(dest => dest.Arbn, source => source.MapFrom(source => source.Arbn))
                 .ForMember(dest => dest.AnzsicDivision, source => source.MapFrom(source => source.AnzsicDivision))
                 .ForMember(dest => dest.OrganisationType, source => source.MapFrom(source => source.OrganisationType))
-                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.ToUpper()));
+                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.Status.ToUpper()))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
             this.CreateMap<DataHolderBrandModel, DataHolder>()
                 .ForMember(dest => dest.Industries, (IMemberConfigurationExpression<DataHolderBrandModel, DataHolder, List<string>> source) => source.MapFrom(source => source.Industries))
-                .ForMember(dest => dest.Industry, source => source.MapFrom(source => source.Industries.Length > 0 ? source.Industries[0] : string.Empty))
+                .ForMember(dest => dest.Industry, source => source.MapFrom(source => source.Industries.Length > 0 ? source.Industries[0].ToLowerInvariant() : string.Empty))
                 .ForMember(dest => dest.LegalEntity, source => source.MapFrom(source => source == null ? null : source.LegalEntity))
-                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntity == null ? string.Empty : source.LegalEntity.Status.ToUpper()));
+                .ForMember(dest => dest.Status, source => source.MapFrom(source => source.LegalEntity == null ? string.Empty : source.LegalEntity.Status.ToUpper()))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
 
             this.CreateMap<DataHolderBrandModel, DataHolderBrand>()
                 .ForMember(dest => dest.BrandId, source => source.MapFrom(source => source.DataHolderBrandId))
@@ -63,7 +68,8 @@ namespace CDR.Register.Admin.API.Business
                 .ForMember(dest => dest.IsActive, source => source.MapFrom(source => string.Compare(source.Status, BrandStatusType.Active.ToString(), true)))
                 .ForMember(dest => dest.DataHolderAuthentications, source => source.MapFrom(source => new[] { source.AuthDetails }))
                 .ForMember(dest => dest.DataHolderBrandServiceEndpoint, source => source.MapFrom(source => source.EndpointDetail))
-                .ForMember(dest => dest.DataHolder, source => source.MapFrom(source => source));
+                .ForMember(dest => dest.DataHolder, source => source.MapFrom(source => source))
+                .MaxDepth(Domain.Constants.MappingConstants.MaxDepth);
         }
     }
 }

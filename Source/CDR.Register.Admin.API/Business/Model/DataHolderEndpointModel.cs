@@ -6,6 +6,8 @@
 
         public string PublicBaseUri { get; set; } = string.Empty;
 
+        public string ProductBaseUri { get; set; } = string.Empty;
+
         public string ResourceBaseUri { get; set; } = string.Empty;
 
         public string InfosecBaseUri { get; set; } = string.Empty;

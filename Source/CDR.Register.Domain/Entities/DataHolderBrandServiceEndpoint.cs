@@ -6,6 +6,8 @@
 
         public string PublicBaseUri { get; set; }
 
+        public string ProductBaseUri { get; set; }
+
         public string ResourceBaseUri { get; set; }
 
         public string InfosecBaseUri { get; set; }

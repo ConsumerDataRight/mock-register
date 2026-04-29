@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.Discovery.API.Business.Models;
 
 namespace CDR.Register.Discovery.API.Business.Responses
 {
-    public class ResponseRegisterDataHolderBrandList
+    [Obsolete("Deprecated in the standards, used by versions prior to V1.35.0. This is aligned with RAAP implementation and can be removed when the endpoint is no longer supported.", false)]
+    public class ResponseRegisterDataHolderBrandList : IResponseRegisterDataHolderBrandList<RegisterDataHolderBrand>
     {
-        public IEnumerable<RegisterDataHolderBrandModel> Data { get; set; }
+        public IEnumerable<RegisterDataHolderBrand> Data { get; set; }
 
         public LinksPaginated Links { get; set; } = new LinksPaginated();
 
