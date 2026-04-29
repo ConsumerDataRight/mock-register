@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Asp.Versioning;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
@@ -39,9 +40,35 @@ namespace CDR.Register.SSA.API.Controllers
         [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
         [ReturnXV("3")]
         [ApiVersion("3")]
-        [CheckIndustry]
+        [CheckIndustry(Repository.Infrastructure.Industry.BANKING, Repository.Infrastructure.Industry.ENERGY, Repository.Infrastructure.Industry.TELCO, Repository.Infrastructure.Industry.ALL)]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public async Task<IActionResult> GetSoftwareStatementAssertionXV3(string industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            return await this.GetSoftwareStatementAssertion(dataRecipientBrandId, softwareProductId);
+        }
+
+        [PolicyAuthorize(RegisterAuthorisationPolicy.GetSSAMultiIndustry)]
+        [HttpGet]
+        [Route("v1/{industry}/data-recipients/brands/{dataRecipientBrandId}/software-products/{softwareProductId}/ssa")]
+        [ReturnXV("4")]
+        [ApiVersion("4")]
+        [CheckIndustry(Repository.Infrastructure.Industry.ALL)]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task<IActionResult> GetSoftwareStatementAssertionXV4(string industry, string dataRecipientBrandId, string softwareProductId)
+        {
+            return await this.GetSoftwareStatementAssertion(dataRecipientBrandId, softwareProductId);
+        }
+
+        [HttpGet]
+        [Route("v1/jwks")]
+        [ApiVersion("1")]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public IActionResult GetJwks()
+        {
+            return new OkObjectResult(this._certificateService.JsonWebKeySet);
+        }
+
+        private async Task<IActionResult> GetSoftwareStatementAssertion(string dataRecipientBrandId, string softwareProductId)
         {
             // CTS conformance ID validations
             var basePathExpression = this._configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
@@ -60,17 +87,8 @@ namespace CDR.Register.SSA.API.Controllers
                 return result;
             }
 
-            var ssa = await this._ssaService.GetSoftwareStatementAssertionJWTAsync(industry.ToIndustry(), dataRecipientBrandId, softwareProductId);
+            var ssa = await this._ssaService.GetSoftwareStatementAssertionJWTAsync(dataRecipientBrandId, softwareProductId);
             return string.IsNullOrEmpty(ssa) ? this.NotFound(new ResponseErrorList(ResponseErrorList.NotFound())) : this.Ok(ssa);
-        }
-
-        [HttpGet]
-        [Route("v1/jwks")]
-        [ApiVersion("1")]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public IActionResult GetJwks()
-        {
-            return new OkObjectResult(this._certificateService.JsonWebKeySet);
         }
 
         private Guid? GetSoftwareProductIdFromAccessToken()

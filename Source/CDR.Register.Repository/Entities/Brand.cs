@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using CDR.Register.Repository.Enums;
 
@@ -18,6 +19,10 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(200)]
         [Required]
         public string BrandName { get; set; }
+
+        [MaxLength(100)]
+        [Description("The brand group for white-labelling")]
+        public string BrandGroup { get; set; }
 
         [MaxLength(1000)]
         [Required]
