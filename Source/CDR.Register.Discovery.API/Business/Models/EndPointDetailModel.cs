@@ -1,9 +1,6 @@
-﻿using System;
-
-namespace CDR.Register.Discovery.API.Business.Models
+﻿namespace CDR.Register.Discovery.API.Business.Models
 {
-    [Obsolete("Deprecated in the standards, used by versions prior to V1.35.0. This is aligned with RAAP implementation and can be removed when the endpoint is no longer supported.", false)]
-    public class RegisterDataHolderBrandServiceEndpoint
+    public class EndpointDetailModel
     {
         public string Version { get; set; }
 

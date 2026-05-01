@@ -1,7 +1,5 @@
 ﻿using System;
 using AutoMapper;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.Domain;
 using CDR.Register.Domain.Entities;
 using CDR.Register.SSA.API.Business.Models;
 using Microsoft.Extensions.Configuration;
@@ -42,21 +40,9 @@ namespace CDR.Register.SSA.API.Business
                 .ForMember(d => d.Exp, s => s.MapFrom(source => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds + long.Parse(this._config["SSA:ExpiryInSeconds"])))
                 .ForMember(d => d.Legal_entity_id, s => s.MapFrom(source => source.LegalEntity.LegalEntityId))
                 .ForMember(d => d.Legal_entity_name, s => s.MapFrom(source => source.LegalEntity.LegalEntityName))
-                .ForMember(d => d.Sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri))
-                .MaxDepth(Constants.MappingConstants.MaxDepth);
-
-                cfg.CreateMap<Microsoft.IdentityModel.Tokens.JsonWebKey, JsonWebKey>()
-                .ForMember(d => d.Alg, src => src.MapFrom(s => s.Alg))
-                .ForMember(d => d.E, src => src.MapFrom(s => s.E))
-                .ForMember(d => d.Kid, src => src.MapFrom(s => s.Kid))
-                .ForMember(d => d.Kty, src => src.MapFrom(s => s.Kty))
-                .ForMember(d => d.N, src => src.MapFrom(s => s.N))
-                .ForMember(d => d.Use, src => src.MapFrom(s => s.Use))
-                .ForMember(d => d.X5t, src => src.MapFrom(s => s.X5t))
-                .ForMember(d => d.X5c, src => src.MapFrom(s => s.X5c))
-                .ForMember(d => d.Key_ops, src => src.MapFrom(s => s.KeyOps))
-                .MaxDepth(Constants.MappingConstants.MaxDepth);
+                .ForMember(d => d.Sector_identifier_uri, s => s.MapFrom(source => source.SoftwareProduct.SectorIdentifierUri));
             });
+
             this._mapper = configuration.CreateMapper();
         }
 
@@ -68,16 +54,6 @@ namespace CDR.Register.SSA.API.Business
             }
 
             return this._mapper.Map<SoftwareStatementAssertion, SoftwareStatementAssertionModel>(softwareStatementAssertion);
-        }
-
-        public JsonWebKey MapJwk(Microsoft.IdentityModel.Tokens.JsonWebKey jwk)
-        {
-            if (jwk == null)
-            {
-                return null;
-            }
-
-            return this._mapper.Map<Microsoft.IdentityModel.Tokens.JsonWebKey, JsonWebKey>(jwk);
         }
     }
 }

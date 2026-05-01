@@ -26,7 +26,7 @@ namespace CDR.Register.API.Infrastructure.Services
         public async Task<ResponseErrorList> ValidateSoftwareProductStatus(Guid softwareProductId)
         {
             // Get the latest data recipient details from the repository
-            var softwareProduct = await this._registerDiscoveryRepository.GetSoftwareProductId(softwareProductId);
+            var softwareProduct = await this._registerDiscoveryRepository.GetSoftwareProductIdAsync(softwareProductId);
 
             // Perform validations
             ResponseErrorList errorList = new ResponseErrorList();

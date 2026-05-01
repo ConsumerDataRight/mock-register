@@ -10,8 +10,6 @@ namespace CDR.Register.Domain.Entities
 
         public string BrandName { get; set; }
 
-        public string BrandGroup { get; set; }
-
         public string LogoUri { get; set; }
 
         public string BrandStatus { get; set; }

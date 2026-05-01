@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,10 +17,6 @@ namespace CDR.Register.Repository.Entities
         [MaxLength(1000)]
         [Required]
         public string PublicBaseUri { get; set; }
-
-        [MaxLength(1000)]
-        [Description("The PRD base URI")]
-        public string ProductBaseUri { get; set; }
 
         [MaxLength(1000)]
         [Required]

@@ -27,8 +27,6 @@ namespace CDR.Register.IntegrationTests.API.Update
 
         private const string TEST_DATA_BASE_URI = "https://TestAumationLogoUri.gov.au";
 
-        private static readonly Dictionary<Industry, string> IndustryMapping = new() { { Industry.Banking, "Banking" }, { Industry.Energy, "Energy" }, { Industry.NonBankLending, "Non-Bank-Lending" } };
-
         public US50480_UpdateDataHolders(ITestOutputHelper outputHelper, TestFixture testFixture)
             : base(outputHelper, testFixture)
         {
@@ -38,17 +36,15 @@ namespace CDR.Register.IntegrationTests.API.Update
         {
             Banking,
             Energy,
-            NonBankLending,
         }
 
         [Theory]
         [InlineData(Industry.Banking)]
         [InlineData(Industry.Energy)]
-        [InlineData(Industry.NonBankLending)]
         public async Task AC02_Add_New_DataHolder_With_Only_Mandatory_Fields_Http_200(Industry industry)
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(industry, false);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(industry, false);
 
             // Send to Register
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
@@ -57,33 +53,31 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, response, industry);
 
             // Assert participation created correctly
-            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", IndustryMapping[industry].ToLowerInvariant(), dataHolderMetadata.Status);
+            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", industry.ToString(), dataHolderMetadata.Status);
         }
 
         [Theory]
         [InlineData(Industry.Banking)]
         [InlineData(Industry.Energy)]
-        [InlineData(Industry.NonBankLending)]
         public async Task AC02_Add_New_DataHolder_With_All_Fields_Fields_Http_200(Industry industry)
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(industry, true);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(industry, true);
 
             // Send to Register
-            var payload = GetJsonFromModel(dataHolderMetadata);
-            HttpResponseMessage response = await PostUpdateDataHolderRequest(payload);
+            HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
 
             // Assert http response and database updates.
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, response, industry);
 
-            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", IndustryMapping[industry].ToLowerInvariant(), dataHolderMetadata.Status);
+            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", industry.ToString(), dataHolderMetadata.Status);
         }
 
         [Fact]
         public async Task AC03_Modify_Existing_DataHolder_200()
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send Original request to Register
             HttpResponseMessage originalResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
@@ -103,14 +97,14 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Assert http response and database updates.
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, modifiedResponse, Industry.Banking);
 
-            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString().ToLowerInvariant(), dataHolderMetadata.Status);
+            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString(), dataHolderMetadata.Status);
         }
 
         [Fact]
         public async Task AC03_Add_New_Brand_To_Existing_Legal_Entity_200()
         {
             // Generate valid payload.
-            DataHolderMetadata originalDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send to Register
             await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
@@ -122,7 +116,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(originalDataHolderMetadata, originalResponse, Industry.Banking);
 
             // Generate valid payload.
-            DataHolderMetadata newDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata newDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity
             newDataHolderMetadata.LegalEntity.LegalEntityId = originalDataHolderMetadata.LegalEntity.LegalEntityId;
@@ -141,14 +135,14 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Also Check Original is not affected
             VerifySuccessfulDataHolderUpdate(originalDataHolderMetadata, originalResponse, Industry.Banking);
 
-            VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString().ToLowerInvariant(), newDataHolderMetadata.Status);
+            VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString(), newDataHolderMetadata.Status);
         }
 
         [Fact]
         public async Task AC03_Add_New_Brand_To_Existing_Legal_Entity_With_Different_Industry_200()
         {
             // Generate valid Banking payload.
-            DataHolderMetadata originalDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send to Register
             _ = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata));
@@ -160,7 +154,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(originalDataHolderMetadata, originalResponse, Industry.Banking);
 
             // Generate valid Energy payload.
-            DataHolderMetadata newDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Energy, true);
+            DataHolderMetadata newDataHolderMetadata = CreateValidDataholderMetadata(Industry.Energy, true);
 
             // Set Legal Entity Id to Original Legal Entity Id. Register should attach new brand to Legal Entity, and create a new participation record.
             newDataHolderMetadata.LegalEntity.LegalEntityId = originalDataHolderMetadata.LegalEntity.LegalEntityId;
@@ -177,10 +171,10 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(newDataHolderMetadata, modifiedResponse, Industry.Energy);
 
             // Verify Banking Participant
-            VerifyParticipationRecord(originalDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString().ToLowerInvariant(), originalDataHolderMetadata.Status);
+            VerifyParticipationRecord(originalDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Banking.ToString(), originalDataHolderMetadata.Status);
 
             // Verify Energy(subsequent) Participant
-            VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Energy.ToString().ToLowerInvariant(), newDataHolderMetadata.Status);
+            VerifyParticipationRecord(newDataHolderMetadata.LegalEntity.LegalEntityId, "DH", Industry.Energy.ToString(), newDataHolderMetadata.Status);
         }
 
         [Theory]
@@ -188,8 +182,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData(null)]
         public async Task AC04_Missing_Version_In_Header_Http_400(string xv)
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata originalDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
@@ -206,7 +200,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("1.1")]
         public async Task AC05_Invalid_Version_Http_400(string xv)
         {
-            DataHolderMetadata originalDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
@@ -222,7 +216,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("20")]
         public async Task AC10_Unsupported_Version_Http_400(string xv)
         {
-            DataHolderMetadata originalDataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata originalDataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send to Register with blank x-v header
             var response = await PostUpdateDataHolderRequest(GetJsonFromModel(originalDataHolderMetadata), xv: xv);
@@ -258,8 +252,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         {
             Log.Information("Executing test for: {TestId}", testId);
 
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information("original:\n{JsonModel}", GetJsonFromModel(dataHolderMetadata));
 
             dataHolderMetadata = RemoveModelElementBasedOnJsonPath(dataHolderMetadata, elementToRemove);
@@ -292,7 +286,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("Max Length EndPoint - WebsiteUri", "endpointDetail.websiteUri", 1000)]
         [InlineData("Max Length Legal Entity - Name", "legalEntity.legalEntityName", 200)]
 
-        // we don't check accreditation number for DHs as they don't have it.
+        // we don't check accredatation number for DHs as they don't have it.
         [InlineData("Max Length Legal Entity - logoUri", "legalEntity.logoUri", 1000)]
         [InlineData("Max Length Legal Entity - Registration Number", "legalEntity.registrationNumber", 100)]
         [InlineData("Max Length Legal Entity - Registered Country", "legalEntity.registeredCountry", 100)]
@@ -303,19 +297,19 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("Max Length Auth Details - JwksEndpoint", "authDetails.jwksEndpoint", 1000)]
         public async Task ACXX_Maximum_Field_Length_Exceeded(string testId, string elementUnderTest, int maxLength)
         {
-            Log.Information("Executing test for: {TestId} : Max Length: {MaxLength}", testId, maxLength);
+            Log.Information("Executing test for: {TestId} : Max Lenght: {MaxLength}", testId, maxLength);
 
             // Create dataHolder using maximum field length
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
             string maxLengthValue = maxLength.GenerateRandomString();
             dataHolderMetadata = ReplaceModelValueBasedOnJsonPath(dataHolderMetadata, elementUnderTest, maxLengthValue);
-            Log.Information($"+ve Scenario using maximum field length of '{maxLength}':\n{GetJsonFromModel(dataHolderMetadata)}");
+            Log.Information($"+ve Scenario using maximum field lenght of '{maxLength}':\n{GetJsonFromModel(dataHolderMetadata)}");
 
             // Send and verify positive scenario
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
             await VerifyInvalidAndValidFieldResponse(response, dataHolderMetadata, ConvertJsonPathToPascalCase(elementUnderTest), maxLengthValue, true);
 
-            // Create dataHolder using maximum field length plus one
+            // Create dataHolder using maximum field lenght plus one
             string maxLengthPlusOneValue = (maxLength + 1).GenerateRandomString();
             dataHolderMetadata = ReplaceModelValueBasedOnJsonPath(dataHolderMetadata, elementUnderTest, maxLengthPlusOneValue);
             Log.Information($"-ve:\n{GetJsonFromModel(dataHolderMetadata)}");
@@ -329,28 +323,31 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("BANKING")]
         [InlineData("ENERGY")]
         [InlineData("Energy")]
-        [InlineData("Non-Bank-Lending")]
         [InlineData("foo", false)]
         public async Task AC07_Valid_And_Invalid_Industry(string industry, bool isValid = true)
         {
-            Industry? industryEnum = industry.ToUpperInvariant() switch
-            {
-                "ENERGY" => Industry.Energy,
-                "NON-BANK-LENDING" => Industry.NonBankLending,
-                "BANKING" => Industry.Banking,
-                _ => null,
-            };
+            Industry industryEnum;
 
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(industryEnum ?? Industry.Banking, false);
-
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
-            if (!industryEnum.HasValue)
-            {
-                dataHolderMetadata.Industries = [industry];
-                Log.Information($"modified:\n{GetJsonFromModel(dataHolderMetadata)}");
-            }
+
+            dataHolderMetadata.Industries.Clear();
+            dataHolderMetadata.Industries.Add(industry);
+
+            Log.Information($"modified:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             HttpResponseMessage httpResponseMessage = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
+
+            switch (industry.ToUpper())
+            {
+                case "ENERGY":
+                    industryEnum = Industry.Energy;
+                    break;
+
+                default:
+                    industryEnum = Industry.Banking;
+                    break;
+            }
 
             dataHolderMetadata.Industries = dataHolderMetadata.Industries.ConvertAll(x => x.ToUpper());
 
@@ -365,7 +362,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("foo", false)]
         public async Task AC07_Valid_And_Invalid_Data_Holder_Status(string status, bool isValid = true)
         {
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             dataHolderMetadata.Status = status;
@@ -390,7 +387,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("foo", false)]
         public async Task AC07_Valid_And_Invalid_Data_Holder_Legal_Entity_Organisation_Type(string orgType, bool isValid = true)
         {
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             dataHolderMetadata.LegalEntity.OrganisationType = orgType;
@@ -412,7 +409,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("foo", false)]
         public async Task AC07_Valid_And_Invalid_Data_Holder_Legal_Entity_Status(string status, bool isValid = true)
         {
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             dataHolderMetadata.LegalEntity.Status = status;
@@ -432,7 +429,7 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData("foo", false)]
         public async Task AC07_Valid_And_Invalid_Data_Holder_Auth_Details_RegisterUType(string registerUType, bool isValid = true)
         {
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
             Log.Information($"original:\n{GetJsonFromModel(dataHolderMetadata)}");
 
             dataHolderMetadata.AuthDetails.RegisterUType = registerUType;
@@ -449,8 +446,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         [Fact]
         public async Task AC08_Brand_Already_Associated_With_Different_Legal_Entity_400()
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send Original request to Register
             HttpResponseMessage originalResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
@@ -469,8 +466,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         [Fact]
         public async Task AC09_Brand_Already_Associated_With_Same_Legal_Entity_And_Different_Industry_400()
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, true);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, true);
 
             // Send Original request to Register
             HttpResponseMessage originalResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata));
@@ -487,140 +484,6 @@ namespace CDR.Register.IntegrationTests.API.Update
             await VerifyInvalidPayloadResponse(modifiedResponse, $"Brand {dataHolderMetadata.DataHolderBrandId} is already associated with the same legal entity in a different industry.");
         }
 
-        // Test Case:1
-        [Fact]
-        public void MockDataHolderBankingShouldHaveSeeded()
-        {
-            // Arrange
-            var legalEntityId = "0d332caa-8cd8-4ac9-8898-20641c54bc8c"; // Bank Legal Entity
-            var brandId = "804fc2fb-18a7-4235-9a49-2af393d18bc7"; // Mock Data Holder (Banking)
-
-            // Act
-            var result = GetActualDataHolderFromDatabase(legalEntityId, brandId, Industry.Banking);
-
-            // Assert
-            Assert.NotNull(result);
-            var resultDh = JsonConvert.DeserializeObject<DataHolderMetadata>(result);
-            resultDh.Should().NotBeNull();
-        }
-
-        [Fact] // Test Case:2
-        public void NewBankShouldHaveSeededWithoutProductBaseUri()
-        {
-            // Arrange
-            var legalEntityId = "93ef5f28-7f30-43f2-8e5c-b1e3cb39ce90"; // New Bank
-            var brandId = "6e9cfaf7-ecae-4de3-bbc5-ea9f366bdf55"; // New Bank -- dummy data holder -- do not use
-
-            // Act
-            var result = GetActualDataHolderFromDatabase(legalEntityId, brandId, Industry.Banking);
-
-            // Assert
-            Assert.NotNull(result);
-            var resultDh = JsonConvert.DeserializeObject<DataHolderMetadata>(result);
-            resultDh.EndpointDetail.ProductBaseUri.Should().BeNull();
-        }
-
-        [Fact] // Test Case:3
-        public void SunBankShouldHaveSeededWithProductBaseUri()
-        {
-            // Arrange
-            var legalEntityId = "aeca53ab-2a90-4737-938d-987ce195ca14"; // Sun bank
-            var brandId = "f6dfbe5b-c57a-4ec2-bc97-66c1f7fe6c1d"; // "Sun -- dummy data holder -- do not use"
-
-            // Act
-            var result = GetActualDataHolderFromDatabase(legalEntityId, brandId, Industry.Banking);
-
-            // Assert
-            Assert.NotNull(result);
-            var resultDh = JsonConvert.DeserializeObject<DataHolderMetadata>(result);
-            resultDh.EndpointDetail.ProductBaseUri.Should().NotBeNull();
-        }
-
-        [Fact] // Test case:4
-        public async Task GetMetaDataShouldMatchSeedData()
-        {
-            // Arrange
-            var api = new Infrastructure.Api
-            {
-                HttpMethod = HttpMethod.Get,
-                URL = $"{ADMIN_BaseURL}/admin/metadata",
-            };
-
-            // Expected payload should match seed file
-            await TestFixture.Seeddata();
-            var expectedPayload = await System.IO.File.ReadAllTextAsync(SEEDDATA_FILENAME);
-            var expectedData = JsonConvert.DeserializeObject<MetaData>(expectedPayload);
-
-            // Act - API
-            var response = await api.SendAsync();
-            var result = await response.Content.ReadAsStringAsync();
-
-            var apiData = JsonConvert.DeserializeObject<MetaData>(result);
-
-            // Assert
-            using var scope = new AssertionScope();
-
-            // Assert - Check status code
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            apiData.Should().NotBeNull();
-            expectedPayload.Should().NotBeNull();
-
-            apiData.LegalEntities.Should().BeEquivalentTo(
-                    expectedData.LegalEntities.OrderBy(x => x.LegalEntityName),
-                    opt => opt
-                        .ComparingRecordsByValue()
-                        .Excluding(su => su.Path.EndsWith(nameof(LegalEntity.Participation.ParticipationId))));
-
-            // Because seed data doesn't include ParticipationIds we ignore them above,
-            // but still want to ensure they are set in the API response
-            apiData.LegalEntities
-                .SelectMany(le => le.Participations)
-                .All(p => p.ParticipationId.HasValue && p.ParticipationId != Guid.Empty)
-                .Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task UpdateDataHolderMetadataWithNBLShouldUpdateAndPersistSuccessfully()
-        {
-            // Arrange
-            var industry = Industry.NonBankLending;
-            var metadata = CreateValidDataHolderMetadata(industry, true);
-
-            // AC: Additional attributes for NBL
-            metadata.BrandGroup = "TestBrandGroup";
-            metadata.EndpointDetail.ProductBaseUri = "https://test.com/products";
-
-            // Act - update
-            var updateResponse = await PostUpdateDataHolderRequest(GetJsonFromModel(metadata));
-            using var scope = new AssertionScope();
-
-            // Assert
-            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            VerifySuccessfulDataHolderUpdate(metadata, updateResponse, industry);
-            var expectedIndustry = "non-bank-lending";
-            VerifyParticipationRecord(metadata.LegalEntity.LegalEntityId, "DH", expectedIndustry, "ACTIVE");
-        }
-
-        [Fact]
-        public async Task UpdateDataHolderMEtaDataWithInvalidIndustryShouldReturnBadRequest()
-        {
-            // Arrange
-            var metadata = CreateValidDataHolderMetadata(Industry.Banking, true);
-
-            // Force invalid industry
-            metadata.Industries = new List<string> { "invalid industry" };
-
-            // Act
-            var response = await PostUpdateDataHolderRequest(GetJsonFromModel(metadata));
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var content = await response.Content.ReadAsStringAsync();
-            content.ToLower().Should().Contain("invalid");
-        }
-
         [Trait("Category", "CTSONLY")]
         [Theory]
         [InlineData(Industry.Banking)]
@@ -630,8 +493,8 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Get the token
             var accessToken = await GetAzureAdAccessToken();
 
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(industry, false);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(industry, false);
 
             // Send to Register
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata), accessToken: accessToken);
@@ -640,7 +503,7 @@ namespace CDR.Register.IntegrationTests.API.Update
             VerifySuccessfulDataHolderUpdate(dataHolderMetadata, response, industry);
 
             // Assert participation created correctly
-            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", IndustryMapping[industry].ToLowerInvariant(), dataHolderMetadata.Status);
+            VerifyParticipationRecord(dataHolderMetadata.LegalEntity.LegalEntityId, "DH", industry.ToString(), dataHolderMetadata.Status);
         }
 
         [Trait("Category", "CTSONLY")]
@@ -649,8 +512,8 @@ namespace CDR.Register.IntegrationTests.API.Update
         [InlineData(EXPIRED_ACCESS_TOKEN)]
         public async Task AC02_Add_New_DataHolder_InvalidToken_401(string accessToken)
         {
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
 
             // Send to Register
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata), accessToken: accessToken);
@@ -666,8 +529,8 @@ namespace CDR.Register.IntegrationTests.API.Update
             // Get the token
             var accessToken = await GetInvalidAzureAdAccessToken();
 
-            // Generate valid payload with only mandatory/minimum fields.
-            DataHolderMetadata dataHolderMetadata = CreateValidDataHolderMetadata(Industry.Banking, false);
+            // Generate valid payload with only mandatory/minimun fields.
+            DataHolderMetadata dataHolderMetadata = CreateValidDataholderMetadata(Industry.Banking, false);
 
             // Send to Register
             HttpResponseMessage response = await PostUpdateDataHolderRequest(GetJsonFromModel(dataHolderMetadata), accessToken: accessToken);
@@ -704,11 +567,11 @@ namespace CDR.Register.IntegrationTests.API.Update
             return httpResponse;
         }
 
-        private static async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataHolderMetadata dataHolderMetadata, string field, string value, bool isValid, Industry? industry = Industry.Banking)
+        private static async Task VerifyInvalidAndValidFieldResponse(HttpResponseMessage response, DataHolderMetadata dataHolderMetadata, string field, string value, bool isValid, Industry industry = Industry.Banking)
         {
             if (isValid)
             {
-                string actualDataHolder = GetActualDataHolderFromDatabase(dataHolderMetadata.LegalEntity.LegalEntityId, dataHolderMetadata.DataHolderBrandId, industry.Value);
+                string actualDataHolder = GetActualDataHolderFromDatabase(dataHolderMetadata.LegalEntity.LegalEntityId, dataHolderMetadata.DataHolderBrandId, industry);
 
                 Assert_Json(GetJsonFromModel(dataHolderMetadata), actualDataHolder);
             }
@@ -744,40 +607,36 @@ namespace CDR.Register.IntegrationTests.API.Update
             }
         }
 
-        private static DataHolderMetadata CreateValidDataHolderMetadata(Industry industry, bool includeOptionalFields = false)
+        private static DataHolderMetadata CreateValidDataholderMetadata(Industry industry, bool includeOptionalFields = false)
         {
-            var dataHolderMetadata = new DataHolderMetadata
+            DataHolderMetadata dataHolderMetadata = new DataHolderMetadata();
+            dataHolderMetadata.DataHolderBrandId = Guid.NewGuid().ToString();
+            dataHolderMetadata.BrandName = "Test Automation Brand Name";
+            dataHolderMetadata.Industries = new List<string> { industry.ToString().ToUpper() };
+            dataHolderMetadata.Status = "ACTIVE";
+            dataHolderMetadata.LogoUri = $"{TEST_DATA_BASE_URI}/logo.png";
+
+            dataHolderMetadata.LegalEntity = new DataHolderMetadata.LegalEntityChild()
             {
-                DataHolderBrandId = Guid.NewGuid().ToString(),
-                BrandName = "Test Automation Brand Name",
-                BrandGroup = "Test Automation Brand Group",
-                Industries = [IndustryMapping[industry].ToUpperInvariant()],
-                Status = "ACTIVE",
+                LegalEntityId = Guid.NewGuid().ToString(),
+                LegalEntityName = "Test Automation Generated Legal Entity Name",
                 LogoUri = $"{TEST_DATA_BASE_URI}/logo.png",
+                Status = "ACTIVE",
+            };
 
-                LegalEntity = new DataHolderMetadata.LegalEntityChild
-                {
-                    LegalEntityId = Guid.NewGuid().ToString(),
-                    LegalEntityName = "Test Automation Generated Legal Entity Name",
-                    LogoUri = $"{TEST_DATA_BASE_URI}/logo.png",
-                    Status = "ACTIVE",
-                },
+            dataHolderMetadata.EndpointDetail = new DataHolderMetadata.EndpointDetailChild()
+            {
+                Version = "1",
+                PublicBaseUri = $"{TEST_DATA_BASE_URI}/publicBaseUri",
+                ResourceBaseUri = $"{TEST_DATA_BASE_URI}/resourceBaseUri",
+                InfosecBaseUri = $"{TEST_DATA_BASE_URI}/infosecBaseUri",
+                WebsiteUri = $"{TEST_DATA_BASE_URI}/websiteUri",
+            };
 
-                EndpointDetail = new DataHolderMetadata.EndpointDetailChild
-                {
-                    Version = "1",
-                    PublicBaseUri = $"{TEST_DATA_BASE_URI}/publicBaseUri",
-                    ProductBaseUri = $"{TEST_DATA_BASE_URI}/productBaseUri",
-                    ResourceBaseUri = $"{TEST_DATA_BASE_URI}/resourceBaseUri",
-                    InfosecBaseUri = $"{TEST_DATA_BASE_URI}/infosecBaseUri",
-                    WebsiteUri = $"{TEST_DATA_BASE_URI}/websiteUri",
-                },
-
-                AuthDetails = new DataHolderMetadata.AuthDetailsChild
-                {
-                    RegisterUType = "SIGNED-JWT",
-                    JwksEndpoint = $"{TEST_DATA_BASE_URI}/jwks.json",
-                },
+            dataHolderMetadata.AuthDetails = new DataHolderMetadata.AuthDetailsChild()
+            {
+                RegisterUType = "SIGNED-JWT",
+                JwksEndpoint = $"{TEST_DATA_BASE_URI}/jwks.json",
             };
 
             if (includeOptionalFields)
@@ -812,14 +671,13 @@ namespace CDR.Register.IntegrationTests.API.Update
                         .Include(participation => participation.Brands)
                         .ThenInclude(brandStatus => brandStatus.BrandStatus)
                         .Include(participation => participation.Brands)
-                        .Where(participation => participation.LegalEntityId == legalEntityIdGuid)
-                        .Where(participation => participation.Industry.IndustryTypeCode == IndustryMapping[industry].ToUpperInvariant())
+                        .Where(participation => participation.LegalEntityId == legalEntityIdGuid
+                                && participation.Industry.IndustryTypeCode == industry.ToString())
                         .OrderBy(participation => participation.LegalEntityId)
                         .Select(participation => participation.Brands.Where(brand => brand.BrandId == Guid.Parse(brandId)).Select(brand => new
                         {
                             dataHolderBrandId = brand.BrandId,
                             brandName = brand.BrandName,
-                            brandGroup = brand.BrandGroup, // White-labelling
                             industries = new List<string> { participation.Industry.IndustryTypeCode.ToUpper() },
                             logoUri = brand.LogoUri,
                             status = brand.BrandStatus.BrandStatusCode,
@@ -844,7 +702,6 @@ namespace CDR.Register.IntegrationTests.API.Update
                             {
                                 version = brand.Endpoint.Version,
                                 publicBaseUri = brand.Endpoint.PublicBaseUri,
-                                productBaseUri = brand.Endpoint.ProductBaseUri, // White-labelling
                                 resourceBaseUri = brand.Endpoint.ResourceBaseUri,
                                 infosecBaseUri = brand.Endpoint.InfosecBaseUri,
                                 extensionBaseUri = brand.Endpoint.ExtensionBaseUri,
@@ -883,8 +740,8 @@ namespace CDR.Register.IntegrationTests.API.Update
                 throw new Exception($"Unable to retrieve access token from Azure AD.\n Http Status Code: {response.StatusCode}\nResponse Body:{responseBody}");
             }
 
-            var tokenResponse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
-            return tokenResponse.Access_token;
+            var tokenResnse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
+            return tokenResnse.Access_token;
         }
 
         private static async Task<string> GetInvalidAzureAdAccessToken()
@@ -905,8 +762,8 @@ namespace CDR.Register.IntegrationTests.API.Update
                 throw new Exception($"Unable to retrieve access token from Azure AD.\n Http Status Code: {response.StatusCode}\nResponse Body:{responseBody}");
             }
 
-            var tokenResponse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
-            return tokenResponse.Access_token;
+            var tokenResnse = JsonConvert.DeserializeObject<AccessToken>(responseBody);
+            return tokenResnse.Access_token;
         }
     }
 }

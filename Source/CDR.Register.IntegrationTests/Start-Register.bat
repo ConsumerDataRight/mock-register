@@ -11,7 +11,6 @@ REM --title SSA_API -d ../CDR.Register.SSA.API dotnet run; ^
 REM --title Status_API -d ../CDR.Register.Status.API dotnet run; ^
 REM --title Admin_API -d ../CDR.Register.Admin.API dotnet run
  
-docker compose -f ../docker-compose.IntegrationTests.yml up -d --build --force-recreate mssql mock-register
+docker compose -f ../docker-compose.IntegrationTests.yml up -d --build mssql mock-register
 echo Supporting infrastructure for tests will now stop.
 pause
-docker compose -f ../docker-compose.IntegrationTests.yml down

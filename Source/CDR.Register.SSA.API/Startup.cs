@@ -36,7 +36,11 @@ namespace CDR.Register.SSA.API
 
             services.AddControllers();
 
-            services.AddCdrApiVersioning();
+            services.AddApiVersioning(options =>
+            {
+                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
+                options.ErrorResponses = new ApiVersionErrorResponse();
+            });
 
             var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)

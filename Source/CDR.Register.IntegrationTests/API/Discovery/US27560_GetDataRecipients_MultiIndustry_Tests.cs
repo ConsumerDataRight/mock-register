@@ -171,21 +171,21 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         }
 
         [Theory]
-        [InlineData("3", "5", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
+        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
         [InlineData("3", "2", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported and higher than x-min-v
         [InlineData("3", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported equal to x-min-v
-        [InlineData("5", "3", "4", HttpStatusCode.BadRequest, true, "")] // Invalid. Should return v4 - x-v is NOT supported
+        [InlineData("4", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
         [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
         [InlineData("99", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
-        [InlineData("5", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // invalid. x-v is not supported and x-min-v invalid
-        [InlineData("5", "5", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 3
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // invalid. x-v is not supported and x-min-v invalid
+        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 3
         [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("2", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "3", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("5", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 3
+        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 3
         [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 

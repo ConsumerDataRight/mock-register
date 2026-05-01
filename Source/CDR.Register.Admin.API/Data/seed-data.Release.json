@@ -24,7 +24,6 @@
             {
               "brandId": "cfcaf0df-401b-47f2-98af-94787289eca8",
               "brandName": "Mock Data Holder (Energy)",
-              "brandGroup": "CDR Mock Brands",
               "logoUri": "https://smarterenergy/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-12-01T10:00:00",
@@ -37,7 +36,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://mock-data-holder-energy:8100",
-                "productBaseUri": "https://mock-data-holder-energy:8100",
                 "resourceBaseUri": "https://mock-data-holder-energy:8102",
                 "infoSecBaseUri": "https://mock-data-holder-energy:8101",
                 "extensionBaseUri": "",
@@ -47,7 +45,6 @@
             {
               "brandId": "6859d9f9-9cf9-486d-bc85-5d43a7e116de",
               "brandName": "Cut Price Energy -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://cutpriceenergy/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-12-01T11:00:00",
@@ -60,7 +57,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://api.cutpriceenergy:8100",
-                "productBaseUri": "https://api.cutpriceenergy:8100",
                 "resourceBaseUri": "https://api.cutpriceenergy:8102",
                 "infoSecBaseUri": "https://api.cutpriceenergy:8101",
                 "extensionBaseUri": "",
@@ -95,7 +91,6 @@
             {
               "brandId": "d50b74cf-e992-42fd-86d4-582ac9d72dbb",
               "brandName": "Mock Energy Tool",
-              "brandGroup": null,
               "logoUri": "https://mocksoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-12-01T09:00:00",
@@ -152,7 +147,6 @@
             {
               "brandId": "804fc2fb-18a7-4235-9a49-2af393d18bc7",
               "brandName": "Mock Data Holder (Banking)",
-              "brandGroup": "CDR Mock Brands",
               "logoUri": "https://bank1/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -165,59 +159,10 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://mock-data-holder:8000",
-                "productBaseUri": "https://mock-data-holder:8000",
                 "resourceBaseUri": "https://mock-data-holder:8002",
                 "infoSecBaseUri": "https://mock-data-holder:8001",
                 "extensionBaseUri": "",
                 "websiteUri": "https://bank1/"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "legalEntityId": "07568be9-ed72-4268-8a8f-83cf60608dff",
-      "legalEntityName": "Non Bank Legal Entity 1",
-      "logoUri": "https://non-bank/logo.png",
-      "registrationNumber": "48219",
-      "registrationDate": "2021-12-01T10:00:00",
-      "registeredCountry": "AUSTRALIA",
-      "abn": "58392017462",
-      "acn": "473915802",
-      "arbn": null,
-      "anzsicDivision": "6221",
-      "organisationTypeId": 2,
-      "legalEntityStatusId": 1,
-      "accreditationNumber": null,
-      "accreditationLevelId": null,
-      "participations": [
-        {
-          "participationTypeId": 1,
-          "industryId": 3,
-          "statusId": 1,
-          "brands": [
-            {
-              "brandId": "7f3c2a41-9b8e-4e6c-9df1-12c4b8f0a6e3",
-              "brandName": "Mock Data Holder (Non-Bank Lending)",
-              "brandGroup": "CDR Mock Brands",
-              "logoUri": "https://non-bank1/img/logo.png",
-              "brandStatusId": 1,
-              "lastUpdated": "2021-04-06T11:58:00",
-              "authDetails": [
-                {
-                  "registerUTypeId": 1,
-                  "jwksEndpoint": "https://idp.non.bank1/jwks"
-                }
-              ],
-              "endpoint": {
-                "version": 1,
-                "publicBaseUri": "https://mock-data-holder:8200",
-                "productBaseUri": "https://mock-data-holder:8200",
-                "resourceBaseUri": "https://mock-data-holder:8202",
-                "infoSecBaseUri": "https://mock-data-holder:8201",
-                "extensionBaseUri": "",
-                "websiteUri": "https://non-bank1/"
               }
             }
           ]
@@ -248,7 +193,6 @@
             {
               "brandId": "ffb1c8ba-279e-44d8-96f0-1bc34a6b436f",
               "brandName": "Mock Finance Tools",
-              "brandGroup": null,
               "logoUri": "https://mocksoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -305,7 +249,6 @@
             {
               "brandId": "6e9cfaf7-ecae-4de3-bbc5-ea9f366bdf55",
               "brandName": "New Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://newbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -318,7 +261,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.newbank",
-                "productBaseUri": null, // intentionally not provided
                 "resourceBaseUri": "https://api.newbank",
                 "infoSecBaseUri": "https://idp.newbank",
                 "extensionBaseUri": "",
@@ -353,7 +295,6 @@
             {
               "brandId": "f6dfbe5b-c57a-4ec2-bc97-66c1f7fe6c1d",
               "brandName": "Sun -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://sunbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-01T11:58:00",
@@ -366,7 +307,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.sunbank",
-                "productBaseUri": "https://publicapi.sunbank",
                 "resourceBaseUri": "https://api.sunbank",
                 "infoSecBaseUri": "https://idp.sunbank",
                 "extensionBaseUri": "",
@@ -376,7 +316,6 @@
             {
               "brandId": "a2cd9cd1-e3c7-493b-86d8-f9f319ca0732",
               "brandName": "Brighter Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://brighterbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-01-01T11:58:00",
@@ -389,7 +328,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.brighterbank",
-                "productBaseUri": "https://publicapi.brighterbank",
                 "resourceBaseUri": "https://api.brighterbank",
                 "infoSecBaseUri": "https://idp.brighterbank",
                 "extensionBaseUri": "",
@@ -424,7 +362,6 @@
             {
               "brandId": "62f4a113-defe-4f99-bd9c-625277bc0e36",
               "brandName": "mildBank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://mildbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-11T11:58:00",
@@ -437,7 +374,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.mildbank",
-                "productBaseUri": "https://publicapi.mildbank",
                 "resourceBaseUri": "https://api.mildbank",
                 "infoSecBaseUri": "https://idp.mildbank",
                 "extensionBaseUri": "",
@@ -447,7 +383,6 @@
             {
               "brandId": "81d3d5cc-cdb6-4253-a78b-b17155dde7fd",
               "brandName": "extrahotBank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://extrahotbank/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-16T11:58:00",
@@ -460,7 +395,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.extrahotbank",
-                "productBaseUri": "https://publicapi.extrahotbank",
                 "resourceBaseUri": "https://api.extrahotbank",
                 "infoSecBaseUri": "https://idp.extrahotbank",
                 "extensionBaseUri": "",
@@ -495,7 +429,6 @@
             {
               "brandId": "9928cf0f-70c7-40ea-b7ad-cad190232f68",
               "brandName": "Ive Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://ivebank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-03T11:58:00",
@@ -508,7 +441,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.ivebank",
-                "productBaseUri": "https://publicapi.ivebank",
                 "resourceBaseUri": "https://api.ivebank",
                 "infoSecBaseUri": "https://idp.ivebank",
                 "extensionBaseUri": "",
@@ -543,7 +475,6 @@
             {
               "brandId": "7c97c3b5-fe64-4b35-8ae0-17fa5d4aa0a8",
               "brandName": "Eva Bank corp -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://evabankcorp/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-26T11:58:00",
@@ -556,7 +487,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.evabank",
-                "productBaseUri": "https://publicapi.evabank",
                 "resourceBaseUri": "https://api.evabank",
                 "infoSecBaseUri": "https://idp.evabank",
                 "extensionBaseUri": "",
@@ -591,7 +521,6 @@
             {
               "brandId": "a5252bde-d1a6-413f-8f53-f7e2f6ab3f77",
               "brandName": "Royal Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://royalbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-01T11:58:00",
@@ -604,7 +533,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.royalbank",
-                "productBaseUri": "https://publicapi.royalbank",
                 "resourceBaseUri": "https://api.royalbank",
                 "infoSecBaseUri": "https://idp.royalbank",
                 "extensionBaseUri": "",
@@ -639,7 +567,6 @@
             {
               "brandId": "c1ff7731-5843-4384-88d8-6062afde7c5b",
               "brandName": "central bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://centralbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-03-06T11:58:00",
@@ -652,7 +579,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.centralbank",
-                "productBaseUri": "https://publicapi.centralbank",
                 "resourceBaseUri": "https://api.centralbank",
                 "infoSecBaseUri": "https://idp.centralbank",
                 "extensionBaseUri": "",
@@ -687,7 +613,6 @@
             {
               "brandId": "2192a459-5ef5-4493-afe1-56c3d03fc1ba",
               "brandName": "Fox Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://foxbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-21T11:58:00",
@@ -700,7 +625,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.foxbank",
-                "productBaseUri": "https://publicapi.foxbank",
                 "resourceBaseUri": "https://api.foxbank",
                 "infoSecBaseUri": "https://idp.foxbank",
                 "extensionBaseUri": "",
@@ -735,7 +659,6 @@
             {
               "brandId": "8aa8e9a6-1dc7-4428-baea-d1f4533428b9",
               "brandName": "Grand Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://grandbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-29T11:58:00",
@@ -748,7 +671,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.grandbank",
-                "productBaseUri": "https://publicapi.grandbank",
                 "resourceBaseUri": "https://api.grandbank",
                 "infoSecBaseUri": "https://idp.grandbank",
                 "extensionBaseUri": "",
@@ -783,7 +705,6 @@
             {
               "brandId": "85168ace-9211-45e3-bb75-f85c54e66f10",
               "brandName": "Kiss Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://kissbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-12T11:58:00",
@@ -796,7 +717,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.kissbank",
-                "productBaseUri": "https://publicapi.kissbank",
                 "resourceBaseUri": "https://api.kissbank",
                 "infoSecBaseUri": "https://idp.kissbank",
                 "extensionBaseUri": "",
@@ -831,7 +751,6 @@
             {
               "brandId": "bb03be60-5c46-422e-a27e-aefa0015078d",
               "brandName": "Luna -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://lunabank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-12T11:58:00",
@@ -844,7 +763,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.lunabank",
-                "productBaseUri": "https://publicapi.lunabank",
                 "resourceBaseUri": "https://api.lunabank",
                 "infoSecBaseUri": "https://idp.lunabank",
                 "extensionBaseUri": "",
@@ -879,7 +797,6 @@
             {
               "brandId": "52d23611-4493-4a21-9095-44ae9eb85841",
               "brandName": "Mu Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://mubank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -892,7 +809,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.mubank",
-                "productBaseUri": "https://publicapi.mubank",
                 "resourceBaseUri": "https://api.mubank",
                 "infoSecBaseUri": "https://idp.mubank",
                 "extensionBaseUri": "",
@@ -927,7 +843,6 @@
             {
               "brandId": "557f42e8-4e00-4b03-a9c9-d97796b6418b",
               "brandName": "Noon Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://noonbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -940,7 +855,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.noonbank",
-                "productBaseUri": "https://publicapi.noonbank",
                 "resourceBaseUri": "https://api.noonbank",
                 "infoSecBaseUri": "https://idp.noonbank",
                 "extensionBaseUri": "",
@@ -975,7 +889,6 @@
             {
               "brandId": "a5e45351-d13c-4690-93d1-3da515e71a92",
               "brandName": "Oppo Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://oppobank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -988,7 +901,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.oppobank",
-                "productBaseUri": "https://publicapi.oppobank",
                 "resourceBaseUri": "https://api.oppobank",
                 "infoSecBaseUri": "https://idp.oppobank",
                 "extensionBaseUri": "",
@@ -1023,7 +935,6 @@
             {
               "brandId": "97e53112-73b2-482a-b352-39d389d67916",
               "brandName": "Pepper Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://pepperbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -1036,7 +947,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.pepperbank",
-                "productBaseUri": "https://publicapi.pepperbank",
                 "resourceBaseUri": "https://api.pepperbank",
                 "infoSecBaseUri": "https://idp.pepperbank",
                 "extensionBaseUri": "",
@@ -1071,7 +981,6 @@
             {
               "brandId": "895e54c5-93e0-405f-8072-0a9871bac8b5",
               "brandName": "QQ Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://qqbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -1084,7 +993,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.qqbank",
-                "productBaseUri": "https://publicapi.qqbank",
                 "resourceBaseUri": "https://api.qqbank",
                 "infoSecBaseUri": "https://idp.qqbank",
                 "extensionBaseUri": "",
@@ -1119,7 +1027,6 @@
             {
               "brandId": "975375f7-2bd9-44b5-a188-43d65ca8eaae",
               "brandName": "Run Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://runbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -1132,7 +1039,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.runbank",
-                "productBaseUri": "https://publicapi.runbank",
                 "resourceBaseUri": "https://api.runbank",
                 "infoSecBaseUri": "https://idp.runbank",
                 "extensionBaseUri": "",
@@ -1167,7 +1073,6 @@
             {
               "brandId": "b648f694-0dee-4f5e-bd2c-9837ac08fb7b",
               "brandName": "SaS Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://sasbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -1180,7 +1085,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.sasbank",
-                "productBaseUri": "https://publicapi.sasbank",
                 "resourceBaseUri": "https://api.sasbank",
                 "infoSecBaseUri": "https://idp.sasbank",
                 "extensionBaseUri": "",
@@ -1215,7 +1119,6 @@
             {
               "brandId": "f8bce914-ac8d-436a-b265-19baca6d1df2",
               "brandName": "TnT Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://tntbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-09T11:58:00",
@@ -1228,7 +1131,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.tntbank",
-                "productBaseUri": "https://publicapi.tntbank",
                 "resourceBaseUri": "https://api.tntbank",
                 "infoSecBaseUri": "https://idp.tntbank",
                 "extensionBaseUri": "",
@@ -1263,7 +1165,6 @@
             {
               "brandId": "e748eadf-4aa4-4e2f-b3da-fb4a9d511994",
               "brandName": "Bank Brand 2 -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://bank2/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1276,7 +1177,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.bank2",
-                "productBaseUri": "https://publicapi.bank2",
                 "resourceBaseUri": "https://api.bank2",
                 "infoSecBaseUri": "https://idp.bank2",
                 "extensionBaseUri": "",
@@ -1311,7 +1211,6 @@
             {
               "brandId": "9f8df3e2-6866-42af-91d4-5faa3204f0b8",
               "brandName": "Smarter Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://smarterbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1324,7 +1223,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.smarterbank",
-                "productBaseUri": "https://publicapi.smarterbank",
                 "resourceBaseUri": "https://api.smarterbank",
                 "infoSecBaseUri": "https://idp.smarterbank",
                 "extensionBaseUri": "",
@@ -1334,7 +1232,6 @@
             {
               "brandId": "81d3d5cb-cdb6-4253-a78b-b17155dde7fd",
               "brandName": "MyBank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://mybank/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1347,7 +1244,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.mybank",
-                "productBaseUri": "https://publicapi.mybank",
                 "resourceBaseUri": "https://api.mybank",
                 "infoSecBaseUri": "https://idp.mybank",
                 "extensionBaseUri": "",
@@ -1382,7 +1278,6 @@
             {
               "brandId": "cf217aba-e00d-48d5-9c3d-03af0b91cb80",
               "brandName": "Hall Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://hallardbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-19T11:58:00",
@@ -1395,7 +1290,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.hallbank",
-                "productBaseUri": "https://publicapi.hallbank",
                 "resourceBaseUri": "https://api.hallbank",
                 "infoSecBaseUri": "https://idp.hallbank",
                 "extensionBaseUri": "",
@@ -1405,7 +1299,6 @@
             {
               "brandId": "920f296d-5f2f-49de-876c-15a4aa1b4a79",
               "brandName": "Hallway -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://hallwaybank/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-18T11:58:00",
@@ -1418,7 +1311,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.hallwaybank",
-                "productBaseUri": "https://publicapi.hallwaybank",
                 "resourceBaseUri": "https://api.hallwaybank",
                 "infoSecBaseUri": "https://idp.hallwaybank",
                 "extensionBaseUri": "",
@@ -1453,7 +1345,6 @@
             {
               "brandId": "bc144967-d6f8-47a6-8590-07caf522141b",
               "brandName": "Jobs Bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://jobsbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1466,7 +1357,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.jobsbank",
-                "productBaseUri": "https://publicapi.jobsbank",
                 "resourceBaseUri": "https://api.jobsbank",
                 "infoSecBaseUri": "https://idp.jobsbank",
                 "extensionBaseUri": "",
@@ -1476,7 +1366,6 @@
             {
               "brandId": "7b47ecf8-a991-4dd3-adef-b89564005e8e",
               "brandName": "offer bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://offerbank/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1489,7 +1378,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.offerbank",
-                "productBaseUri": "https://publicapi.offerbank",
                 "resourceBaseUri": "https://api.offerbank",
                 "infoSecBaseUri": "https://idp.offerbank",
                 "extensionBaseUri": "",
@@ -1499,7 +1387,6 @@
             {
               "brandId": "c3176245-4258-4383-b945-cd2f7c828d3c",
               "brandName": "J bank -- dummy data holder -- do not use",
-              "brandGroup": null,
               "logoUri": "https://jbank/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-18T11:58:00",
@@ -1512,7 +1399,6 @@
               "endpoint": {
                 "version": 1,
                 "publicBaseUri": "https://publicapi.jbank",
-                "productBaseUri": "https://publicapi.jbank",
                 "resourceBaseUri": "https://api.jbank",
                 "infoSecBaseUri": "https://idp.jbank",
                 "extensionBaseUri": "",
@@ -1547,7 +1433,6 @@
             {
               "brandId": "20c0864b-ceef-4de0-8944-eb0962f825eb",
               "brandName": "Finance X",
-              "brandGroup": null,
               "logoUri": "https://fintechx/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1670,7 +1555,6 @@
             {
               "brandId": "fe123396-4eba-4518-aade-b245ceea78af",
               "brandName": "XRay Financial",
-              "brandGroup": null,
               "logoUri": "https://xraysoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1727,7 +1611,6 @@
             {
               "brandId": "8fe9791a-e4a8-4104-b1cb-e0df41189520",
               "brandName": "WOW",
-              "brandGroup": null,
               "logoUri": "https://wowsoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-02-06T11:58:00",
@@ -1784,7 +1667,6 @@
             {
               "brandId": "a7171ba3-fd05-456f-a859-be4e1cbcc17d",
               "brandName": "OLM Software",
-              "brandGroup": null,
               "logoUri": "https://olmsoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1841,7 +1723,6 @@
             {
               "brandId": "8a3441aa-1242-493a-b466-dcbfffe5a441",
               "brandName": "xlogical",
-              "brandGroup": null,
               "logoUri": "https://xlogical/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",
@@ -1898,7 +1779,6 @@
             {
               "brandId": "46b33515-b4a5-4b1c-b5b4-25654d675be6",
               "brandName": "HotFinTech",
-              "brandGroup": null,
               "logoUri": "https://hotfintech/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-05T11:58:00",
@@ -1977,7 +1857,6 @@
             {
               "brandId": "ebbcc2f2-817e-42b8-8a28-cd45902159e0",
               "brandName": "ZeroFintech",
-              "brandGroup": null,
               "logoUri": "https://zerofintech/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-05T11:58:00",
@@ -2056,7 +1935,6 @@
             {
               "brandId": "f3f0c40b-9df8-491a-af1d-81cb9ab5f021",
               "brandName": "YoYo",
-              "brandGroup": null,
               "logoUri": "https://yoyosoftware/img/logo.png",
               "brandStatusId": 1,
               "lastUpdated": "2021-04-06T11:58:00",

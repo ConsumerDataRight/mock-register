@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CDR.Register.Discovery.API.Business.Models
 {
-    public class RegisterDataHolderBrandV2 : IRegisterDataHolderBrand
+    public class RegisterDataHolderBrandModel
     {
         public string DataHolderBrandId { get; set; }
 
@@ -17,12 +17,10 @@ namespace CDR.Register.Discovery.API.Business.Models
 
         public string Status { get; set; }
 
+        public EndpointDetailModel EndpointDetail { get; set; }
+
         public AuthDetailModel[] AuthDetails { get; set; }
 
         public DateTime LastUpdated { get; set; }
-
-        public string BrandGroup { get; set; }
-
-        public RegisterDataHolderBrandServiceEndpointV2 EndpointDetail { get; set; }
     }
 }

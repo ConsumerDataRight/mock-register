@@ -74,20 +74,18 @@ namespace CDR.Register.Infosec.Controllers
 
         private static (bool IsValid, string? Error, string? ErrorDescription, SoftwareProductInfosec? Client) ValidateScope(string? scope)
         {
-            if (string.IsNullOrWhiteSpace(scope))
+            if (string.IsNullOrEmpty(scope))
             {
                 return (false, ErrorCodes.Generic.InvalidClient, "empty scope", null);
             }
 
-            var scopes = scope.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            // This was rewritten to abide by S3267 code style during patching.
-            // However, this may lead to a bug in future if the supported scopes are expanded as it does not allow
-            // scopes that INCLUDE 'cdr-register:read' but rather enforces scopes are ONLY 'cdr-register:read'
-            // this should probably be !scopes.Contains(Constants.Scopes.RegisterRead, StringComparison.Ordinal)
-            if (scopes.Any(s => !s.Equals(Constants.Scopes.RegisterRead, StringComparison.Ordinal)))
+            var scopes = scope.Split(' ');
+            foreach (var s in scopes)
             {
-                return (false, ErrorCodes.Generic.InvalidClient, "invalid scope", null);
+                if (!s.Equals(Constants.Scopes.RegisterRead))
+                {
+                    return (false, ErrorCodes.Generic.InvalidClient, "invalid scope", null);
+                }
             }
 
             return (true, null, null, null);

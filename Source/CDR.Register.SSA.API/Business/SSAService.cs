@@ -31,33 +31,16 @@ namespace CDR.Register.SSA.API.Business
             this._tokenizer = tokenizer;
         }
 
-        public async Task<string> GetSoftwareStatementAssertionJWTAsync(string dataRecipientBrandId, string softwareProductId)
+        public async Task<string> GetSoftwareStatementAssertionJWTAsync(Repository.Infrastructure.Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
             // Get the SSA to be put in a JWT
-            var ssa = await this.GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
+            var ssa = await this.GetSoftwareStatementAssertionAsync(industry, dataRecipientBrandId, softwareProductId);
             return await this._tokenizer.GenerateJwtTokenAsync(ssa);
         }
 
-        private static void Validate(SoftwareStatementAssertionModel ssa)
+        public async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Repository.Infrastructure.Industry industry, string dataRecipientBrandId, string softwareProductId)
         {
-            var validationContext = new ValidationContext(ssa);
-            var validationResults = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(ssa, validationContext, validationResults, true))
-            {
-                var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {ssa.Org_id} / softwareProductId: {ssa.Software_id} \r\n{validationResults.ToJson()}";
-                throw new SsaValidationException(errorMessage);
-            }
-        }
-
-        private async Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(string dataRecipientBrandId, string softwareProductId)
-        {
-            if (!Guid.TryParse(dataRecipientBrandId, out var dataRecipientBrandGuid) || !Guid.TryParse(softwareProductId, out var softwareProductGuid))
-            {
-                return null;
-            }
-
-            var softwareProductEntity = await this._repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
-
+            var softwareProductEntity = await this.GetSoftwareStatementAssertionAsync(dataRecipientBrandId, softwareProductId);
             var ssa = this._mapper.MapV3(softwareProductEntity);
             if (ssa == null)
             {
@@ -73,6 +56,29 @@ namespace CDR.Register.SSA.API.Business
             Validate(ssa);
 
             return ssa;
+        }
+
+        private static void Validate(SoftwareStatementAssertionModel ssa)
+        {
+            var validationContext = new ValidationContext(ssa);
+            var validationResults = new List<ValidationResult>();
+            if (!Validator.TryValidateObject(ssa, validationContext, validationResults, true))
+            {
+                var errorMessage = $"Validation errors in SSA for dataRecipientBrandId: {ssa.Org_id} / softwareProductId: {ssa.Software_id} \r\n{validationResults.ToJson()}";
+                throw new SsaValidationException(errorMessage);
+            }
+        }
+
+        private async Task<SoftwareStatementAssertion> GetSoftwareStatementAssertionAsync(string dataRecipientBrandId, string softwareProductId)
+        {
+            if (string.IsNullOrWhiteSpace(dataRecipientBrandId) || string.IsNullOrWhiteSpace(softwareProductId))
+            {
+                return null;
+            }
+
+            var dataRecipientBrandGuid = Guid.Parse(dataRecipientBrandId);
+            var softwareProductGuid = Guid.Parse(softwareProductId);
+            return await this._repository.GetSoftwareStatementAssertionAsync(dataRecipientBrandGuid, softwareProductGuid);
         }
     }
 }

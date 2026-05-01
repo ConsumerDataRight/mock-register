@@ -7,14 +7,10 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Configuration;
 using CDR.Register.API.Infrastructure.Models;
 using CDR.Register.API.Infrastructure.SwaggerFilters;
-using CDR.Register.API.Infrastructure.Versioning;
-using CDR.Register.Domain.Extensions;
 using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -71,7 +67,7 @@ namespace CDR.Register.API.Infrastructure
                     return false;
                 }
 
-                // For a stronger match validating dynamic base path with an conformance ID rather than only the ID
+                // For a stronger match validating dynamic base path with an conformance ID instead of confromanceId only
                 return issuer?.Contains(context.Request.PathBase) ?? false;
             }
 
@@ -170,7 +166,7 @@ namespace CDR.Register.API.Infrastructure
             {
                 var allAuthPolicies = AuthorisationPolicies.GetAllPolicies();
 
-                // Apply all listed policies from a single source of truth that is also used for self-documentation
+                // Apply all listed policities from a single source of truth that is also used for self-documentation
                 foreach (var pol in allAuthPolicies)
                 {
                     options.AddPolicy(pol.Name, policy =>
@@ -320,20 +316,16 @@ namespace CDR.Register.API.Infrastructure
             return new Uri(url.Replace(currentHost, newHostName));
         }
 
-        /// <summary>
-        /// Converts to an <see cref="Industry"/> value.
-        /// </summary>
-        /// <param name="industry">The industry string.</param>
-        /// <returns>The appropriate enumeration value.</returns>
-        /// <exception cref="NotSupportedException">Thrown when the provided industry cannot be matched to an enum value.</exception>
         public static Industry ToIndustry(this string industry)
         {
-            if (EnumExtensions.TryParseFromDescription<Industry>(industry, out var value))
+            if (Enum.IsDefined(typeof(Industry), industry.ToUpper()))
             {
-                return value;
+                return (Industry)Enum.Parse(typeof(Industry), industry, true);
             }
-
-            throw new NotSupportedException($"Invalid industry: {industry}");
+            else
+            {
+                throw new NotSupportedException($"Invalid industry: {industry}");
+            }
         }
 
         public static IEnumerable<string> GetValueAsList(this IConfiguration configuration, string key, string delimiter)
@@ -433,28 +425,6 @@ namespace CDR.Register.API.Infrastructure
             }
         }
 
-        /// <summary>
-        /// Add CDR-specific API versioning and API explorer.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="setupVersioningAction">Additional setup actions to configure <see cref="ApiVersioningOptions"/> beyond the default settings.</param>
-        /// <param name="setupExplorerAction">Additional setup actions to configure <see cref="ApiExplorerOptions"/> beyond the default settings.</param>
-        /// <returns>The versioning builder.</returns>
-        public static IApiVersioningBuilder AddCdrApiVersioning(this IServiceCollection services, Action<ApiVersioningOptions>? setupVersioningAction = null, Action<ApiExplorerOptions>? setupExplorerAction = null)
-        {
-            return services
-                .AddApiVersioning(options =>
-                {
-                    options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
-                    setupVersioningAction?.Invoke(options);
-                })
-                .AddApiExplorer(options =>
-                {
-                    options.GroupNameFormat = Constants.Versioning.GroupNameFormat;
-                    setupExplorerAction?.Invoke(options);
-                });
-        }
-
         public static IServiceCollection AddCdrSwaggerGen(this IServiceCollection services, Action<CdrSwaggerOptions> configureRegisterSwaggerOptions, bool isVersioned = true)
         {
             var options = new CdrSwaggerOptions();
@@ -465,6 +435,12 @@ namespace CDR.Register.API.Infrastructure
             if (isVersioned)
             {
                 services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+                // Required for our Swagger setup to work when endpoints have been versioned
+                services.AddVersionedApiExplorer(opt =>
+                {
+                    opt.GroupNameFormat = options.VersionedApiGroupNameFormat;
+                });
             }
             else
             {
@@ -483,7 +459,6 @@ namespace CDR.Register.API.Infrastructure
                 c.SchemaFilter<PropertyAlphabeticalOrderFilter>();
                 c.OperationFilter<SetupApiVersionParamsOperationFilter>();
                 c.OperationFilter<AuthorizationOperationFilter>();
-                c.OperationFilter<IndustryParamsOperationFilter>();
 
                 if (options.IncludeAuthentication)
                 {

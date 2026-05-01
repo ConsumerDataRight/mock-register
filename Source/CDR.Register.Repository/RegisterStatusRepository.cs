@@ -4,7 +4,6 @@ using CDR.Register.Domain.Entities;
 using CDR.Register.Repository.Enums;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
-using CDR.Register.Repository.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace CDR.Register.Repository
@@ -19,19 +18,19 @@ namespace CDR.Register.Repository
             this._registerDatabaseContext = registerDatabaseContext;
         }
 
-        public async Task<DataRecipientStatus[]> GetDataRecipientStatuses(Industry industry, IParticipationSpecification specification)
+        public async Task<DataRecipientStatus[]> GetDataRecipientStatusesAsync(Infrastructure.Industry industry)
         {
-            return await specification.Apply(this._registerDatabaseContext.Participations.AsNoTracking())
-                        .Include(p => p.Status)
-                        .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
-                        .Select(p => new DataRecipientStatus() { DataRecipientId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
-                        .OrderBy(p => p.DataRecipientId.ToString())
-                        .ToArrayAsync();
+            return await this._registerDatabaseContext.Participations.AsNoTracking()
+                .Include(p => p.Status)
+                .Where(p => p.ParticipationTypeId == ParticipationTypes.Dr)
+                .Select(p => new DataRecipientStatus() { DataRecipientId = p.LegalEntityId, Status = p.Status.ParticipationStatusCode })
+                .OrderBy(p => p.DataRecipientId.ToString())
+                .ToArrayAsync();
         }
 
-        public async Task<SoftwareProductStatus[]> GetSoftwareProductStatuses(Industry industry, IParticipationSpecification specification)
+        public async Task<Domain.Entities.SoftwareProductStatus[]> GetSoftwareProductStatusesAsync(Infrastructure.Industry industry)
         {
-            var allParticipants = await specification.Apply(this._registerDatabaseContext.Participations.AsNoTracking())
+            var allParticipants = await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Industry)
                 .Include(p => p.Brands)
                 .ThenInclude(brand => brand.SoftwareProducts)
@@ -53,7 +52,7 @@ namespace CDR.Register.Repository
                 .SelectMany(p => p.Brands)
                 .SelectMany(b => b.SoftwareProducts)
                 .Select(sp =>
-                    new SoftwareProductStatus
+                    new Domain.Entities.SoftwareProductStatus
                     {
                         SoftwareProductId = sp.SoftwareProductId,
                         Status = sp.Status.SoftwareProductStatusCode,
@@ -62,9 +61,9 @@ namespace CDR.Register.Repository
                 .ToArray();
         }
 
-        public async Task<DataHolderStatus[]> GetDataHolderStatuses(Industry industry, IParticipationSpecification specification)
+        public async Task<DataHolderStatus[]> GetDataHolderStatusesAsync(Infrastructure.Industry industry)
         {
-            return await specification.Apply(this._registerDatabaseContext.Participations.AsNoTracking())
+            return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)
                 .Include(p => p.Industry)
                 .Include(p => p.LegalEntity)
