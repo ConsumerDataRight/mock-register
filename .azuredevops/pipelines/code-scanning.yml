@@ -17,8 +17,13 @@ schedules:
 # Disable standard CI build
 trigger: none
 
+variables:
+- group: PT-Pipeline-Common
+
 pool:
-  vmImage: 'ubuntu-latest'
+ name: mdp-mgmt-shared
+ demands:
+   - ImageOverride -equals $(PipelineHostLinuxImage)
 
 extends:
   template: pipeline-templates/code-scanning.yml@shared-code-scanning

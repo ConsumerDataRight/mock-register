@@ -20,6 +20,9 @@ namespace CDR.Register.IntegrationTests.Models
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        [JsonProperty("brandGroup")]
+        public string BrandGroup { get; set; }
+
         [JsonProperty("endpointDetail")]
         public EndpointDetailChild EndpointDetail { get; set; }
 
@@ -45,6 +48,9 @@ namespace CDR.Register.IntegrationTests.Models
 
             [JsonProperty("publicBaseUri")]
             public string PublicBaseUri { get; set; }
+
+            [JsonProperty("productBaseUri")]
+            public string ProductBaseUri { get; set; }
 
             [JsonProperty("resourceBaseUri")]
             public string ResourceBaseUri { get; set; }

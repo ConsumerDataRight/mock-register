@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.Domain.Models;
@@ -12,53 +13,47 @@ namespace CDR.Register.API.Infrastructure.Middleware
 {
     public static class ApiExceptionHandler
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new()
+        {
+            Formatting = Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy(),
+            },
+        };
+
         public static async Task Handle(HttpContext context)
         {
             var exceptionDetails = context.Features.Get<IExceptionHandlerFeature>();
             var ex = exceptionDetails?.Error;
 
-            if (ex != null)
+            if (ex == null)
             {
-                var handledError = string.Empty;
-                var statusCode = (int)HttpStatusCode.BadRequest;
-                var jsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new CamelCaseNamingStrategy(),
-                    },
-                };
+                return;
+            }
 
-                if (ex is InvalidVersionException)
-                {
-                    statusCode = (int)HttpStatusCode.BadRequest;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVInvalidVersion(), jsonSerializerSettings);
-                }
+            (HttpStatusCode statusCode, ResponseErrorList errors) = ex switch
+            {
+                InvalidVersionException =>
+                    (HttpStatusCode.BadRequest, new ResponseErrorList().AddInvalidXVInvalidVersion()),
 
-                if (ex is UnsupportedVersionException)
-                {
-                    statusCode = (int)HttpStatusCode.NotAcceptable;
-                    handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVUnsupportedVersion(), jsonSerializerSettings);
-                }
+                UnsupportedVersionException =>
+                    (HttpStatusCode.NotAcceptable, new ResponseErrorList().AddInvalidXVUnsupportedVersion()),
 
-                if (ex.GetType() == typeof(MissingRequiredHeaderException))
-                {
-                    var missingRequiredHeaderException = ex as MissingRequiredHeaderException;
-                    if (missingRequiredHeaderException?.HeaderName == Headers.X_V)
-                    {
-                        statusCode = (int)HttpStatusCode.BadRequest;
-                        handledError = JsonConvert.SerializeObject(new ResponseErrorList().AddInvalidXVMissingRequiredHeader(), jsonSerializerSettings);
-                    }
-                }
+                MissingRequiredHeaderException missingRequiredHeaderException when missingRequiredHeaderException?.HeaderName == Headers.X_V =>
+                    (HttpStatusCode.BadRequest, new ResponseErrorList().AddInvalidXVMissingRequiredHeader()),
 
-                if (!string.IsNullOrEmpty(handledError))
-                {
-                    context.Response.StatusCode = statusCode;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(handledError).ConfigureAwait(false);
-                }
+                _ =>
+                    (HttpStatusCode.InternalServerError, new ResponseErrorList().AddUnexpectedError()),
+            };
+
+            if (errors.HasErrors())
+            {
+                var handledError = JsonConvert.SerializeObject(errors, SerializerSettings);
+                context.Response.StatusCode = (int)statusCode;
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(handledError).ConfigureAwait(false);
             }
         }
     }

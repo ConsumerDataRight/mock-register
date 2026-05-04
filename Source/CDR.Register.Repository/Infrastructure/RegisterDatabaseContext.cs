@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using CDR.Register.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,9 +71,52 @@ namespace CDR.Register.Repository.Infrastructure
             modelBuilder.Entity<Participation>().ToTable("Participation", t => t.IsTemporal());
             modelBuilder.Entity<SoftwareProduct>().ToTable("SoftwareProduct", t => t.IsTemporal());
             modelBuilder.Entity<SoftwareProductCertificate>().ToTable("SoftwareProductCertificate", t => t.IsTemporal());
+            AddColumnDescriptions(modelBuilder);
 
             // Seed the database with reference data and initial data
             modelBuilder.SeedDatabase();
+        }
+
+        /// <summary>
+        /// Process entities in the model for any Description attributes on their properties, and translate them to a comment so that the underlying store has that additional metadata.
+        /// </summary>
+        /// <remarks>For MSSQL, this will populate the <c>MS_DESCRIPTION</c> property on the columns.</remarks>
+        /// <param name="modelBuilder">The EF model.</param>
+        private static void AddColumnDescriptions(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var clrType = entityType.ClrType;
+                if (clrType == null)
+                {
+                    continue;
+                }
+
+                // Apply table-level comment from [Description]
+                var tableDesc = clrType.GetCustomAttribute<DescriptionAttribute>();
+                if (tableDesc != null)
+                {
+                    modelBuilder.Entity(clrType)
+                                .ToTable(t => t.HasComment(tableDesc.Description));
+                }
+
+                // Apply property-level comments from [Description]
+                foreach (var propInfo in entityType.GetProperties().Select(x => x.PropertyInfo))
+                {
+                    if (propInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var propDesc = propInfo.GetCustomAttribute<DescriptionAttribute>();
+                    if (propDesc != null)
+                    {
+                        modelBuilder.Entity(clrType)
+                                    .Property(propInfo.Name)
+                                    .HasComment(propDesc.Description);
+                    }
+                }
+            }
         }
     }
 }

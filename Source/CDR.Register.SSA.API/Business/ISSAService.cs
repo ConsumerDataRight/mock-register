@@ -6,8 +6,6 @@ namespace CDR.Register.SSA.API.Business
 {
     public interface ISsaService
     {
-        Task<SoftwareStatementAssertionModel> GetSoftwareStatementAssertionAsync(Industry industry, string dataRecipientBrandId, string softwareProductId);
-
-        Task<string> GetSoftwareStatementAssertionJWTAsync(Industry industry, string dataRecipientBrandId, string softwareProductId);
+        Task<string> GetSoftwareStatementAssertionJWTAsync(string dataRecipientBrandId, string softwareProductId);
     }
 }

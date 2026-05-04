@@ -16,7 +16,7 @@
     <PackageReference Include="Serilog">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
     <PackageReference Include="Serilog.Enrichers.Process">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>

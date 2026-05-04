@@ -169,7 +169,22 @@ dotnet_diagnostic.SA1601.severity = none
 dotnet_diagnostic.S6960.severity = none
 # In the context of ASP.NET Core MVC web applications, both model binding and model validation are processes that take place prior to the execution of a controller action.
 dotnet_diagnostic.S6967.severity = none
+csharp_style_prefer_null_check_over_type_check = true:suggestion
+
+# Allow endpoint versions to be marked as obsolete to hint they need to be cleaned up eventually without blocking the build as we need to maintain parity with the real register
+# S1133: Deprecated code should be removed
+dotnet_diagnostic.S1133.severity = suggestion
 
 [Program.cs]
 # Using platform dependent API on a component makes the code no longer work across all platforms.
 dotnet_diagnostic.CA1416.severity = none
+
+
+# Allow model / mapping classes to be marked as obsolete to hint they need to be cleaned up 
+# but not block the build as we will need to maintain this obsolete functionality to match the real register
+[**/Business/**.cs]
+# S1133: Deprecated code should be removed
+dotnet_diagnostic.S1133.severity = suggestion
+
+# CS0618: Type or member is obsolete
+dotnet_diagnostic.CS0618.severity = suggestion

@@ -6,15 +6,53 @@ schedules:
     include:
     - develop
 
+resources:
+  repositories: 
+    - repository: shared-code-scanning
+      type: git
+      name: Common/shared-code-scanning
+      ref: refs/heads/main
+      trigger: none
+
 trigger:
   - develop
   - main    
   - releases/*  
-  
+
+variables:
+- group: PT-Pipeline-Common
+
 pool:
-  vmImage: ubuntu-latest
+ name: mdp-mgmt-shared
+ demands:
+   - ImageOverride -equals $(PipelineHostLinuxImage)
 
 steps:
+- script: | 
+    echo "Cleaning mock-register folder in temp"
+    ls $(Agent.BuildDirectory)/s/Source/_temp/mock-register-* 2>/dev/null || "No matching folders found"
+    sudo rm -rf $(Agent.BuildDirectory)/s/Source/_temp/mock-register-* 2> /dev/null  
+  displayName: Clean temp mock-register folders
+  condition: always()
+
+- checkout: self
+  clean: true
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 8 sdk'
+  condition: always()
+  inputs:
+    packageType: sdk
+    version: '8.0.x'
+    performMultiLevelLookup: true
+
+  # Restore dotnet tooling
+- task: CmdLine@2
+  displayName: 'Restore dotnet tooling'
+  condition: always()
+  inputs:
+    script: 'dotnet tool restore'
+
 # Build mock-register
 - task: Docker@2
   displayName: Build mock-register image
@@ -24,6 +62,11 @@ steps:
     buildContext: ./Source
     repository: mock-register
     tags: latest
+
+- template: templates/scan-image.yml@shared-code-scanning
+  parameters:
+    Repository: mock-register
+    Tag: latest
 
 # Build mock-register-unit-tests
 - task: Docker@2
@@ -83,23 +126,22 @@ steps:
 
 # Remove integration tests
 - script: |
-        docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml down 
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml down 
   displayName: 'Integration Tests - Down' 
   condition: always()
     
-# Run trx formatter to output .MD and .CSV
+# Generate Extent Report from Test Results
 - script: |
-    docker run \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
-      $(SharedAcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR" --outputprefix "MR" -o out/
-  displayName: 'Run trx-formatter'  
-  condition: always()
-  env:
-    TEST_FILTER: "Category!=CTSONLY"    
+    dotnet TrxToExtentReport  \
+      --output $(Build.ArtifactStagingDirectory)/test-results/mock-register-integration-tests/MR-$(Build.BuildNumber).html \
+      --trx $(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx \
+      --verbose
+    cp $(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx $(Build.ArtifactStagingDirectory)/test-results/mock-register-integration-tests/MR-$(Build.BuildNumber).trx
+  displayName: 'Format Test Results'  
+  condition: always()    
 
 # Publish mock-register integration tests results
-- publish: Source/_temp/mock-register-integration-tests/testresults
+- publish: $(Build.ArtifactStagingDirectory)/test-results/mock-register-integration-tests
   displayName: Publish MockRegister Integration tests
   condition: always()
   artifact: Mock-Register - Integration tests 
@@ -117,7 +159,7 @@ steps:
 # Run integration tests For CTS Only tests
 #****************************************************************************************************************
 - script: |
-        docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml up --abort-on-container-exit --exit-code-from mock-register-integration-tests
+    docker compose --file $(Build.SourcesDirectory)/Source/docker-compose.IntegrationTests.yml up --abort-on-container-exit --exit-code-from mock-register-integration-tests
   displayName: 'Integration Tests Tests For CTS Only - Up'  
   condition: always()
   env:
@@ -142,11 +184,12 @@ steps:
 
 # Run trx formatter to output .MD and .CSV
 - script: |
-    docker run \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx:/app/results.trx:ro \
-      -v=$(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/formatted/:/app/out/:rw \
-      $(SharedAcrBaseUrl).azurecr.io/trx-formatter -i results.trx -t "MR-CTS" --outputprefix "MR-CTS" -o out/
-  displayName: 'Run trx-formatter'  
+    dotnet TrxToExtentReport  \
+      --output $(Build.ArtifactStagingDirectory)/test-results/mock-register-cts-integration-tests/MR-CTS-$(Build.BuildNumber).html \
+      --trx $(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx \
+      --verbose
+    cp $(Build.SourcesDirectory)/Source/_temp/mock-register-integration-tests/testresults/results.trx $(Build.ArtifactStagingDirectory)/test-results/mock-register-cts-integration-tests/MR-CTS-$(Build.BuildNumber).trx
+  displayName: 'Format Test Results'  
   condition: always()   
 
 # Remove integration tests For CTS Only tests
@@ -156,7 +199,7 @@ steps:
   condition: always()
 
 # Publish mock-register integration tests results
-- publish: Source/_temp/mock-register-integration-tests/testresults
+- publish: $(Build.ArtifactStagingDirectory)/test-results/mock-register-cts-integration-tests
   displayName: Publish MockRegister CTS Integration tests
   condition: always()
   artifact: Mock-Register - CTS Integration tests 
@@ -185,15 +228,8 @@ steps:
   displayName: Publish container images  
   # condition: always()
   inputs:
-    path: $(build.artifactstagingdirectory)
+    path: $(build.artifactstagingdirectory)/mock-register.image.tar
     artifact: Container Images
-
-# FIXME - MJS - See dockercompose, volume no longer mapped as 1001:121 (vsts:docker) in build pipeline and causes issue with chown in dockerfile (appuser:appgroup), ie stops register from starting because of different user
-# # Publish mock-register logs
-# - publish: Source/_temp/mock-register/tmp
-#   displayName: Publish MockRegister logs
-#   condition: always()
-#   artifact: Mock-Register - Logs
 
 # Publish mock-register unit tests results
 - publish: Source/_temp/mock-register-unit-tests/testresults
@@ -201,20 +237,6 @@ steps:
   condition: always()
   artifact: Mock-Register - Unit tests
 
-- task: UseDotNet@2
-  displayName: 'Use .NET 8 sdk'
-  condition: always()
-  inputs:
-    packageType: sdk
-    version: '8.0.x'
-    performMultiLevelLookup: true
-
-- task: CmdLine@2
-  displayName: 'Restore dotnet tooling'
-  condition: always()
-  inputs:
-    script: 'dotnet tool restore'
-    
 - script: |
     cd Source/CDR.Register.Repository 
     dotnet ef migrations bundle --context RegisterDatabaseContext --verbose --self-contained
