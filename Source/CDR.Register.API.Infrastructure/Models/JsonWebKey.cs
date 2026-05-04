@@ -1,35 +1,41 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace CDR.Register.API.Infrastructure.Models
 {
     public class JsonWebKey
     {
-        [JsonProperty("alg")]
-        public string Alg { get; set; } = string.Empty;
+        [JsonProperty("alg", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Alg { get; set; } = null;
 
-        [JsonProperty("e")]
-        public string E { get; set; } = string.Empty;
+        [JsonProperty("e", NullValueHandling = NullValueHandling.Ignore)]
+        public string? E { get; set; } = null;
 
         [JsonProperty("key_ops")]
-        public string[] Key_ops { get; set; } = [];
+        public string[]? Key_ops { get; set; } = null;
 
-        [JsonProperty("kid")]
-        public string Kid { get; set; } = string.Empty;
+        [JsonProperty("kid", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Kid { get; set; } = null;
 
-        [JsonProperty("kty")]
+        [JsonProperty("kty", Required = Required.Always)]
         public string Kty { get; set; } = string.Empty;
 
-        [JsonProperty("n")]
-        public string N { get; set; } = string.Empty;
+        [JsonProperty("n", NullValueHandling = NullValueHandling.Ignore)]
+        public string? N { get; set; } = null;
 
-        [JsonProperty("use")]
-        public string Use { get; set; } = string.Empty;
+        [JsonProperty("use", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Use { get; set; } = null;
 
-        [JsonProperty("x5t")]
-        public string X5t { get; set; } = string.Empty;
+        [JsonProperty("x5t", NullValueHandling = NullValueHandling.Ignore)]
+        public string? X5t { get; set; } = null;
 
         [JsonProperty("x5c")]
-        public string[] X5c { get; set; } = [];
+        public string[]? X5c { get; set; } = null;
+
+        // -------------------------
+        // Serialization controls
+        // -------------------------
+        public bool ShouldSerializeKey_ops() => this.Key_ops is { Length: > 0 };
+
+        public bool ShouldSerializeX5c() => this.X5c is { Length: > 0 };
     }
 }

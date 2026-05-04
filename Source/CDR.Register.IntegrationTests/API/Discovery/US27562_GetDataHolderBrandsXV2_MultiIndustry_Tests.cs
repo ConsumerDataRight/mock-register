@@ -21,12 +21,12 @@ namespace CDR.Register.IntegrationTests.API.Discovery
     /// <summary>
     /// Integration tests for GetDataHolderBrands.
     /// </summary>
-    public class US27562_GetDataHolderBrands_MultiIndustry_Tests : BaseTest
+    public class US27562_GetDataHolderBrandsXV2_MultiIndustry_Tests : BaseTest
     {
         private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
         private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
-        public US27562_GetDataHolderBrands_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
+        public US27562_GetDataHolderBrandsXV2_MultiIndustry_Tests(ITestOutputHelper outputHelper, TestFixture testFixture)
             : base(outputHelper, testFixture)
         {
         }
@@ -43,6 +43,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
         [InlineData("banking")]
         [InlineData("energy")]
         [InlineData("telco")]
+        [InlineData("non-bank-lending", HttpStatusCode.BadRequest)]
         public async Task AC01_Get_WithNoQueryString_ShouldRespondWith_200OK_First25RecordsAsync(string? industry, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             await Test_AC01_AC02_AC03_AC04_AC05_AC06(null, null, null, industry, expectedStatusCode);
@@ -574,6 +575,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
         [Theory]
         [InlineData("foo")]
+        [InlineData("non-bank-lending")]
         public async Task ACX01_Get_WithInvalidIndustry_ShouldRespondWith_400BadRequest(string industry)
         {
             // Arrange
@@ -662,32 +664,35 @@ namespace CDR.Register.IntegrationTests.API.Discovery
 
         [Theory]
         [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-min-v is ignored when > x-v
-        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "BANKing")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "tELCO")] // Valid. Should return v2 - x-v is supported equal to x-min-v
         [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported equal to x-min-v
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
+        [InlineData("4", "2", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported but there is a newer version
         [InlineData("2", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v (not a positive integer)
+        [InlineData("2", "3", "2", HttpStatusCode.OK, true, "ENERGY")] // Valid. Should return v2 - x-min-v is ignored when > x-v
         [InlineData("99", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v (not a positive integer)
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
         [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "2", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
+        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
         [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
         // Also check industry specific calls
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "banking")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "energy")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "", "telco")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "banking")] // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "energy")] // Unsupported. x-v is not supported and x-min-v invalid
-        [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "telco")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("4", "2", "3", HttpStatusCode.OK, true, "", "banking")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
+        [InlineData("4", "2", "3", HttpStatusCode.OK, true, "", "energy")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
+        [InlineData("4", "2", "3", HttpStatusCode.OK, true, "", "telco")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "banking")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "energy")] // Unsupported. x-v is not supported and x-min-v invalid
+        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "telco")] // Unsupported. x-v is not supported and x-min-v invalid
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "banking")] // Invalid. x-v header is missing
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "energy")] // Invalid. x-v header is missing
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR, "telco")] // Invalid. x-v header is missing
+        [InlineData("2", null, "2", HttpStatusCode.BadRequest, false, EXPECTED_INVALIDFIELD_INDUSTRY, "non-bank-lending")] // Invalid industry. Non-bank lending isn't supported for V2.
 
         public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError, string industry = "all")
         {
@@ -854,6 +859,7 @@ namespace CDR.Register.IntegrationTests.API.Discovery
                 .ThenInclude(authDetail => authDetail.RegisterUType)
                 .Include(brand => brand.Participation.LegalEntity.OrganisationType)
                 .Include(brand => brand.Participation.Industry)
+                .Where(brand => brand.Participation.Industry.IndustryTypeId != Industry.NONBANKLENDING)
                 .Where(brand =>
                     brand.Participation.ParticipationTypeId == ParticipationTypes.Dh &&
                     (industry == null || (industry != null && brand.Participation.Industry.IndustryTypeCode == industry)))

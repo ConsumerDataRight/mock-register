@@ -9,6 +9,7 @@ using CDR.Register.Repository.Entities;
 using CDR.Register.Repository.Enums;
 using CDR.Register.Repository.Infrastructure;
 using CDR.Register.Repository.Interfaces;
+using CDR.Register.Repository.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace CDR.Register.Repository
@@ -24,9 +25,9 @@ namespace CDR.Register.Repository
             this._mapper = mapper;
         }
 
-        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrandsAsync(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize)
+        public async Task<Page<DataHolderBrand[]>> GetDataHolderBrands(Infrastructure.Industry industry, IBrandSpecification specification, DateTime? updatedSince, int page, int pageSize)
         {
-            (List<Entities.Brand> allBrands, int totalRecords) = await this.ProcessGetDataHolderBrands(industry, updatedSince, page, pageSize);
+            (List<Entities.Brand> allBrands, int totalRecords) = await this.ProcessGetDataHolderBrands(industry, specification, updatedSince, page, pageSize);
 
             return new Page<DataHolderBrand[]>()
             {
@@ -37,9 +38,9 @@ namespace CDR.Register.Repository
             };
         }
 
-        public async Task<DataRecipient[]> GetDataRecipientsAsync(Infrastructure.Industry industry)
+        public async Task<DataRecipient[]> GetDataRecipientsAsync()
         {
-            List<Participation> allParticipants = await this.ProcessGetDataRecipients(industry);
+            List<Participation> allParticipants = await this.ProcessGetDataRecipients();
 
             // Additionally sort participants.brands, participants.brands.softwareproducts by id
             allParticipants.ForEach(p =>
@@ -54,7 +55,7 @@ namespace CDR.Register.Repository
             return this._mapper.Map<DataRecipient[]>(allParticipants);
         }
 
-        public async Task<Domain.Entities.SoftwareProduct> GetSoftwareProductIdAsync(Guid softwareProductId)
+        public async Task<Domain.Entities.SoftwareProduct> GetSoftwareProductId(Guid softwareProductId)
         {
             var softwareProduct = await this._registerDatabaseContext.SoftwareProducts.AsNoTracking()
                 .Include(softwareProduct => softwareProduct.Status)
@@ -71,9 +72,9 @@ namespace CDR.Register.Repository
             return this._mapper.Map<Domain.Entities.SoftwareProduct>(softwareProduct);
         }
 
-        protected async Task<(List<Entities.Brand> Brands, int Count)> ProcessGetDataHolderBrands(Infrastructure.Industry industry, DateTime? updatedSince, int page, int pageSize)
+        protected async Task<(List<Entities.Brand> Brands, int Count)> ProcessGetDataHolderBrands(Infrastructure.Industry industry, IBrandSpecification specification, DateTime? updatedSince, int page, int pageSize)
         {
-            var allBrandsQuery = this._registerDatabaseContext.Brands.AsNoTracking()
+            var allBrandsQuery = specification.Apply(this._registerDatabaseContext.Brands.AsNoTracking())
                 .Include(brand => brand.Endpoint)
                 .Include(brand => brand.BrandStatus)
                 .Include(brand => brand.AuthDetails)
@@ -106,11 +107,7 @@ namespace CDR.Register.Repository
             return (allBrands, totalRecords);
         }
 
-        /// <summary>
-        /// The industry parameter is passed but currently not used.
-        /// </summary>
-        /// <returns>representing the asynchronous operation.</returns>
-        protected async Task<List<Participation>> ProcessGetDataRecipients(Infrastructure.Industry industry)
+        protected async Task<List<Participation>> ProcessGetDataRecipients()
         {
             return await this._registerDatabaseContext.Participations.AsNoTracking()
                 .Include(p => p.Status)

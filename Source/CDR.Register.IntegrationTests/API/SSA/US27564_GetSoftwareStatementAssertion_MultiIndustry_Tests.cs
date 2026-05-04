@@ -23,10 +23,10 @@ namespace CDR.Register.IntegrationTests.API.SSA
     /// </summary>
     public partial class US27564_GetSoftwareStatementAssertion_MultiIndustry_Tests : BaseTest
     {
-        private const string BRANDID = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
-        private const string SOFTWAREPRODUCTID = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
+        private const string BrandId = "20C0864B-CEEF-4DE0-8944-EB0962F825EB";
+        private const string SoftwareProductId = "86ECB655-9EBA-409C-9BE3-59E7ADF7080D";
 
-        private const string EXPECTEDCONTENT_ADRSTATUSNOTACTIVE = @"
+        private const string ExpectedContentAdrStatusNotActive = @"
             {
                 ""errors"": [
                         {
@@ -47,7 +47,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         private delegate void AfterSSARequest();
 
         // Participation/Brand/SoftwareProduct Ids
-        private static string PARTICIPATIONID => GetParticipationId(BRANDID); // lookup.
+        private static string ParticipationId => GetParticipationId(BrandId); // lookup.
 
         [Theory]
         [InlineData(3)]
@@ -57,7 +57,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
-                    .Where(sp => sp.SoftwareProductId == new Guid(SOFTWAREPRODUCTID))
+                    .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
                     .SingleAsync();
 
             // Arrange - Get access token
@@ -73,7 +73,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BrandId}/software-products/{SoftwareProductId}/ssa",
                 XV = xv.ToString(),
                 AccessToken = accessToken,
             }.SendAsync();
@@ -92,7 +92,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
-                    .Where(sp => sp.SoftwareProductId == new Guid(SOFTWAREPRODUCTID))
+                    .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
                     .SingleAsync();
 
             // Arrange - Get access token
@@ -108,7 +108,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
                 CertificateFilename = CERTIFICATE_FILENAME,
                 CertificatePassword = CERTIFICATE_PASSWORD,
                 HttpMethod = HttpMethod.Get,
-                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa",
+                URL = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{BrandId}/software-products/{SoftwareProductId}/ssa",
                 XV = "3",
                 AccessToken = accessToken,
             }.SendAsync();
@@ -127,15 +127,15 @@ namespace CDR.Register.IntegrationTests.API.SSA
             int participationStatusId,
             HttpStatusCode expectedStatusCode)
         {
-            int saveParticipationStatusId = GetParticipationStatusId(PARTICIPATIONID);
+            int saveParticipationStatusId = GetParticipationStatusId(ParticipationId);
 
             await Test_GetSSA(
                 CERTIFICATE_FILENAME,
                 CERTIFICATE_PASSWORD,
                 expectedStatusCode,
-                beforeRequest: () => SetParticipationStatusId(PARTICIPATIONID, participationStatusId),
-                afterRequest: () => SetParticipationStatusId(PARTICIPATIONID, saveParticipationStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+                beforeRequest: () => SetParticipationStatusId(ParticipationId, participationStatusId),
+                afterRequest: () => SetParticipationStatusId(ParticipationId, saveParticipationStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : ExpectedContentAdrStatusNotActive);
         }
 
         [Theory]
@@ -146,15 +146,15 @@ namespace CDR.Register.IntegrationTests.API.SSA
             int brandStatusId,
             HttpStatusCode expectedStatusCode)
         {
-            int saveBrandStatusId = GetBrandStatusId(BRANDID);
+            int saveBrandStatusId = GetBrandStatusId(BrandId);
 
             await Test_GetSSA(
                 CERTIFICATE_FILENAME,
                 CERTIFICATE_PASSWORD,
                 expectedStatusCode,
-                beforeRequest: () => SetBrandStatusId(BRANDID, brandStatusId),
-                afterRequest: () => SetBrandStatusId(BRANDID, saveBrandStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+                beforeRequest: () => SetBrandStatusId(BrandId, brandStatusId),
+                afterRequest: () => SetBrandStatusId(BrandId, saveBrandStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : ExpectedContentAdrStatusNotActive);
         }
 
         [Theory]
@@ -165,15 +165,15 @@ namespace CDR.Register.IntegrationTests.API.SSA
             int softwareProductStatusId,
             HttpStatusCode expectedStatusCode)
         {
-            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SOFTWAREPRODUCTID);
+            int saveSoftwareProductStatusId = GetSoftwareProductStatusId(SoftwareProductId);
 
             await Test_GetSSA(
                 CERTIFICATE_FILENAME,
                 CERTIFICATE_PASSWORD,
                 expectedStatusCode,
-                beforeRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, softwareProductStatusId),
-                afterRequest: () => SetSoftwareProductStatusId(SOFTWAREPRODUCTID, saveSoftwareProductStatusId),
-                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : EXPECTEDCONTENT_ADRSTATUSNOTACTIVE);
+                beforeRequest: () => SetSoftwareProductStatusId(SoftwareProductId, softwareProductStatusId),
+                afterRequest: () => SetSoftwareProductStatusId(SoftwareProductId, saveSoftwareProductStatusId),
+                expectedContent: expectedStatusCode == HttpStatusCode.OK ? null : ExpectedContentAdrStatusNotActive);
         }
 
         [Theory]
@@ -270,28 +270,27 @@ namespace CDR.Register.IntegrationTests.API.SSA
         }
 
         [Theory]
-        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
+        [InlineData("3", "5", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
         [InlineData("3", "2", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported and higher than x-min-v
         [InlineData("3", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is supported equal to x-min-v
-        [InlineData("4", "3", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-v is NOT supported and x-min-v is supported
         [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
-        [InlineData("4", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
-        [InlineData("4", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
-        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 3
+        [InlineData("5", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
+        [InlineData("5", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
+        [InlineData("5", "5", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 3
         [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("2", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "3", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 3
+        [InlineData("5", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 3
         [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
         public async Task ACX01_VersionHeaderValidation(string? xv, string? xminv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
             // Arrange
-            string url = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+            string url = $"{MTLS_BaseURL}/cdr-register/v1/all/data-recipients/brands/{BrandId}/software-products/{SoftwareProductId}/ssa";
 
             var accessToken = await new Infrastructure.AccessToken
             {
@@ -339,13 +338,13 @@ namespace CDR.Register.IntegrationTests.API.SSA
         {
             string conformanceId = Guid.NewGuid().ToString();
             string tokenEndpoint = $"{GenerateDynamicCtsUrl(IDENTITY_PROVIDER_DOWNSTREAM_BASE_URL, conformanceId)}/idp/connect/token";
-            string ssasEndpoint = $"{GenerateDynamicCtsUrl(SSA_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/all/data-recipients/brands/{BRANDID}/software-products/{SOFTWAREPRODUCTID}/ssa";
+            string ssasEndpoint = $"{GenerateDynamicCtsUrl(SSA_DOWNSTREAM_BASE_URL, conformanceId)}/cdr-register/v1/all/data-recipients/brands/{BrandId}/software-products/{SoftwareProductId}/ssa";
 
             // Arrange - Get SoftwareProduct
             using var dbContext = new RegisterDatabaseContext(new DbContextOptionsBuilder<RegisterDatabaseContext>().UseSqlServer(Configuration.GetConnectionString("DefaultConnection")).Options);
             Repository.Entities.SoftwareProduct softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                                 .Include(sp => sp.Brand)
-                                .Where(sp => sp.SoftwareProductId == new Guid(SOFTWAREPRODUCTID))
+                                .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
                                 .SingleAsync();
 
             // Arrange - Get access token
@@ -464,8 +463,8 @@ namespace CDR.Register.IntegrationTests.API.SSA
            string? getAccessTokenCertificatePassword = null,
            string? expectedXV = null,
            string? industry = "all",
-           string brandId = BRANDID,
-           string softwareProductId = SOFTWAREPRODUCTID)
+           string brandId = BrandId,
+           string softwareProductId = SoftwareProductId)
         {
             // Arrange
             string url = $"{MTLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/{brandId}/software-products/{softwareProductId}/ssa";

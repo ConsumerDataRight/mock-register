@@ -1,0 +1,3 @@
+# AutoMapper Vulnerable to Denial of Service (DoS) via Uncontrolled Recursion
+CVE-2026-32933 # (workaround applied, licensing for new version underway)
+GHSA-rvv3-g6hj-g44x # same as above

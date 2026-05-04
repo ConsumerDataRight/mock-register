@@ -3,10 +3,18 @@
   "isRoot": true,
   "tools": {
     "dotnet-ef": {
-      "version": "8.0.20",
+      "version": "8.0.25",
       "commands": [
         "dotnet-ef"
-      ]
+      ],
+      "rollForward": false
+    },
+    "trxtoextentreport": {
+      "version": "0.0.4",
+      "commands": [
+        "TrxToExtentReport"
+      ],
+      "rollForward": false
     }
   }
 }

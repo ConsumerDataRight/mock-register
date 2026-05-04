@@ -7,8 +7,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="AutoMapper"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,6 +25,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Whitelist Package Advisories where we cannot upgrade to the latest package due to licensing terms (tech debt) but have implemented a workaround or analyzed the impact and accepted the risk -->
+    <!-- AutoMapper - implemented MaxDepth workaround -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />  
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CDR.Register.Domain\CDR.Register.Domain.csproj" />
