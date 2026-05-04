@@ -4,12 +4,6 @@
         <name>CDR.Register.Discovery.API</name>
     </assembly>
     <members>
-        <member name="T:CDR.Register.Discovery.API.Business.Responses.IResponseRegisterDataHolderBrandList`1">
-            <summary>
-            Response with list of DH Brands.
-            </summary>
-            <typeparam name="T">The DH Brand collection.</typeparam>
-        </member>
         <member name="M:CDR.Register.Discovery.API.Controllers.DiscoveryController.CheckSoftwareProduct">
             <summary>
             Performs checks against the software product id from the access token.

@@ -5,20 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [2.2.6] - 2026-05-13
-### Changed
-- Support for "Non Bank Lending" industry added to the Mock Register
-- Updated Integration Tests inline with NBL updates
-- Migrate solution from Microsoft.AspNetCore.Mvc.Versioning to Asp.Versioning.Mvc package
-
-## [2.2.5] - 2026-03-18
-# Fixed
-- Patched vulnerabilities
-
-## [2.2.4] - 2026-02-25
-# Fixed
-- Fixed JWKS endpoint response to conform CDR Data Standard
-
 ## [2.2.3] - 2025-12-03
 ### Added
 - Added health check endpoints for APIs

@@ -164,36 +164,29 @@ namespace CDR.Register.IntegrationTests.API.Status
 
         [Theory]
         [InlineData("2", "3", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-min-v is ignored when > x-v
-        [InlineData("2", "", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
+        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
         [InlineData("2", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is supported equal to x-min-v
-        [InlineData("2", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR, "banking")] // Invalid. x-min-v is non-positive integer
-        [InlineData("2", "1", "2", HttpStatusCode.OK, true, "", "Energy")] // Valid. Should return v2 - x-v is supported and higher than x-min-v
-        [InlineData("2", "4", "2", HttpStatusCode.OK, true, "", "banKing")] // Valid. Should return v2 - x-v is supported and x-min-v is non supported so ignored
-        [InlineData("2", "2", "2", HttpStatusCode.OK, true, "", "TELCO")] // Valid. Should return v2 - x-v is supported equal to x-min-v
-        [InlineData("2", "2", "2", HttpStatusCode.BadRequest, true, "", "non-bank-lending")] // Invalid industry. Non-bank lending isn't supported for V2.
-        [InlineData("3", "4", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v3 - x-min-v is ignored when > x-v
-        [InlineData("4", "2", "3", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported. BadRequest as v3 doesn't support 'Banking' industry
-        [InlineData("1", "2", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
+        [InlineData("3", "2", "2", HttpStatusCode.OK, true, "")] // Valid. Should return v2 - x-v is NOT supported and x-min-v is supported Z
         [InlineData("3", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
         [InlineData("4", "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
         [InlineData("3", "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
-        [InlineData("4", "4", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
+        [InlineData("3", "3", "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 2
         [InlineData("1", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
         [InlineData("foo", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("0", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (not a positive integer) is invalid with missing x-min-v
         [InlineData("foo", "2", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is invalid with valid x-min-v
         [InlineData("-1", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v (negative integer) is invalid with missing x-min-v
-        [InlineData("4", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
+        [InlineData("3", null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is higher than supported version of 2
         [InlineData("", null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is an empty string
         [InlineData(null, null, "N/A", HttpStatusCode.BadRequest, false, EXPECTED_MISSING_X_V_ERROR)] // Invalid. x-v header is missing
 
-        public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expectedError, string industry = "all")
+        public async Task ACXX_VersionHeaderValidation(string? xv, string? minXv, string expectedXv, HttpStatusCode expectedHttpStatusCode, bool isExpectedToBeSupported, string expecetdError)
         {
             // Act
             var response = await new Infrastructure.Api
             {
                 HttpMethod = HttpMethod.Get,
-                URL = $"{TLS_BaseURL}/cdr-register/v1/{industry}/data-recipients/brands/software-products/status",
+                URL = $"{TLS_BaseURL}/cdr-register/v1/banking/data-recipients/brands/software-products/status",
                 XV = xv,
                 XMinV = minXv,
             }.SendAsync();
@@ -215,7 +208,7 @@ namespace CDR.Register.IntegrationTests.API.Status
                 else
                 {
                     // Assert - Check error response
-                    await Assert_HasContent_Json(expectedError, response.Content);
+                    await Assert_HasContent_Json(expecetdError, response.Content);
                 }
             }
         }

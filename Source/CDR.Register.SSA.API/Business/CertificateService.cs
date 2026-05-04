@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography.X509Certificates;
-using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,9 +9,7 @@ namespace CDR.Register.SSA.API.Business
     /// </summary>
     public class CertificateService : ICertificateService
     {
-        private readonly IMapper _mapper;
-
-        public CertificateService(IConfiguration config, IMapper mapper)
+        public CertificateService(IConfiguration config)
         {
             // Create the certificate
             var cert = new X509Certificate2(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
@@ -29,8 +26,6 @@ namespace CDR.Register.SSA.API.Business
             // Get signature provider
             this.SignatureProvider = this.SigningCredentials.CryptoProviderFactory.CreateForSigning(this.SecurityKey, "PS256");
 
-            this._mapper = mapper;
-
             this.JsonWebKeySet = this.GenerateJwks();
         }
 
@@ -44,20 +39,23 @@ namespace CDR.Register.SSA.API.Business
 
         private X509SigningCredentials SigningCredentials { get; set; }
 
-        private Register.API.Infrastructure.Models.JsonWebKeySet GenerateJwks()
+        private CDR.Register.API.Infrastructure.Models.JsonWebKeySet GenerateJwks()
         {
             var rsaParams = this.SigningCredentials.Certificate.GetRSAPublicKey().ExportParameters(false);
-            var key = new RsaSecurityKey(rsaParams);
+            var e = Base64UrlEncoder.Encode(rsaParams.Exponent);
+            var n = Base64UrlEncoder.Encode(rsaParams.Modulus);
 
-            var jwkc = JsonWebKeyConverter.ConvertFromRSASecurityKey(key);
-            jwkc.KeyOps.Add("verify");
-            jwkc.Alg = this.SigningCredentials.Algorithm;
-            jwkc.Kty = "RSA";
-            jwkc.Kid = this.SigningCredentials.Certificate.Thumbprint;
+            var jwk = new CDR.Register.API.Infrastructure.Models.JsonWebKey()
+            {
+                Alg = this.SigningCredentials.Algorithm,
+                Kid = this.SigningCredentials.Kid,
+                Kty = this.SecurityKey.PublicKey.KeyExchangeAlgorithm,
+                N = n,
+                E = e,
+                Key_ops = ["sign", "verify"],
+            };
 
-            Register.API.Infrastructure.Models.JsonWebKey jwk = this._mapper.MapJwk(jwkc);
-
-            return new Register.API.Infrastructure.Models.JsonWebKeySet()
+            return new CDR.Register.API.Infrastructure.Models.JsonWebKeySet()
             {
                 Keys = [jwk],
             };

@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
-using Asp.Versioning;
 using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Authorization;
 using CDR.Register.API.Infrastructure.Filters;
@@ -23,9 +22,7 @@ namespace CDR.Register.Discovery.API.Controllers
     {
         // Route names.
         private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV2 = "GetDataHolderBrandsXV2";
-        private const string ROUTE_GET_DATA_HOLDER_BRANDS_XV3 = "GetDataHolderBrandsXV3";
         private const string ROUTE_GET_DATA_RECIPIENTS_XV3 = "GetDataRecipientsXV3";
-        private const string ROUTE_GET_DATA_RECIPIENTS_XV4 = "GetDataRecipientsXV4";
 
         private readonly IDiscoveryService _discoveryService;
         private readonly IDataRecipientStatusCheckService _statusCheckService;
@@ -41,71 +38,18 @@ namespace CDR.Register.Discovery.API.Controllers
             this._statusCheckService = statusCheckService;
         }
 
-        [Obsolete("Deprecated in the standards, used by versions prior to V1.35.0. This is aligned with RAAP implementation and can be removed when the endpoint is no longer supported.", false)]
         [HttpGet("v1/{industry}/data-holders/brands", Name = ROUTE_GET_DATA_HOLDER_BRANDS_XV2)]
         [PolicyAuthorize(RegisterAuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
         [ApiVersion("2")]
         [ReturnXV("2")]
         [ETag]
-        [CheckIndustry(Repository.Infrastructure.Industry.BANKING, Repository.Infrastructure.Industry.ENERGY, Repository.Infrastructure.Industry.TELCO, Repository.Infrastructure.Industry.ALL)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public Task<IActionResult> GetDataHolderBrandsXV2(
-            string industry,
-            [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
-            [FromQuery(Name = "page"), CheckPage] string page,
-            [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
-            => this.GetDataHolderBrands(2, ROUTE_GET_DATA_HOLDER_BRANDS_XV2, industry, updatedSince, page, pageSize);
-
-        [HttpGet("v1/{industry}/data-holders/brands", Name = ROUTE_GET_DATA_HOLDER_BRANDS_XV3)]
-        [PolicyAuthorize(RegisterAuthorisationPolicy.DataHolderBrandsApiMultiIndustry)]
-        [ApiVersion("3")]
-        [ReturnXV("3")]
-        [ETag]
         [CheckIndustry]
         [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public Task<IActionResult> GetDataHolderBrandsXV3(
+        public async Task<IActionResult> GetDataHolderBrandsXV2(
             string industry,
             [FromQuery(Name = "updated-since"), CheckDate] string updatedSince,
             [FromQuery(Name = "page"), CheckPage] string page,
             [FromQuery(Name = "page-size"), CheckPageSize] string pageSize)
-            => this.GetDataHolderBrands(3, ROUTE_GET_DATA_HOLDER_BRANDS_XV3, industry, updatedSince, page, pageSize);
-
-        [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV3)]
-        [ReturnXV("3")]
-        [ApiVersion("3")]
-        [ETag]
-        [CheckIndustry(Repository.Infrastructure.Industry.BANKING, Repository.Infrastructure.Industry.ENERGY, Repository.Infrastructure.Industry.TELCO, Repository.Infrastructure.Industry.ALL)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetDataRecipientsXV3(string industry)
-        {
-            return await this.GetDataRecipients();
-        }
-
-        [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV4)]
-        [ReturnXV("4")]
-        [ApiVersion("4")]
-        [ETag]
-        [CheckIndustry(Repository.Infrastructure.Industry.ALL)]
-        [ServiceFilter(typeof(LogActionEntryAttribute))]
-        public async Task<IActionResult> GetDataRecipientsXV4(string industry)
-        {
-            return await this.GetDataRecipients();
-        }
-
-        private async Task<IActionResult> GetDataRecipients()
-        {
-            var response = await this._discoveryService.GetDataRecipientsAsync();
-            response.Links = this.GetSelf(this._configuration, this.HttpContext, string.Empty);
-            return this.Ok(response);
-        }
-
-        private async Task<IActionResult> GetDataHolderBrands(
-            int version,
-            string routeName,
-            string industry,
-            string updatedSince,
-            string page,
-            string pageSize)
         {
             // CTS conformance ID validations
             var basePathExpression = this._configuration.GetValue<string>(Constants.ConfigurationKeys.BasePathExpression);
@@ -129,7 +73,7 @@ namespace CDR.Register.Discovery.API.Controllers
             DateTime? updatedSinceDate = string.IsNullOrEmpty(updatedSince) ? (DateTime?)null : DateTime.Parse(updatedSince, CultureInfo.InvariantCulture);
             int pageNumber = string.IsNullOrEmpty(page) ? 1 : int.Parse(page);
             int pageSizeNumber = string.IsNullOrEmpty(pageSize) ? 25 : int.Parse(pageSize);
-            var response = await this._discoveryService.GetDataHolderBrands(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber, version);
+            var response = await this._discoveryService.GetDataHolderBrandsAsync(industry.ToIndustry(), updatedSinceDate, pageNumber, pageSizeNumber);
 
             // Check if the given page number is out of range
             if (pageNumber != 1 && pageNumber > response.Meta.TotalPages)
@@ -139,7 +83,7 @@ namespace CDR.Register.Discovery.API.Controllers
 
             // Set pagination meta data
             response.Links = this.GetPaginated(
-                routeName,
+                ROUTE_GET_DATA_HOLDER_BRANDS_XV2,
                 this._configuration,
                 updatedSinceDate,
                 pageNumber,
@@ -148,6 +92,19 @@ namespace CDR.Register.Discovery.API.Controllers
                 string.Empty,
                 true);
 
+            return this.Ok(response);
+        }
+
+        [HttpGet("v1/{industry}/data-recipients", Name = ROUTE_GET_DATA_RECIPIENTS_XV3)]
+        [ReturnXV("3")]
+        [ApiVersion("3")]
+        [ETag]
+        [CheckIndustry]
+        [ServiceFilter(typeof(LogActionEntryAttribute))]
+        public async Task<IActionResult> GetDataRecipientsXV3(string industry)
+        {
+            var response = await this._discoveryService.GetDataRecipientsAsync(industry.ToIndustry());
+            response.Links = this.GetSelf(this._configuration, this.HttpContext, string.Empty);
             return this.Ok(response);
         }
 

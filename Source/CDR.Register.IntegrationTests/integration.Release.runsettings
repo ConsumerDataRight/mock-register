@@ -2,9 +2,6 @@
 <!-- File name extension must be .runsettings -->
 <RunSettings>
     <RunConfiguration>
-        <TreatNoTestsAsError>true</TreatNoTestsAsError>
-        <!--Disable tests that won't work with the default docker-compose.IntegrationTests set up-->
-        <TestCaseFilter>(Category!=CTSONLY)</TestCaseFilter>
         <EnvironmentVariables>
             <!-- List of environment variables we want to set as element and its value-->
             <ASPNETCORE_ENVIRONMENT>Release</ASPNETCORE_ENVIRONMENT>

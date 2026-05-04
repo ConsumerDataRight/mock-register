@@ -6,17 +6,11 @@ schedules:
     - refs/heads/develop
   always: true
 
-variables:
-- group: PT-Pipeline-Common
-
-
 jobs:
 - job: dependabot
   displayName: Dependabot
   pool:
-  name: mdp-mgmt-shared
-  demands:
-    - ImageOverride -equals $(PipelineHostLinuxImage)
+    vmImage: ubuntu-latest
 
   steps:
   - task: CmdLine@2

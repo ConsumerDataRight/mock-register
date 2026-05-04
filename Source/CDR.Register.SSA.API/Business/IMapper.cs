@@ -6,7 +6,5 @@ namespace CDR.Register.SSA.API.Business
     public interface IMapper
     {
         SoftwareStatementAssertionModel MapV3(SoftwareStatementAssertion softwareStatementAssertion);
-
-        Register.API.Infrastructure.Models.JsonWebKey MapJwk(Microsoft.IdentityModel.Tokens.JsonWebKey jwk);
     }
 }

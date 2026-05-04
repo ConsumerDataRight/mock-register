@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CDR.Register.API.Infrastructure

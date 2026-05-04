@@ -4,9 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
-using AutoMapper;
 using CDR.Register.SSA.API.Business;
 using CDR.Register.SSA.API.Business.Models;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +18,6 @@ namespace CDR.Register.SSA.API.UnitTests
     {
         private readonly ServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
-        private readonly Business.Mapper _mapper;
 
         public TokenizerServiceTests()
         {
@@ -31,11 +28,9 @@ namespace CDR.Register.SSA.API.UnitTests
 
             this._configuration = configuration;
 
-            this._mapper = new Business.Mapper(this._configuration);
-
             var services = new ServiceCollection();
 
-            services.AddSingleton<ICertificateService, CertificateService>(x => new CertificateService(this._configuration, this._mapper));
+            services.AddSingleton<ICertificateService, CertificateService>(x => new CertificateService(this._configuration));
             services.AddSingleton<ITokenizerService, TokenizerService>();
 
             this._serviceProvider = services.BuildServiceProvider();
@@ -288,7 +283,7 @@ namespace CDR.Register.SSA.API.UnitTests
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            var certificateService = new CertificateService(configuration, this._mapper);
+            var certificateService = new CertificateService(configuration);
             var jwks = certificateService.JsonWebKeySet;
 
             // Set token validation parameters

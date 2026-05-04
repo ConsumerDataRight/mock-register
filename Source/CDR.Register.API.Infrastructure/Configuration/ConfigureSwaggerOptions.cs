@@ -1,5 +1,5 @@
-﻿using Asp.Versioning.ApiExplorer;
-using CDR.Register.API.Infrastructure.Models;
+﻿using CDR.Register.API.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;

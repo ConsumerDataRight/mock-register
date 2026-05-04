@@ -6,10 +6,10 @@ namespace CDR.Register.Status.API.Business
 {
     public interface IStatusService
     {
-        Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatuses(Industry industry, int version);
+        Task<ResponseRegisterDataRecipientStatusList> GetDataRecipientStatusesAsync(Industry industry);
 
-        Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatuses(Industry industry, int version);
+        Task<ResponseRegisterSoftwareProductStatusList> GetSoftwareProductStatusesAsync(Industry industry);
 
-        Task<ResponseRegisterDataHolderStatusList> GetDataHolderStatuses(Industry industry, int version);
+        Task<ResponseRegisterDataHolderStatusList> GetDataHolderStatusesAsyncXV1(Industry industry);
     }
 }

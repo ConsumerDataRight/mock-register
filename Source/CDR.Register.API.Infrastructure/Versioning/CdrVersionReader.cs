@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using Asp.Versioning;
-using CDR.Register.API.Infrastructure.Models;
+﻿using CDR.Register.API.Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Primitives;
-using static CDR.Register.API.Infrastructure.Constants;
 
 namespace CDR.Register.API.Infrastructure.Versioning
 {
@@ -21,11 +19,11 @@ namespace CDR.Register.API.Infrastructure.Versioning
 
         public void AddParameters(IApiVersionParameterDescriptionContext context)
         {
-            context.AddParameter(Headers.X_V, ApiVersionParameterLocation.Header);
-            context.AddParameter(Headers.X_MIN_V, ApiVersionParameterLocation.Header);
+            context.AddParameter("x-v", ApiVersionParameterLocation.Header);
+            context.AddParameter("x-min-v", ApiVersionParameterLocation.Header);
         }
 
-        public IReadOnlyList<string> Read(HttpRequest request)
+        public string? Read(HttpRequest request)
         {
             var endpointOption = this._options.GetApiEndpointVersionOption(request.Path);
 
@@ -36,34 +34,34 @@ namespace CDR.Register.API.Infrastructure.Versioning
             }
             else if (!endpointOption.IsVersioned)
             {
-                return [this._options.DefaultVersion];
+                return this._options.DefaultVersion;
             }
 
             // If x-min-v is passed in, we expect it to be a Positive Integer, the x-v value is parsed out of the header and will be validated by the Package itself
             // Refer to Standards here - https://consumerdatastandardsaustralia.github.io/standards/#http-headers
             // When there is error in x-min-v, we return custom String x-min-v '<value>' this is then manipulated in ApiVersionErrorResponse for a user friendly error message.
-            if (!request.Headers.TryGetValue(Headers.X_V, out var xvValue) || string.IsNullOrWhiteSpace(xvValue))
+            if (!request.Headers.TryGetValue("x-v", out var xvValue) || string.IsNullOrWhiteSpace(xvValue))
             {
                 if (endpointOption.IsXVHeaderMandatory)
                 {
-                    throw new MissingRequiredHeaderException(Headers.X_V);
+                    return Domain.Constants.ErrorTitles.MissingVersion;
                 }
 
                 xvValue = endpointOption.CurrentMinVersion.ToString();
-                request.Headers.Remove(Headers.X_V); // Added this to handle both the missing header (just add) and the header with a blank value (update)
-                request.Headers.Append(Headers.X_V, xvValue);
+                request.Headers.Remove("x-v"); // Added this to handle both the missing header (just add) and the header with a blank value (update)
+                request.Headers.Append("x-v", xvValue);
             }
 
             if (int.TryParse(xvValue, out int xvInt) && xvInt > 0)
             {
-                request.Headers.TryGetValue(Headers.X_MIN_V, out var xvMinValue);
+                request.Headers.TryGetValue("x-min-v", out var xvMinValue);
 
                 xvValue = CalculateVersion(xvInt, xvMinValue, endpointOption);
 
                 return xvValue;
             }
 
-            throw new InvalidVersionException(Headers.X_V);
+            return Domain.Constants.ErrorTitles.InvalidVersion;
         }
 
         private static string? CalculateVersion(int xvInt, string? xvMinString, CdrApiEndpointVersionOptions endpointOption)
@@ -72,14 +70,14 @@ namespace CDR.Register.API.Infrastructure.Versioning
             {
                 if (!int.TryParse(xvMinString, out int xvMinInt) || xvMinInt < 1)
                 {
-                    throw new InvalidVersionException(Headers.X_MIN_V);
+                    return Domain.Constants.ErrorTitles.InvalidVersion;
                 }
 
                 if (xvMinInt < xvInt)
                 {
                     if (xvMinInt > endpointOption.CurrentMaxVersion || xvInt < endpointOption.CurrentMinVersion)
                     {
-                        throw new UnsupportedVersionException();
+                        return Domain.Constants.ErrorTitles.UnsupportedVersion;
                     }
 
                     return xvInt > endpointOption.CurrentMaxVersion ? endpointOption.CurrentMaxVersion.ToString() : xvInt.ToString();
@@ -88,7 +86,7 @@ namespace CDR.Register.API.Infrastructure.Versioning
 
             if (xvInt < endpointOption.CurrentMinVersion || xvInt > endpointOption.CurrentMaxVersion)
             {
-                throw new UnsupportedVersionException();
+                return Domain.Constants.ErrorTitles.UnsupportedVersion;
             }
 
             return xvInt.ToString();

@@ -1,7 +1,6 @@
 ﻿using System;
 using CDR.Register.Admin.API.Business.Model;
 using CDR.Register.Domain.Enums;
-using CDR.Register.Domain.Extensions;
 using FluentValidation;
 using static CDR.Register.Domain.Constants;
 
@@ -22,7 +21,7 @@ namespace CDR.Register.Admin.API.Business.Validators
             this.RuleFor(x => x.AuthDetails).Must(x => x != null).WithErrorCode(ErrorCodes.Cds.MissingRequiredField).WithMessage(ErrorTitles.MissingRequiredField);
 
             // Enum Validations
-            this.RuleForEach(x => x.Industries).Must(x => EnumExtensions.TryParseFromDescription(x, out Industry _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
+            this.RuleForEach(x => x.Industries).Must(x => Enum.TryParse(x, true, out Industry _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
             this.RuleFor(x => x.Status).Must(x => Enum.TryParse(x, true, out DhParticipationStatus _)).WithErrorCode(ErrorCodes.Cds.InvalidField).WithMessage(ErrorTitles.InvalidField);
 
             // Length Validations
