@@ -84,5 +84,10 @@
             public const string InvalidIndustry = "Invalid Industry";
             public const string InvalidSoftwareProduct = "Invalid Software Product";
         }
+
+        public static class MappingConstants
+        {
+            public const int MaxDepth = 32;
+        }
     }
 }

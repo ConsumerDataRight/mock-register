@@ -1,8 +1,11 @@
 ﻿using System.Linq;
 using CDR.Register.API.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using static CDR.Register.API.Infrastructure.Constants;
 
 namespace CDR.Register.API.Infrastructure.SwaggerFilters
 {
@@ -19,13 +22,34 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
         {
             var versionOption = this._options.GetApiEndpointVersionOption($"/{context.ApiDescription.RelativePath}");
 
-            foreach (var s in operation.Parameters.Where(o => o.Name == "x-v" || o.Name == "x-min-v"))
+            foreach (var s in operation.Parameters.Where(o => o.Name == Headers.X_V || o.Name == Headers.X_MIN_V))
             {
                 s.Required = false;
 
-                if (versionOption != null && versionOption.IsXVHeaderMandatory && s.Name == "x-v")
+                var apiVersion = context.ApiDescription.GetApiVersion();
+
+                switch (s.Name)
                 {
-                    s.Required = true;
+                    case Headers.X_V:
+                        if (versionOption?.IsXVHeaderMandatory == true)
+                        {
+                            s.Required = true;
+                        }
+
+                        if (apiVersion != null)
+                        {
+                            s.Example = new OpenApiString(apiVersion.MajorVersion.ToString());
+                        }
+
+                        break;
+
+                    case Headers.X_MIN_V:
+                        if (versionOption != null)
+                        {
+                            s.Example = new OpenApiString(versionOption.CurrentMinVersion.ToString());
+                        }
+
+                        break;
                 }
             }
         }

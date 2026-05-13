@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using CDR.Register.Admin.API.Business.Validators;
 using CDR.Register.Admin.API.Extensions;
 using CDR.Register.API.Infrastructure;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.API.Infrastructure.Versioning;
+using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.Domain.Extensions;
 using CDR.Register.Repository.Infrastructure;
 using FluentValidation;
@@ -54,11 +53,9 @@ namespace CDR.Register.Admin.API
 
             services.AddControllers();
 
-            services.AddApiVersioning(options =>
+            services.AddCdrApiVersioning(opt =>
             {
-                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
-                options.ErrorResponses = new ApiVersionErrorResponse();
-                options.ReportApiVersions = true;
+                opt.ReportApiVersions = true;
             });
 
             var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
@@ -89,6 +86,11 @@ namespace CDR.Register.Admin.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context => await ApiExceptionHandler.Handle(context));
+            });
 
             app.UseSerilogRequestLogging();
 
@@ -131,7 +133,7 @@ namespace CDR.Register.Admin.API
                 var context = serviceScope.ServiceProvider.GetRequiredService<RegisterDatabaseContext>();
                 if (context == null)
                 {
-                    logger.LogError("Mirgation failed. Unable to get {Name}", nameof(RegisterDatabaseContext));
+                    logger.LogError("Migration failed. Unable to get {Name}", nameof(RegisterDatabaseContext));
                     throw new InvalidOperationException($"Unable to get {nameof(RegisterDatabaseContext)}");
                 }
 

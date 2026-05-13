@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CDR.Register.Domain.Extensions;
 using CDR.Register.Domain.ValueObjects;
 using CDR.Register.Repository.Entities;
 using CDR.Register.Repository.Enums;
@@ -20,8 +21,9 @@ namespace CDR.Register.Repository.Infrastructure
         {
             // Add Seed Data for the reference types
             modelBuilder.Entity<IndustryType>().HasData(
-                new IndustryType { IndustryTypeId = Industry.BANKING, IndustryTypeCode = Industry.BANKING.ToString().ToLower() },
-                new IndustryType { IndustryTypeId = Industry.ENERGY, IndustryTypeCode = Industry.ENERGY.ToString().ToLower() });
+                new IndustryType { IndustryTypeId = Industry.BANKING, IndustryTypeCode = EnumExtensions.GetDescription(Industry.BANKING) },
+                new IndustryType { IndustryTypeId = Industry.ENERGY, IndustryTypeCode = EnumExtensions.GetDescription(Industry.ENERGY) },
+                new IndustryType { IndustryTypeId = Industry.NONBANKLENDING, IndustryTypeCode = EnumExtensions.GetDescription(Industry.NONBANKLENDING) });
 
             modelBuilder.Entity<OrganisationType>().HasData(
                 new OrganisationType { OrganisationTypeId = OrganisationTypes.SoleTrader, OrganisationTypeCode = "SOLE_TRADER" },

@@ -36,11 +36,7 @@ namespace CDR.Register.Status.API
 
             services.AddControllers();
 
-            services.AddApiVersioning(options =>
-            {
-                options.ApiVersionReader = new CdrVersionReader(new CdrApiOptions()); // uses default options atm
-                options.ErrorResponses = new ApiVersionErrorResponse();
-            });
+            services.AddCdrApiVersioning();
 
             var enableSwagger = this.Configuration.GetValue<bool>(ConfigurationKeys.EnableSwagger);
             if (enableSwagger)

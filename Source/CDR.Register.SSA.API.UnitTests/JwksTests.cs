@@ -21,8 +21,8 @@ namespace CDR.Register.SSA.API.UnitTests
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
-
-            var certificateService = new CertificateService(configuration);
+            Business.Mapper mapper = new Business.Mapper(configuration);
+            var certificateService = new CertificateService(configuration, mapper);
 
             // Act.
             var jwks = certificateService.JsonWebKeySet;
@@ -37,7 +37,10 @@ namespace CDR.Register.SSA.API.UnitTests
             Assert.Equal("RSA", jwk.Kty);
             Assert.Equal("sCKajSK266KlSW0sSOa3Jbfrq1PCa2EHkuXoNwC0VMhrq-u_J1qMxvM50LCT5OF45GWPl4LUFhoJlej-XQtHztBpB6NWX5eJXW45M2OHmerRqN9IP5oQ1yscTzyiQyFoTbLpjFyRASrQZy1XMGrMMa7tqLpyHDxzJX-SBsr_hq8Olj0LFLeWi3giLirj_4CRqqmTtvLCaMwGajpEGQz3Xc96FNZXUOIR-wX_WjbCzVn2-X7PHjgIbT_oURtnovxQ6ZXZRtqxBhIKwJ-zCOOZAAqDJcy-7QxtsWpU_IyRRPziAyQ254iLcjV125DgQnd5TsUQQX6nfBozgbYdSLfLzQ", jwk.N);
             Assert.Equal("AQAB", jwk.E);
-            Assert.Equal(2, jwk.Key_ops.Length);
+            Assert.NotEmpty(jwk.Key_ops);
+            Assert.Contains("verify", jwk.Key_ops);
+            Assert.Null(jwk.Use);
+            Assert.Null(jwk.X5t);
         }
     }
 }
