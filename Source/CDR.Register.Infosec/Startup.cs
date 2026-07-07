@@ -1,16 +1,9 @@
 ﻿using CDR.Register.API.Infrastructure;
-using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
 using CDR.Register.API.Logger;
-using CDR.Register.Domain.Repositories;
 using CDR.Register.Infosec.Extensions;
-using CDR.Register.Infosec.Interfaces;
-using CDR.Register.Infosec.Services;
-using CDR.Register.Repository;
-using CDR.Register.Repository.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Converters;
 using Serilog;
 
 namespace CDR.Register.Infosec
@@ -26,6 +19,7 @@ namespace CDR.Register.Infosec
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRegisterApplicationInsights();
             services.AddHealthChecks();
             services.AddHttpContextAccessor();
 

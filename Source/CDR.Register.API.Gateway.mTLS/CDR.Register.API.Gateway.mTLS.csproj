@@ -5,6 +5,7 @@
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <UserSecretsId>adc772fb-589f-4673-a0dd-3e59ab78e9a8</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Certificates\CertificateDownstreamHandler.cs" />

@@ -1,4 +1,4 @@
-namespace CDR.Register.API.Infrastructure.Configuration;
+﻿namespace CDR.Register.API.Infrastructure.Configuration;
 
 /// <summary>
 /// The names of environment variables / configuration keys that configure the underlying OTLP Exporter used by the <see cref="Serilog.Sinks.OpenTelemetry.OpenTelemetrySink">OpenTelemetrySink</see>.

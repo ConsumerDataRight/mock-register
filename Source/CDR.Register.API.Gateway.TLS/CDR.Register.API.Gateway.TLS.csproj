@@ -5,6 +5,7 @@
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UserSecretsId>f3757a3f-a241-4d4a-9d6f-98388007dfc3</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Certificates\tls-mock-register.pfx" />

@@ -44,6 +44,7 @@ namespace CDR.Register.Admin.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRegisterApplicationInsights();
             services.AddHealthChecks()
                 .AddCheck("migration", () => this.healthCheckMigration ? HealthCheckResult.Healthy(this.healthCheckMigrationMessage) : HealthCheckResult.Unhealthy(this.healthCheckMigrationMessage))
                 .AddCheck("seed-data", () => this.healthCheckSeedData ? HealthCheckResult.Healthy(this.healthCheckSeedDataMessage) : HealthCheckResult.Unhealthy(this.healthCheckSeedDataMessage));
@@ -150,9 +151,6 @@ namespace CDR.Register.Admin.API
                     Task.Run(() => context.SeedDatabaseFromJsonFile(seedDataFilePath, logger, seedDataOverwrite)).Wait();
                     this.healthCheckSeedDataMessage = "Seeding of data completed";
                 }
-
-                // Re-configure logger with the DB now.
-                Program.ConfigureSerilog(this.Configuration, true);
             }
 
             // If we get here migration (if required) and seeding (if required) has completed

@@ -55,7 +55,7 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
                 openApiObj["hasMtlsRequirement"] = new OpenApiBoolean(true);
             }
 
-            if (!authPolicy.ScopeRequirement.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(authPolicy.ScopeRequirement))
             {
                 openApiObj["scopeRequirement"] = new OpenApiString(authPolicy.ScopeRequirement);
             }
