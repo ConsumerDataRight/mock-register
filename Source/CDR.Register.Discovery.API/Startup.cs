@@ -1,8 +1,6 @@
 ﻿using CDR.Register.API.Infrastructure;
 using CDR.Register.API.Infrastructure.Filters;
 using CDR.Register.API.Infrastructure.Middleware;
-using CDR.Register.API.Infrastructure.Models;
-using CDR.Register.API.Infrastructure.Versioning;
 using CDR.Register.API.Logger;
 using CDR.Register.Discovery.API.Extensions;
 using CDR.Register.Domain.Extensions;
@@ -30,6 +28,7 @@ namespace CDR.Register.Discovery.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRegisterApplicationInsights();
             services.AddHealthChecks();
             services.AddHttpContextAccessor();
 

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Azure.Core;
 using CDR.Register.IntegrationTests.Extensions;
 using CDR.Register.Repository.Infrastructure;
 using FluentAssertions;

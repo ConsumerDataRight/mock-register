@@ -20,6 +20,9 @@
     <PackageReference Include="Serilog.Enrichers.Process">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="Serilog.Enrichers.Thread">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
     <PackageReference Include="Serilog.Settings.Configuration">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
@@ -33,6 +36,8 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.ApplicationInsights"/>
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
