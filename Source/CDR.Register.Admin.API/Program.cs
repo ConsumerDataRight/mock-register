@@ -18,8 +18,12 @@ namespace CDR.Register.Admin.API
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
                 .AddEnvironmentVariables()
+#if DEBUG
+                .AddUserSecrets(typeof(Program).Assembly)
+#endif
                 .Build();
-            ConfigureSerilog(configuration);
+
+            Log.Logger = ConfigureSerilog(configuration, null, new LoggerConfiguration()).CreateBootstrapLogger();
 
             try
             {
@@ -38,39 +42,32 @@ namespace CDR.Register.Admin.API
             }
         }
 
-        /// <summary>
-        /// Configure Serilog logging.
-        /// </summary>
-        /// <param name="configuration">App configuration.</param>
-        /// <param name="isDatabaseReady">Set to True if the database is ready and the MSSqlServer sink will be configured.</param>
-        public static void ConfigureSerilog(IConfiguration configuration, bool isDatabaseReady = false)
-        {
-            var loggerConfiguration = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .AddOpenTelemetry(configuration)
-                .Enrich.FromLogContext()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-
-            // If the database is ready, configure the SQL Server sink
-            if (isDatabaseReady)
-            {
-                loggerConfiguration.ReadFrom.Configuration(configuration, new ConfigurationReaderOptions() { SectionName = "SerilogMSSqlServerWriteTo" });
-            }
-
-            Log.Logger = loggerConfiguration.CreateLogger();
-        }
-
         public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
+                .UseSerilog((context, services, loggerConfiguration) => ConfigureSerilog(context.Configuration, services, loggerConfiguration))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseRegister(configuration);
                     webBuilder.UseStartup<Startup>();
                 });
+
+        /// <summary>
+        /// Configure Serilog logging.
+        /// </summary>
+        /// <param name="configuration">The application configuration.</param>
+        /// <param name="services">The services (optional) in order to configure the logger.</param>
+        /// <param name="loggerConfiguration">The logger configuration.</param>
+        private static LoggerConfiguration ConfigureSerilog(IConfiguration configuration, IServiceProvider? services, LoggerConfiguration loggerConfiguration)
+        {
+            var modified = LoggingRegistrationExtensions.ConfigureSerilog(loggerConfiguration, configuration, services);
+
+            if (services != null)
+            {
+                // The application has bootstrapped and the database exists, we can use it for logs.
+                modified = modified.ReadFrom.Configuration(configuration, new ConfigurationReaderOptions() { SectionName = "SerilogMSSqlServerWriteTo" });
+            }
+
+            return modified;
+        }
     }
 }

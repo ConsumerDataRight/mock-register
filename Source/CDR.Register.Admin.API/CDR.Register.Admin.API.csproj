@@ -7,6 +7,7 @@
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>ConsumerDataRight.ParticipantTooling.MockRegister.API.Admin.xml</DocumentationFile>
+    <UserSecretsId>2c7dbff5-31c9-4888-b739-3bb812011137</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Certificates\client.key" />
@@ -33,6 +34,10 @@
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Enrichers.Process" />
     <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.ApplicationInsights">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
     <PackageReference Include="SonarAnalyzer.CSharp">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

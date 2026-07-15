@@ -1,5 +1,6 @@
 ﻿using CDR.Register.API.Infrastructure;
 using Serilog;
+using Serilog.Settings.Configuration;
 
 namespace CDR.Register.Infosec
 {
@@ -12,18 +13,12 @@ namespace CDR.Register.Infosec
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
                 .AddEnvironmentVariables()
+#if DEBUG
+                .AddUserSecrets(typeof(Program).Assembly)
+#endif
                 .Build();
 
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .AddOpenTelemetry(configuration)
-                .Enrich.FromLogContext()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
-                .CreateLogger();
+            Log.Logger = new LoggerConfiguration().ConfigureSerilog(configuration, null).CreateBootstrapLogger();
 
             Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Debug(msg));
 
@@ -46,7 +41,7 @@ namespace CDR.Register.Infosec
 
         public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
+                .UseSerilog((context, services, loggerConfiguration) => loggerConfiguration.ConfigureSerilog(context.Configuration, services))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseRegister(configuration);

@@ -25,12 +25,13 @@
             </summary>
             <returns>Self Signed JWT.</returns>
         </member>
-        <member name="M:CDR.Register.Admin.API.Program.ConfigureSerilog(Microsoft.Extensions.Configuration.IConfiguration,System.Boolean)">
+        <member name="M:CDR.Register.Admin.API.Program.ConfigureSerilog(Microsoft.Extensions.Configuration.IConfiguration,System.IServiceProvider,Serilog.LoggerConfiguration)">
             <summary>
             Configure Serilog logging.
             </summary>
-            <param name="configuration">App configuration.</param>
-            <param name="isDatabaseReady">Set to True if the database is ready and the MSSqlServer sink will be configured.</param>
+            <param name="configuration">The application configuration.</param>
+            <param name="services">The services (optional) in order to configure the logger.</param>
+            <param name="loggerConfiguration">The logger configuration.</param>
         </member>
         <member name="M:CDR.Register.Admin.API.Startup.RunMigrations">
             <summary>

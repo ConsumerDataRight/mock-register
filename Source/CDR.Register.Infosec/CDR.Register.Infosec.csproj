@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>ConsumerDataRight.ParticipantTooling.MockRegister.API.Infosec.xml</DocumentationFile>
+    <UserSecretsId>ee0dedbd-2d7f-4387-874c-26c2b25c8a0b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Certificates\register.pfx" />

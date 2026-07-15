@@ -19,6 +19,13 @@ trigger:
   - main    
   - releases/*  
 
+parameters:
+  - name: forcePublish
+    type: boolean
+    displayName: |
+      Force publishing of image to ACR. When this is unticked, only builds of the main/develop branch will publish an image to ACR.
+    default: false
+
 variables:
 - group: PT-Pipeline-Common
 
@@ -251,7 +258,15 @@ steps:
 
 - task: Bash@3
   displayName: 'Tag and push Mock Register image with Source Branch Name for any successful builds.'
-  condition: succeeded()
+  condition: and(
+      succeeded(),
+      or(
+        ${{ eq(parameters.forcePublish, true) }},
+        eq(variables['Build.SourceBranch'], 'refs/heads/develop'),
+        eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+        startsWith(variables['Build.SourceBranch'], 'refs/heads/releases/')
+      )
+    )
   inputs:
     targetType: inline
     script: |
