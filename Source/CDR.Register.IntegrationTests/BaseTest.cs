@@ -24,7 +24,6 @@ using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.SystemConsole.Themes;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 #nullable enable
@@ -111,11 +110,17 @@ namespace CDR.Register.IntegrationTests
                 {
                     l.WriteTo.File("AutomationLog.txt");
                 })
-                .WriteTo.TestOutput(output)
                 .CreateLogger();
 
             JsonConvert.DefaultSettings = () => new CdrJsonSerializerSettings();
             this.TestFixture = testFixture;
+
+            // Log test name using reflection to get the calling test method
+            var testMethod = GetCurrentTestMethod();
+            if (testMethod != null)
+            {
+                DisplayTestMethodNameAttribute.LogTestName(testMethod);
+            }
         }
 
         public static string CONNECTIONSTRING_REGISTER_RW
@@ -632,6 +637,26 @@ namespace CDR.Register.IntegrationTests
             {
                 return url.Replace(hostNamedToReplace, publicHostname);
             }
+        }
+
+        private static MethodInfo? GetCurrentTestMethod()
+        {
+            var stackTrace = new System.Diagnostics.StackTrace(true);
+            foreach (var frame in stackTrace.GetFrames())
+            {
+                var method = frame.GetMethod() as MethodInfo;
+                if (method != null && method.GetCustomAttribute<FactAttribute>() != null)
+                {
+                    return method;
+                }
+
+                if (method != null && method.GetCustomAttribute<TheoryAttribute>() != null)
+                {
+                    return method;
+                }
+            }
+
+            return null;
         }
     }
 }

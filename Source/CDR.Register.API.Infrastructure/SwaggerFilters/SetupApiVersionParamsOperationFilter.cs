@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Asp.Versioning;
 using CDR.Register.API.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
@@ -21,12 +22,13 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var versionOption = this._options.GetApiEndpointVersionOption($"/{context.ApiDescription.RelativePath}");
+            var apiVersionAttribute = context.MethodInfo.GetCustomAttributes(false).OfType<ApiVersionAttribute>().FirstOrDefault();
+
+            var currentVersion = apiVersionAttribute?.Versions.FirstOrDefault()?.MajorVersion;
 
             foreach (var s in operation.Parameters.Where(o => o.Name == Headers.X_V || o.Name == Headers.X_MIN_V))
             {
                 s.Required = false;
-
-                var apiVersion = context.ApiDescription.GetApiVersion();
 
                 switch (s.Name)
                 {
@@ -36,15 +38,15 @@ namespace CDR.Register.API.Infrastructure.SwaggerFilters
                             s.Required = true;
                         }
 
-                        if (apiVersion != null)
+                        if (currentVersion != null)
                         {
-                            s.Example = new OpenApiString(apiVersion.MajorVersion.ToString());
+                            s.Example = new OpenApiString(currentVersion.ToString());
                         }
 
                         break;
 
                     case Headers.X_MIN_V:
-                        if (versionOption != null)
+                        if (versionOption?.CurrentMinVersion != null)
                         {
                             s.Example = new OpenApiString(versionOption.CurrentMinVersion.ToString());
                         }

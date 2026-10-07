@@ -43,15 +43,15 @@ namespace CDR.Register.IntegrationTests
             }
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await Seeddata();
             await PatchRegister();
         }
 
-        public Task DisposeAsync()
+        public ValueTask DisposeAsync()
         {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         // Patch JWKSURI to be the Register loopback URI

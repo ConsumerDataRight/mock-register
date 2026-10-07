@@ -46,12 +46,9 @@ steps:
   clean: true
 
 - task: UseDotNet@2
-  displayName: 'Use .NET 8 sdk'
-  condition: always()
+  displayName: Install Dotnet
   inputs:
-    packageType: sdk
-    version: '8.0.x'
-    performMultiLevelLookup: true
+    useGlobalJson: true
 
   # Restore dotnet tooling
 - task: CmdLine@2
@@ -122,6 +119,12 @@ steps:
   inputs:
     command: login    
     containerRegistry: $(SpSharedAcr)
+
+- task: UseDotNet@2
+  displayName: 'Install .NET 8 Runtime for TrxToExtentReport'
+  inputs:
+    packageType: 'runtime'
+    version: '8.0.x'
 
 #****************************************************************************************************************
 # Run integration tests

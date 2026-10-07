@@ -17,7 +17,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.API.Update
 {
@@ -548,12 +547,12 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Expected payload should match seed file
             await TestFixture.Seeddata();
-            var expectedPayload = await System.IO.File.ReadAllTextAsync(SEEDDATA_FILENAME);
+            var expectedPayload = await System.IO.File.ReadAllTextAsync(SEEDDATA_FILENAME, TestContext.Current.CancellationToken);
             var expectedData = JsonConvert.DeserializeObject<MetaData>(expectedPayload);
 
             // Act - API
             var response = await api.SendAsync();
-            var result = await response.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             var apiData = JsonConvert.DeserializeObject<MetaData>(result);
 
@@ -617,7 +616,7 @@ namespace CDR.Register.IntegrationTests.API.Update
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             content.ToLower().Should().Contain("invalid");
         }
 

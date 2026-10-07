@@ -18,7 +18,7 @@ namespace CDR.Register.Admin.API.Extensions
             services.AddScoped<LogActionEntryAttribute>();
             services.AddScoped<IRegisterAdminRepository, RegisterAdminRepository>();
             services.AddSingleton<IRepositoryMapper, RepositoryMapper>();
-            services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(RegisterDatabaseContext).Assembly);
             services.AddTransient<SoftwareScopeResolver>();
 
             // This is to manage the EF database context through the web API DI.

@@ -112,7 +112,7 @@ Tests can now be run using Microsoft Visual Studio.
 
 The following steps detail the process of running tests using Microsoft Visual Studio's Test Explorer:
 
-1. Open the [Register.sln](../../Source/Register.sln) solution file in Microsoft Visual Studio.
+1. Open the [Register.slnx](../../Source/Register.slnx) solution file in Microsoft Visual Studio.
 2. Build the solution.
 3. Open the Test Explorer. If Test Explorer is not visible, choose 'Test' on the Visual Studio menu and then choose 'Test Explorer'.
    

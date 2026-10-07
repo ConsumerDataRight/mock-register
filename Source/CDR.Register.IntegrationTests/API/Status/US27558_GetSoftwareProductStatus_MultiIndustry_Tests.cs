@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 #nullable enable
 
@@ -158,7 +157,7 @@ namespace CDR.Register.IntegrationTests.API.Status
                 response.StatusCode.Should().Be(HttpStatusCode.NotModified);
 
                 // Assert - No content
-                (await response.Content.ReadAsStringAsync()).Should().BeNullOrEmpty();
+                (await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().BeNullOrEmpty();
             }
         }
 
