@@ -32,7 +32,7 @@ namespace CDR.Register.API.Infrastructure
             var rootCAPath = this._config.GetValue<string>("RootCACertificatePath") ?? throw new ClientCertificateException("Root CA Certificate path not configured");
 
             // Validate that the certificate has been issued by the Mock CDR CA.
-            var rootCACertificate = new X509Certificate2(rootCAPath);
+            var rootCACertificate = X509CertificateLoader.LoadCertificateFromFile(rootCAPath);
             var ch = new X509Chain();
             ch.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;

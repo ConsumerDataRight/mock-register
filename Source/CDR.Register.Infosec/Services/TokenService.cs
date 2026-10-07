@@ -118,7 +118,7 @@ namespace CDR.Register.Infosec.Services
             string scope,
             string cnf)
         {
-            var cert = await Task.Run(() => new X509Certificate2(this._configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable));
+            var cert = await Task.Run(() => X509CertificateLoader.LoadPkcs12FromFile(this._configuration.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._configuration.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable));
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
             var issuer = this._configuration.GetInfosecBaseUrl(this._httpContextAccessor.HttpContext);
 

@@ -77,7 +77,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(this._configuration["SigningCertificatePublic:Path"]);
+            var cert = X509CertificateLoader.LoadCertificateFromFile(this._configuration["SigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
@@ -143,7 +143,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(this._configuration["SigningCertificatePublic:Path"]);
+            var cert = X509CertificateLoader.LoadCertificateFromFile(this._configuration["SigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);
@@ -211,7 +211,7 @@ namespace CDR.Register.SSA.API.UnitTests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Create the certificate which has only public key
-            var cert = new X509Certificate2(this._configuration["InvalidSigningCertificatePublic:Path"]);
+            var cert = X509CertificateLoader.LoadCertificateFromFile(this._configuration["InvalidSigningCertificatePublic:Path"]);
 
             // Get credentials from certificate
             var certificateSecurityKey = new X509SecurityKey(cert);

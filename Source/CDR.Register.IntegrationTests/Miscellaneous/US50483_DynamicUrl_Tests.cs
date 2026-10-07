@@ -11,7 +11,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Miscellaneous
 {
@@ -61,7 +60,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             var response = await api.SendAsync();
 
-            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync());
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
@@ -161,7 +160,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             var response = await api.SendAsync();
 
-            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync());
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, response.StatusCode, await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
             // Assert
             await VerifyInvalidTokenRepsonse(response);
@@ -217,7 +216,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             // Act
             HttpResponseMessage getDataHolderResponse = await api.SendAsync();
 
-            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, accessTokenResponse.StatusCode, await accessTokenResponse.Content.ReadAsStringAsync());
+            Log.Information("Response from {GetDataholderBrandsUrl} Endpoint: {StatusCode} \n{Content}", getDataholderBrandsUrl, accessTokenResponse.StatusCode, await accessTokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
             getDataHolderResponse.StatusCode.Should().Be(HttpStatusCode.OK, because: $"Get Data Holder should work when{testDescription}");
         }

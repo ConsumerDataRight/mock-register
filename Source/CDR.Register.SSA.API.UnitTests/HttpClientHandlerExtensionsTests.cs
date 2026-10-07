@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Xunit;
 
@@ -54,12 +55,12 @@ namespace CDR.Register.SSA.API.UnitTests
                 var client = new HttpClient(this._handler);
                 if (expected)
                 {
-                    var result = await client.GetAsync("https://localhost:9990");
+                    var result = await client.GetAsync("https://localhost:9990", Xunit.TestContext.Current.CancellationToken);
                     Assert.NotNull(result);
                 }
                 else
                 {
-                    await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990"));
+                    await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetAsync("https://localhost:9990", Xunit.TestContext.Current.CancellationToken));
                 }
 
                 await mockEndpoint.Stop();
@@ -68,7 +69,7 @@ namespace CDR.Register.SSA.API.UnitTests
 
         public partial class MockEndpoint : IAsyncDisposable
         {
-            private IWebHost? _host;
+            private IHost? _host;
             private bool _disposed;
 
             public MockEndpoint(string url, string certificatePath, string certificatePassword)
@@ -90,16 +91,20 @@ namespace CDR.Register.SSA.API.UnitTests
             {
                 Log.Information("Calling {FUNCTION} in {ClassName}.", nameof(this.Start), nameof(MockEndpoint));
 
-                this._host = new WebHostBuilder()
-                    .UseKestrel(opts =>
+                var builder = Host.CreateDefaultBuilder()
+                    .ConfigureWebHostDefaults(webBuilder =>
                     {
-                        opts.ListenAnyIP(
-                            this.UrlPort,
-                            opts => opts.UseHttps(new X509Certificate2(this.CertificatePath, this.CertificatePassword, X509KeyStorageFlags.Exportable)));
-                    })
-                   .UseStartup(typeof(MockEndpointStartup))
-                   .Build();
+                        webBuilder.UseKestrel(opts =>
+                        {
+                            opts.ListenAnyIP(
+                                this.UrlPort,
+                                opts => opts.UseHttps(X509CertificateLoader.LoadPkcs12FromFile(this.CertificatePath, this.CertificatePassword, X509KeyStorageFlags.Exportable)));
+                        })
+                           .ConfigureServices(services => MockEndpointStartup.ConfigureServices(services))
+                           .Configure(app => MockEndpointStartup.Configure(app));
+                    });
 
+                this._host = builder.Build();
                 this._host.RunAsync();
             }
 
@@ -126,12 +131,8 @@ namespace CDR.Register.SSA.API.UnitTests
                 GC.SuppressFinalize(this);
             }
 
-            public class MockEndpointStartup
+            public static class MockEndpointStartup
             {
-                protected MockEndpointStartup()
-                {
-                }
-
                 public static void Configure(IApplicationBuilder app)
                 {
                     app.UseHttpsRedirection();
