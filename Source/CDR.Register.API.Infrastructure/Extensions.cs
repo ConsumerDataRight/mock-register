@@ -476,7 +476,6 @@ namespace CDR.Register.API.Infrastructure
                 // swagger comments from project xml documentation files
                 var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly).ToList();
                 xmlFiles.ForEach(fileName => c.IncludeXmlComments(fileName));
-                c.EnableAnnotations(); // https://github.com/domaindrivendev/Swashbuckle.AspNetCore/blob/master/README.md#enrich-parameter-metadata
 
                 c.DocumentFilter<CustomDocumentFilter>();
                 c.ParameterFilter<CustomParameterFilter>();

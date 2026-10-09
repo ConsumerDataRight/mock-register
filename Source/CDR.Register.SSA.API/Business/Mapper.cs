@@ -5,6 +5,7 @@ using CDR.Register.Domain;
 using CDR.Register.Domain.Entities;
 using CDR.Register.SSA.API.Business.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CDR.Register.SSA.API.Business
 {
@@ -17,7 +18,8 @@ namespace CDR.Register.SSA.API.Business
         {
             this._config = config;
 
-            var configuration = new MapperConfiguration(cfg =>
+            var configuration = new MapperConfiguration(
+                cfg =>
             {
                 // Base mapping.
                 cfg.CreateMap<SoftwareStatementAssertion, SoftwareStatementAssertionModel>()
@@ -56,7 +58,8 @@ namespace CDR.Register.SSA.API.Business
                 .ForMember(d => d.X5c, src => src.MapFrom(s => s.X5c))
                 .ForMember(d => d.Key_ops, src => src.MapFrom(s => s.KeyOps))
                 .MaxDepth(Constants.MappingConstants.MaxDepth);
-            });
+            },
+                new NullLoggerFactory());
             this._mapper = configuration.CreateMapper();
         }
 

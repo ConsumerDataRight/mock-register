@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-09-30
+### Fixed
+- Migrated from .NET 8 to .NET 10
+- Updated NuGet packages
+
+### Changed
+- Migrated from SLN to SLNX
+
 ## [2.2.8] - 2026-07-08
 ### Fixed
 - Updated NuGet packages

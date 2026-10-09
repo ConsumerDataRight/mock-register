@@ -12,7 +12,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Gateway
 {
@@ -88,7 +87,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             var accessTokenRequest = GetAccessTokenRequest(CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
 
             // Act
-            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+            var accessTokenResponse = await client.SendAsync(accessTokenRequest, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -100,7 +99,7 @@ namespace CDR.Register.IntegrationTests.Gateway
                 accessTokenResponse.Content.Headers.ContentType.ToString().Should().StartWith("application/json");
 
                 // Get access token payload
-                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync());
+                var accessToken = JsonSerializer.Deserialize<Models.AccessToken>(await accessTokenResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
                 // Assert - Check expires_in
                 accessToken.Expires_in.Should().Be(ACCESSTOKEN_EXPIRESIN);
@@ -129,7 +128,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             var accessTokenRequest = GetAccessTokenRequest(ADDITIONAL_CERTIFICATE_FILENAME, CERTIFICATE_PASSWORD);
 
             // Act
-            var accessTokenResponse = await client.SendAsync(accessTokenRequest);
+            var accessTokenResponse = await client.SendAsync(accessTokenRequest, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -473,7 +472,7 @@ namespace CDR.Register.IntegrationTests.Gateway
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             // Attach certificate
-            var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
+            var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
             clientHandler.ClientCertificates.Add(clientCertificate);
 
             return new HttpClient(clientHandler);

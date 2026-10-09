@@ -1,5 +1,5 @@
 # check=skip=JSONArgsRecommended
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 7000
 EXPOSE 7001
@@ -8,7 +8,7 @@ EXPOSE 7006
 # Default ASPNETCORE_ENVIRONMENT to Release
 ENV ASPNETCORE_ENVIRONMENT=Release 
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY . ./
@@ -32,13 +32,13 @@ FROM build AS publish
 COPY supervisord.conf /app/publish/supervisord.conf
 COPY wait-until-admin-healthy-then-start.sh /app/publish/wait-until-admin-healthy-then-start.sh
 RUN dotnet publish -c Release
-RUN cp -r CDR.Register.API.Gateway.mTLS/bin/Release/net8.0/publish /app/publish/gateway-mtls
-RUN cp -r CDR.Register.API.Gateway.TLS/bin/Release/net8.0/publish /app/publish/gateway-tls
-RUN cp -r CDR.Register.SSA.API/bin/Release/net8.0/publish /app/publish/ssa
-RUN cp -r CDR.Register.Status.API/bin/Release/net8.0/publish /app/publish/status
-RUN cp -r CDR.Register.Admin.API/bin/Release/net8.0/publish /app/publish/admin
-RUN cp -r CDR.Register.Discovery.API/bin/Release/net8.0/publish /app/publish/discovery
-RUN cp -r CDR.Register.Infosec/bin/Release/net8.0/publish /app/publish/infosec
+RUN cp -r CDR.Register.API.Gateway.mTLS/bin/Release/net10.0/publish /app/publish/gateway-mtls
+RUN cp -r CDR.Register.API.Gateway.TLS/bin/Release/net10.0/publish /app/publish/gateway-tls
+RUN cp -r CDR.Register.SSA.API/bin/Release/net10.0/publish /app/publish/ssa
+RUN cp -r CDR.Register.Status.API/bin/Release/net10.0/publish /app/publish/status
+RUN cp -r CDR.Register.Admin.API/bin/Release/net10.0/publish /app/publish/admin
+RUN cp -r CDR.Register.Discovery.API/bin/Release/net10.0/publish /app/publish/discovery
+RUN cp -r CDR.Register.Infosec/bin/Release/net10.0/publish /app/publish/infosec
 
 FROM base AS final
 WORKDIR /app
@@ -56,19 +56,10 @@ RUN apt-get update && apt-get install -y sudo
 RUN sudo cp ./gateway-mtls/Certificates/ca.crt /usr/local/share/ca-certificates/ca.crt
 RUN sudo update-ca-certificates
 
-RUN addgroup --group appgroup --gid 2000 \
-&& adduser \    
-    --uid 1000 \
-    --gid 2000 \
-    "appuser" 
-
-RUN chown -R appuser:appgroup /app \
-    && chown -R appuser:appgroup /usr/bin \
-    && chown -R appuser:appgroup /usr/local \
-    && chown -R appuser:appgroup /tmp
-
-    USER appuser:appgroup 
+RUN chown -R app:app /app
+    
+USER app
 
 ENV ASPNETCORE_URLS=https://+:7000;https://+:7001
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf", "-u", "1000"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]

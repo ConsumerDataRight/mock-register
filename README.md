@@ -202,7 +202,7 @@ The Mock Register contains the following components:
   - Performs certificate validation
 - Identity Provider
   - Hosted at `https://localhost:7002`
-  - Register identity provider implementation utilising `.Net 8`
+  - Register identity provider implementation
   - Accessed via the TLS and mTLS Gateways, depending on the target endpoint.
 - Discovery API
   - Hosted at `https://localhost:7003`
@@ -227,8 +227,7 @@ The Mock Register contains the following components:
 ## Technology Stack
 
 The following technologies have been used to build the Mock Register:
-- The source code has been written in `C#` using the `.Net 8` framework.
-- The Identity Provider is implemented using `.Net 8`.
+- The source code has been written in `C#` using `.Net` framework.
 - The TLS and mTLS Gateways have been implemented using `Ocelot`.
 - The Repository utilises a `SQL` instance.
 

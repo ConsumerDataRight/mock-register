@@ -15,7 +15,7 @@ namespace CDR.Register.SSA.API.Business
         public CertificateService(IConfiguration config, IMapper mapper)
         {
             // Create the certificate
-            var cert = new X509Certificate2(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(config["SigningCertificate:Path"], config["SigningCertificate:Password"], X509KeyStorageFlags.Exportable);
 
             // Get credentials from certificate
             this.SecurityKey = new X509SecurityKey(cert);

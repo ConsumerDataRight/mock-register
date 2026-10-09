@@ -28,7 +28,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var clientCertPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "client.pfx");
-            var goodClientCert = new X509Certificate2(clientCertPath, "#M0ckDataRecipient#");
+            var goodClientCert = X509CertificateLoader.LoadPkcs12FromFile(clientCertPath, "#M0ckDataRecipient#");
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
@@ -76,7 +76,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var selfSignedCertPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "ssa.pfx");
-            var selfSignedCert = new X509Certificate2(selfSignedCertPath, "#M0ckRegister#");
+            var selfSignedCert = X509CertificateLoader.LoadPkcs12FromFile(selfSignedCertPath, "#M0ckRegister#");
             var validator = new CertificateValidator(logger, configuration);
 
             // Act and Assert.
@@ -98,7 +98,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var certPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "client-fake-cdr-root-ca.pfx");
-            var cert = new X509Certificate2(certPath, "testonly");
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, "testonly");
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.
@@ -122,7 +122,7 @@ namespace CDR.Register.API.Infrastructure.Tests.UnitTests.Certificates
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
             var certPath = Path.Combine(Directory.GetCurrentDirectory(), "Certificates", "client-non-cdr-root-ca.pfx");
-            var cert = new X509Certificate2(certPath, "testonly");
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, "testonly");
             var validator = new CertificateValidator(logger, configuration);
 
             // Act.

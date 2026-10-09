@@ -7,6 +7,7 @@
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <!--Specify the correct runsettings file needed to debug integration tests-->
@@ -42,8 +43,7 @@
     <PackageReference Include="Serilog.Exceptions" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
-    <PackageReference Include="Serilog.Sinks.XUnit" />
-    <PackageReference Include="xunit">
+    <PackageReference Include="xunit.v3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="xunit.runner.visualstudio">
@@ -63,6 +63,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="xunit.v3.common" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Certificates\client-additional.pfx">

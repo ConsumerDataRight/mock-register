@@ -1,0 +1,52 @@
+<Solution>
+  <Folder Name="/010 Repository/">
+    <Project Path="CDR.Register.Repository/CDR.Register.Repository.csproj" />
+    <Project Path="CDR.Register.Repository.UnitTests/CDR.Register.Repository.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/020 API/">
+    <Project Path="CDR.Register.Discovery.API/CDR.Register.Discovery.API.csproj" />
+    <Project Path="CDR.Register.SSA.API/CDR.Register.SSA.API.csproj" />
+    <Project Path="CDR.Register.Status.API/CDR.Register.Status.API.csproj" />
+  </Folder>
+  <Folder Name="/020 API/Unit Tests/">
+    <Project Path="CDR.Register.Discovery.API.UnitTests/CDR.Register.Discovery.API.UnitTests.csproj" />
+    <Project Path="CDR.Register.SSA.API.UnitTests/CDR.Register.SSA.API.UnitTests.csproj" />
+    <Project Path="CDR.Register.Status.API.UnitTests/CDR.Register.Status.API.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/030 Infosec/">
+    <Project Path="CDR.Register.Infosec/CDR.Register.Infosec.csproj" />
+  </Folder>
+  <Folder Name="/040 Domain/">
+    <Project Path="CDR.Register.Domain/CDR.Register.Domain.csproj" />
+    <Project Path="CDR.Register.Domain.UnitTests/CDR.Register.Domain.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/050 API Infrastucture/">
+    <Project Path="CDR.Register.API.Gateway.mTLS/CDR.Register.API.Gateway.mTLS.csproj" />
+    <Project Path="CDR.Register.API.Gateway.TLS/CDR.Register.API.Gateway.TLS.csproj" />
+    <Project Path="CDR.Register.API.Infrastructure/CDR.Register.API.Infrastructure.csproj" />
+    <Project Path="CDR.Register.API.Infrastructure.Tests.UnitTests/CDR.Register.API.Infrastructure.Tests.UnitTests.csproj" />
+    <Project Path="CDR.Register.API.Logger/CDR.Register.API.Logger.csproj" />
+  </Folder>
+  <Folder Name="/060 Administration/">
+    <Project Path="CDR.Register.Admin.API/CDR.Register.Admin.API.csproj" />
+  </Folder>
+  <Folder Name="/100 Integration Tests/">
+    <Project Path="CDR.Register.IntegrationTests/CDR.Register.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../CHANGELOG.md" />
+    <File Path="../README.md" />
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.Ecosystem.yml" />
+    <File Path="docker-compose.IntegrationTests.yml" />
+    <File Path="docker-compose.UnitTests.yml" />
+    <File Path="docker-compose.yml" />
+    <File Path="Dockerfile" />
+    <File Path="run-integration-tests.ps1" />
+    <File Path="run-unit-tests.ps1" />
+    <File Path="supervisord.conf" />
+    <File Path="wait-until-admin-healthy-then-start.sh" />
+  </Folder>
+</Solution>
