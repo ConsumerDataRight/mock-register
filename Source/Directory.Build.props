@@ -1,23 +1,23 @@
 <Project>
-    <PropertyGroup>
-        <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
-		<Version>2.2.8</Version>
+	<PropertyGroup>
+		<TargetFrameworkVersion>net10.0</TargetFrameworkVersion>
+		<Version>2.3.0</Version>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
-        <WarningsNotAsErrors>NU1901;NU1902</WarningsNotAsErrors>
-    </PropertyGroup>
-	
+		<WarningsNotAsErrors>NU1901;NU1902</WarningsNotAsErrors>
+	</PropertyGroup>
+
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
-    <!--Automatically apply these items for for any *.UnitTests projects-->
-    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('UnitTests'))">
-        <!-- Ensure the tests in the project are categorised appropriately as unit tests so that they are identified when UnitTest category filter is applied -->
-        <AssemblyAttribute Include="Xunit.AssemblyTraitAttribute">
-            <_Parameter1>Category</_Parameter1>
-            <_Parameter2>UnitTests</_Parameter2>
-        </AssemblyAttribute>
-    </ItemGroup>
+	<!--Automatically apply these items for for any *.UnitTests projects-->
+	<ItemGroup Condition="$(MSBuildProjectName.EndsWith('UnitTests'))">
+		<!--Ensure the tests in the project are categorised appropriately as unit tests so that they are identified when UnitTest category filter is applied-->
+		<AssemblyAttribute Include="Xunit.TraitAttribute">
+			<_Parameter1>Category</_Parameter1>
+			<_Parameter2>UnitTests</_Parameter2>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CDR.Register.Domain.Entities;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CDR.Register.Repository.Infrastructure
 {
@@ -9,10 +10,12 @@ namespace CDR.Register.Repository.Infrastructure
 
         public RepositoryMapper()
         {
-            var configuration = new MapperConfiguration(cfg =>
+            var configuration = new MapperConfiguration(
+                cfg =>
             {
                 cfg.AddProfile<MappingProfile>();
-            });
+            },
+                new NullLoggerFactory());
             this._mapper = configuration.CreateMapper();
         }
 

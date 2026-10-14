@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
-using Xunit.Abstractions;
 
 #nullable enable
 
@@ -58,7 +57,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
                     .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                    .SingleAsync();
+                    .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken
@@ -93,7 +92,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
                     .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                    .SingleAsync();
+                    .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken
@@ -345,7 +344,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             Repository.Entities.SoftwareProduct softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                                 .Include(sp => sp.Brand)
                                 .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                                .SingleAsync();
+                                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken

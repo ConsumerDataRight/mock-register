@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.API.Update
 {

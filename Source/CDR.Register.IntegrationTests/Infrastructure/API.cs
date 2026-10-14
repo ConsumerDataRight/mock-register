@@ -129,7 +129,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
 
                         clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-                        clientHandler.ClientCertificates.Add(new X509Certificate2(
+                        clientHandler.ClientCertificates.Add(X509CertificateLoader.LoadPkcs12FromFile(
                             this.CertificateFilename,
                             this.CertificatePassword,
                             X509KeyStorageFlags.Exportable));

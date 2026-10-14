@@ -59,7 +59,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
         /// <param name="jtiClaim">The jti claim to use for the JWT. Usually a unique GUID.</param>
         public PrivateKeyJwt(string certFilePath, string pwd, string jtiClaim)
         {
-            var cert = new X509Certificate2(certFilePath, pwd, X509KeyStorageFlags.Exportable);
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(certFilePath, pwd, X509KeyStorageFlags.Exportable);
             var rsa = cert.GetRSAPrivateKey();
             if (rsa == null)
             {

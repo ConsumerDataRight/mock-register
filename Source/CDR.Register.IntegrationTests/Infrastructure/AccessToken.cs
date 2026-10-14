@@ -82,7 +82,7 @@ namespace CDR.Register.IntegrationTests.Infrastructure
             // Attach client certificate to handler
             if (this.CertificateFilename != null && addCertificateToRequest)
             {
-                var clientCertificate = new X509Certificate2(this.CertificateFilename, this.CertificatePassword, X509KeyStorageFlags.Exportable);
+                var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(this.CertificateFilename, this.CertificatePassword, X509KeyStorageFlags.Exportable);
                 clientHandler.ClientCertificates.Add(clientCertificate);
             }
 

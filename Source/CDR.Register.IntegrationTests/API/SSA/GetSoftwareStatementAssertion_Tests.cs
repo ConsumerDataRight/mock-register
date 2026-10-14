@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
-using Xunit.Abstractions;
 
 #nullable enable
 
@@ -78,7 +77,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
                     .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                    .SingleAsync();
+                    .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken
@@ -110,7 +109,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             var softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                     .Include(sp => sp.Brand)
                     .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                    .SingleAsync();
+                    .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken
@@ -299,6 +298,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
         [InlineData(UnsupportedEndpointVersion, SupportedVersion, "4", HttpStatusCode.OK, true, "")] // Valid. Should return v4 - x-v is NOT supported and x-min-v is supported
         [InlineData(SupportedVersion, "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported but x-min-v is invalid (not a positive integer)
         [InlineData(UnsupportedEndpointVersion, "foo", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v is invalid (not a positive integer)
+        [InlineData(SupportedVersion, "-1", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is supported and x-min-v is invalid (negative integer)
         [InlineData(UnsupportedEndpointVersion, "0", "N/A", HttpStatusCode.BadRequest, false, EXPECTED_INVALID_VERSION_ERROR)] // Invalid. x-v is not supported and x-min-v invalid
         [InlineData(UnsupportedEndpointVersion, UnsupportedEndpointVersion, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. Both x-v and x-min-v exceed supported version of 4
         [InlineData(ObsoleteEndpointVersion, null, "N/A", HttpStatusCode.NotAcceptable, false, EXPECTED_UNSUPPORTED_ERROR)] // Unsupported. x-v is an obsolete version
@@ -368,7 +368,7 @@ namespace CDR.Register.IntegrationTests.API.SSA
             Repository.Entities.SoftwareProduct softwareProduct = await dbContext.SoftwareProducts.AsNoTracking()
                                 .Include(sp => sp.Brand)
                                 .Where(sp => sp.SoftwareProductId == new Guid(SoftwareProductId))
-                                .SingleAsync();
+                                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // Arrange - Get access token
             var accessToken = await new Infrastructure.AccessToken

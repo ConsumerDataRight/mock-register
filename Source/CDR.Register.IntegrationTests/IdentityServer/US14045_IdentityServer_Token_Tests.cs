@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Xunit;
-using Xunit.Abstractions;
 using AccessToken = CDR.Register.IntegrationTests.Models.AccessToken;
 
 #nullable enable
@@ -121,7 +120,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 // Assert that access token in response
-                string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
                 responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
             }
         }
@@ -173,9 +172,9 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
-            Log.Information("Response from {IdentityServerUrl}: {StatusCode} \n{Content}", IDENTITYSERVER_URL, response.StatusCode, await response.Content.ReadAsStringAsync());
+            Log.Information("Response from {IdentityServerUrl}: {StatusCode} \n{Content}", IDENTITYSERVER_URL, response.StatusCode, await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
             // Assert
             using (new AssertionScope())
@@ -184,7 +183,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 // OK response, so content should be the access token
-                var accessToken = JsonSerializer.Deserialize<AccessToken>(await response.Content.ReadAsStringAsync());
+                var accessToken = JsonSerializer.Deserialize<AccessToken>(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
                 accessToken.Should().NotBeNull();
                 if (accessToken != null)
@@ -234,7 +233,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     content_type_header: contentTypeHeader);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -268,7 +267,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -300,7 +299,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -334,7 +333,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -369,7 +368,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     scope: scope);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -401,7 +400,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -431,7 +430,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -468,7 +467,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
 
             if (request.Content != null)
             {
-                string requestContent = await request.Content.ReadAsStringAsync();
+                string requestContent = await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
                 Log.Information("Token Request content: {RequestContent}", requestContent);
             }
             else
@@ -477,7 +476,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             }
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -507,7 +506,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     CLIENTASSERTION_CLIENT_ASSERTION_TYPE,
                     clientAssertion);
 
-            _ = await client.SendAsync(firstRequest);
+            _ = await client.SendAsync(firstRequest, TestContext.Current.CancellationToken);
 
             // Act
             // Create new Access Token request with the same (duplicate) JTI
@@ -517,7 +516,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 CLIENTASSERTION_CLIENT_ASSERTION_TYPE,
                 clientAssertion);
 
-            HttpResponseMessage? response = await client.SendAsync(secondRequest);
+            HttpResponseMessage? response = await client.SendAsync(secondRequest, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -548,7 +547,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -581,7 +580,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -590,7 +589,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
                 // Assert that access token in response
-                string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
                 responseString.Should().Contain("access_token", because: aud + " - " + scenarioDescription);
             }
         }
@@ -614,7 +613,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
                     clientAssertion);
 
             // Act
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
             // Assert
             using (new AssertionScope())
@@ -731,7 +730,7 @@ namespace CDR.Register.IntegrationTests.IdentityServer
             clientHandler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
             // Attach certificate
-            var clientCertificate = new X509Certificate2(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
+            var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(certificateFilename, certificatePassword, X509KeyStorageFlags.Exportable);
             clientHandler.ClientCertificates.Add(clientCertificate);
 
             return new HttpClient(clientHandler);

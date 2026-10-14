@@ -34,7 +34,7 @@ namespace CDR.Register.Admin.API.Controllers
         [ServiceFilter(typeof(LogActionEntryAttribute))]
         public IActionResult MockDataRecipientJwks()
         {
-            var cert = new X509Certificate2("Certificates/client.pem");
+            var cert = X509CertificateLoader.LoadCertificateFromFile("Certificates/client.pem");
             var key = cert.GetRSAPublicKey();
             var rsaParams = key!.ExportParameters(false);
             var kid = GenerateKid(rsaParams, out var e, out var n);
@@ -115,7 +115,7 @@ namespace CDR.Register.Admin.API.Controllers
         public IActionResult RegisterSelfSignedJwt(
             [FromQuery] string aud)
         {
-            var cert = new X509Certificate2(this._config.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
+            var cert = X509CertificateLoader.LoadPkcs12FromFile(this._config.GetValue<string>("SigningCertificate:Path") ?? string.Empty, this._config.GetValue<string>("SigningCertificate:Password"), X509KeyStorageFlags.Exportable);
             var signingCredentials = new X509SigningCredentials(cert, SecurityAlgorithms.RsaSsaPssSha256);
 
             var descriptor = new SecurityTokenDescriptor

@@ -58,7 +58,7 @@ namespace CDR.Register.Discovery.API
             // If this is to be done inside the repository project itself, we need to manage the context life-cycle explicitly.
             services.AddDbContext<RegisterDatabaseContext>(options => options.UseSqlServer(this.Configuration.GetConnectionString("Register_DB")));
 
-            services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(RegisterDatabaseContext).Assembly);
 
             services.AddScoped<LogActionEntryAttribute>();
 

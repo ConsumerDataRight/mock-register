@@ -9,7 +9,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Newtonsoft.Json.Linq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.Miscellaneous
 {
@@ -28,12 +27,12 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         {
             // Arrange
             await TestFixture.Seeddata(); // TestFixture.InitializeAsync() seeds data but also then patches data in the database. Since we are just testing if import works need to import again (but without patching data).
-            var json = await File.ReadAllTextAsync(SEEDDATA_FILENAME);
+            var json = await File.ReadAllTextAsync(SEEDDATA_FILENAME, TestContext.Current.CancellationToken);
             var jToken = JToken.Parse(json);
 
             // Act
             var response = await GetJson();
-            var responseJson = await response.Content.ReadAsStringAsync();
+            var responseJson = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var jTokenResponse = JToken.Parse(responseJson);
 
             jToken = Cleanup(jToken);
@@ -101,14 +100,14 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
         public async Task AC05_AC06_Post_WithValidJson_ThenGet_ShouldRespondWith_200OK_ReturnedJsonMatchesPostedJson()
         {
             // Arrange
-            var json = await File.ReadAllTextAsync(SEEDDATA_FILENAME);
+            var json = await File.ReadAllTextAsync(SEEDDATA_FILENAME, TestContext.Current.CancellationToken);
             var jToken = JToken.Parse(json);
 
             // Act
             var postResponse = await PostJson(json);
             var getResponse = await GetJson();
 
-            var responseJson = await getResponse.Content.ReadAsStringAsync();
+            var responseJson = await getResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var jTokenResponse = JToken.Parse(responseJson);
 
             // Clean up json data for comparison.
@@ -161,7 +160,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             }
 
             // Arrange
-            var json = await (await GetJson()).Content.ReadAsStringAsync();  // get json from Admin endpoint
+            var json = await (await GetJson()).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);  // get json from Admin endpoint
             var jToken = JToken.Parse(json);
 
             UpdateNames(jToken); // append "updated" to names
@@ -171,7 +170,7 @@ namespace CDR.Register.IntegrationTests.Miscellaneous
             var postResponse = await PostJson(json);
             var getResponse = await GetJson();
 
-            var responseJson = await getResponse.Content.ReadAsStringAsync();
+            var responseJson = await getResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             var jTokenResponse = JToken.Parse(responseJson);
 
             jToken = Cleanup(jToken);

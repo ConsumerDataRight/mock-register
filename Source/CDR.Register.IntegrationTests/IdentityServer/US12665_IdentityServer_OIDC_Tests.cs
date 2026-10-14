@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CDR.Register.IntegrationTests.IdentityServer
 {

@@ -51,7 +51,7 @@ namespace CDR.Register.SSA.API
 
             services.AddMvc().AddCdrNewtonsoftJson();
 
-            services.AddAutoMapper(typeof(Startup), typeof(RegisterDatabaseContext));
+            services.AddAutoMapper(cfg => { }, typeof(Startup).Assembly, typeof(RegisterDatabaseContext).Assembly);
 
             services.AddScoped<LogActionEntryAttribute>();
 

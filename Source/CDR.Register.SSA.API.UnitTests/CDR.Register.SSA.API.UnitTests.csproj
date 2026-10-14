@@ -7,6 +7,7 @@
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />
@@ -42,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
